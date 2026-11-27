@@ -1,0 +1,96 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Century · Fluidos integrados</title><style>body{margin:12px;background:#18202a;color:#fff;font:14px sans-serif}button{padding:8px;margin:4px}#viewport{width:640px;height:360px;position:relative}#evidence{display:flex;flex-wrap:wrap;gap:10px}figure{margin:6px 0}img{width:320px}pre{white-space:pre-wrap}</style></head><body><h1>Mar espectral y recipientes</h1><button id="play">Jugar</button><button id="tilt">Inclinar taza</button><button id="edit">Detener</button><div id="viewport"></div><div id="evidence"></div><pre id="fluid-integration-result">Ejecutando…</pre><script type="module">
+import * as THREE from 'three'
+import {nextTick,createApp,h} from 'vue'
+import {Editor} from '/src/core/editor.js'
+import {createProjectData} from '/src/core/project.js'
+import {setEditor,store} from '/src/core/store.js'
+import {Terrain} from '/src/engine/runtime/geometry/terrain.js'
+import {makeObject,allDefs} from '/src/engine/runtime/nodes/index.js'
+import {shiftANodeCatalog} from '/src/core/add-menu-catalog.js'
+import {rendererPreset} from '/src/engine/runtime/render/config.js'
+import FluidContainerPanel from '/src/components/FluidContainerPanel.vue'
+const output=document.querySelector('#fluid-integration-result'),checks=[],images=[],errors=[],warnings=[]
+const ce=console.error.bind(console),cw=console.warn.bind(console)
+console.error=(...a)=>{errors.push(a.map(String).join(' '));ce(...a)};console.warn=(...a)=>{warnings.push(a.map(String).join(' '));cw(...a)}
+window.addEventListener('error',e=>errors.push(e.message));window.addEventListener('unhandledrejection',e=>errors.push(String(e.reason)))
+const check=(name,pass,detail)=>{checks.push({name,pass:!!pass,detail});output.dataset.stage=name;if(!pass)throw Error(name+': '+JSON.stringify(detail))}
+const frame=async()=>{await nextTick();await new Promise(requestAnimationFrame);await nextTick()}
+try{
+  const project=createProjectData('Fluidos integrados');project.objects=[];project.environment.weather.on=false;project.environment.time.on=false
+  project.render={...rendererPreset('mobile'),look:'clasico',profile:'bajo',bloom:0,ao:0,staticOcclusion:false,indirectProbeGrid:false,dynamicReflections:false,puddleReflections:false}
+  // An empty terrain rain domain can coexist with the infinite ocean reservoir.
+  project.environment.waterSimulation={enabled:true,regions:[{id:'land',x:-8,z:-8,width:16,height:16,cellSize:1,initialDepth:0}]}
+  const t=new Terrain(48,48,project.terrain.layers)
+  for(let j=0;j<=t.segments;j++)for(let i=0;i<=t.segments;i++)t.heights[j*(t.segments+1)+i]=(i/t.segments-.5)*t.size*.12
+  t.refreshAll()
+  const cup=makeObject('fluidcontainer3d','cup',{id:'cup',position:[3,1,0]}),bottle=makeObject('fluidcontainer3d','bottle',{id:'bottle',position:[3.14,1.07,0]})
+  cup.props.liquidContainer.quality='low';bottle.props.liquidContainer.quality='low';bottle.props.liquidContainer.closed=true
+  project.objects.push(makeObject('terrain','terrain',{id:t.id,props:{terrainId:t.id}}),makeObject('water','ocean',{id:'sea',position:[0,0,0],props:{shape:'ocean',size:128,waveHeight:1,waveLength:14,windDir:0,foam:.6,color:'#329ba8',deepColor:'#123851',opacity:.92}}),cup,bottle)
+  store.project=project;store.locked=false
+  const editor=new Editor(document.querySelector('#viewport'));setEditor(editor)
+  await editor.loadScene({terrain:t.serialize(),settings:project.settings});t.dispose();editor.syncAll();editor.syncEnvironment();store.ready=true
+  const vp=editor.vp;vp.grid.visible=false;vp.overlay.visible=false
+  const look=(p,target)=>{vp.camera.position.set(...p);vp.camera.lookAt(...target);vp.controls.target.set(...target);vp.controls.update();vp.requestRender()}
+  look([5,5,12],[-3,0,0]);await frame()
+  for(let i=0;i<12;i++){editor._sceneFrame(1/24);await frame()}
+  const spectral=editor._spectralWater,binding=spectral?.bindings.get('sea')
+  check('Ultra Water FFT conectado al océano',!!binding&&!binding.simulated)
+  check('batimetría contiene costa y mar',binding.shore.data.some((v,i)=>i%4===0&&v>0)&&binding.shore.data.some((v,i)=>i%4===0&&v<0))
+  check('dominio de lluvia no oculta el océano',!!editor._physicalWaterView.water.at(-3,0))
+  check('lectura física de la misma superficie GPU',!!binding.field,binding.pending)
+  const capture=label=>{vp.look.render(0);const image=new Image();image.src=vp.dom.toDataURL('image/png');const f=document.createElement('figure'),cap=document.createElement('figcaption');cap.textContent=label;f.append(cap,image);document.querySelector('#evidence').append(f);images.push({label})}
+  capture('Mar · costa y espuma')
+  const seaY=editor._physicalWaterView.water.at(-3,0)?.surface
+  for(let i=0;i<8;i++){editor._sceneFrame(1/8);await frame()}
+  const later=editor._physicalWaterView.water.at(-3,0)?.surface
+  check('olas físicas evolucionan con el espectro',Number.isFinite(seaY)&&Number.isFinite(later)&&Math.abs(later-seaY)>1e-5,{seaY,later})
+  const catalog=shiftANodeCatalog(allDefs())
+  check('Utilería ofrece taza, botella y depósito',catalog.filter(d=>d.type==='fluidcontainer3d'&&d.category==='Utilería').length===3)
+  const inspector=document.createElement('div');document.body.append(inspector);createApp({render:()=>h(FluidContainerPanel,{obj:cup})}).mount(inspector);await nextTick()
+  const closed=inspector.querySelector('[aria-label="Envase cerrado"]');closed.click();await nextTick()
+  check('Inspector cambia el cierre del recipiente',cup.props.liquidContainer.closed===true);closed.click();await nextTick()
+  let transition;document.querySelector('#play').onclick=()=>{transition=editor.player.start({here:true})};document.querySelector('#edit').onclick=()=>{transition=editor.player.stop()}
+  document.querySelector('#play').click();await transition
+  check('Play registra ambos nuevos nodos',editor.player.water.containers.size===2)
+  const views=editor.player._liquidViews
+  check('superficie volumétrica de partículas',views.length===2&&views.every(v=>v.view?.mesh.isMarchingCubes))
+  look([3.30,1.22,.4],[3.06,1.02,0]);editor.player._liquidRender();await frame();capture('Taza y botella · Play')
+  const fluidView=views.find(v=>v.id==='cup').view,gl=vp.renderer.getContext(),w=gl.drawingBufferWidth,hgt=gl.drawingBufferHeight
+  const read=()=>{vp.look.render(0);const p=new Uint8Array(w*hgt*4);gl.readPixels(0,0,w,hgt,gl.RGBA,gl.UNSIGNED_BYTE,p);return p}
+  const wet=read();fluidView.mesh.visible=false;const dry=read();fluidView.mesh.visible=true;let pixels=0
+  for(let i=0;i<wet.length;i+=4)if(Math.abs(wet[i]-dry[i])+Math.abs(wet[i+1]-dry[i+1])+Math.abs(wet[i+2]-dry[i+2])>10)pixels++
+  check('líquido de taza dibujado en GPU',pixels>20,{pixels,triangles:fluidView.mesh.geometry.drawRange.count})
+  document.querySelector('#tilt').onclick=()=>{const node=editor.nodes.get('cup');node.rotation.z=2.1;editor.player._liquidPoseSync()}
+  document.querySelector('#tilt').click()
+  for(let i=0;i<100;i++)editor.player.water.step(1/60)
+  editor.player._liquidRender();await frame();capture('Taza volcada · derrame')
+  check('inclinación vacía la taza',editor.player.water.containerState('cup').volumeM3<.0001)
+  check('botella cerrada conserva 500 ml',Math.abs(editor.player.water.containerState('bottle').volumeM3-.0005)<1e-10)
+  check('balance de masa durante vertido',Math.abs(editor.player.water.liquidBalances().water.errorM3)<1e-9,editor.player.water.liquidBalances())
+  const snapshot=editor.player.water.snapshot();editor.player.water.step(1/60);editor.player.water.restore(snapshot)
+  check('partida recupera partículas y derrames',JSON.stringify(snapshot)===JSON.stringify(editor.player.water.snapshot()))
+  document.querySelector('#edit').click();await transition;await frame()
+  check('Stop retira líquido temporal y restaura vista previa',!editor.player.on && !editor.nodes.get('cup').userData.liquidRuntime && editor.nodes.get('cup').userData.containerPreview.visible)
+  const terrainData=editor.terrains[0].serialize(),terrainObj=project.objects.find(o=>o.type==='terrain')
+  project.environment.waterSimulation={enabled:false,regions:[]}
+  project.objects=[terrainObj,makeObject('water','river',{id:'river',position:[0,1,0],props:{shape:'river',points:[[-6,0,0],[0,0,1],[6,0,0]],riverWidth:3,flowSpeed:1.1,res:.5,waveHeight:.2}}),
+    makeObject('staticbody3d','staticbody3d',{id:'rock-body',position:[0,1,1]}),
+    makeObject('collisionshape3d','box',{id:'rock-shape',parentId:'rock-body',props:{disabled:false,shape:{type:'BoxShape3D',size:[1.2,4,1.2]}}}),
+    makeObject('primitive','box',{id:'rock-mesh',parentId:'rock-body',scale:[1.2,4,1.2],color:'#7f7562'})]
+  await editor.loadScene({terrain:terrainData,settings:project.settings});editor.syncAll();editor.syncEnvironment()
+  document.querySelector('#play').click();await transition;look([7,8,11],[0,1,0]);await frame()
+  const river=[...editor.player.water.regions.values()][0]
+  check('río crea su dominio físico con barreras de Jolt',!!river&&[...river.blockX,...river.blockZ].some(Boolean))
+  for(let i=0;i<20;i++)editor.player._waterConnection.step(1/60)
+  editor.updatePhysicalWater(editor.player.water);editor._sceneFrame(1/24);await frame()
+  const riverView=editor._physicalWaterView.items.get(river.id)
+  check('río dibuja superficie y corriente del solver',riverView.mesh.geometry.drawRange.count>0&&riverView.mesh.geometry.attributes.rtAFlow.array.some(v=>Math.abs(v)>.01))
+  check('río conserva el balance hidráulico',Math.abs(editor.player.water.liquidBalance().errorM3)<1e-6)
+  capture('Río · corriente y obstáculo')
+  document.querySelector('#edit').click();await transition;await frame()
+  check('sin errores de shader ni excepciones',!errors.length,errors)
+  check('programas GPU enlazados',vp.renderer.info.programs.every(p=>p.diagnostics?.runnable!==false))
+  check('sin overlay de Vite',!document.querySelector('vite-error-overlay'))
+  output.dataset.pass='true';output.textContent=JSON.stringify({pass:true,checks,images,warnings,gl:gl.getParameter(gl.VERSION)},null,2)
+}catch(error){output.dataset.pass='false';output.textContent=JSON.stringify({pass:false,error:String(error.stack||error),checks,errors,warnings,images},null,2)}
+</script></body></html>

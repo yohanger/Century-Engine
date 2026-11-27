@@ -1,0 +1,496 @@
+TAP version 13
+# (node:4869) ExperimentalWarning: The MockTimers API is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: Escape cancela una solicitud pendiente y conserva el cursor local
+not ok 1 - Escape cancela una solicitud pendiente y conserva el cursor local
+  ---
+  duration_ms: 2.151544
+  type: 'test'
+  location: '/tmp/pointer/scripts/test-integral-pointer-recovery.mjs:30:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    true !== false
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: false
+  actual: true
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///tmp/pointer/scripts/test-integral-pointer-recovery.mjs:30:144)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.start (node:internal/test_runner/test:944:17)
+    startSubtestAfterBootstrap (node:internal/test_runner/harness:296:17)
+  ...
+# Subtest: Solicitud sin respuesta expira y admite un nuevo gesto
+not ok 2 - Solicitud sin respuesta expira y admite un nuevo gesto
+  ---
+  duration_ms: 0.38503
+  type: 'test'
+  location: '/tmp/pointer/scripts/test-integral-pointer-recovery.mjs:31:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    true !== false
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: false
+  actual: true
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///tmp/pointer/scripts/test-integral-pointer-recovery.mjs:31:116)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# Subtest: Escape y timeout no cancelan dos veces
+not ok 3 - Escape y timeout no cancelan dos veces
+  ---
+  duration_ms: 0.911054
+  type: 'test'
+  location: '/tmp/pointer/scripts/test-integral-pointer-recovery.mjs:32:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly deep-equal:
+    + actual - expected
+    
+    + []
+    - [
+    -   'escape'
+    - ]
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+    0: 'escape'
+  actual:
+  operator: 'deepStrictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///tmp/pointer/scripts/test-integral-pointer-recovery.mjs:32:111)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: Una concesión tardía después del timeout se libera sin reactivar el gesto
+not ok 4 - Una concesión tardía después del timeout se libera sin reactivar el gesto
+  ---
+  duration_ms: 1.132668
+  type: 'test'
+  location: '/tmp/pointer/scripts/test-integral-pointer-recovery.mjs:33:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+    
+    + <ref *1> Target {
+    +   events: Map(2) {
+    +     'pointercancel' => [
+    +       [Function (anonymous)]
+    +     ],
+    +     'pointermove' => [
+    +       [Function (anonymous)]
+    +     ]
+    +   },
+    +   getBoundingClientRect: [Function (anonymous)],
+    +   isConnected: true,
+    +   ownerDocument: Target {
+    +     createElement: [Function (anonymous)],
+    +     defaultView: Target {
+    +       events: Map(1) {
+    +         'blur' => [
+    +           [Function (anonymous)]
+    +         ]
+    +       }
+    +     },
+    +     events: Map(4) {
+    +       'keydown' => [
+    +         [Function (anonymous)]
+    +       ],
+    +       'pointerlockchange' => [
+    +         [Function (anonymous)]
+    +       ],
+    +       'pointerlockerror' => [],
+    +       'visibilitychange' => [
+    +         [Function (anonymous)]
+    +       ]
+    +     },
+    +     exitPointerLock: [Function: unlock],
+    +     hasFocus: [Function (anonymous)],
+    +     hidden: false,
+    +     pointerLockElement: [Circular *1]
+    +   },
+    +   parentElement: Target {
+    +     appendChild: [Function (anonymous)],
+    +     events: Map(0) {},
+    +     getBoundingClientRect: [Function (anonymous)]
+    +   },
+    +   requestPointerLock: [Function (anonymous)],
+    +   style: {
+    +     cursor: 'none'
+    +   }
+    + }
+    - null
+    
+  code: 'ERR_TEST_FAILURE'
+  ...
+# Subtest: Respuesta tardía de Promise no libera una captura más reciente
+not ok 5 - Respuesta tardía de Promise no libera una captura más reciente
+  ---
+  duration_ms: 0.346473
+  type: 'test'
+  location: '/tmp/pointer/scripts/test-integral-pointer-recovery.mjs:34:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    false !== true
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///tmp/pointer/scripts/test-integral-pointer-recovery.mjs:34:274)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: Respuesta tardía de Promise fuera de vigilancia por eventos se libera
+not ok 6 - Respuesta tardía de Promise fuera de vigilancia por eventos se libera
+  ---
+  duration_ms: 0.588307
+  type: 'test'
+  location: '/tmp/pointer/scripts/test-integral-pointer-recovery.mjs:35:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+    
+    + <ref *1> Target {
+    +   events: Map(2) {
+    +     'pointercancel' => [
+    +       [Function (anonymous)]
+    +     ],
+    +     'pointermove' => [
+    +       [Function (anonymous)]
+    +     ]
+    +   },
+    +   getBoundingClientRect: [Function (anonymous)],
+    +   isConnected: true,
+    +   ownerDocument: Target {
+    +     createElement: [Function (anonymous)],
+    +     defaultView: Target {
+    +       events: Map(1) {
+    +         'blur' => [
+    +           [Function (anonymous)]
+    +         ]
+    +       }
+    +     },
+    +     events: Map(4) {
+    +       'keydown' => [
+    +         [Function (anonymous)]
+    +       ],
+    +       'pointerlockchange' => [
+    +         [Function (anonymous)]
+    +       ],
+    +       'pointerlockerror' => [],
+    +       'visibilitychange' => [
+    +         [Function (anonymous)]
+    +       ]
+    +     },
+    +     exitPointerLock: [Function: unlock],
+    +     hasFocus: [Function (anonymous)],
+    +     hidden: false,
+    +     pointerLockElement: [Circular *1]
+    +   },
+    +   parentElement: Target {
+    +     appendChild: [Function (anonymous)],
+    +     events: Map(0) {},
+    +     getBoundingClientRect: [Function (anonymous)]
+    +   },
+    +   requestPointerLock: [Function (anonymous)],
+    +   style: {
+    +     cursor: 'crosshair'
+    +   }
+    + }
+    - null
+    
+  code: 'ERR_TEST_FAILURE'
+  ...
+# Subtest: Una captura ajena no se libera aunque sea el mismo canvas después de perder autoridad
+not ok 7 - Una captura ajena no se libera aunque sea el mismo canvas después de perder autoridad
+  ---
+  duration_ms: 0.49093
+  type: 'test'
+  location: '/tmp/pointer/scripts/test-integral-pointer-recovery.mjs:36:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+    
+    + null
+    - Target {
+    -   events: Map(2) {
+    -     'pointercancel' => [],
+    -     'pointermove' => []
+    -   },
+    -   getBoundingClientRect: [Function (anonymous)],
+    -   isConnected: true,
+    -   ownerDocument: Target {
+    -     createElement: [Function (anonymous)],
+    -     defaultView: Target {
+    -       events: Map(1) {
+    -         'blur' => []
+    -       }
+    -     },
+    -     events: Map(4) {
+    -       'keydown' => [],
+    -       'pointerlockchange' => [],
+    -       'pointerlockerror' => [],
+    -       'visibilitychange' => []
+    -     },
+    -     exitPointerLock: [Function: unlock],
+    -     hasFocus: [Function (anonymous)],
+    -     hidden: false,
+    -     pointerLockElement: null
+    -   },
+    -   parentElement: Target {
+    -     appendChild: [Function (anonymous)],
+    -     events: Map(0) {},
+    -     getBoundingClientRect: [Function (anonymous)]
+    -   },
+    -   requestPointerLock: [Function (anonymous)],
+    -   style: {
+    -     cursor: 'crosshair'
+    -   }
+    - }
+    
+  code: 'ERR_TEST_FAILURE'
+  ...
+# Subtest: Fallo transitorio de liberación: cursor restaurado y un reintento acotado
+not ok 8 - Fallo transitorio de liberación: cursor restaurado y un reintento acotado
+  ---
+  duration_ms: 0.460955
+  type: 'test'
+  location: '/tmp/pointer/scripts/test-integral-pointer-recovery.mjs:37:1'
+  failureType: 'testCodeFailure'
+  error: 'native release'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    f.doc.exitPointerLock (file:///tmp/pointer/scripts/test-integral-pointer-recovery.mjs:37:214)
+    ContinuousGrab._releaseLock (file:///tmp/grab-before.mjs:52:31)
+    ContinuousGrab.end (file:///tmp/grab-before.mjs:156:10)
+    TestContext.<anonymous> (file:///tmp/pointer/scripts/test-integral-pointer-recovery.mjs:37:257)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: Liberación nativa persistente no se declara recuperada; Escape permite un nuevo intento
+not ok 9 - Liberación nativa persistente no se declara recuperada; Escape permite un nuevo intento
+  ---
+  duration_ms: 7.474127
+  type: 'test'
+  location: '/tmp/pointer/scripts/test-integral-pointer-recovery.mjs:38:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    The expression evaluated to a falsy value:
+    
+      assert.ok(f.logs.some(([tag,data])=>tag.includes('release-timeout')&&data.recovery==='release-not-confirmed'))
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    TestContext.<anonymous> (file:///tmp/pointer/scripts/test-integral-pointer-recovery.mjs:38:259)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: Pérdida real de lock restaura cursor y callback una vez
+ok 10 - Pérdida real de lock restaura cursor y callback una vez
+  ---
+  duration_ms: 0.598442
+  type: 'test'
+  ...
+# Subtest: Diagnóstico contiene propietario, operación, excepción y estado real
+not ok 11 - Diagnóstico contiene propietario, operación, excepción y estado real
+  ---
+  duration_ms: 0.350158
+  type: 'test'
+  location: '/tmp/pointer/scripts/test-integral-pointer-recovery.mjs:40:1'
+  failureType: 'testCodeFailure'
+  error: 'undefined is not iterable (cannot read property Symbol(Symbol.iterator))'
+  code: 'ERR_TEST_FAILURE'
+  name: 'TypeError'
+  stack: |-
+    TestContext.<anonymous> (file:///tmp/pointer/scripts/test-integral-pointer-recovery.mjs:40:229)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: Blur, ocultación, cancelación del puntero y dispose cancelan una espera
+not ok 12 - Blur, ocultación, cancelación del puntero y dispose cancelan una espera
+  ---
+  duration_ms: 0.3449
+  type: 'test'
+  location: '/tmp/pointer/scripts/test-integral-pointer-recovery.mjs:41:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    true !== false
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: false
+  actual: true
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///tmp/pointer/scripts/test-integral-pointer-recovery.mjs:41:489)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: 200 ciclos de captura, liberación y cancelación no dejan listeners residuales
+ok 13 - 200 ciclos de captura, liberación y cancelación no dejan listeners residuales
+  ---
+  duration_ms: 1.385819
+  type: 'test'
+  ...
+# Subtest: Cambio de documento cancela y vuelve a escuchar en el nuevo documento
+not ok 14 - Cambio de documento cancela y vuelve a escuchar en el nuevo documento
+  ---
+  duration_ms: 0.21862
+  type: 'test'
+  location: '/tmp/pointer/scripts/test-integral-pointer-recovery.mjs:43:1'
+  failureType: 'testCodeFailure'
+  error: 'f.grab.syncDocument is not a function'
+  code: 'ERR_TEST_FAILURE'
+  name: 'TypeError'
+  stack: |-
+    TestContext.<anonymous> (file:///tmp/pointer/scripts/test-integral-pointer-recovery.mjs:43:353)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: Error de movimiento cancela y deja visible el cursor sin ocultar la excepción
+not ok 15 - Error de movimiento cancela y deja visible el cursor sin ocultar la excepción
+  ---
+  duration_ms: 0.858204
+  type: 'test'
+  location: '/tmp/pointer/scripts/test-integral-pointer-recovery.mjs:44:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+    
+    + <ref *1> Target {
+    +   events: Map(2) {
+    +     'pointercancel' => [
+    +       [Function (anonymous)]
+    +     ],
+    +     'pointermove' => [
+    +       [Function (anonymous)]
+    +     ]
+    +   },
+    +   getBoundingClientRect: [Function (anonymous)],
+    +   isConnected: true,
+    +   ownerDocument: Target {
+    +     createElement: [Function (anonymous)],
+    +     defaultView: Target {
+    +       events: Map(1) {
+    +         'blur' => [
+    +           [Function (anonymous)]
+    +         ]
+    +       }
+    +     },
+    +     events: Map(4) {
+    +       'keydown' => [
+    +         [Function (anonymous)]
+    +       ],
+    +       'pointerlockchange' => [
+    +         [Function (anonymous)]
+    +       ],
+    +       'pointerlockerror' => [],
+    +       'visibilitychange' => [
+    +         [Function (anonymous)]
+    +       ]
+    +     },
+    +     exitPointerLock: [Function: unlock],
+    +     hasFocus: [Function (anonymous)],
+    +     hidden: false,
+    +     pointerLockElement: [Circular *1]
+    +   },
+    +   parentElement: Target {
+    +     appendChild: [Function (anonymous)],
+    +     events: Map(0) {},
+    +     getBoundingClientRect: [Function (anonymous)]
+    +   },
+    +   requestPointerLock: [Function: grant],
+    +   style: {
+    +     cursor: 'none'
+    +   }
+    + }
+    - null
+    
+  code: 'ERR_TEST_FAILURE'
+  ...
+# Subtest: Una excepción de Promise posterior al evento de error se conserva en diagnóstico
+not ok 16 - Una excepción de Promise posterior al evento de error se conserva en diagnóstico
+  ---
+  duration_ms: 0.276146
+  type: 'test'
+  location: '/tmp/pointer/scripts/test-integral-pointer-recovery.mjs:45:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    0 !== 1
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 1
+  actual: 0
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///tmp/pointer/scripts/test-integral-pointer-recovery.mjs:45:313)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+1..16
+# tests 16
+# suites 0
+# pass 2
+# fail 14
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 89.476485

@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Century Radiance — S00 Playground</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <canvas id="viewport" aria-label="Century Radiance S00 WebGL 2 Playground"></canvas>
+    <aside class="panel">
+      <p class="eyebrow">S00-G001 · FUNDACIÓN INDEPENDIENTE</p>
+      <h1>Century Radiance <span>S00 Foundation</span></h1>
+      <p class="summary">Validación de ciclo de vida, WebGL 2, Three.js PBR y Worker transferible. No representa integración con Century Engine.</p>
+      <div class="status"><span id="status-dot"></span><strong id="status">Inicializando</strong></div>
+      <dl id="capabilities"></dl>
+      <div class="controls">
+        <button id="door">Abrir puerta</button>
+        <button id="worker">Probar Worker</button>
+        <button id="reset">Reset del módulo</button>
+      </div>
+      <pre id="diagnostics" aria-live="polite"></pre>
+      <p class="footnote">La iluminación visible pertenece al rasterizador PBR base de Three.js. Radiance valida su frontera y recursos propios en este Gate.</p>
+    </aside>
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>

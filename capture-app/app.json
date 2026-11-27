@@ -1,0 +1,38 @@
+{
+  "expo": {
+    "name": "Century Capture",
+    "slug": "levelforge-capture",
+    "version": "1.0.0",
+    "orientation": "default",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#16181c",
+    "newArchEnabled": false,
+    "android": {
+      "package": "com.levelforge.capture",
+      "permissions": [
+        "android.permission.CAMERA"
+      ],
+      "adaptiveIcon": {
+        "backgroundColor": "#16181c"
+      }
+    },
+    "plugins": [
+      [
+        "react-native-vision-camera",
+        {
+          "cameraPermissionText": "Century Capture usa la cámara para seguir los movimientos de tu cuerpo.",
+          "enableMicrophonePermission": false
+        }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "minSdkVersion": 26
+          }
+        }
+      ],
+      "./plugins/withPoseModel"
+    ]
+  }
+}

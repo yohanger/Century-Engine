@@ -1,0 +1,98 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Century S06 CORR-003 · Navegación durante comentarios</title></head><body>
+<pre id="s06-corr003-result" data-stage="Iniciando">Iniciando…</pre><div id="s06-corr003-app"></div>
+<script type="module">
+import { createApp, nextTick } from 'vue'
+import { EditorView } from '@codemirror/view'
+import '/src/styles.css'
+import ScriptEditor from '/src/components/ScriptEditor.vue'
+import { store } from '/src/core/store.js'
+import { createProjectData } from '/src/core/project.js'
+import { floatDockPanel } from '/src/core/editor/docking.js'
+const result=document.querySelector('#s06-corr003-result'), checks=[]
+const stage=name=>{result.dataset.stage=name;result.dataset.checks=String(checks.length)}
+const check=(name,pass,detail='')=>{checks.push({name,pass:!!pass,detail:String(detail)});stage(name);if(!pass)throw new Error(name+': '+detail)}
+const tick=async()=>{await nextTick();await new Promise(resolve=>setTimeout(resolve,18));await nextTick()}
+const original='function _ready() {\n  game.log("ok");\n}\n\nfunction _process(delta) {\n  game.log(delta);\n}\n'
+const before={project:store.project,modal:store.modal,id:store.scriptEditId,mode:store.ui.mode,layout:store.prefs.dockLayout}
+let app
+try {
+  stage('Preparando scripts');store.ui.mode='desktop'
+  store.project=createProjectData('S06 CORR-003')
+  store.project.scripts=[{id:'a',folder:'Assets',name:'Uno.js',execution:'node',code:original},{id:'b',folder:'Assets',name:'Dos.js',execution:'global',code:'function segundo() {}\n'}]
+  store.modal='script';store.scriptEditId='a'
+  store.prefs.dockLayout=floatDockPanel(store.prefs.dockLayout,'scriptEditor',{x:30,y:46,w:680,h:460})
+  app=createApp(ScriptEditor);app.mount('#s06-corr003-app');await tick()
+  const el=document.querySelector('.edwin.se .cm-editor'), view=el && EditorView.findFromDOM(el)
+  check('C3-E01 CodeMirror original montado',!!view)
+  check('C3-E02 texto inicial íntegro',view.state.doc.toString()===original)
+  const items=()=>[...document.querySelectorAll('.se-method-list .ol-item')]
+  const pending=()=>!!document.querySelector('.se-outline-warning')
+  const provisional=()=>items().filter(el=>el.classList.contains('is-provisional'))
+  const content=()=>document.querySelector('.edwin.se .cm-content')?.textContent||''
+  // Identidad estable: el navegador ordena por nombre, no por posición en store.project.scripts.
+  const selectById=async(id)=>{
+    const resource=store.project.scripts.find(s=>s.id===id)
+    check('C3-Q01 existe recurso '+id,!!resource)
+    const entry=[...document.querySelectorAll('.se-file')].find(el=>el.getAttribute('title')===`${resource.folder}/${resource.name}`)
+    check('C3-Q02 navegador contiene '+resource.name,!!entry)
+    entry.click();await tick()
+    check('C3-Q03 script activo es '+id,store.scriptEditId===id)
+    check('C3-Q04 CodeMirror muestra '+resource.name,view.state.doc.toString()===resource.code)
+  }
+  const exact=(expected,label)=>{
+    check(label+' · documento',view.state.doc.toString()===expected)
+    check(label+' · store',store.project.scripts.find(s=>s.id===store.scriptEditId)?.code===expected)
+  }
+  const caret=async(at)=>{view.dispatch({selection:{anchor:at}});view.focus();await tick()}
+  const type=async(char)=>{
+    const old=view.state.doc.toString(),pos=view.state.selection.main.head
+    const accepted=document.execCommand('insertText',false,char)
+    await tick()
+    check('Pulsación '+JSON.stringify(char)+' conservada',accepted && view.state.doc.toString()===old.slice(0,pos)+char+old.slice(pos))
+    check('Cursor tras '+JSON.stringify(char),view.state.selection.main.head===pos+char.length)
+  }
+  check('C3-E03 muestra 2 métodos válidos',items().length===2)
+  check('C3-E04 no hay índices provisionales al abrir',!pending()&&provisional().length===0)
+  await caret(0);await type('/')
+  check('C3-E05 barra aislada no abre comentario',!pending() && items().length===2)
+  await type('*')
+  exact('/*'+original,'Comentario abierto')
+  check('C3-E06 mantiene las dos funciones en navegación',items().length===2)
+  check('C3-E07 marca funciones como provisionales',provisional().length===2)
+  check('C3-E08 informa que el comentario está sin cerrar',pending()&&document.querySelector('.status-comment')?.textContent.includes('sin cerrar'))
+  check('C3-E09 CodeMirror conserva líneas posteriores',content().includes('function _process'))
+  check('C3-E10 sin editor duplicado',document.querySelectorAll('.edwin.se .cm-editor').length===1)
+  await type('*');await type('/');await tick()
+  exact('/**/'+original,'Comentario cerrado')
+  check('C3-E11 cierre devuelve índice real',items().length===2&&!pending()&&provisional().length===0)
+  check('C3-E12 contador recuperado',document.querySelector('.se-methods .se-count')?.textContent.trim()==='2')
+  // Reversión completa y prueba de comentario transitorio dentro del script.
+  view.dispatch({changes:{from:0,to:4},selection:{anchor:0}});await tick()
+  exact(original,'Restauración completa')
+  const point=original.indexOf('function _process')
+  await caret(point);await type('/');await type('*')
+  check('C3-E13 primer método permanece confirmado',items().length===2&&!items()[0].classList.contains('is-provisional'))
+  check('C3-E14 segundo método queda provisional',items()[1]?.classList.contains('is-provisional')&&items()[1]?.textContent.includes('_process'))
+  items()[1]?.click();await tick()
+  check('C3-E14b el índice provisional conserva destino navegable',view.state.selection.main.head===point+2)
+  const frame=document.querySelector('.floating-editor-window'),box=frame?.getBoundingClientRect()
+  await selectById('b')
+  check('C3-E15 segundo script no hereda índice',items().length===1&&items()[0]?.textContent.includes('segundo')&&!pending())
+  check('C3-E16 conserva la instancia original',document.querySelector('.edwin.se .cm-editor')===el)
+  check('C3-E17 cambio de script no altera geometría',Math.abs(frame.getBoundingClientRect().width-box.width)<1&&Math.abs(frame.getBoundingClientRect().height-box.height)<1)
+  await selectById('a')
+  check('C3-E18 al regresar conserva los dos métodos',items().length===2&&provisional().length===1&&pending())
+  check('C3-E19 conserva la edición y contexto del primer script',view.state.doc.toString()===store.project.scripts[0].code)
+  await caret(point+2);await type('*');await type('/')
+  check('C3-E20 al cerrar se restaura el estado semántico',items().length===2&&!pending()&&provisional().length===0)
+  // Las secuencias de barras o asteriscos que no abren /* no deben congelar el esquema.
+  await caret(view.state.doc.length)
+  for(const c of '///////')await type(c)
+  check('C3-E21 barras finales no vacían navegación',items().length===2&&!pending())
+  for(const c of '*******')await type(c)
+  check('C3-E22 asteriscos aislados no vacían navegación',items().length===2&&!pending())
+  check('C3-E23 el documento y store siguen sincronizados',view.state.doc.toString()===store.project.scripts[0].code)
+  result.dataset.pass='true';result.textContent=JSON.stringify({pass:true,gl:'CodeMirror y outline en Electron embebido; QA visual usuario pendiente',checks},null,2)
+}catch(error){result.dataset.pass='false';result.textContent=JSON.stringify({pass:false,stage:result.dataset.stage,checks,error:String(error?.stack||error)},null,2)}
+finally{app?.unmount();store.project=before.project;store.modal=before.modal;store.scriptEditId=before.id;store.ui.mode=before.mode;store.prefs.dockLayout=before.layout}
+</script></body></html>

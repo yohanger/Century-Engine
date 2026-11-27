@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="es">
+<head><meta charset="utf-8"><title>Century · Chunks vinculados</title></head>
+<body>
+<div id="viewport" style="width:480px;height:270px;position:relative"></div>
+<div id="tree"></div><div id="inspector"></div><pre id="streaming-preview-result">Ejecutando…</pre>
+<script type="module">
+import { createApp, nextTick } from 'vue'
+import { Raycaster, Vector3 } from 'three'
+import { Editor } from '/src/core/editor.js'
+import { EditorPlaySession } from '/src/core/editor/play-session.js'
+import { createProjectData } from '/src/core/project.js'
+import { loadScene, saveScene } from '/src/core/db.js'
+import { activeScene, buildProjectFile, resetHistory, selectObject, setEditor, store, switchScene, undo, redo } from '/src/core/store.js'
+import { normalizeChunk } from '/src/engine/runtime/streaming/config.js'
+import { makeObject } from '/src/engine/runtime/nodes/index.js'
+import { Terrain } from '/src/engine/runtime/geometry/terrain.js'
+import ChunkTree from '/src/components/ChunkTree.vue'
+import ChunkInspector from '/src/components/ChunkInspector.vue'
+import '/src/styles.css'
+
+const result = document.querySelector('#streaming-preview-result')
+const checks = []
+function check(name, pass) {
+  checks.push({ name, pass: !!pass })
+  result.dataset.stage = name
+  if (!pass) throw new Error(name)
+}
+const frame = async () => { await nextTick(); await new Promise(requestAnimationFrame); await nextTick() }
+const waitFor = async (condition) => {
+  for (let n = 0; n < 120 && !condition(); n++) await frame()
+  return condition()
+}
+let editor, tree, inspector
+try {
+  const project = createProjectData('Prueba de chunks vinculados')
+  project.objects = []
+  const base = project.scenes[0]
+  const id = 'qa-bosque'
+  const parent = makeObject('group', 'group', { id: 'qa-group', name: 'Grupo', position: [2, 0, 0] })
+  const cube = makeObject('primitive', 'box', { id: 'qa-box', name: 'Caja', parentId: parent.id, position: [1, 2, 0] })
+  const blank = new Terrain(32, 8, project.terrain.layers)
+  blank.enabled = false
+  const terrain = blank.serialize()
+  blank.dispose()
+  await saveScene(project.id, id, { objects: [parent, cube], environment: project.environment, terrain, signalConnections: [] })
+  project.scenes.push({ id, name: 'Bosque', count: 2 })
+  base.streaming = { enabled: true, parallel: 2, chunks: [
+    normalizeChunk({ sceneId: id, x: 100 }),
+    normalizeChunk({ sceneId: id, x: 220 }),
+  ] }
+  store.locked = false
+  store.project = project
+  store.tool = 'select'
+  store.gizmo = 'translate'
+  editor = new Editor(document.querySelector('#viewport'))
+  setEditor(editor)
+  await editor.loadScene({ terrain, settings: project.settings })
+  editor.syncAll()
+  editor.syncEnvironment()
+  resetHistory()
+  tree = createApp(ChunkTree); tree.mount('#tree')
+  inspector = createApp(ChunkInspector); inspector.mount('#inspector')
+  const preview = editor.streamingPreview
+  check('Monta las dos instancias sin agregar objetos a la escena madre', await waitFor(() => preview.instances.size === 2) && !store.project.objects.length)
+  const first = preview.instances.get(0).mount, second = preview.instances.get(1).mount
+  const local = first.sourceNodes.get(cube.id), other = second.sourceNodes.get(cube.id)
+  check('Las mallas conservan la jerarquía y el espacio de su instancia',
+    local.getWorldPosition(new Vector3()).x === 103 && other.getWorldPosition(new Vector3()).x === 223)
+  editor.vp.scene.updateMatrixWorld(true)
+  const probe = new Raycaster(new Vector3(103, 2, 8), new Vector3(0, 0, -1))
+  check('El viewport detecta el nodo de la escena vinculada', preview.pick(probe)?.nodeId === cube.id)
+  document.querySelector('[data-chunk-index="0"]').click()
+  await frame()
+  check('Seleccionar el chunk muestra su contorno y usa el gizmo de mover',
+    editor.tc.object === first.root && preview.bounds.visible && document.querySelector('[data-chunk-node="qa-box"]'))
+  first.root.position.x = 140
+  editor.tc.dispatchEvent({ type: 'objectChange' })
+  editor.tc.dispatchEvent({ type: 'mouseUp' })
+  await frame()
+  check('Mover el chunk guarda el centro en la madre y conserva la pose fuente',
+    activeScene().streaming.chunks[0].x === 140 && local.position.x === 1 && second.root.position.x === 220)
+  document.querySelector('[data-chunk-node="qa-box"]').click()
+  await frame()
+  check('Seleccionar el hijo conecta el gizmo y abre sus transformaciones locales',
+    editor.tc.object === local && document.querySelector('#inspector').textContent.includes('Posición local'))
+  local.position.x = 8
+  editor.tc.dispatchEvent({ type: 'objectChange' })
+  editor.tc.dispatchEvent({ type: 'mouseUp' })
+  await frame()
+  check('Mover el hijo modifica la fuente y sus instancias en el acto', other.position.x === 8)
+  undo()
+  await frame()
+  check('Deshacer restaura el nodo en ambas instancias', local.position.x === 1 && other.position.x === 1)
+  redo()
+  await frame()
+  check('Rehacer recupera la transformación vinculada', local.position.x === 8 && other.position.x === 8)
+  store.gizmo = 'rotate'
+  await frame()
+  local.rotation.y = Math.PI / 2
+  editor.tcRot.dispatchEvent({ type: 'mouseUp' })
+  store.gizmo = 'scale'
+  await frame()
+  const visual = local.userData.visual
+  visual.scale.set(2, 2, 2)
+  editor.tcScl.dispatchEvent({ type: 'mouseUp' })
+  check('El gizmo de rotación y el de escala actualizan la otra instancia',
+    other.rotation.y === Math.PI / 2 && other.userData.visual.scale.x === 2)
+  selectObject(null)
+  check('La selección se limpia al volver a la escena madre', !store.chunkSelection && !editor.tc.object)
+  store.play.on = true
+  await frame()
+  check('Las instancias editoriales se esconden durante Play', !first.root.visible && !second.root.visible)
+  store.play.on = false
+  await frame()
+  check('Al volver a Edit Mode se muestra el mismo chunk', first.root.visible && second.root.visible)
+  const packed = await buildProjectFile()
+  check('El archivo de proyecto incluye el cambio de la escena vinculada', packed.scenes.get(id)?.objects.find(node => node.id === cube.id)?.position[0] === 8)
+  check('El cambio usa los identificadores originales al persistir', (await loadScene(project.id, id)).objects.find(node => node.id === cube.id)?.position[0] === 8)
+  preview.select(0, cube.id)
+  preview.setTransform('position', [9, 2, 0])
+  const session = new EditorPlaySession(editor)
+  await session.begin()
+  check('Play inmediato guarda la última edición antes de cargar la escena fuente',
+    (await loadScene(project.id, id)).objects.find(node => node.id === cube.id)?.position[0] === 9)
+  session.end()
+  const opened = await switchScene(id)
+  const savedNode = store.project.objects.find(node => node.id === cube.id)
+  check('Abrir la escena fuente conserva la edición y deja de mostrar las instancias de la madre',
+    opened && savedNode?.position[0] === 9 && savedNode?.rotation[1] === 90 && savedNode?.scale[0] === 2 && !preview.instances.size)
+
+  result.dataset.pass = 'true'
+  result.textContent = JSON.stringify({ pass: true, checks })
+} catch (error) {
+  result.dataset.pass = 'false'
+  result.textContent = JSON.stringify({ pass: false, checks, error: error.stack })
+} finally {
+  inspector?.unmount(); tree?.unmount(); editor?.dispose()
+}
+</script>
+</body></html>

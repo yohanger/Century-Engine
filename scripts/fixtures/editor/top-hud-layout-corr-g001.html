@@ -1,0 +1,49 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Editor HUD CORR-G001 — Electron</title>
+<style>body{margin:0;background:#141414;color:#ddd}#tools{width:100%;height:36px}#stage{position:relative;height:360px;max-width:730px;margin:10px;border:1px solid #666}#app-orient{height:100%}</style></head><body>
+<pre id="top-hud-layout-corr-g001-result">Preparando…</pre><div id="tools"></div><div id="stage"><div id="app-orient"></div></div>
+<script type="module">
+import * as THREE from 'three'
+import {createApp,nextTick} from 'vue'
+import Toolbar from '/src/components/Toolbar.vue'
+import ViewportOverlay from '/src/components/ViewportOverlay.vue'
+import {store} from '/src/core/store.js'
+const result=document.getElementById('top-hud-layout-corr-g001-result'),checks=[]
+const check=(name,pass,detail='')=>{checks.push({name,pass:!!pass,detail});if(!pass)throw Error(name+': '+detail)}
+let bar,overlay,renderer
+const flush=async()=>{await nextTick();await new Promise(done=>requestAnimationFrame(done))}
+try{
+ renderer=new THREE.WebGLRenderer({antialias:false});renderer.setSize(4,4)
+ renderer.render(new THREE.Scene(),new THREE.PerspectiveCamera())
+ check('Electron usa WebGL2',renderer.capabilities.isWebGL2)
+ store.project={id:'hud-qa',name:'HUD',activeSceneId:'s1',scenes:[{id:'s1',name:'S1'}],objects:[],terrain:{size:100,segments:64}}
+ store.selectedId=null;store.selectedIds=[];store.edit.on=false;store.edit.hud='';store.prefs.orientGizmo=true;store.uniformScaleHud='';store.ui.mode='desktop'
+ bar=createApp(Toolbar);bar.mount('#tools');overlay=createApp(ViewportOverlay);overlay.mount('#app-orient');await flush()
+ const tb=document.querySelector('#tools .tb')
+ check('Toolbar real montada',!!tb)
+ check('Toolbar tiene dos columnas estructurales',tb.children.length===2,String(tb.children.length))
+ check('Toolbar conserva altura de 36px',Math.abs(tb.getBoundingClientRect().height-36)<=1,String(tb.getBoundingClientRect().height))
+ check('no hay mensajes en la barra superior',!document.querySelector('#tools [role="status"]'))
+ check('no hay cinta de modo ni ruta sobre viewport',!document.querySelector('#stage .ov, #stage .chip, #stage .path'))
+ check('sin operaciones temporales no aparece ningún HUD',!document.querySelector('#stage .hud'))
+ check('se conserva control de orientación',!!document.querySelector('#stage .og svg'))
+ store.uniformScaleHud='Escala × 1.5 · Enter confirmar · Esc cancelar';await flush()
+ const status=()=>document.querySelector('#stage .hud')
+ check('escala numérica aparece debajo de viewport',status()?.textContent.includes('Escala × 1.5'))
+ check('HUD inferior usa fondo de viewport',getComputedStyle(status()).position==='absolute'&&getComputedStyle(status()).bottom==='12px')
+ check('el mismo mensaje no ocupa espacio en Toolbar',!document.querySelector('#tools [role="status"]')&&tb.children.length===2)
+ check('las herramientas conservan su altura durante escala',Math.abs(tb.getBoundingClientRect().height-36)<=1)
+ check('HUD inferior es accesible y no intercepta eventos',status()?.getAttribute('aria-live')==='polite'&&getComputedStyle(status()).pointerEvents==='none')
+ store.uniformScaleHud='Factor no permitido · Esc cancelar';await flush()
+ check('actualización de factor inválido reusa el mismo HUD',status()?.textContent.includes('Factor no permitido')&&document.querySelectorAll('#stage .hud').length===1)
+ store.uniformScaleHud='';await flush()
+ check('cancelar escala retira el HUD',!status())
+ store.edit.on=true;store.edit.hud='Mover geometría · Enter aceptar · Esc cancelar';await flush()
+ check('Edit Mode muestra HUD en zona inferior',status()?.textContent.includes('Mover geometría'))
+ check('Edit Mode no agrega mensajes superiores',!document.querySelector('#stage .ov, #stage .chip')&&!document.querySelector('#tools [role="status"]'))
+ store.edit.hud='';await flush()
+ check('terminar operación de malla retira HUD',!status())
+ check('sin error WebGL',renderer.getContext().getError()===renderer.getContext().NO_ERROR)
+ result.dataset.pass='true';result.textContent=JSON.stringify({pass:true,gl:renderer.getContext().getParameter(renderer.getContext().VERSION),checks},null,2)
+}catch(e){result.dataset.pass='false';result.textContent=JSON.stringify({pass:false,checks,error:String(e.stack||e)},null,2)}
+finally{bar?.unmount();overlay?.unmount();renderer?.dispose()}
+</script></body></html>

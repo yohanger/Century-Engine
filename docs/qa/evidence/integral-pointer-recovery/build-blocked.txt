@@ -1,0 +1,5 @@
+
+> century@0.26.13 build
+> vite build && vite build --mode runtime
+
+sh: 1: vite: not found

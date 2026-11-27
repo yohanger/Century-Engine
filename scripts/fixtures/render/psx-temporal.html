@@ -1,0 +1,31 @@
+<!doctype html><html lang="es"><meta charset="utf-8"><title>PSX temporal</title><style>body{background:#151922;color:#eee;font:14px sans-serif}canvas{image-rendering:pixelated;width:320px;height:240px}pre{white-space:pre-wrap}</style><div id="image"></div><pre id="psx-result">Preparando</pre>
+<script type="module">
+import * as THREE from 'three'
+import { Viewport } from '/src/engine/runtime/render/viewport.js'
+import { setProbeArray } from '/src/engine/runtime/render/pbr.js'
+import { normalizeRender,rendererPreset } from '/src/engine/runtime/render/config.js'
+import { unavailableWebGpuEffect } from '/src/engine/runtime/render/webgpu-play.js'
+const out=document.getElementById('psx-result'),checks=[],metrics=[]
+const check=(name,pass)=>{checks.push({name,pass:!!pass});if(!pass)throw Error(name)}
+let renderer,geometry,material,texture,rt
+try{
+ renderer=new THREE.WebGLRenderer({antialias:false});renderer.setSize(320,240);document.querySelector('#image').appendChild(renderer.domElement)
+ const gl=renderer.getContext(),scene=new THREE.Scene(),cam=new THREE.PerspectiveCamera(55,4/3,.1,100);cam.position.set(2.3,1.8,4);cam.lookAt(0,0,0);cam.updateMatrixWorld(true)
+ scene.background=new THREE.Color('#111827');scene.add(new THREE.AmbientLight('#ffffff',3))
+ const data=new Uint8Array(16*16*4);for(let y=0;y<16;y++)for(let x=0;x<16;x++){const c=(x+y)%2?35:235,i=(y*16+x)*4;data.set([c,c,c,255],i)}
+ texture=new THREE.DataTexture(data,16,16);texture.needsUpdate=true;texture.magFilter=THREE.NearestFilter;texture.minFilter=THREE.NearestFilter
+ geometry=new THREE.BoxGeometry(1.8,1.8,1.8);material=new THREE.MeshPhysicalMaterial({map:texture,roughness:1});const mesh=new THREE.Mesh(geometry,material);scene.add(mesh)
+ const uniforms={size:{value:new THREE.Vector2()},step:{value:0},phase:{value:new THREE.Vector2()}}
+ const vp=Object.assign(Object.create(Viewport.prototype),{psxUniforms:uniforms,look:{psxW:320,psxH:240,_outW:640,_outH:480}})
+ material.userData.rtPsx=uniforms;setProbeArray(material,null)
+ const initial=JSON.stringify(Array.from(geometry.attributes.position.array)),pose=JSON.stringify([cam.position.toArray(),cam.quaternion.toArray()])
+ const hash=()=>{const bytes=new Uint8Array(rt.width*rt.height*4);renderer.readRenderTargetPixels(rt,0,0,rt.width,rt.height,bytes);let h=2166136261;for(const b of bytes)h=Math.imul(h^b,16777619);return h>>>0}
+ const frame=()=>{vp._advancePsxFrame();renderer.setRenderTarget(rt);renderer.render(scene,cam);renderer.setRenderTarget(null);return hash()}
+ for(const height of [240,480,0]){const h=height||600,w=Math.round(h*4/3);rt?.dispose();rt=new THREE.WebGLRenderTarget(w,h);vp.look={psxW:w,psxH:h,_outW:w,_outH:h};for(const step of [0,1,2,3,4]){vp.renderCfg=normalizeRender({...rendererPreset('compat'),psx:true,psxSnap:step,psxHeight:height,psxContinuous:false});vp._syncPsx();const a=frame(),b=frame();check(`${height}/${step}: estable sin temporal`,a===b);vp.renderCfg.psxContinuous=true;vp._syncPsx();const hashes=new Set(Array.from({length:6},frame));check(`${height}/${step}: temporal respeta intensidad`,step===0?hashes.size===1:hashes.size>1);vp.renderCfg.psxContinuous=false;vp._syncPsx();check(`${height}/${step}: desactivar restaura`,frame()===a)}}
+ for(const id of ['compat','mobile','forward']){const cfg=normalizeRender({...rendererPreset(id),psx:true,psxSnap:4,psxContinuous:true});check(`${id}: PSX temporal normalizado`,cfg.psxContinuous);check(`${id}: WebGPU conserva fallback`,unavailableWebGpuEffect({look:{cfg}})==='estilo PSX')}
+ check('Geometría y cámara intactas',initial===JSON.stringify(Array.from(geometry.attributes.position.array))&&pose===JSON.stringify([cam.position.toArray(),cam.quaternion.toArray()]))
+ const n=renderer.info.programs.length;const ext=gl.getExtension('EXT_disjoint_timer_query_webgl2')
+ for(const on of [false,true]){vp.renderCfg=normalizeRender({psx:true,psxSnap:4,psxContinuous:on});vp._syncPsx();renderer.setRenderTarget(rt);const query=ext&&gl.createQuery();if(query)gl.beginQuery(ext.TIME_ELAPSED_EXT,query);const t=performance.now();for(let i=0;i<30;i++){vp._advancePsxFrame();renderer.render(scene,cam)}const cpu=(performance.now()-t)/30;if(query)gl.endQuery(ext.TIME_ELAPSED_EXT);renderer.setRenderTarget(null);let gpu=null;if(query){for(let i=0;i<100&&!gl.getQueryParameter(query,gl.QUERY_RESULT_AVAILABLE);i++)await new Promise(r=>setTimeout(r,10));if(gl.getQueryParameter(query,gl.QUERY_RESULT_AVAILABLE)&&!gl.getParameter(ext.GPU_DISJOINT_EXT))gpu=gl.getQueryParameter(query,gl.QUERY_RESULT)/30/1e6;gl.deleteQuery(query)}metrics.push({temporal:on,frames:30,cpuSubmissionMs:cpu,gpuMs:gpu})}
+ check('No recompila durante el efecto',renderer.info.programs.length===n);check('WebGL sin errores',gl.getError()===gl.NO_ERROR);renderer.render(scene,cam);out.dataset.pass='true';out.textContent=JSON.stringify({pass:true,checks,metrics,gl:gl.getParameter(gl.VERSION),scope:'Material Three.js real y uniform del Viewport; no escena completa'},null,2)
+}catch(error){out.dataset.pass='false';out.textContent=JSON.stringify({pass:false,error:String(error.stack||error),checks,metrics},null,2)}finally{rt?.dispose();texture?.dispose();material?.dispose();geometry?.dispose();renderer?.dispose()}
+</script></html>

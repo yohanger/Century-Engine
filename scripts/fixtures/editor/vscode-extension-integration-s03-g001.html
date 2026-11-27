@@ -1,0 +1,51 @@
+<!doctype html><html lang="es"><meta charset="utf-8"><title>QA extensión VS Code S03</title>
+<pre id="vscode-extension-result">Preparando…</pre>
+<script type="module">
+import { createVscode } from '/src/core/state/vscode.js'
+import { store } from '/src/core/state/state.js'
+import { createProjectData } from '/src/core/project.js'
+const checks = []
+const check = (name, pass) => { checks.push({ name, pass: !!pass }); if (!pass) throw new Error(name) }
+const output = document.querySelector('#vscode-extension-result')
+let editor
+try {
+  const encoder = new TextEncoder(), files = new Map([['project.lfproj', encoder.encode('{}')], ['jsconfig.json', encoder.encode('config propia')]])
+  const calls = [], loc = { kind: 'path', path: '/QA/Proyecto con espacios' }
+  let response = { ok: true, extension: { status: 'installed', version: '0.1.3' } }
+  window.lf = {
+    openVSCode: async (...args) => { calls.push(args); return response },
+    fs: {
+      exists: async (_, name) => files.has(name), readFile: async (_, name) => files.get(name) || null,
+      scan: async () => [...files].filter(([name]) => name.endsWith('.js')).map(([path, data]) => ({ path, size: data.length, mtime: 1 })),
+      writeFiles: async (_, writes, remove = []) => {
+        for (const { path, data } of writes) files.set(path, typeof data === 'string' ? encoder.encode(data) : data)
+        for (const path of remove) files.delete(path)
+      },
+    },
+  }
+  store.project = createProjectData('Extensión QA')
+  store.project.scripts = [{ id: 'sc', name: 'Receptor.js', folder: 'Assets', execution: 'node', code: "node.expose('recibir', () => {})" }]
+  store.locked = false
+  editor = createVscode({ getLoc: () => loc, serializeProject: () => ({ meta: store.project, scene: {} }), collectScenes: async () => new Map() })
+  await editor.startSync(loc)
+  check('Instalación confirmada permite abrir', await editor.open('sc'))
+  check('Destino exacto del script', JSON.stringify(calls[0]) === JSON.stringify([loc.path, 'Assets/Receptor.js']))
+  check('El aviso de preparación se retira al terminar', !store.toasts.some(t => /Conectando con VS Code|Abriendo archivo/.test(t.msg)))
+  check('Se informa de instalación y recarga', store.toasts.some(t => t.msg.includes('0.1.3 instalada') && t.msg.includes('recarga')))
+  check('jsconfig del usuario conservado', new TextDecoder().decode(files.get('jsconfig.json')) === 'config propia')
+  check('Tipos generados antes de abrir', files.has('.levelforge/api.d.ts') && files.has('.levelforge/project.d.ts'))
+  check('Texto del receptor conservado', new TextDecoder().decode(files.get('Assets/Receptor.js')) === store.project.scripts[0].code)
+  response = { ok: false, canceled: true, error: 'Cancelado' }
+  check('Cancelar termina sin excepción ni éxito falso', await editor.open() === false)
+  response = { ok: false, error: 'No se pudo verificar la extensión' }
+  let error = null; try { await editor.open() } catch (e) { error = e }
+  check('Fallo conserva la causa', error?.message.includes('verificar la extensión'))
+  response = { ok: true, extension: { status: 'newer', version: '9.0.0' } }
+  check('Reintento con versión superior permite abrir', await editor.open())
+  check('Abrir proyecto no hereda script seleccionado', calls.at(-1)[1] === null)
+  check('ID y modo del script intactos', store.project.scripts[0].id === 'sc' && store.project.scripts[0].execution === 'node')
+  output.dataset.pass = 'true'; output.textContent = JSON.stringify({ pass: true, checks })
+} catch (error) {
+  output.dataset.pass = 'false'; output.textContent = JSON.stringify({ pass: false, checks, error: error.stack })
+} finally { editor?.stop() }
+</script></html>

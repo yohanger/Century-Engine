@@ -1,0 +1,28 @@
+{
+  "name": "trianghor",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Núcleo independiente de simplificación adaptativa de terrenos extraído de Century Engine",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "exports": {
+    ".": "./src/index.js",
+    "./browser": "./src/browser.js",
+    "./worker": "./src/trianghor/bake.worker.js",
+    "./node-worker": "./src/worker/node-worker.mjs"
+  },
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "benchmark": "node benchmarks/bench.mjs",
+    "benchmark:incremental": "node benchmarks/incremental.mjs",
+    "compare:century": "node scripts/compare-century.mjs",
+    "benchmark:spatial": "node benchmarks/spatial-index.mjs",
+    "benchmark:assembly": "node benchmarks/assembly-memory.mjs",
+    "benchmark:global": "node benchmarks/global-cost.mjs",
+    "benchmark:worker": "node benchmarks/worker-stability.mjs"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}

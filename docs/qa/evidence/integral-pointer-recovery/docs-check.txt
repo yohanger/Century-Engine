@@ -1,0 +1,100 @@
+
+> century@0.26.13 docs:check
+> node scripts/gen-docs.mjs --check && node scripts/gen-docs-web.mjs --check && node --test scripts/test-docs-web-g001.mjs
+
+✓ referencia al día
+✓ Portal al día: 358 páginas
+TAP version 13
+# Subtest: DOC-01 · portal HTML/CSS/JS autónomo y sin dependencias de red
+ok 1 - DOC-01 · portal HTML/CSS/JS autónomo y sin dependencias de red
+  ---
+  duration_ms: 2.095199
+  type: 'test'
+  ...
+# Subtest: DOC-02 · identificadores únicos y contenido no vacío
+ok 2 - DOC-02 · identificadores únicos y contenido no vacío
+  ---
+  duration_ms: 0.349107
+  type: 'test'
+  ...
+# Subtest: DOC-03 · interfaces de API declaradas cubiertas sin omisiones
+ok 3 - DOC-03 · interfaces de API declaradas cubiertas sin omisiones
+  ---
+  duration_ms: 0.18581
+  type: 'test'
+  ...
+# Subtest: DOC-04 · comandos declarados cubiertos sin omisiones
+ok 4 - DOC-04 · comandos declarados cubiertos sin omisiones
+  ---
+  duration_ms: 0.117738
+  type: 'test'
+  ...
+# Subtest: DOC-05 · nodo Node/Node3D y todas las clases físicas documentados
+ok 5 - DOC-05 · nodo Node/Node3D y todas las clases físicas documentados
+  ---
+  duration_ms: 0.162125
+  type: 'test'
+  ...
+# Subtest: DOC-06 · enlaces internos de páginas y de encabezados válidos
+ok 6 - DOC-06 · enlaces internos de páginas y de encabezados válidos
+  ---
+  duration_ms: 1.412189
+  type: 'test'
+  ...
+# Subtest: DOC-07 · títulos del índice de página y enlaces directos
+ok 7 - DOC-07 · títulos del índice de página y enlaces directos
+  ---
+  duration_ms: 4.507516
+  type: 'test'
+  ...
+# Subtest: DOC-08 · se mantiene la integración de ayuda del editor
+ok 8 - DOC-08 · se mantiene la integración de ayuda del editor
+  ---
+  duration_ms: 0.57083
+  type: 'test'
+  ...
+# Subtest: DOC-09 · documentación de scripting distinguida entre Nodo y Global
+ok 9 - DOC-09 · documentación de scripting distinguida entre Nodo y Global
+  ---
+  duration_ms: 0.502437
+  type: 'test'
+  ...
+# Subtest: DOC-10 · recursos frontend con sintaxis JS válida y sin external scripts
+ok 10 - DOC-10 · recursos frontend con sintaxis JS válida y sin external scripts
+  ---
+  duration_ms: 10.478548
+  type: 'test'
+  ...
+# Subtest: DOC-11 · los tipos registrados están representados
+ok 11 - DOC-11 · los tipos registrados están representados
+  ---
+  duration_ms: 1.560662
+  type: 'test'
+  ...
+# Subtest: DOC-12 · código y contenido del portal son de producción documental, no ECS
+ok 12 - DOC-12 · código y contenido del portal son de producción documental, no ECS
+  ---
+  duration_ms: 0.222475
+  type: 'test'
+  ...
+# Subtest: El portal publica documentación de uso, no mantenimiento del motor
+ok 13 - El portal publica documentación de uso, no mantenimiento del motor
+  ---
+  duration_ms: 3.349119
+  type: 'test'
+  ...
+# Subtest: Biblia Técnica independiente: inventario de fuentes completo y navegación
+ok 14 - Biblia Técnica independiente: inventario de fuentes completo y navegación
+  ---
+  duration_ms: 4.070367
+  type: 'test'
+  ...
+1..14
+# tests 14
+# suites 0
+# pass 14
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 122.103816

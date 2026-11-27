@@ -1,0 +1,17 @@
+{
+  "browser": "158.0.8127.42",
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "tint": true,
+  "transmission": true,
+  "orbitWithoutImpulse": true,
+  "waterClick": [
+    0.5,
+    0.57
+  ],
+  "pausedTime": 1.21,
+  "visualFoamControlRemoved": true,
+  "errors": []
+}

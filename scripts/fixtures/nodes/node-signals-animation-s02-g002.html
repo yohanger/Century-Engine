@@ -1,0 +1,93 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Century Signals — animation_finished</title></head>
+<body><pre id="node-signals-animation-s02-g002-result">Verificando…</pre>
+<script type="module">
+import * as THREE from 'three'
+import { loadJolt } from '/src/engine/runtime/physics/jolt.js'
+import { getNativeSignal, getNativeSignals, registerNode } from '/src/engine/runtime/nodes/registry.js'
+import '/src/engine/runtime/nodes/physics.js'
+import '/src/engine/runtime/nodes/audio.js'
+import { NodeLifecycle } from '/src/engine/runtime/scene/node-lifecycle.js'
+import { NodeScriptRuntime } from '/src/engine/runtime/scene/node-scripts.js'
+import { nodesMethods } from '/src/engine/runtime/events/play-nodes.js'
+import { animMethods } from '/src/engine/runtime/events/play-anim.js'
+const output=document.getElementById('node-signals-animation-s02-g002-result')
+const checks=[],check=(name,pass)=>{checks.push({name,pass:!!pass});if(!pass)throw new Error(name)}
+let renderer,life
+try {
+ renderer=new THREE.WebGLRenderer({antialias:false});renderer.setSize(16,16)
+ const scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(70,1,.1,10);camera.position.z=2
+ scene.add(new THREE.Mesh(new THREE.BoxGeometry(.3,.3,.3),new THREE.MeshBasicMaterial({color:0x77aacc})))
+ renderer.render(scene,camera)
+ check('WebGL2 real en Electron',renderer.capabilities.isWebGL2)
+ const jolt=await loadJolt();check('Jolt WASM disponible',!!jolt.JoltInterface)
+ registerNode({type:'animqa',create:()=>({}),build:()=>({}),update:()=>{}})
+ const meta=getNativeSignal('animqa','animation_finished')
+ check('Señal animation_finished existe',meta?.source==='animation-runner')
+ check('Firma argumental clipName',meta.args.length===1&&meta.args[0].name==='clipName')
+ check('Tipo del argumento string',meta.args[0].type==='string')
+ check('Señal disponible para Audio',getNativeSignal('audio','animation_finished')?.source==='animation-runner')
+ check('Sin señales falsas en tipos desconocidos',getNativeSignal('missing','animation_finished')===null)
+ check('Area3D conserva cuatro señales físicas',getNativeSignals('area3d').filter(s=>s.source==='jolt-area').length===4)
+ check('Audio conserva finished original',getNativeSignal('audio','finished')?.source==='audio-voice')
+ check('El registro es inmutable',Object.isFrozen(getNativeSignals('animqa')))
+ const emitter={id:'anim',name:'Animación',type:'animqa',scriptIds:[],parentId:null,modelId:'modelA'}
+ const receiver={id:'receiver',name:'Receptor',type:'animqa',scriptIds:['receiverScript'],parentId:null}
+ const project={objects:[emitter,receiver],animations:[{id:'keyClip',name:'Wave',duration:.08,loop:false,speed:1,tracks:[],events:[]}],scripts:[{id:'receiverScript',execution:'node',code:"node.expose('onAnimation',clipName=>game.record(clipName))"}],signalConnections:[{id:'bind',emitterId:'anim',receiverId:'receiver',signal:'animation_finished',method:'onAnimation'}],activeSceneId:'scene'}
+ const nodes=new Map(),events=[],errors=[]
+ for(const obj of project.objects){const n=new THREE.Group();n._lfNodeOwner=obj;scene.add(n);nodes.set(obj.id,n)}
+ const modelRoot=new THREE.Group();nodes.get('anim').add(modelRoot);nodes.get('anim').userData.modelRoot=modelRoot
+ const modelClips=new Map([['modelA',[
+  new THREE.AnimationClip('WalkGLTF',.08,[new THREE.VectorKeyframeTrack('.position',[0,.08],[0,0,0,.25,0,0])]),
+  new THREE.AnimationClip('WaveGLTF',.12,[new THREE.VectorKeyframeTrack('.position',[0,.12],[0,0,0,0,.3,0])])
+ ]]] )
+ const play={on:true,_sceneSignalReady:true,_referenceSession:{},project,ed:{nodes,modelClips},game:{api:{record:clip=>events.push(clip)},report:error=>errors.push(String(error))},
+  vm:{slots:new Map(),held:new Map()},pos:new THREE.Vector3(),vp:{requestRender(){}},_tagLayerApi:()=>({}),_persistMarked:()=>false,_persistSet:()=>false,
+  _vmTarget:target=>({obj:project.objects.find(o=>o.id===(typeof target==='string'?target:target?.id))})}
+ Object.assign(play,nodesMethods,animMethods)
+ const lifecycle=new NodeLifecycle({nodes,host:{project}});life=lifecycle;play.ed.nodeLifecycle=lifecycle
+ play.game.api.node=id=>play._nodeHandle(id)
+ lifecycle.scripts=new NodeScriptRuntime(play);play._animInit();life.start()
+ check('Conexión persistente creada',life.scripts.sceneConnections.has('bind'))
+ check('Emisor sin script propio',!life.scripts.instances.has('anim'))
+ check('Script receptor disponible',life.scripts.instances.has('receiver'))
+ check('Fuente nativa de animation_finished preparada',life.scripts.nativeSources.get(emitter)?.signals.has('animation_finished'))
+ const first=play.animationPlay('anim','Wave');play._animTick(.1)
+ check('AnimRunner real terminó',first.finished)
+ check('Clip de claves emitido una vez',events.length===1&&events[0]==='Wave')
+ play._animTick(.1);check('No duplica finalización',events.length===1)
+ const stopped=play.animationPlay('anim','Wave');stopped.stop();play._animTick(.1)
+ check('Stop no emite',events.length===1)
+ const loop=play.animationPlay('anim','Wave',{loop:true});play._animTick(.25)
+ check('Loop no emite',events.length===1);loop.stop()
+ const paused=play.animationPlay('anim','Wave');paused.pause();play._animTick(.3)
+ check('Pausa no emite',events.length===1);paused.resume();play._animTick(.1)
+ check('Reanudar y terminar emite',events.length===2&&events.at(-1)==='Wave')
+ const old=play.animationPlay('anim','Wave');const renewed=play.animationPlay('anim','Wave')
+ check('Reemplazo detuvo primera instancia',old.finished&&!renewed.finished)
+ play._animTick(.1);check('Reemplazo no duplica señal',events.length===3)
+ const model=play.animationPlay('anim','WalkGLTF')
+ check('ModelRunner realmente instanciado',model.clip==='WalkGLTF'&&model.playing)
+ play._animTick(.1)
+ check('AnimationMixer.finished natural entregado',events.at(-1)==='WalkGLTF'&&events.length===4&&model.finished)
+ const stopModel=play.animationPlay('anim','WalkGLTF');stopModel.stop()
+ play._animTick(.1);check('Stop AnimationMixer no emite',events.length===4)
+ const loopModel=play.animationPlay('anim','WalkGLTF',{loop:true});play._animTick(.28)
+ check('Loop AnimationMixer sin finished',events.length===4);loopModel.stop()
+ const upper=play.animationPlay('anim','WalkGLTF',{layer:'upper'}),lower=play.animationPlay('anim','WaveGLTF',{layer:'lower'})
+ play._animTick(.15)
+ check('Capas y clips concurrentes independientes',upper.finished&&lower.finished&&events.includes('WaveGLTF')&&events.filter(x=>x==='WalkGLTF').length===2)
+ const previous=events.length
+ const changed=play.animationPlay('anim','Wave');play._referenceSession={};play._animTick(.1)
+ check('Sesión antigua no recibe evento',changed.finished&&events.length===previous)
+ const last=play.animationPlay('anim','Wave');play._referenceSession={};play._animTick(.1)
+ check('Final tardío no genera señal',last.finished&&events.length===previous)
+ check('Siguen cuatro señales comunes',getNativeSignals('animqa').filter(s=>s.source==='node-lifecycle').length===4)
+ life.stop();play.on=false;play._animReset()
+ check('Stop limpia fuentes nativas',life.scripts.nativeSources.size===0)
+ check('Stop limpia conexiones persistentes',life.scripts.sceneConnections.size===0)
+ check('Sin errores de runtime',errors.length===0)
+ check('WebGL sin errores',renderer.getContext().getError()===renderer.getContext().NO_ERROR)
+ output.dataset.pass='true';output.textContent=JSON.stringify({pass:true,gl:renderer.getContext().getParameter(renderer.getContext().VERSION),checks},null,2)
+} catch(error){output.dataset.pass='false';output.textContent=JSON.stringify({pass:false,error:String(error.stack||error),checks},null,2)}
+finally {try{life?.stop()}catch{}renderer?.dispose()}
+</script></body></html>

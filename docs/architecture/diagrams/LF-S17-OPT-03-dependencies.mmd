@@ -1,0 +1,18 @@
+flowchart LR
+  P[Play / SceneGraph] --> L[LodManager]
+  L --> G[lod.js / lodgeo.js]
+  L --> F[Foliage]
+  L --> B[StaticBatcher]
+  P --> VP[Viewport]
+  VP --> LP[LookPipeline]
+  VP --> PM[PerfMonitor]
+  LP --> UP[upscale.js / GTAOPass]
+  M[Mesh authoring] --> SM[shared-mesh.js]
+  SM -.entrada de derivación futura.-> G
+  A[Asset loader/host] --> TX[Texturas por propietario]
+  OR[OptimizationOrchestrator propuesto] -.solicitudes y presupuestos.-> L
+  OR -.política aprobada; no escriba config.-> LP
+  OR -.prioridad futura de residencia.-> TX
+  PM -.métricas de solo lectura.-> OR
+  OR -.PROHIBIDO gestionar el renderer o editar Mesh.-> M
+  OR -.PROHIBIDO segundo LOD/SceneGraph.-> P

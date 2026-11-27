@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="es"><meta charset="utf-8"><title>QA S11-G007-G002 · Automatización de volumen</title>
+<style>
+html,body{margin:0;background:#171b20;color:#e2e8ee;font:12px sans-serif}
+#timeline{height:390px;width:840px;overflow:hidden}
+#inspector{height:340px;width:400px;overflow:auto}
+#timeline-audio-volume-automation-s11-g007-g002-result{display:none}
+</style>
+<div id="timeline"></div><div id="inspector"></div>
+<pre id="timeline-audio-volume-automation-s11-g007-g002-result"></pre>
+<script>
+(() => {
+  const output=document.getElementById('timeline-audio-volume-automation-s11-g007-g002-result')
+  const checks=[];let stage='bootstrap',finished=false
+  function publish(){if(finished)return;output.dataset.stage=stage;output.dataset.checks=String(checks.length);output.textContent=JSON.stringify({pass:null,stage,checks})}
+  function progress(next){stage=next;publish()}
+  function check(name,ok,actual){checks.push({name,pass:!!ok,...(actual===undefined?{}:{actual})});progress('Comprobación '+checks.length+': '+name)}
+  function finish(error){if(finished)return;finished=true;clearTimeout(timer)
+    const pass=!error&&checks.length===37&&checks.every(item=>item.pass)
+    output.dataset.pass=String(pass);output.dataset.stage=pass?'final:PASS':'final:FAIL';output.dataset.checks=String(checks.length)
+    let gl=false;try{gl=!!document.createElement('canvas').getContext('webgl')}catch{}
+    output.textContent=JSON.stringify({pass,stage,...(error?{error:error.stack||String(error)}:{}),checks,gl},null,2)
+  }
+  const timer=setTimeout(()=>finish(new Error('Watchdog: '+stage)),32000)
+  window.addEventListener('error',event=>{if(event.message||event.error||event.target?.tagName==='SCRIPT')finish(event.error||new Error(event.message||'Fallo de importación'))},true)
+  window.addEventListener('unhandledrejection',event=>finish(event.reason||new Error('Promesa no capturada')))
+  window.__lfAutomationQa={progress,check,finish}
+  publish()
+})()
+</script>
+<script type="module">
+const {progress,check,finish}=window.__lfAutomationQa
+const apps=[]
+let playback
+const tick=()=>new Promise(resolve=>queueMicrotask(resolve))
+const approx=(a,b,tol=.002)=>Math.abs(a-b)<tol
+try {
+  progress('Importaciones Vue, Timeline y Inspector')
+  const {createApp,h,nextTick}=await import('vue')
+  const {default:TimelinePanel}=await import('/src/components/TimelinePanel.vue')
+  const {default:TemporalResourceInspector}=await import('/src/components/TemporalResourceInspector.vue')
+  const {createProjectData}=await import('/src/core/project.js')
+  const {store,setEditor,resetHistory,openTimelineEditor,selectTemporal,undo,redo}=await import('/src/core/store.js')
+  const {newTimeline,newTrack,newKey,normalizeTimeline}=await import('/src/core/timeline/model.js')
+  const {createTimelinePlayback,timelinePlaybackKey}=await import('/src/core/timeline/playback-session.js')
+  progress('Crear proyecto y sesión del Editor')
+  const project=createProjectData('QA automatización de volumen','empty')
+  const key=newKey('audio',1,{id:'automation-key',clip:'audio-de-prueba.wav',volume:.8,duration:4,fadeIn:.5,fadeOut:.75})
+  const full=newKey('audio',8,{id:'complete-key',clip:'audio-completo.wav',duration:0})
+  const track=newTrack('audio',{id:'automation-track',keys:[key,full]})
+  const timeline=newTimeline('QA Automatización',{id:'automation-timeline',duration:15,tracks:[track]})
+  project.timelines=[timeline];store.project=project;store.locked=false;store.play.on=false
+  store.ui.mode='desktop';store.prefs.bottomTab='timeline'
+  setEditor({snapshotTerrain:()=>project.terrain})
+  playback=createTimelinePlayback({getProject:()=>store.project,getEditor:()=>store.editor,getObjects:()=>project.objects,
+    getContext:()=>({project:store.project,sceneId:project.activeSceneId,editor:store.editor,timelineId:store.timelineId,playOn:false,locked:false,cinematic:false}),
+    requestFrame:()=>1,cancelFrame:()=>{}})
+  const mount=(component,where,props)=>{const app=createApp({render:()=>h(component,props)});app.provide(timelinePlaybackKey,playback);app.mount(where);apps.push(app)}
+  resetHistory();openTimelineEditor(timeline.id)
+  selectTemporal('timeline',timeline.id,'key',track.id,key.id)
+  const initial=JSON.stringify(store.project.timelines)
+  mount(TimelinePanel,'#timeline');mount(TemporalResourceInspector,'#inspector',{kind:'timeline',resourceId:timeline.id})
+  await nextTick();await tick()
+  const current=()=>store.project.timelines[0].tracks[0].keys.find(k=>k.id==='automation-key')
+  const currentTrack=()=>store.project.timelines[0].tracks[0]
+  const clip=()=>document.querySelector('#timeline .key.audio')
+  const envelope=()=>document.querySelector('#timeline .audio-volume-envelope path')
+  const handles=()=>[...document.querySelectorAll('#timeline .audio-volume-point')]
+  const section=()=>document.querySelector('#inspector .inspector-audio-volume')
+  const add=()=>[...section()?.querySelectorAll('button')||[]].find(b=>b.textContent.includes('Añadir'))
+  const saved=()=>JSON.parse(JSON.stringify(store.project.timelines))[0].tracks[0].keys.find(k=>k.id==='automation-key')
+  const selectFirst=()=>document.querySelector('#inspector .volume-point-row')
+  const pointer=(target,type,id,x,y,buttons)=>target.dispatchEvent(new PointerEvent(type,{bubbles:true,cancelable:true,isPrimary:true,pointerId:id,button:0,buttons,clientX:x,clientY:y}))
+  const pos=el=>{const rect=el.getBoundingClientRect();return {x:rect.left+rect.width/2,y:rect.top+rect.height/2}}
+  async function drag(el,dx,dy=0,{cancel=false}={}){const {x,y}=pos(el),id=613
+    pointer(el,'pointerdown',id,x,y,1);pointer(window,'pointermove',id,x+dx,y+dy,1)
+    pointer(window,cancel?'pointercancel':'pointerup',id,x+dx,y+dy,0);await nextTick();await tick()
+  }
+  async function press(el,key){el.dispatchEvent(new KeyboardEvent('keydown',{key,bubbles:true,cancelable:true}));await nextTick()}
+  progress('Comprobaciones del Editor')
+  check('Timeline monta con la biblioteca original',!!document.querySelector('#timeline .tlp'))
+  check('Solo una pista Audio existente',store.project.timelines[0].tracks.length===1)
+  check('Proyecto sin mutaciones al montar',initial===JSON.stringify(store.project.timelines))
+  check('Inspector muestra sección de automatización',!!section())
+  check('Botón de añadir punto presente',!!add())
+  check('Ningún punto creado automáticamente',current().volumeAutomation===undefined)
+  check('La clave antigua sin duración no presenta puntos',!currentTrack().keys[1].volumeAutomation)
+  check('Las asas Fade In y Fade Out siguen visibles',!!document.querySelector('#timeline .audio-fade-grip.fade-in')&&!!document.querySelector('#timeline .audio-fade-grip.fade-out'))
+  const zeroTick=[...document.querySelectorAll('#timeline .ruler .tick')]
+    .find(element=>element.querySelector('i')?.textContent?.trim()==='0')
+  const originPx=Number.parseFloat(zeroTick?.style.left)
+  const clipPx=Number.parseFloat(clip()?.style.left)
+  const pcm=clip()?.querySelector('.timeline-waveform')
+  const clipRect=clip()?.getBoundingClientRect()
+  const pcmRect=pcm?.getBoundingClientRect()
+  // La coordenada temporal pertenece al borde exterior del clip. El SVG absoluto
+  // comienza en su borde interior: el borde izquierdo decorativo no es tiempo.
+  const borderLeft=clipRect ? Number.parseFloat(getComputedStyle(clip()).borderLeftWidth) : NaN
+  const pcmWindowLeft=Number.parseFloat(pcm?.style.left || '0')
+  const originGeometry={originPx,clipPx,time:current().t,zoom:70,
+    clipLeft:clipRect?.left,pcmLeft:pcmRect?.left,borderLeft,pcmWindowLeft}
+  check('El PCM y el clip conservan su origen',!!clip()&&!!zeroTick&&!!pcm&&
+    approx(originPx,24)&&approx(clipPx-originPx,current().t*70)&&
+    Number.isFinite(borderLeft)&&Number.isFinite(pcmWindowLeft)&&
+    !!clipRect&&!!pcmRect&&approx(pcmRect.left-clipRect.left,borderLeft+pcmWindowLeft,.35),originGeometry)
+  const sourceLength=JSON.stringify([current().t,current().duration,current().clip,current().fadeIn,current().fadeOut,current().volume])
+  progress('Agregar punto desde Inspector')
+  add()?.click();await nextTick()
+  check('Inspector crea exactamente un punto',current().volumeAutomation?.length===1,current().volumeAutomation)
+  check('Punto del Inspector tiene ID estable',typeof current().volumeAutomation?.[0]?.id==='string')
+  check('Punto nuevo aparece como control accesible',handles().length===1&&handles()[0].getAttribute('role')==='slider')
+  check('El SVG de volumen se incorpora sobre el clip',!!envelope()&&envelope().getAttribute('d').includes('L'))
+  check('La clave mantiene duración, fuente, fade y volumen base',sourceLength===JSON.stringify([current().t,current().duration,current().clip,current().fadeIn,current().fadeOut,current().volume]))
+  check('Inspector expone tiempo y factor',!!selectFirst()?.querySelectorAll('input').length)
+  const firstId=current().volumeAutomation[0].id
+  check('El punto creado se serializa',saved().volumeAutomation?.[0]?.id===firstId)
+  progress('Editar factor en Inspector')
+  const factorInput=selectFirst().querySelectorAll('input')[2]
+  factorInput.value='0.45';factorInput.dispatchEvent(new Event('change',{bubbles:true}));await nextTick()
+  check('Inspector modifica factor en modelo',approx(current().volumeAutomation[0].value,.45),current().volumeAutomation)
+  check('Render sincroniza el aria-valuenow del punto',handles()[0]?.getAttribute('aria-valuenow')==='45')
+  progress('Crear otro punto con Ctrl + doble clic en el clip')
+  const rect=clip().getBoundingClientRect()
+  clip().dispatchEvent(new MouseEvent('dblclick',{bubbles:true,cancelable:true,ctrlKey:true,button:0,clientX:rect.left+105,clientY:rect.top+12}))
+  await nextTick()
+  check('Ctrl + doble clic crea segundo punto sin otra pista',current().volumeAutomation?.length===2&&store.project.timelines[0].tracks.length===1,current().volumeAutomation)
+  check('Ctrl + doble clic respeta el tiempo relativo',current().volumeAutomation.some(p=>approx(p.t,1.5)))
+  check('Hay dos controles de volumen independientes',handles().length===2)
+  check('Los puntos no generan elementos dentro de otros botones',!document.querySelector('#timeline button button'))
+  progress('Arrastre real de punto en Editor')
+  const before=current().volumeAutomation.find(p=>p.id===firstId)
+  const former={...before}
+  await drag(handles().at(-1),28,4)
+  const after=current().volumeAutomation.find(p=>p.id===firstId)
+  const afterMoved={...after}
+  check('Arrastre modifica tiempo del mismo ID',!!after&&approx(after.t,former.t+.4),after)
+  check('Arrastre modifica ganancia sin alterar el volumen base',after.value<former.value&&current().volume===.8,after)
+  check('La curva y asa reflejan la edición',envelope()?.getAttribute('d').includes('L'))
+  check('Clip y fundidos no se alteran por arrastre',sourceLength===JSON.stringify([current().t,current().duration,current().clip,current().fadeIn,current().fadeOut,current().volume]))
+  check('Serialización guarda las nuevas coordenadas',saved().volumeAutomation.some(p=>p.id===firstId&&approx(p.t,after.t)))
+  progress('Cancelar un arrastre')
+  const snapshot=JSON.stringify(current().volumeAutomation)
+  await drag(handles().at(-1),-21,-4,{cancel:true})
+  check('Pointercancel restaura todos los puntos',JSON.stringify(current().volumeAutomation)===snapshot)
+  progress('Teclado y bloqueo de pista')
+  await press(handles().at(-1),'ArrowUp')
+  check('Flecha arriba incrementa el factor',current().volumeAutomation.find(p=>p.id===firstId).value>afterMoved.value)
+  check('Teclado no cambia el ID ni fuente',current().volumeAutomation.some(p=>p.id===firstId)&&current().clip==='audio-de-prueba.wav')
+  currentTrack().locked=true;await nextTick()
+  const lockedState=JSON.stringify(current().volumeAutomation)
+  await press(handles().at(-1),'ArrowDown')
+  check('Pista bloqueada impide editar puntos',JSON.stringify(current().volumeAutomation)===lockedState)
+  currentTrack().locked=false;await nextTick()
+  progress('Borrado y persistencia')
+  await press(handles().at(-1),'Delete')
+  check('Suprimir elimina solamente el punto seleccionado',current().volumeAutomation?.length===1&&!current().volumeAutomation.some(p=>p.id===firstId))
+  check('La persistencia sigue conservando el punto restante',saved().volumeAutomation.length===1)
+  check('El audio sin duración permanece sin migrar',currentTrack().keys[1].duration===0&&!currentTrack().keys[1].volumeAutomation)
+  check('Cinematics no recibe recursos nuevos',!store.project.cinematics?.length)
+  check('Compilación y montaje no añaden una segunda pista',store.project.timelines[0].tracks.length===1)
+  progress('Comprobar origen PCM con zoom y desplazamiento nativos')
+  const zoomSlider=document.querySelector('#timeline .zoom-slider')
+  const timeScroll=document.querySelector('#timeline .scroll')
+  if(!zoomSlider || !timeScroll) throw new Error('Faltan controles reales de zoom o scroll')
+  zoomSlider.value='105';zoomSlider.dispatchEvent(new Event('input',{bubbles:true}))
+  await nextTick()
+  await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)))
+  timeScroll.scrollLeft=72;timeScroll.dispatchEvent(new Event('scroll'))
+  await nextTick()
+  const zoomNow=Number(zoomSlider.value), scrollNow=timeScroll.scrollLeft
+  const newClip=clip(),newPcm=newClip?.querySelector('.timeline-waveform')
+  const newRuler=document.querySelector('#timeline .ruler')
+  const newZero=[...document.querySelectorAll('#timeline .ruler .tick')]
+    .find(element=>element.querySelector('i')?.textContent?.trim()==='0')
+  const newClipRect=newClip?.getBoundingClientRect(),newPcmRect=newPcm?.getBoundingClientRect()
+  const newBorder=newClip ? Number.parseFloat(getComputedStyle(newClip).borderLeftWidth) : NaN
+  const newWindow=Number.parseFloat(newPcm?.style.left || '0')
+  const newClipPx=Number.parseFloat(newClip?.style.left),newOrigin=Number.parseFloat(newZero?.style.left)
+  const viewportProjection=newClipRect ? newClipRect.left-timeScroll.getBoundingClientRect().left+scrollNow : NaN
+  const measured={zoomNow,scrollNow,newClipPx,newOrigin,viewportProjection,
+    clipLeft:newClipRect?.left,pcmLeft:newPcmRect?.left,newBorder,newWindow}
+  check('Zoom y scroll mantienen el origen PCM interior sin desfase temporal',
+    !!newClip&&!!newPcm&&!!newRuler&&!!newZero&&zoomNow>70&&scrollNow>0&&
+    approx(newOrigin,24)&&approx(newClipPx-newOrigin,current().t*zoomNow,.35)&&
+    approx(viewportProjection,newClipPx,1)&&
+    approx(newPcmRect.left-newClipRect.left,newBorder+newWindow,.35),measured)
+  finish()
+} catch(error){finish(error)}
+finally{try{playback?.dispose();for(const app of apps)app.unmount()}catch{}}
+</script>
+</html>

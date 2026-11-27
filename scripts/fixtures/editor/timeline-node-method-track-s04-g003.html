@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="es"><meta charset="utf-8"><title>QA Timeline - Métodos de nodo S04-G003</title>
+<style>
+  body { margin:0; background:#15171a; color:#dedede; font:12px sans-serif; }
+  .workspace { display:grid; grid-template-columns:240px minmax(350px,1fr) 260px; gap:8px; height:620px; }
+  #tree,#timeline,#inspector { border:1px solid #4a4a4a; min-width:0; min-height:0; }
+  #inspector { container-type:inline-size; }
+  #timeline { height:560px; }
+  #timeline-method-result { position:absolute; visibility:hidden; }
+</style>
+<div class="workspace"><div id="tree"></div><div id="timeline"></div><div id="inspector"></div></div>
+<div id="menus"></div><pre id="timeline-method-result"></pre>
+<script type="module">
+import { createApp, h, nextTick } from 'vue'
+import SceneTree from '/src/components/SceneTree.vue'
+import TimelinePanel from '/src/components/TimelinePanel.vue'
+import InspectorDock from '/src/components/InspectorDock.vue'
+import ContextMenu from '/src/components/ContextMenu.vue'
+import { store, openTimelineEditor, resetHistory, undo, redo, selectTemporal } from '/src/core/store.js'
+import { createProjectData } from '/src/core/project.js'
+import { makeObject } from '/src/engine/runtime/nodes/index.js'
+import { newTimeline, normalizeTimeline } from '/src/core/timeline/model.js'
+
+const out=document.querySelector('#timeline-method-result'), apps=[], checks=[]
+const check=(name,pass)=>{checks.push({name,pass:!!pass});if(!pass)throw Error(name)}
+const tick=async()=>{await nextTick();await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)))}
+const mount=(component,id)=>{const app=createApp(component);app.mount(id);apps.push(app)}
+const click=el=>el?.dispatchEvent(new MouseEvent('click',{bubbles:true,cancelable:true}))
+const menuItem=name=>[...document.querySelectorAll('#menus [role="menuitem"]')].find(el=>el.querySelector('.lbl')?.textContent.trim()===name)
+const drag=(from,to)=>{
+ const dt=new DataTransfer()
+ from.dispatchEvent(new DragEvent('dragstart',{bubbles:true,cancelable:true,dataTransfer:dt}))
+ to.dispatchEvent(new DragEvent('dragover',{bubbles:true,cancelable:true,dataTransfer:dt,clientX:340,clientY:410}))
+ to.dispatchEvent(new DragEvent('drop',{bubbles:true,cancelable:true,dataTransfer:dt,clientX:340,clientY:410}))
+ from.dispatchEvent(new DragEvent('dragend',{bubbles:true,cancelable:true,dataTransfer:dt}))
+ return dt
+}
+const change=async(el,value)=>{el.value=value;el.dispatchEvent(new Event('change',{bubbles:true}));await tick()}
+const tracks=()=>store.project.timelines[0].tracks
+const part=()=>document.querySelector('#inspector .temporal-inspector')?.dataset.part
+try {
+ const p=createProjectData('QA Métodos Timeline','empty')
+ p.objects=[makeObject('node3d','node3d',{id:'node-puerta',name:'Puerta',parentId:null,open:true})]
+ p.objects[0].scriptIds=['script-door']
+ p.scripts=[{id:'script-door',name:'Comportamiento de puerta',execution:'node',code:"node.expose('abrir', (grados) => {}); node.expose('cerrar', () => {});"}]
+ p.timelines=[newTimeline('QA Cinemática',{id:'qa-methods',duration:8})]
+ store.project=p;store.locked=false
+ store.prefs.rightTab='object';store.prefs.rightOpen=true
+ store.editor={snapshotTerrain:()=>p.terrain,restoreTerrain(){},syncAll(){},syncEnvironment(){},setSelection(){},afterUndo(){}}
+ resetHistory()
+ mount(SceneTree,'#tree'); mount(TimelinePanel,'#timeline'); mount(InspectorDock,'#inspector')
+ mount({render:()=>store.menu?h(ContextMenu):null},'#menus')
+ openTimelineEditor('qa-methods');await tick()
+ check('Timeline abre por ID',store.timelineId==='qa-methods')
+ const treeNode=document.querySelector('#tree [role="treeitem"][data-id="node-puerta"]')
+ const target=document.querySelector('#timeline .main')
+ check('Nodo de Jerarquía renderizado',!!treeNode)
+ check('Timeline recibe drop',!!target)
+ const payload=drag(treeNode,target);await tick()
+ check('DnD utiliza ID de nodo existente',JSON.parse(payload.getData('application/x-lf-node'))[0]==='node-puerta')
+ check('Opción Llamadas a métodos disponible',!!menuItem('Llamadas a métodos'))
+ click(menuItem('Llamadas a métodos'));await tick()
+ check('Creada una pista de métodos',tracks().length===1&&tracks()[0].kind==='method')
+ check('Pista usa ID persistente',tracks()[0].node==='node-puerta'&&tracks()[0].byId===true)
+ check('Inspector selecciona pista',part()==='track')
+ check('Inspector permite resolver nodo por ID',!![...document.querySelectorAll('#inspector option')].find(o=>o.value==='node-puerta'))
+ drag(treeNode,target);await tick();click(menuItem('Llamadas a métodos'));await tick()
+ check('Drop repetido no duplica pista',tracks().length===1)
+ const lane=document.querySelector('#timeline .lane')
+ check('Carril de método renderizado',!!lane)
+ lane.dispatchEvent(new MouseEvent('dblclick',{bubbles:true,cancelable:true,clientX:lane.getBoundingClientRect().left+70}))
+ await tick()
+ check('Doble clic crea clave de método',tracks()[0].keys.length===1)
+ check('Nueva clave sin ejecución implícita',tracks()[0].keys[0].method==='')
+ check('Inspector selecciona clave',part()==='key')
+ const methodInput=document.querySelector('#inspector input[placeholder="Método expuesto con node.expose()"]')
+ check('Campo de método en Inspector',!!methodInput)
+ check('Autoselección de métodos expuestos',!![...document.querySelectorAll('#inspector datalist option')].find(o=>o.value==='abrir'))
+ await change(methodInput,'abrir')
+ check('Método persistido',tracks()[0].keys[0].method==='abrir')
+ const argsInput=document.querySelector('#inspector .method-args textarea')
+ check('Editor de argumentos JSON disponible',!!argsInput)
+ await change(argsInput,'[45, true, "segundo"]')
+ check('Argumentos tipados persistidos',JSON.stringify(tracks()[0].keys[0].args)==='[45,true,"segundo"]')
+ await change(argsInput,'{"incorrecto":true}')
+ check('No permite argumentos JSON que no sean lista',JSON.stringify(tracks()[0].keys[0].args)==='[45,true,"segundo"]')
+ check('Error de validación visible',!!document.querySelector('#inspector .note.error'))
+ await change(argsInput,'[]')
+ check('Error desaparece al validar',!document.querySelector('#inspector .note.error'))
+ const persisted=normalizeTimeline(JSON.parse(JSON.stringify(store.project.timelines[0])))
+ check('Guardado normaliza pista y método',persisted.tracks[0].keys[0].method==='abrir')
+ check('Guardado conserva referencia por ID',persisted.tracks[0].byId&&persisted.tracks[0].node==='node-puerta')
+ store.project.objects[0].name='Puerta Renombrada';await tick()
+ check('Renombrado no cambia referencia persistente',tracks()[0].node==='node-puerta')
+ const trackId=tracks()[0].id,keyId=tracks()[0].keys[0].id
+ undo();await tick()
+ check('Deshacer restaura valores de clave o edición previa',tracks()[0].keys.length===1)
+ redo();await tick()
+ check('Rehacer mantiene pista identificada por ID',tracks()[0].id===trackId)
+ selectTemporal('timeline','qa-methods','key',trackId,keyId);await tick()
+ check('Inspector recupera selección por ID',part()==='key')
+ document.querySelector('#inspector').style.width='260px';await tick()
+ const inspector=document.querySelector('#inspector .temporal-inspector')
+ check('Inspector ancho 260 px sin overflow',!!inspector&&inspector.scrollWidth<=inspector.clientWidth+2)
+ check('Carril visible tras reducir Inspector',!!document.querySelector('#timeline .lane'))
+ out.dataset.pass='true';out.textContent=JSON.stringify({pass:true,checks})
+} catch(error) {out.dataset.pass='false';out.textContent=JSON.stringify({pass:false,checks,error:error.stack})}
+finally {for(const app of apps)app.unmount()}
+</script></html>

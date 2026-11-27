@@ -1,0 +1,36 @@
+{
+  "gate": "CENTURY-TRIANGHOR-INTEGRATION-S01-G001-CORR-001-NPM-LOCKFILE-AND-CLEAN-INSTALL",
+  "source_baseline_file_count": 3181,
+  "result_file_count": 3194,
+  "preserves_all_previous_source_files": true,
+  "new_files": [
+    "docs/architecture/CENTURY-TRIANGHOR-INTEGRATION-S01-G001-CORR-001-NPM-LOCKFILE-AND-CLEAN-INSTALL_IMPLEMENTATION.md",
+    "docs/qa/CENTURY-TRIANGHOR-INTEGRATION-S01-G001-CORR-001-NPM-LOCKFILE-AND-CLEAN-INSTALL_CHANGE_MANIFEST.json",
+    "docs/qa/CENTURY-TRIANGHOR-INTEGRATION-S01-G001-CORR-001-NPM-LOCKFILE-AND-CLEAN-INSTALL_EVIDENCE.md",
+    "docs/qa/CENTURY-TRIANGHOR-INTEGRATION-S01-G001-CORR-001-NPM-LOCKFILE-AND-CLEAN-INSTALL_SOURCE_MANIFEST.json",
+    "docs/qa/evidence/CENTURY-TRIANGHOR-INTEGRATION-S01-G001-CORR-001-NPM-LOCKFILE-AND-CLEAN-INSTALL/baseline-npm-ci.log",
+    "docs/qa/evidence/CENTURY-TRIANGHOR-INTEGRATION-S01-G001-CORR-001-NPM-LOCKFILE-AND-CLEAN-INSTALL/baseline-smoke.txt",
+    "docs/qa/evidence/CENTURY-TRIANGHOR-INTEGRATION-S01-G001-CORR-001-NPM-LOCKFILE-AND-CLEAN-INSTALL/qa-integration.txt",
+    "docs/qa/evidence/CENTURY-TRIANGHOR-INTEGRATION-S01-G001-CORR-001-NPM-LOCKFILE-AND-CLEAN-INSTALL/qa-lock.txt",
+    "docs/qa/evidence/CENTURY-TRIANGHOR-INTEGRATION-S01-G001-CORR-001-NPM-LOCKFILE-AND-CLEAN-INSTALL/qa-smoke.txt",
+    "docs/qa/evidence/CENTURY-TRIANGHOR-INTEGRATION-S01-G001-CORR-001-NPM-LOCKFILE-AND-CLEAN-INSTALL/work-npm-ci-dry.log",
+    "docs/qa/evidence/CENTURY-TRIANGHOR-INTEGRATION-S01-G001-CORR-001-NPM-LOCKFILE-AND-CLEAN-INSTALL/work-npm-ci-full-offline.log",
+    "docs/qa/evidence/CENTURY-TRIANGHOR-INTEGRATION-S01-G001-CORR-001-NPM-LOCKFILE-AND-CLEAN-INSTALL/work-npm-lock.log",
+    "scripts/test-century-trianghor-npm-lock.mjs"
+  ],
+  "changed_files": [
+    "docs/qa/LevelForge_DB_Ledger.xlsx",
+    "package-lock.json",
+    "scripts/qa-suites.json",
+    "scripts/test-century-trianghor-independent-integration.mjs"
+  ],
+  "deleted_files": [],
+  "sha256_modified_files": {
+    "docs/qa/LevelForge_DB_Ledger.xlsx": "f04f375ce66cec6cbf6a80810a94d36d438f259656f83c461281b6e192121bfd",
+    "package-lock.json": "8ff27d3cda58adf92fc0f04051c497ff33a79dc68b25a835ee4947d5fb7730bd",
+    "scripts/qa-suites.json": "84778be57286d117a583a6edda5f7225687e88394c5ef3c51faacf509bb53dd3",
+    "scripts/test-century-trianghor-independent-integration.mjs": "9c1e9af0747b84c6de23981201d1000a49e4cfafe27fac1e959c97662e0b812d"
+  },
+  "validation": "Content comparison against exact approved-source input; no unrelated dependency changes",
+  "approval": "PENDING"
+}

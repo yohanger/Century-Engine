@@ -1,0 +1,31 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Century Docking QA</title><style>
+body{margin:0}#qa-grid{position:fixed;inset:64px 20px 70px;display:grid;grid-template-columns:24% 1fr 24%;grid-template-rows:1fr 26%;gap:48px}#qa-left{grid-column:1}#qa-center{grid-column:2}#qa-right{grid-column:3}#qa-bottom{grid-column:1/4}#qa-gap{position:fixed;top:36px;left:45%;width:80px;height:25px}#qa-result{position:fixed;bottom:0;left:0;margin:0}
+</style></head><body><div id="qa-root"></div><div id="qa-gap"></div><pre id="qa-result">Inicializando</pre><script type="module">
+import {createApp,h,ref,shallowRef,watch,nextTick,Teleport,onMounted,onBeforeUnmount} from 'vue'
+import '/src/styles.css'
+import DockTree from '/src/components/DockTree.vue'
+import DockFloating from '/src/components/DockFloating.vue'
+import {store} from '/src/core/store.js'
+import {defaultDockLayout,findDockPanel,dockGroups} from '/src/core/editor/docking.js'
+import {getNativeToolDocument} from '/src/core/editor/native-tool-registry.js'
+import {findDetachPoints} from './dock-detach-points.mjs'
+import {observeDockGesture} from '/src/core/editor/dock-gesture.js'
+const out=document.querySelector('#qa-result');let mounts=0;let preview=null;let trusted=0
+const trace=[], lifecycle=[], domEvents=[]
+const observed=new WeakSet()
+const keep=(items,value)=>{items.push(value);if(items.length>24)items.shift()}
+const stopObserve=observeDockGesture(record=>{
+  keep(trace,record)
+  if(record.phase!=='hit-test'&&record.phase!=='below-threshold')keep(lifecycle,record)
+})
+function watchDocument(doc,owner){if(!doc||observed.has(doc))return;observed.add(doc);const win=doc.defaultView;for(const name of ['pointerdown','pointermove','pointerup','pointercancel','gotpointercapture','lostpointercapture','blur'])win.addEventListener(name,e=>{const target=e.target;keep(domEvents,{owner,event:name,pointerId:e.pointerId??null,buttons:e.buttons??null,client:[e.clientX??null,e.clientY??null],screen:[e.screenX??null,e.screenY??null],trusted:e.isTrusted,tag:target?.tagName??null,id:target?.id??null,tab:target?.closest?.('[data-lf-dock-tab]')?.dataset?.lfDockTab??null,bodyCapture:Number.isInteger(e.pointerId)?doc.body?.hasPointerCapture(e.pointerId):null})},true)}
+watchDocument(document,'editor');window.addEventListener('pagehide',stopObserve,{once:true});window.addEventListener('century:native-dock-changed',()=>watchDocument(getNativeToolDocument('hierarchy'),'native'))
+window.addEventListener('century:dock-preview',e=>preview=e.detail)
+window.addEventListener('pointerdown',e=>{if(e.isTrusted)trusted++},true)
+store.ui.mode='desktop';store.prefs.dockLayout=defaultDockLayout();Object.assign(store.prefs,{leftOpen:true,rightOpen:true,bottomOpen:true})
+const child={setup(){mounts++;const count=ref(7);return()=>h('div',{id:'qa-payload'},String(count.value))}}
+const app=createApp({setup(){const destination=shallowRef('body');const sync=async()=>{await nextTick();const at=findDockPanel(store.prefs.dockLayout,'hierarchy');const id=at?.kind==='float'?'lf-dock-float-hierarchy':`lf-dock-target-${at?.groupId}-hierarchy`;destination.value=(getNativeToolDocument('hierarchy')?.getElementById(id)||document.getElementById(id)||document.body)};watch(()=>store.prefs.dockLayout,sync,{flush:'post'});onMounted(()=>{window.addEventListener('century:native-dock-changed',sync);void sync()});onBeforeUnmount(()=>window.removeEventListener('century:native-dock-changed',sync));return()=>h('div',[h('div',{id:'qa-grid'},['left','center','right','bottom'].map(zone=>h('section',{id:'qa-'+zone,key:zone},store.prefs.dockLayout.zones[zone]?[h(DockTree,{node:store.prefs.dockLayout.zones[zone],zone})]:[]))),...store.prefs.dockLayout.floats.filter(f=>f.id==='hierarchy').map(item=>h(DockFloating,{key:item.id,item})),h(Teleport,{to:destination.value},[h(child)])])}})
+app.mount('#qa-root');await nextTick();await nextTick();window.__dockQA=()=>({where:findDockPanel(store.prefs.dockLayout,'hierarchy'),tabs:dockGroups(store.prefs.dockLayout.zones.center).flatMap(g=>g.tabs),preview,mounts,trusted,native:!!getNativeToolDocument('hierarchy'),payload:(getNativeToolDocument('hierarchy')||document).querySelector('#qa-payload')?.textContent||null});
+window.__dockQADetachPoints=()=>{const tab=document.querySelector('[data-lf-dock-tab="hierarchy"]');if(!tab)return null;const r=tab.getBoundingClientRect(),o=(tab.closest('.lf-dock-tabs')||tab).getBoundingClientRect();return findDetachPoints({source:{x:r.left+r.width/2,y:r.top+r.height/2},origin:{left:o.left,right:o.right,top:o.top,bottom:o.bottom},width:innerWidth,height:innerHeight,isClear:p=>{const hit=document.elementFromPoint(p.x,p.y);return !!hit&&!hit.closest('[data-lf-dock-group]')}})};
+window.__dockQADiagnostics=()=>({state:window.__dockQA(),layout:JSON.parse(JSON.stringify(store.prefs.dockLayout)),viewport:{width:innerWidth,height:innerHeight,screenX,screenY,dpr:devicePixelRatio,focused:document.hasFocus()},trace:[...trace],lifecycle:[...lifecycle],domEvents:[...domEvents]});out.textContent='QA listo'
+</script></body></html>

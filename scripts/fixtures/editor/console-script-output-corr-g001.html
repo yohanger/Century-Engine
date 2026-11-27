@@ -1,0 +1,88 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>QA Consola de scripts</title><style>body{margin:0;background:#171b20;color:#ddd}#dock{height:260px}#ui{padding:8px}</style></head><body>
+<div id="dock"></div><div id="ui"></div><pre id="console-script-output-corr-g001-result">Verificando Consola…</pre>
+<script type="module">
+import * as THREE from 'three'
+import {createApp,nextTick,h} from 'vue'
+import BottomDock from '/src/components/BottomDock.vue'
+import {store,toast} from '/src/core/store.js'
+import {EDITOR_HOST} from '/src/core/editor/editor-host.js'
+import {Game} from '/src/engine/runtime/events/interpreter.js'
+import {NodeScriptRuntime} from '/src/engine/runtime/scene/node-scripts.js'
+import {NodeLifecycle} from '/src/engine/runtime/scene/node-lifecycle.js'
+import {registerNode} from '/src/engine/runtime/nodes/registry.js'
+import {nodesMethods} from '/src/engine/runtime/events/play-nodes.js'
+import {UiManager} from '/src/engine/runtime/ui/manager.js'
+import {createPackageHost} from '/src/engine/runtime/package/host.js'
+import {loadJolt} from '/src/engine/runtime/physics/jolt.js'
+import '/src/styles.css'
+const checks=[],out=document.getElementById('console-script-output-corr-g001-result')
+const check=(name,pass)=>{checks.push({name,pass:!!pass});if(!pass)throw Error(name)}
+const flush=async()=>{await nextTick();await new Promise(r=>requestAnimationFrame(r));await nextTick()}
+let app,uiApp,renderer,life,game
+try{
+ renderer=new THREE.WebGLRenderer({antialias:false});renderer.setSize(16,16);renderer.render(new THREE.Scene(),new THREE.PerspectiveCamera())
+ check('WebGL2 en Electron',renderer.capabilities.isWebGL2)
+ const jolt=await loadJolt();check('Jolt WASM disponible sin cambios',!!jolt.JoltInterface)
+ store.log.splice(0);store.prefs.bottomTab='console';store.locked=false
+ store.project={id:'console-qa',activeSceneId:'A',objects:[],scripts:[],assets:[],models:[],uis:[],signalConnections:[]}
+ const host={log:EDITOR_HOST.log,error:msg=>EDITOR_HOST.log(msg,'error','Script')}
+ game=new Game({host})
+ app=createApp(BottomDock);app.mount('#dock');await flush()
+ check('Consola existente montada',!!document.querySelector('#dock [role=log]'))
+ check('Estado vacío describe scripts',document.querySelector('#dock .empty')?.textContent.includes('scripts'))
+ toast('Guardado administrativo','ok',1);await flush()
+ check('Toast no crea filas',store.log.length===0)
+ check('Notificación administrativa sigue disponible',store.toasts.some(t=>t.msg==='Guardado administrativo'))
+ const native=console.log
+ await game.loadScripts([{name:'global.js',code:`console.log('log');console.info('info');console.warn('warn');console.error('error');console.debug('debug');game.log('api')`}]);await flush()
+ check('Una fila por cada llamada',store.log.length===6)
+ check('Cinco niveles conservados',store.log.slice(0,5).map(x=>x.kind).join(',')==='log,info,warn,error,debug')
+ check('Global console intacto',console.log===native)
+ check('Contexto del recurso visible',document.querySelector('#dock .context')?.textContent==='global.js')
+ check('Contador de pestaña sincronizado',document.querySelector('#dock .n')?.textContent==='6')
+ await game.run([{code:'script',p:{code:`console.info('evento')`}}],{name:'Evento QA'}).done;await flush()
+ check('Evento muestra su contexto',store.log.at(-1).context==='Evento QA')
+ await game.loadScripts([{name:'local.js',code:`const console={log:v=>game.state.local=v};console.log(42)`}]);check('console propio conserva compatibilidad',game.state.local===42&&store.log.length===7)
+ registerNode({type:'consoleElectronQA',label:'QA',create:()=>({}),build:()=>({}),update:()=>{}})
+ const obj={id:'n',name:'Nodo QA',type:'consoleElectronQA',scriptIds:['a','b']}
+ store.project.objects=[obj];store.project.scripts=[{id:'a',name:'a.js',execution:'node',code:`node.define_signal('listo');node.expose('emitir',()=>node.emit_signal('listo',9));function _ready(){console.info('nodo A')};game.state.late=()=>console.warn('obsoleto')`},{id:'b',name:'b.js',execution:'node',code:`node.expose('recibir',v=>console.warn('señal',v));function _ready(){console.debug('nodo B')}`}]
+ // La representación debe pertenecer a la misma identidad que lee el runtime del proyecto reactivo.
+ const mountedObject=store.project.objects[0]
+ const nodes=new Map([[mountedObject.id,new THREE.Group()]]);nodes.get(mountedObject.id)._lfNodeOwner=mountedObject
+ check('Propietario 3D coincide con identidad del proyecto',nodes.get(obj.id)._lfNodeOwner===store.project.objects[0])
+ life=new NodeLifecycle({host:EDITOR_HOST,nodes})
+ const play={on:true,game,project:store.project,_referenceSession:{},ed:{nodes,nodeLifecycle:life},_tagLayerApi:()=>({}),_animMethodsFor:()=>({}),_persistMarked:()=>false,_persistSet:()=>{},vm:{held:new Map()},pos:new THREE.Vector3(),vp:{requestRender(){}}}
+ Object.assign(play,nodesMethods);game.api.node=id=>play._nodeHandle(id);life.scripts=new NodeScriptRuntime(play);life.start()
+ check('Montaje nodal no genera errores de script',!store.log.some(x=>x.kind==='error'&&x.context==='Script'))
+ check('Dos scripts de nodo, dos salidas',store.log.slice(-2).map(x=>x.msg).join(',')==='nodo A,nodo B')
+ const handle=play._nodeHandle('n');handle.connect('listo',handle,'recibir');handle.call('emitir')
+ check('Callback Signals escribe una vez',store.log.at(-1).msg==='señal 9'&&store.log.filter(x=>x.msg==='señal 9').length===1)
+ check('Callback conserva propietario de script',store.log.at(-1).context.includes('b.js'))
+ const late=game.state.late;life.stop();const count=store.log.length;late();check('Slot liberado no escribe',store.log.length===count)
+ life.start();check('Reentrada genera solamente dos salidas',store.log.length===count+2);life.stop()
+ const doc={id:'qa-ui',name:'QA.ui',code:`<template><div><button id="ui-log" @click="write">Escribir</button><button id="ui-error" @click="fail">Fallar</button></div></template><script>console.info('ui setup');game.state.uiLate=()=>console.debug('ui vieja');return {write:()=>console.warn('ui click'),fail:()=>{throw Error('ui error esperado')}}<\/script>`}
+ const mgr=new UiManager({play:{},getDocs:()=>[doc],getConfig:()=>({}),getGame:()=>game,host})
+ const compiled=mgr.compiled(doc.id);check('Interfaz compila',compiled.ok)
+ uiApp=createApp({render:()=>h(compiled.component,{screen:{key:doc.id,docId:doc.id,props:{}}})});uiApp.mount('#ui');await flush()
+ check('Script UI escribe en setup',store.log.at(-1).msg==='ui setup')
+ document.getElementById('ui-log').click();await flush();check('Evento UI conserva nivel y contexto',store.log.at(-1).kind==='warn'&&store.log.at(-1).context.includes('QA.ui'))
+ document.getElementById('ui-error').click();await flush();check('Excepción Vue visible una vez',store.log.filter(x=>x.msg.includes('ui error esperado')).length===1)
+ uiApp.unmount();uiApp=null;const beforeUi=store.log.length;game.state.uiLate();check('UI desmontada no escribe',store.log.length===beforeUi)
+ await game.loadScripts([{name:'roto.js',code:`throw Error('global esperado')`}]);check('Excepción de script llega con contexto',store.log.at(-1).kind==='error'&&store.log.at(-1).msg.includes('roto.js'))
+ for(let i=0;i<310;i++)game.console.log('fila '+i);await flush()
+ check('Historial limitado a 300',store.log.length===300&&document.querySelectorAll('#dock .ln').length===300)
+ check('Contador refleja el límite',document.querySelector('#dock .n')?.textContent==='300')
+ const lines=document.querySelector('#dock .lines');game.console.log('última');await flush()
+ check('Autoscroll funciona con límite lleno',Math.abs(lines.scrollHeight-lines.clientHeight-lines.scrollTop)<3)
+ check('Última fila visible y retenida',store.log.at(-1).msg==='última'&&document.querySelector('#dock .ln:last-child')?.textContent.includes('última'))
+ document.querySelector('#dock .bar button').click();await flush()
+ check('Limpiar elimina filas y contador',store.log.length===0&&!document.querySelector('#dock .n'))
+ check('Limpiar restaura estado vacío',!!document.querySelector('#dock .empty'))
+ const saved=game.console;game.closeOutput();game=new Game({host});saved.log('sesión anterior');game.console.log('sesión nueva');check('Solo escribe la nueva sesión',store.log.length===1&&store.log[0].msg==='sesión nueva')
+ const output=[],packageHost=createPackageHost({pkg:{game:{id:'exportado'},file:async()=>null},storage:{},log:(...a)=>output.push(a)})
+ const player=new Game({host:packageHost});await player.loadScripts([{name:'Player.js',code:`console.warn('player');game.log('api player')`}]);check('Player sin store conserva sus salidas',output.length===2&&output[0][1]==='warn'&&store.log.length===1)
+ check('Sin errores WebGL',renderer.getContext().getError()===renderer.getContext().NO_ERROR)
+ out.dataset.pass='true';out.textContent=JSON.stringify({pass:true,checks,gl:renderer.getContext().getParameter(renderer.getContext().VERSION)},null,2)
+}catch(error){out.dataset.pass='false';out.textContent=JSON.stringify({pass:false,checks,error:String(error.stack||error)},null,2)}
+finally{life?.stop();game?.closeOutput();uiApp?.unmount();app?.unmount();renderer?.dispose()}
+</script></body></html>

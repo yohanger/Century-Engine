@@ -1,0 +1,39 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Naturaleza nodos S01 · Electron</title></head><body style="background:#151719;color:#dfe3ea"><pre id="nature-nodes-s01-g001-result">Cargando...</pre>
+<script type="module">
+import * as THREE from 'three'
+import {makeObject,getDef,allDefs} from '/src/engine/runtime/nodes/index.js'
+import {shiftANodeCatalog} from '/src/core/add-menu-catalog.js'
+import {setWind,WINDU} from '/src/engine/runtime/render/windlib.js'
+const out=document.getElementById('nature-nodes-s01-g001-result'),checks=[]
+const check=(name,value)=>{checks.push({name,pass:!!value});if(!value)throw Error(name)}
+let renderer
+try{
+ renderer=new THREE.WebGLRenderer({antialias:false,preserveDrawingBuffer:true});renderer.setSize(160,128);renderer.setClearColor('#202734');renderer.outputColorSpace=THREE.SRGBColorSpace
+ check('WebGL2 embebido',renderer.capabilities.isWebGL2)
+ const cat=shiftANodeCatalog(allDefs());const nature=cat.filter(i=>i.category==='Naturaleza')
+ check('Terrain y siete piezas en Naturaleza',nature.length===8 && nature.some(n=>n.type==='terrain') && nature.filter(n=>n.type==='nature').length===7)
+ const scene=new THREE.Scene(),cam=new THREE.PerspectiveCamera(55,160/128,.1,100);cam.position.set(8,9,15);cam.lookAt(0,1,0)
+ scene.add(new THREE.HemisphereLight('#ffffff','#52636b',2));const sun=new THREE.DirectionalLight('#ffffff',2);sun.position.set(3,10,5);scene.add(sun)
+ const objTree=makeObject('nature','tree',{id:'tree-1',position:[-2,0,0],color:'#ffffff'})
+ const objGrass=makeObject('nature','grass',{id:'grass-1',position:[2,0,0]})
+ const treeDef=getDef('nature');const tree=treeDef.build(objTree),grass=treeDef.build(objGrass)
+ treeDef.update(tree,objTree);treeDef.update(grass,objGrass);scene.add(tree,grass)
+ check('Árbol tiene malla tridimensional con colores',tree.userData.natureMesh.isMesh && tree.userData.natureMesh.geometry.attributes.color.count>0)
+ check('Hierba tiene malla independiente',grass.userData.natureMesh.isMesh && grass.userData.natureMesh.geometry!==tree.userData.natureMesh.geometry)
+ check('No se crea ningún objeto Terrain',!scene.children.some(n=>n.userData?.kind==='terrain'))
+ check('Sombras por tipo existentes',tree.userData.natureMesh.castShadow && !grass.userData.natureMesh.castShadow)
+ renderer.render(scene,cam);const pixels=new Uint8Array(160*128*4);const gl=renderer.getContext();gl.readPixels(0,0,160,128,gl.RGBA,gl.UNSIGNED_BYTE,pixels)
+ const active=pixels.reduce((acc,n,i)=>acc+(i%4!==3 && n>20 ? 1:0),0)
+ check('El renderer produce píxeles',active>0)
+ check('Render sin error GPU',gl.getError()===gl.NO_ERROR)
+ const before=tree.position.clone();objTree.position=[4,0,-1];objTree.rotation=[0,45,0];objTree.scale=[1.5,1.5,1.5];treeDef.update(tree,objTree)
+ check('Mover/rotar/escalar árbol modifica únicamente su Transform',tree.position.x===4 && tree.rotation.y>0.7 && tree.userData.visual.scale.x===1.5 && grass.position.x===2)
+ objTree.props.windSway=0;treeDef.update(tree,objTree)
+ check('Viento desactivable por nodo',tree.userData.natureMesh.material.userData.windU.uWBend.value===0)
+ setWind({time:3,x:4,z:0,on:true})
+ check('Viento global de World reutilizado',WINDU.uWOn.value===1 && WINDU.uWSpeed.value===4)
+ tree.userData.disposeNature();grass.userData.disposeNature()
+ check('Liberación de materiales por instancia',tree.userData.natureMesh.material.userData.windPatched && grass.userData.natureMesh.material.userData.windPatched)
+ out.dataset.pass='true';out.textContent=JSON.stringify({pass:true,checks,gl:gl.getParameter(gl.VERSION)},null,2)
+}catch(e){out.dataset.pass='false';out.textContent=JSON.stringify({pass:false,checks,error:String(e?.stack||e)},null,2)}finally{renderer?.dispose()}
+</script></body></html>

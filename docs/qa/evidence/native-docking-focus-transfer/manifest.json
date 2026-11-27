@@ -1,0 +1,150 @@
+{
+  "baseline": "CENTURY_EDITOR_NATIVE_DOCKING_DETACH_THRESHOLD_SOURCE_BASELINE.zip",
+  "baseline_sha256": "65f0e0723520af6b9990738466b0ed46717e35f0b86ce6ed9ede8fb3d24d3737",
+  "baseline_files": 4425,
+  "changed": [
+    {
+      "path": "docs/architecture/CENTURY-EDITOR-UX-S03-G001-CORR-006-NATIVE-DOCKING-HIT-TEST-AND-GESTURE-INTEGRITY_IMPLEMENTATION.md",
+      "sha256": "5bc889abc647fda3ed7f823adee0b2c61b9aa4bceec5a47d9eaa723f4ebab8a8",
+      "status": "modified"
+    },
+    {
+      "path": "docs/biblia/04-editor.md",
+      "sha256": "77677d402c9acc88aee969786c4d80db0c77c1c490ff7152fd746ddeb0eaa6f0",
+      "status": "modified"
+    },
+    {
+      "path": "docs/biblia/Biblia_Tecnica_Century.pdf",
+      "sha256": "0ce4e93f819e23489f7261533e347ba057186fa83e1eef45c768786c4c71ec63",
+      "status": "modified"
+    },
+    {
+      "path": "docs/ledger/CE_EDITOR_NATIVE_DOCKING_FOCUS_TRANSFER_LEDGER.xlsx",
+      "sha256": "cf059461b83e583e02a5056b72e9bfe5d0b63430755522f60635cf1ad4f1a590",
+      "status": "added"
+    },
+    {
+      "path": "docs/qa/evidence/native-docking-focus-transfer/README.md",
+      "sha256": "a4e1c44d58509454b539d9b50df5ed8b3f1739cd014339839c5d1a833727a3e4",
+      "status": "added"
+    },
+    {
+      "path": "docs/qa/evidence/native-docking-focus-transfer/dock9-api.log",
+      "sha256": "39563a4bcbc275f6a10ed105b24e8ca0365870ebd9b64118ef698b62f1718139",
+      "status": "added"
+    },
+    {
+      "path": "docs/qa/evidence/native-docking-focus-transfer/dock9-before-all.log",
+      "sha256": "3263d1032ed5a8b86ac96c16b9c59494d15ab8c33a22e740eeaf11cb8763c700",
+      "status": "added"
+    },
+    {
+      "path": "docs/qa/evidence/native-docking-focus-transfer/dock9-code-reg-before.log",
+      "sha256": "ecc3d3dfd1a78c57a4972e9cb8848174ada62814b77b42a01c155d97c10cfeeb",
+      "status": "added"
+    },
+    {
+      "path": "docs/qa/evidence/native-docking-focus-transfer/dock9-code-reg.log",
+      "sha256": "88b5544684cdf52794489ae5fc8a8b7de9e0a5de1a78ba8275177d94bcab4006",
+      "status": "added"
+    },
+    {
+      "path": "docs/qa/evidence/native-docking-focus-transfer/dock9-docbuild.log",
+      "sha256": "afc3c0a8116c179d549ee718c536a51506b1264bc0b9c0ee16338113d196b88f",
+      "status": "added"
+    },
+    {
+      "path": "docs/qa/evidence/native-docking-focus-transfer/dock9-doccheck.log",
+      "sha256": "2c19381f318b4da3462984fd353465f99e0e62cf12f18c6477b08b3937e33033",
+      "status": "added"
+    },
+    {
+      "path": "docs/qa/evidence/native-docking-focus-transfer/dock9-electron-wayland.log",
+      "sha256": "ac1007bd404f8b733f6512034a89d5b192f48593aeff41d5bfa7cb1cf37c9c9e",
+      "status": "added"
+    },
+    {
+      "path": "docs/qa/evidence/native-docking-focus-transfer/dock9-electron-x11.log",
+      "sha256": "185444d33bb50d11150c3e09d451f34278fb58b71842b5ec4ba7071ab7586981",
+      "status": "added"
+    },
+    {
+      "path": "docs/qa/evidence/native-docking-focus-transfer/dock9-electron.log",
+      "sha256": "f01a16a925243532f7df3784b0c5f0ea705b0d6bb133a70c1b58256ca600ef11",
+      "status": "added"
+    },
+    {
+      "path": "docs/qa/evidence/native-docking-focus-transfer/dock9-mesh.log",
+      "sha256": "7c2c182de13ee5a94845ea5f1af3474de16ec3c4f3642695172c0e286922724d",
+      "status": "added"
+    },
+    {
+      "path": "docs/qa/evidence/native-docking-focus-transfer/dock9-pdf.log",
+      "sha256": "18f23f11bf80bd69369e3d5259b163804a91b73428872d5205b8b3362e854f5c",
+      "status": "added"
+    },
+    {
+      "path": "docs/qa/evidence/native-docking-focus-transfer/dock9-pointer.log",
+      "sha256": "be57d7257787ec844436ec71b11e4181e3cf4d4ab31964ab3e9115cdc92d2f18",
+      "status": "added"
+    },
+    {
+      "path": "docs/qa/evidence/native-docking-focus-transfer/dock9-unit.log",
+      "sha256": "2b5901d71ccca8977a764eb9b52b72efe6bc66b6230a1c477ed5adf81358297d",
+      "status": "added"
+    },
+    {
+      "path": "docs/qa/evidence/native-docking-focus-transfer/local-electron.log",
+      "sha256": "675e31901a8f744657d3e1aa5fa88da4f1b9215b6c93a2a295ded29b23c7fa15",
+      "status": "added"
+    },
+    {
+      "path": "public/docs/content.js",
+      "sha256": "86cac349a024d04b62e771f2638c262e243299a4afcb78f775451aa353155218",
+      "status": "modified"
+    },
+    {
+      "path": "scripts/qa-electron-native-docking.cjs",
+      "sha256": "a51e1cfc02f41f7f2ffd593cba09b5c5cd28bdeb82f44e2b7d67c6e1096a30ae",
+      "status": "modified"
+    },
+    {
+      "path": "scripts/qa-electron-webgl-runner.mjs",
+      "sha256": "b88bcbc38604f291a6975fd0f50b5087b5875a0555c80c5c44205eeaf5cda0d7",
+      "status": "modified"
+    },
+    {
+      "path": "scripts/test-native-docking-restoration-electron.mjs",
+      "sha256": "6516ffd14f6f803149157491fbb8a50b2ac3fdecb016f1d3de8f82990ae2e04b",
+      "status": "modified"
+    },
+    {
+      "path": "scripts/test-native-docking-restoration.mjs",
+      "sha256": "6733601461f4015b0814b57b14e96b28abe882fde3175749b9cb999406adccfb",
+      "status": "modified"
+    },
+    {
+      "path": "src/components/AppWindow.vue",
+      "sha256": "d36e586d355d7a3046f4a9eb0d4d23f413a170f7f4221331e93679bc61edeb07",
+      "status": "modified"
+    },
+    {
+      "path": "src/components/FloatingEditorWindow.vue",
+      "sha256": "3cd812e18f56a475a86f74eac6edbf32b626852ea42cacefb32db1b5eb7a7c86",
+      "status": "modified"
+    },
+    {
+      "path": "src/core/editor/dock-gesture.js",
+      "sha256": "e1de919548a789784f939d32630d9c275adf0489d92ef349c93517311d85ccab",
+      "status": "modified"
+    }
+  ],
+  "qa": {
+    "docking": "45/45",
+    "pointer": "70/70",
+    "edit_mesh": "9/9",
+    "electron": "BLOCKED: missing Vite",
+    "documentation": "14/14; API 28/28"
+  },
+  "status": "partial; native QA pending"
+}

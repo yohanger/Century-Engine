@@ -1,0 +1,221 @@
+<script setup>
+import { computed } from 'vue'
+
+const props = defineProps({
+  name: { type: String, required: true },
+  size: { type: Number, default: 16 },
+})
+
+// Iconos de trazo (rejilla 24×24). Cada entrada: trazados separados por «M» → un solo <path>.
+const P = {
+  // S04: iconos nativos del panel de sincronización remota.
+  cloud: 'M7 18h11a4 4 0 0 0 .3-8A6.5 6.5 0 0 0 6 9a4.5 4.5 0 0 0 1 9z',
+  refresh: 'M20 11a8 8 0 0 0-14-5L3 9M3 4v5h5M4 13a8 8 0 0 0 14 5l3-3M21 20v-5h-5',
+  upload: 'M12 16V4M8 8l4-4 4 4M4 16v4h16v-4',
+  download: 'M12 4v12M8 12l4 4 4-4M4 19v2h16v-2',
+  'git-branch': 'M7 3v12a4 4 0 0 0 4 4h4M7 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM17 21a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM17 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM17 7v3a4 4 0 0 1-4 4h-2',
+  'git-commit': 'M2 12h7M15 12h7M9 12a3 3 0 1 0 6 0 3 3 0 0 0-6 0z',
+  'network': 'M4 4h5v5H4zM15 4h5v5h-5zM9 6.5h6M12 6.5v11M4 17h5v5H4zM15 17h5v5h-5zM9 19.5h6',
+  'move-3d': 'M12 20V5M12 5 9 8M12 5l3 3M12 20 5 16M5 16l4 .5M5 16l2-3M12 20l7-4M19 16l-4 .5M19 16l-2-3',
+  'static-body': 'M4 19V5h16v14zM7 9l3-3M7 14l8-8M11 18l7-7M3 22h18',
+  'rigid-body': 'M12 4l7 4v8l-7 4-7-4V8zM5 8l7 4 7-4M12 12v8M4 4l-2 3M4 4l3 0M20 20l2-3M20 20l-3 0',
+  'character-body': 'M12 4a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM12 10v7M8 13l4-3 4 3M8 21l4-4 4 4',
+  'area3d': 'M5 6l7-4 7 4v12l-7 4-7-4zM5 6l7 5 7-5M12 11v11M8 14a4 4 0 0 1 8 0',
+  'shape-box': 'M6 7l6-4 6 4v10l-6 4-6-4zM6 7l6 4 6-4M12 11v10',
+  'shape-sphere': 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM3 12h18M12 3c-3 5-3 13 0 18M12 3c3 5 3 13 0 18',
+  'shape-capsule': 'M5 9a7 7 0 0 1 14 0v6a7 7 0 0 1-14 0zM5 9h14M5 15h14',
+  'shape-mesh': 'M3 18 8 7l7-4 6 13-7 5zM3 18l12-15M3 18l18-2M8 7l13 9M15 3l-1 18',
+  'subtract': 'M3 7l9-4 9 4v11l-9 4-9-4zM3 7l9 5 9-5M12 12v10M7 9l10 7M17 9 7 16',
+  'gameplay-object': 'M12 3l8 5v9l-8 5-8-5V8zM4 8l8 5 8-5M12 13v9M10 6h4M12 4v4',
+  'camera-shake': 'M4 9h3l2-3h6l2 3h3v10H4zM12 11a3 3 0 1 0 0 6 3 3 0 0 0 0-6zM2 5l2-2M20 3l2 2M2 21l2-2M20 19l2 2',
+  'light-area': 'M5 7h14v10H5zM8 3l-2 2M16 3l2 2M8 21l-2-2M16 21l2-2',
+  'sprite2d': 'M3 4h18v16H3zM6 16l4-5 3 3 3-4 3 6zM8 8h.01',
+  'sprite3d': 'M4 7l13-3 3 14-13 3zM7 17l4-6 3 2 2-4 3 6M9 9h.01',
+  'pixel3d': 'M3 7l13-4 4 14-13 4zM8 9l4-1 1 4-4 1zM13 12l4-1 1 4-4 1z',
+  'decal': 'M4 8l12-5 4 12-12 5zM6 6l13 12M12 11l-2 6M15 10l-2 6',
+  'audio-ui': 'M4 8h7v8H4zM11 10l4-4h5v12h-5l-4-4M16 10v4',
+  'mesh-grid': 'M3 5h18v14H3zM3 10h18M3 15h18M9 5v14M15 5v14',
+  'mesh-circle': 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10z',
+  'mesh-torus': 'M12 5c-5 0-9 3-9 7s4 7 9 7 9-3 9-7-4-7-9-7zM12 9c-2.5 0-4 1.4-4 3s1.5 3 4 3 4-1.4 4-3-1.5-3-4-3z',
+  'water-ocean': 'M3 10c3-3 6 3 9 0s6 3 9 0M3 15c3-3 6 3 9 0s6 3 9 0M3 20c3-3 6 3 9 0s6 3 9 0M12 3v4M9 5h6',
+  'water-river': 'M8 3c-5 5 5 8 0 13l-2 5M16 3c-5 6 5 8 0 13l-2 5M11 5l2 2M11 13l2 2',
+  'water-circle': 'M12 8a8 4 0 1 0 0 8 8 4 0 0 0 0-8zM7 12a5 2 0 0 0 10 0',
+  'light-candle': 'M12 3c2 2 2 3 0 5-2-1-2-3 0-5zM8 10h8v11H8zM8 14h8',
+  'light-torch': 'M12 2c2 3 5 3 4 8a4 4 0 0 1-8 0c0-3 1-4 4-8zM10 14v8M14 14v8',
+  'light-neon': 'M4 4h16v16H4zM9 7v10l6-10v10',
+  'light-strobe': 'M12 2l-7 11h6l-1 9 9-12h-7z',
+  select: 'M4.04 4.69a.5.5 0 0 1 .65-.65l16 6.5a.5.5 0 0 1-.06.95l-6.13 1.58a2 2 0 0 0-1.44 1.43l-1.58 6.13a.5.5 0 0 1-.95.06z',
+  move: 'M12 3v18M3 12h18M12 3 9 6M12 3l3 3M12 21l-3-3M12 21l3-3M3 12l3-3M3 12l3 3M21 12l-3-3M21 12l-3 3',
+  rotate: 'M21 12a9 9 0 1 1-3-6.7M21 4v5h-5',
+  universal: 'M12 3v18M3 12h18M12 3 9.5 5.5M12 3l2.5 2.5M12 21l-2.5-2.5M12 21l2.5-2.5M3 12l2.5-2.5M3 12l2.5 2.5M21 12l-2.5-2.5M21 12l-2.5 2.5M8 8h8v8H8z',
+  scale: 'M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7',
+  terrain: 'm8 3 4 8 5-5 5 15H2z',
+  plus: 'M12 5v14M5 12h14',
+  minus: 'M5 12h14',
+  box: 'M21 8 12 3 3 8v8l9 5 9-5zM3 8l9 5 9-5M12 13v8',
+  stairs: 'M3 20v-4h5v-5h5V7h5V4h3v16z',
+  cylinder: 'M4 6c0-1.7 3.6-3 8-3s8 1.3 8 3-3.6 3-8 3-8-1.3-8-3zM4 6v12c0 1.7 3.6 3 8 3s8-1.3 8-3V6',
+  cone: 'M12 3 4 18M12 3l8 15M4 18c0 1.7 3.6 3 8 3s8-1.3 8-3-3.6-3-8-3-8 1.3-8 3z',
+  sphere: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM3 12c0 1.7 4 3 9 3s9-1.3 9-3',
+  plane: 'M3 16l4-8h14l-4 8z',
+  group: 'M4 8V5h3M17 5h3v3M20 16v3h-3M7 19H4v-3M12 9v6M9 12h6',
+  light: 'M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.8.8 1 1.5 1 2.5h6c0-1 .2-1.7 1-2.5A6 6 0 0 0 12 3z',
+  spot: 'M9 3h6l5 13H4zM8 20h8',
+  text: 'M5 6V4h14v2M12 4v16M9 20h6',
+  water: 'M3 8c3-3 6 3 9 0s6 3 9 0M3 13c3-3 6 3 9 0s6 3 9 0M3 18c3-3 6 3 9 0s6 3 9 0',
+  road: 'M8 3 4 21M16 3l4 18M12 4v3M12 10v4M12 17v3',
+  sun: 'M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4',
+  spawn: 'M5 21V4M5 4h11l-2 4 2 4H5',
+  camera: 'M4 7h3l2-3h6l2 3h3v12H4zM12 10a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7z',
+  trigger: 'M4 4h16v16H4z',
+  atmovolume: 'M4 4h16v16H4z M7 15c2-2 3 1 5-1s3 1 5-1 M7 10c2-2 3 1 5-1s3 1 5-1',
+  postvolume: 'M4 4h16v16H4zM8 12a4 4 0 0 1 8 0M7 17c3-3 7-3 10 0',
+  navigation: 'M12 2 20 21l-8-4-8 4zM12 7v6',
+  pin: 'M12 21s7-6.2 7-11.5a7 7 0 0 0-14 0C5 14.8 12 21 12 21zM12 7a2.6 2.6 0 1 0 0 5.2A2.6 2.6 0 0 0 12 7z',
+  event: 'M12 3l9 9-9 9-9-9zM8.5 12h7M12 8.5v7',
+  key: 'M15 3a5 5 0 1 0 0 10 5 5 0 0 0 0-10zM11 11 3 19v2h5v-3h3v-3h3',
+  play: 'M7 4.5v15l13-7.5z',
+  critters: 'M12 10a2 2 0 1 0 0 .01zM6 5.5a1 1 0 1 0 0 .01zM18 7a1 1 0 1 0 0 .01zM5 16a1 1 0 1 0 0 .01zM19 17a1 1 0 1 0 0 .01zM12 18.5a1 1 0 1 0 0 .01z',
+  audio: 'M11 5 6 9H3v6h3l5 4zM15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13',
+  chevd: 'm6 9 6 6 6-6',
+  chevr: 'm9 6 6 6-6 6',
+  headphones: 'M3 14v-2a9 9 0 0 1 18 0v2M3 14h4v6H5a2 2 0 0 1-2-2zM21 14h-4v6h2a2 2 0 0 0 2-2z',
+  stop: 'M6 6h12v12H6z',
+  pause: 'M8 5v14M16 5v14',
+  step: 'M5 4.5v15l10-7.5zM19 5v14',
+  volume: 'M4 9.5v5h3.5L12 18.5v-13L7.5 9.5zM15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11',
+  mute: 'M4 9.5v5h3.5L12 18.5v-13L7.5 9.5zM16 9.5l5 5M21 9.5l-5 5',
+  database: 'M4 6c0-1.7 3.6-3 8-3s8 1.3 8 3-3.6 3-8 3-8-1.3-8-3zM4 6v6c0 1.7 3.6 3 8 3s8-1.3 8-3V6M4 12v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6',
+  script: 'M8 8l-4 4 4 4M16 8l4 4-4 4M14 5l-4 14',
+  shader: 'M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3zM12 12l8-4.5M12 12v9M12 12L4 7.5',
+  vfx: 'M12 2c-1 4-6 6-6 12a6 6 0 0 0 12 0c0-5-5-8-6-12zM9 14c1 2 3 3 3 6M3 5l2 2M21 5l-2 2',
+  ui: 'M4 5h16v14H4zM4 9h16M8 13h5M8 16h8',
+  model: 'M16.5 9.4 7.5 4.2M21 16V8l-9-5-9 5v8l9 5zM3.3 7 12 12l8.7-5M12 22V12',
+  eye: 'M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12zM12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6z',
+  'eye-off': 'M3 3l18 18M10.6 6.1A9.8 9.8 0 0 1 12 5c6 0 10 7 10 7a17 17 0 0 1-3 3.7M6.6 6.6A17 17 0 0 0 2 12s4 7 10 7a9.7 9.7 0 0 0 4.4-1',
+  lock: 'M6 11h12v9H6zM8 11V8a4 4 0 0 1 8 0v3',
+  unlock: 'M6 11h12v9H6zM8 11V8a4 4 0 0 1 7.5-2',
+  'chevron-right': 'm9 6 6 6-6 6',
+  'chevron-down': 'm6 9 6 6 6-6',
+  undo: 'M9 14 4 9l5-5M4 9h10.5a5.5 5.5 0 0 1 0 11H11',
+  redo: 'm15 14 5-5-5-5M20 9H9.5a5.5 5.5 0 0 0 0 11H13',
+  export: 'M12 3v12m-4-4 4 4 4-4M4 21h16',
+  import: 'M12 15V3m-4 4 4-4 4 4M4 21h16',
+  folder: 'M3 6a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z',
+  search: 'M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zm10 17-4.5-4.5',
+  grid: 'M3 3h18v18H3zM3 9h18M3 15h18M9 3v18M15 3v18',
+  list: 'M8 6h13M8 12h13M8 18h13M3 6h2M3 12h2M3 18h2',
+  clock: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 7v5l4 2',
+  chart: 'M4 20V11M10 20V4M16 20v-7M22 20H2',
+  wire: 'M4 18 12 5l8 13zM4 18l8-4 8 4M12 5v9',
+  magnet: 'M6 15a6 6 0 0 0 12 0V3h-4v12a2 2 0 0 1-4 0V3H6zM6 8h4M14 8h4',
+  globe: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM3 12h18M12 3c2.5 2.5 3.5 5.5 3.5 9s-1 6.5-3.5 9c-2.5-2.5-3.5-5.5-3.5-9s1-6.5 3.5-9z',
+  local: 'M5 5l7 3 7-3M5 5v10l7 4 7-4V5M12 8v11',
+  frame: 'M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5',
+  trash: 'M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3',
+  copy: 'M9 9h11v11H9zM5 15V4h11',
+  mouse: 'M12 3a6 6 0 0 0-6 6v6a6 6 0 0 0 12 0V9a6 6 0 0 0-6-6zM12 3v7',
+  trackpad: 'M3 5h18v14H3zM3 15h18M12 15v4',
+  layers: 'm12 3 9 5-9 5-9-5zM3 12l9 5 9-5M3 16l9 5 9-5',
+  sliders: 'M4 7h10M18 7h2M4 17h2M10 17h10M14 5v4M6 15v4',
+  x: 'M6 6l12 12M18 6 6 18',
+  check: 'm5 12 5 5 9-10',
+  'panel-left': 'M3 4h18v16H3zM9 4v16',
+  'panel-right': 'M3 4h18v16H3zM15 4v16',
+  save: 'M5 3h11l3 3v15H5zM8 3v6h8V3M8 21v-7h8v7',
+  more: 'M5 12h.01M12 12h.01M19 12h.01',
+  raise: 'M12 19V6m-5 5 5-5 5 5M5 21h14',
+  lower: 'M12 5v13m-5-5 5 5 5-5M5 3h14',
+  smooth: 'M3 12c3-6 6-6 9 0s6 6 9 0',
+  flatten: 'M4 12h16M8 8l-4 4 4 4M16 8l4 4-4 4',
+  noise: 'M3 14l3-6 3 8 3-10 3 9 3-5 3 4',
+  ramp: 'M3 19h18M3 19L19 7v12',
+  'foliage-tree': 'M12 22v-6M12 2 6 9h3l-4 6h14l-4-6h3zM9 22h6',
+  grass: 'M12 21c0-5-1-9-4-13M12 21c0-6 0-11 1-17M12 21c1-5 3-8 7-10M5 21h14',
+  flower: 'M12 12a2.5 2.5 0 1 0 0 .01M12 9.5c-1-3 .5-5 0-6.5M12 9.5c1-3-.5-5 0-6.5M14.5 12c3 1 5-.5 6.5 0M9.5 12c-3 1-5-.5-6.5 0M12 14.5V22',
+  bush: 'M4 19a4 4 0 0 1 1-7 5 5 0 0 1 9-2 4 4 0 0 1 5 5 3 3 0 0 1 1 4zM12 19v-4',
+  rock: 'M3 18l3-8 5-4 6 2 4 6-2 4z',
+  eraser: 'M7 21h12M5 15l9-9a2 2 0 0 1 3 0l2 2a2 2 0 0 1 0 3l-8 8H8z',
+  paint: 'M18 3l3 3-9 9-3-3zM9 12c-2.5 0-4 1.5-4 4 0 1.5-1 2.5-2 3 3 1 7 .5 8-2 .5-1.5.5-3-2-5z',
+  help: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7M12 17h.01',
+  top: 'M4 4h16v16H4zM4 4l16 16M20 4 4 20',
+  front: 'M4 6h16v12H4z',
+  persp: 'M4 18 9 7h10l1 11zM9 7l-3-3',
+  prefab: 'M12 2.5 20 7v9l-8 4.5L4 16V7zM4 7l8 4.5L20 7M12 11.5v9',
+  scene: 'M3 8h18v12H3zM3 8l2-4h14l2 4M8 4l2 4M13 4l2 4',
+  file: 'M6 3h8l5 5v13H6zM14 3v5h5',
+  image: 'M3 5h18v14H3zM3 17l5-5 4 4 3-3 6 6M8.5 9h.01',
+  brush: 'M14 4l6 6-8 8H6v-6zM4 20l2-2M12 6l6 6',
+  pixel: 'M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z',
+  'folder-open': 'M3 8V6a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v2M3 8h19l-2 10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z',
+  hand: 'M8 13V5.5a1.5 1.5 0 0 1 3 0V11M11 11V4a1.5 1.5 0 0 1 3 0v7M14 11V5.5a1.5 1.5 0 0 1 3 0V13M17 9.5a1.5 1.5 0 0 1 3 0V15a7 7 0 0 1-7 7h-1a6 6 0 0 1-5-3l-3-5a1.5 1.5 0 0 1 2.4-1.8L8 14',
+  vertex: 'M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z',
+  edge: 'M7 17 17 7M4.5 16.5a2.5 2.5 0 1 0 5 0 2.5 2.5 0 0 0-5 0zM14.5 7.5a2.5 2.5 0 1 0 5 0 2.5 2.5 0 0 0-5 0z',
+  face: 'M12 3 21 8l-9 5-9-5zM3 8v8l9 5 9-5V8M12 13v8',
+  mesh: 'M4 18 9 5l8 4 3 9zM9 5l3 13M17 9l-8 9',
+  terminal: 'M3 4h18v16H3zM7 9l3 3-3 3M12 16h5',
+  tree: 'M4 5h5M6 5v14M6 10h5M6 15h5M14 10h6M14 15h6',
+  extrude: 'M5 19h14M7 19v-8h10v8M12 11V3M9 6l3-3 3 3',
+  inset: 'M3 3h18v18H3zM8 8h8v8H8z',
+  bevel: 'M4 20V9l5-5h11v16z',
+  loopcut: 'M3 5h18v14H3zM12 5v14M9 9l3-3 3 3M9 15l3 3 3-3',
+  knife: 'M14 4l6 6-9 9a3 3 0 0 1-4.2 0l-1.8-1.8a3 3 0 0 1 0-4.2zM9 11l4 4',
+  bridge: 'M3 8h6M15 8h6M3 16h6M15 16h6M9 8c2-2 4-2 6 0M9 16c2 2 4 2 6 0',
+  merge: 'M4 6l8 6-8 6M20 6l-8 6 8 6',
+  subdivide: 'M3 3h18v18H3zM12 3v18M3 12h18',
+  xray: 'M3 4h18v16H3zM8 4v16M16 4v16M3 12h18',
+  prop: 'M12 4a8 8 0 1 0 0 16 8 8 0 0 0 0-16zM12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6z',
+  mirror: 'M12 3v18M8 7 3 12l5 5zM16 7l5 5-5 5z',
+  flip: 'M7 4v16M17 4v16M3 8l4-4 4 4M21 16l-4 4-4-4',
+  split: 'M4 4h7v16H4zM13 4h7v16h-7z',
+  normal: 'M12 20V6M8 10l4-4 4 4M5 20h14',
+}
+
+// Seis formas oficiales de Bootstrap Icons 1.13.2, MIT; trazados originales.
+const BI = {
+  // Bootstrap Icons, «trash» (MIT). Se incluye solo el trazado necesario.
+  'bi-trash': [
+    { d: 'M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z' },
+    { d: 'M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1 0-2H6V1a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v1h3.5a1 1 0 0 1 1 1M4.118 4 4.5 13.5a1 1 0 0 0 1 1h5a1 1 0 0 0 1-1L11.882 4zM7 1v1h2V1z' },
+  ],
+  'bi-folder-plus': [
+    { d: 'm.5 3 .04.87a2 2 0 0 0-.342 1.311l.637 7A2 2 0 0 0 2.826 14H9v-1H2.826a1 1 0 0 1-.995-.91l-.637-7A1 1 0 0 1 2.19 4h11.62a1 1 0 0 1 .996 1.09L14.54 8h1.005l.256-2.819A2 2 0 0 0 13.81 3H9.828a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 6.172 1H2.5a2 2 0 0 0-2 2m5.672-1a1 1 0 0 1 .707.293L7.586 3H2.19q-.362.002-.683.12L1.5 2.98a1 1 0 0 1 1-.98z' },
+    { d: 'M13.5 9a.5.5 0 0 1 .5.5V11h1.5a.5.5 0 1 1 0 1H14v1.5a.5.5 0 1 1-1 0V12h-1.5a.5.5 0 0 1 0-1H13V9.5a.5.5 0 0 1 .5-.5' },
+  ],
+  'bi-camera-video': [
+    { d: 'M0 5a2 2 0 0 1 2-2h7.5a2 2 0 0 1 1.983 1.738l3.11-1.382A1 1 0 0 1 16 4.269v7.462a1 1 0 0 1-1.406.913l-3.111-1.382A2 2 0 0 1 9.5 13H2a2 2 0 0 1-2-2zm11.5 5.175 3.5 1.556V4.269l-3.5 1.556zM2 4a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h7.5a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1z', rule: 'evenodd' },
+  ],
+  'bi-bounding-box': [
+    { d: 'M5 2V0H0v5h2v6H0v5h5v-2h6v2h5v-5h-2V5h2V0h-5v2zm6 1v2h2v6h-2v2H5v-2H3V5h2V3zm1-2h3v3h-3zm3 11v3h-3v-3zM4 15H1v-3h3zM1 4V1h3v3z' },
+  ],
+  'bi-soundwave': [
+    { d: 'M8.5 2a.5.5 0 0 1 .5.5v11a.5.5 0 0 1-1 0v-11a.5.5 0 0 1 .5-.5m-2 2a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5m4 0a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5m-6 1.5A.5.5 0 0 1 5 6v4a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m8 0a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m-10 1A.5.5 0 0 1 3 7v2a.5.5 0 0 1-1 0V7a.5.5 0 0 1 .5-.5m12 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0V7a.5.5 0 0 1 .5-.5', rule: 'evenodd' },
+  ],
+  'bi-list-check': [
+    { d: 'M5 11.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5M3.854 2.146a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 1 1 .708-.708L2 3.293l1.146-1.147a.5.5 0 0 1 .708 0m0 4a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 1 1 .708-.708L2 7.293l1.146-1.147a.5.5 0 0 1 .708 0m0 4a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 1 1 .708-.708l.146.147 1.146-1.147a.5.5 0 0 1 .708 0', rule: 'evenodd' },
+  ],
+  'bi-braces': [
+    { d: 'M2.114 8.063V7.9c1.005-.102 1.497-.615 1.497-1.6V4.503c0-1.094.39-1.538 1.354-1.538h.273V2h-.376C3.25 2 2.49 2.759 2.49 4.352v1.524c0 1.094-.376 1.456-1.49 1.456v1.299c1.114 0 1.49.362 1.49 1.456v1.524c0 1.593.759 2.352 2.372 2.352h.376v-.964h-.273c-.964 0-1.354-.444-1.354-1.538V9.663c0-.984-.492-1.497-1.497-1.6M13.886 7.9v.163c-1.005.103-1.497.616-1.497 1.6v1.798c0 1.094-.39 1.538-1.354 1.538h-.273v.964h.376c1.613 0 2.372-.759 2.372-2.352v-1.524c0-1.094.376-1.456 1.49-1.456V7.332c-1.114 0-1.49-.362-1.49-1.456V4.352C13.51 2.759 12.75 2 11.138 2h-.376v.964h.273c.964 0 1.354.444 1.354 1.538V6.3c0 .984.492 1.497 1.497 1.6' },
+  ],
+}
+const bootstrap = computed(() => BI[props.name] || null)
+
+const d = computed(() => P[props.name] || P.file)
+const dashed = computed(() => props.name === 'trigger' || props.name === 'atmovolume' || props.name === 'postvolume')
+</script>
+
+<template>
+  <svg
+    class="ic" :width="size" :height="size" :viewBox="bootstrap ? '0 0 16 16' : '0 0 24 24'"
+    :fill="bootstrap ? 'currentColor' : 'none'" :stroke="bootstrap ? 'none' : 'currentColor'"
+    stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
+    :stroke-dasharray="!bootstrap && dashed ? '3 2.4' : null"
+  >
+    <template v-if="bootstrap"><path v-for="(part, index) in bootstrap" :key="index" :d="part.d" :fill-rule="part.rule || null" /></template>
+    <path v-else :d="d" />
+  </svg>
+</template>
+
+<style scoped>
+.ic { flex: none; display: block; }
+</style>

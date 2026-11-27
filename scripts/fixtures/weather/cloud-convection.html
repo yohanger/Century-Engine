@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="es">
+<meta charset="utf-8">
+<title>Century · evolución de cúmulos</title>
+<style>
+body{margin:0;padding:10px;background:#121b28;color:#edf2fa;font:14px system-ui}
+#stage{position:absolute;left:-8000px;width:320px;height:190px}
+#samples{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
+figure{margin:0;background:#1b273a;border:1px solid #394960}
+canvas{display:block;width:100%;height:auto}
+figcaption{padding:5px 8px}
+#convection-result{display:none}
+</style>
+<strong>Century · evolución de cúmulos en WebGL</strong>
+<div id="stage"></div><section id="samples"></section><pre id="convection-result"></pre>
+<script type="module">
+import { CloudField } from '/src/engine/runtime/world/cloudfield.js'
+import { CloudVolume } from '/src/engine/runtime/world/cloud-volume.js'
+import { PRESETS } from '/src/engine/runtime/world/weather.js'
+import { Viewport } from '/src/engine/runtime/render/viewport.js'
+import { presetOf } from '/src/engine/runtime/render/config.js'
+
+const out = document.querySelector('#convection-result'), checks = [], errors = []
+const check = (name, pass, details) => {
+  checks.push({ name, pass: !!pass, details })
+  if (!pass) throw Error(name)
+}
+let vp
+try {
+  vp = new Viewport(document.querySelector('#stage'))
+  vp.renderer.setPixelRatio(1)
+  vp.renderer.debug.onShaderError = (gl, p, vs, fs) => errors.push([p, vs, fs].map((shader, i) => i ? gl.getShaderInfoLog(shader) : gl.getProgramInfoLog(shader)))
+  vp.setRender({ ...presetOf('clasico'), profile: 'bajo', autoExposure: false })
+  vp.grid.visible = false
+  vp.setEnvironment({
+    lightingMode: 'manual', skyMode: 'gradient', skyTop: '#315f9d', skyHorizon: '#accce5', ground: '#37484a',
+    sunElevation: 25, sunAzimuth: 70, cloudsOn: true, cloudsCoverage: 0.6, cloudsAltitude: 700,
+    cloudsThickness: 2100, cloudsDensity: 1.5, cloudsErosion: 0.5,
+  })
+  const u = vp.skyMat.uniforms, camera = vp.camera
+  const field = new CloudField({ scale: 5, seed: 80 })
+  const map = field.map, volume = map.volume
+  map.slabBase = 900; map.slabThick = 1700
+  const sources = [
+    { x: -1220, y: 1550, z: -3200, rx: 1000, ry: 620, rz: 1300, str: 1.2 },
+    { x: 1220, y: 1550, z: -3200, rx: 1000, ry: 620, rz: 1300, str: 1.2 },
+    { x: -1610, y: 1880, z: -3310, rx: 600, ry: 480, rz: 760, str: 0.9 },
+    { x: -1900, y: 1470, z: -2790, rx: 600, ry: 365, rz: 580, str: 0.92 },
+    { x: 1570, y: 1960, z: -3510, rx: 670, ry: 440, rz: 690, str: 0.94 },
+    { x: 1870, y: 1420, z: -3030, rx: 600, ry: 375, rz: 710, str: 0.85 },
+  ]
+  volume.rebuild(map, sources)
+  u.uCBase.value = volume.base; u.uCThick.value = volume.height
+
+  const wet = { coverage: 0.6, humidity: 0.97, storm: 0, rain: 24 }
+  const dry = { ...wet, humidity: 0.25 }
+  const step = (condition, steps) => {
+    Object.assign(field.f, condition)
+    let max = 0
+    for (let i = 0; i < steps; i++) {
+      const started = performance.now()
+      volume.advance(i || volume.version ? 0.5 : 0, condition, [0, 0])
+      max = Math.max(max, performance.now() - started)
+    }
+    return max
+  }
+  const capture = (label, altitude, view = null) => {
+    if (view) {
+      camera.position.set(...view.eye)
+      camera.lookAt(...view.target)
+    } else {
+      camera.position.set(0, altitude, altitude < 100 ? 0 : -240)
+      camera.lookAt(0, 1520, -3200)
+    }
+    camera.updateMatrixWorld()
+    vp.sky.position.copy(camera.position)
+    u.uCamY.value = camera.position.y
+    vp._cellClouds({ map: view?.map || map, windOff: [0, 0] }, u)
+    vp.look.render(0)
+    const gl = vp.renderer.getContext(), { width, height } = vp.renderer.domElement
+    const pixels = new Uint8Array(width * height * 4)
+    gl.readPixels(0, 0, width, height, gl.RGBA, gl.UNSIGNED_BYTE, pixels)
+    const canvas = document.createElement('canvas')
+    canvas.width = width; canvas.height = height
+    const ctx = canvas.getContext('2d'), data = ctx.createImageData(width, height)
+    const pitch = width * 4
+    for (let y = 0; y < height; y++) data.data.set(pixels.subarray((height - 1 - y) * pitch, (height - y) * pitch), y * pitch)
+    ctx.putImageData(data, 0, 0)
+    if (label) {
+      const fig = document.createElement('figure'), caption = document.createElement('figcaption')
+      caption.textContent = label; fig.append(canvas, caption)
+      document.querySelector('#samples').append(fig)
+    }
+    return { pixels, width, height, canvas }
+  }
+  const measures = () => ({
+    bridge: volume.sample(0, 1550, -3200),
+    core: volume.sample(1220, 1550, -3200),
+    tau: field.opticalDepthAlongRay([0, 3, -3200], [0, 1, 0], 6000),
+    rain: field.effectivePrecipitationAt(0, 3, -3200),
+  })
+  const maxDry = step(dry, 10), separate = measures()
+  const frames = [capture('Suelo · cúmulos separados', 8), capture('Aire · cúmulos separados', 3550)]
+  const maxWet = step(wet, 44), connected = measures()
+  frames.push(capture('Suelo · unión por condensación', 8), capture('Aire · unión por condensación', 3550))
+  const saved = volume.snapshot(), restored = new CloudVolume(map)
+  restored.restore(JSON.parse(JSON.stringify(saved)))
+  const maxEvap = step(dry, 44), evaporated = measures()
+  frames.push(capture('Suelo · separación al secarse', 8), capture('Aire · separación al secarse', 3550))
+  const panels = Array.from(document.querySelector('#samples').children)
+  document.querySelector('#samples').append(...[0, 2, 4, 1, 3, 5].map(i => panels[i]))
+  const centerDelta = (a, b) => {
+    let sum = 0, n = 0
+    for (let y = Math.floor(a.height * 0.42); y < a.height * 0.58; y++) {
+      for (let x = Math.floor(a.width * 0.46); x < a.width * 0.54; x++) {
+        const p = (y * a.width + x) * 4
+        for (let k = 0; k < 3; k++) sum += Math.abs(a.pixels[p + k] - b.pixels[p + k])
+        n += 3
+      }
+    }
+    return sum / n
+  }
+  check('WebGL2 usa la textura tridimensional del campo', u.uCVolume.value?.isData3DTexture && vp.renderer.capabilities.isWebGL2)
+  check('la humedad crea una conexión con los dos núcleos presentes', separate.bridge < 0.23 && connected.bridge > 0.45 && separate.core > 0.6 && connected.core > 0.6, { separate, connected })
+  check('al secarse vuelve el hueco sin perder los núcleos', evaporated.bridge < 0.24 && evaporated.core > 0.6, evaporated)
+  check('el condensado de la unión atenúa la luz e incrementa la lluvia', connected.tau > separate.tau + 0.75 && connected.rain > separate.rain + 2, { separate, connected })
+  const fromGround = centerDelta(frames[0], frames[2]), fromAbove = centerDelta(frames[1], frames[3])
+  check('la unión se distingue desde suelo y aire', fromGround > 4 && fromAbove > 4, { fromGround, fromAbove })
+  check('una partida recupera la unión y su fase de transición', Math.abs(restored.sample(0, 1550, -3200) - connected.bridge) < 0.01
+    && restored.pending === saved.pending && restored.blend === saved.blend)
+  const stacked = new CloudVolume(map)
+  stacked.rebuild(map, [1000, 2250].map(y => ({ x: 0, y, z: -3200, rx: 1000, ry: 250, rz: 900, str: 1.2 })))
+  stacked.advance(0, wet, [0, 0])
+  check('el aire entre dos nubes a distinta altura sigue vacío', stacked.sample(0, 1000, -3200) > 0.5
+    && stacked.sample(0, 2250, -3200) > 0.5 && stacked.sample(0, 1550, -3200) < 0.05)
+  const gl = vp.renderer.getContext(), frameTimes = []
+  gl.finish()
+  for (let i = 0; i < 7; i++) {
+    const t = performance.now()
+    vp.look.render(0); gl.finish()
+    frameTimes.push(performance.now() - t)
+  }
+  frameTimes.sort((a, b) => a - b)
+  check('el perfil bajo conserva el presupuesto de raymarch', u.uCloudSteps.value === 24,
+    { steps: u.uCloudSteps.value, medianFrameMs: frameTimes[3], maxSimulationStepMs: Math.max(maxDry, maxWet, maxEvap) })
+  // G001: diagnóstico integrado en la fixture existente; no altera los módulos productivos.
+  check('G001: el volumen enviado a WebGL2 conserva dos canales temporales, sin etiqueta morfológica',
+    u.uCVolume.value?.isData3DTexture && u.uCVolume.value?.image?.data?.length === volume.data.length
+    && volume.data.length === volume.N * volume.N * volume.depth * 2,
+    { voxels: volume.N * volume.N * volume.depth, bytes: volume.data.byteLength })
+  const probeMap = () => ({ N:32, half:3200, cx:0, cz:0, slabBase:700, slabThick:1400 })
+  const probeSrc = (x, type) => ({ x, y:1400, z:0, rx:850, ry:600, rz:850, str:1.2, type })
+  const initProbe = (pmap, psrc) => {
+    const probe = new CloudVolume(pmap)
+    probe.rebuild(pmap, [psrc]); probe.advance(0, wet, [0,0])
+    return probe
+  }
+  const lowType = initProbe(probeMap(), probeSrc(0,0))
+  const highType = initProbe(probeMap(), probeSrc(0,1))
+  check('G001: distintos tipos con idéntica geometría no cambian el condensado 3D',
+    lowType.data.length === highType.data.length && lowType.data.every((value,index) => value === highType.data[index]))
+  const teleportMap = probeMap(), probe = initProbe(teleportMap, probeSrc(0,0.5))
+  const preTeleport = probe.sample(0,1400,0)
+  teleportMap.cx = 20000
+  probe.rebuild(teleportMap, [probeSrc(20000,0.5)]); probe.advance(0,wet,[0,0])
+  const postTeleport = probe.sample(20000,1400,0)
+  probe.advance(0.5,wet,[0,0]); probe.advance(0.5,wet,[0,0])
+  const afterEvolution = probe.sample(20000,1400,0)
+  // S01: la limitación constatada por G001 queda sustituida por la reconstrucción inmediata en destino.
+  check('S01: teletransporte lejano construye condensado coherente antes de dibujar el destino',
+    preTeleport > 0.6 && postTeleport > 0.5 && afterEvolution > 0.5,
+    { preTeleport, postTeleport, afterEvolution, distance:20000 })
+  const morphology = new CloudField({ scale:5, seed:1968 })
+  morphology.update({coverage:1,density:1,humidity:.98,storm:1,rain:40,altitude:1400},[0,0],0)
+  morphology.prepare(0,0)
+  const cell = morphology.cells.find(c=>c.active && c.condensate>.4)
+  const o = []
+  let natural = [], low = []
+  if (cell) {
+    cell.convective=.92;cell.sheet=.08;cell.wispy=.02
+    natural=morphology.primitives(cell,o) && o.slice(0,6).map(p=>[p.x,p.y,p.z,p.rx,p.ry,p.rz,p.str])
+    cell.convective=.02;cell.sheet=.92;cell.wispy=.02
+    low=morphology.primitives(cell,o) && o.slice(0,6).map(p=>[p.x,p.y,p.z,p.rx,p.ry,p.rz,p.str])
+  }
+  check('S01: igual identidad espacial pero distinta convección genera estructura continua',
+    !!cell && natural.length===6 && low.length===6 && natural.some((p,i)=>Math.abs(p[1]-low[i][1])>30))
+  const beforeMorph=JSON.stringify(low)
+  if(cell){cell.prevMorph=0;cell.morph=5;cell.blend=.25;morphology.primitives(cell,o)}
+  check('S01: reclasificación de MORPH no sustituye el volumen de la formación',
+    !!cell && JSON.stringify(o.slice(0,6).map(p=>[p.x,p.y,p.z,p.rx,p.ry,p.rz,p.str]))===beforeMorph)
+  // CORR-001: el mismo shader recibe geometrías generadas por el clima real.
+  // Son VISTAS DE QA, no un renderer ni un estado de nubes adicional.
+  const atmospheric = (preset) => {
+    const climate = PRESETS[preset]
+    const f = new CloudField({ scale:8, sizeMul:2, seed:42 })
+    const force = { coverage:climate.coverage, density:climate.density/2.1,
+      humidity:climate.humidity, storm:climate.bolts/7, rain:climate.rain*45, altitude:climate.altitude }
+    f.update(force,[0,0],0);f.prepare(0,0);f.bake()
+    f.map.volume.advance(0,force,[0,0])
+    const bodies = [], tmp=[]
+    for(const cell of f.cells){
+      if(!cell.active || cell.condensate<=.03)continue
+      const n=f.primitives(cell,tmp)
+      let low=Infinity,high=-Infinity
+      for(let i=0;i<n;i++){low=Math.min(low,tmp[i].y-tmp[i].ry);high=Math.max(high,tmp[i].y+tmp[i].ry)}
+      bodies.push({cell,span:high-low})
+    }
+    bodies.sort((a,b)=>a.span-b.span)
+    const median=bodies[Math.floor(bodies.length/2)]?.span || 0
+    const v=f.map.volume, plane=v.N*v.N
+    let active=0
+    for(let y=0;y<v.depth;y++){
+      let density=0
+      for(let k=y*plane;k<(y+1)*plane;k++) if(v.data[k*2+1]>60)density++
+      if(density>5)active++
+    }
+    return {f,force,bodies,median,active}
+  }
+  const fair=atmospheric('partly'), bank=atmospheric('overcast'), conv=atmospheric('storm')
+  check('CORR-001: cúmulos de buen tiempo tienen cuerpo y relieve, no discos delgados',
+    fair.bodies.length>10 && fair.median>500 && fair.active>=8,
+    { medianHeightM:fair.median, activeVerticalLayers:fair.active })
+  check('CORR-001: estratos conservan bandas y las tormentas desarrollo convectivo',
+    bank.median>200 && bank.median<720 && conv.median>2300 && conv.median<5500,
+    { stratiformHeightM:bank.median, convectiveHeightM:conv.median })
+  check('CORR-001: mismo mapa GPU RG8 y 16 niveles para las tres morfologías',
+    [fair,bank,conv].every(item=>item.f.map.volume.depth===16 &&
+      item.f.map.volume.data.length===item.f.map.volume.N**2*16*2))
+  // Capturas desde abajo y lateral para inspección humana de silueta, no QA automático de realismo.
+  for (const [label,item] of [['Cúmulos naturales · vista lateral',fair],
+    ['Estratocúmulos · banco con relieve',bank],['Tormenta · crecimiento vertical',conv]]) {
+    const active=item.bodies.find(b=>b.cell.condensate>.12)?.cell
+    if(!active) continue
+    const v=item.f.map.volume
+    u.uCBase.value=v.base;u.uCThick.value=v.height
+    capture(label,130,{map:item.f.map,eye:[active.x-2000,130,active.z+4200],
+      target:[active.x,active.y+Math.min(650,active.thick*0.6),active.z]})
+  }
+  // El modo timelapse histórico vuelve a usar el volumen de la unión original.
+  u.uCBase.value=volume.base;u.uCThick.value=volume.height
+  vp._cellClouds({map,windOff:[0,0]},u)
+  if (new URLSearchParams(location.search).has('timelapse')) {
+    window.cloudTimelapseFrame = index => {
+      if (index === 0) step(dry, 30)
+      if (index > 0) step(index < 20 ? wet : dry, 2)
+      const a = capture('', 8).canvas, b = capture('', 3550).canvas
+      const frame = document.createElement('canvas')
+      frame.width = a.width * 2; frame.height = a.height + 32
+      const ctx = frame.getContext('2d')
+      ctx.fillStyle = '#121b28'; ctx.fillRect(0, 0, frame.width, frame.height)
+      ctx.drawImage(a, 0, 32); ctx.drawImage(b, a.width, 32)
+      ctx.font = '14px system-ui'; ctx.fillStyle = '#edf2fa'
+      const label = index === 0 ? 'Aire seco' : index < 20 ? 'Condensación' : 'Evaporación'
+      ctx.fillText('Suelo · ' + label, 10, 21); ctx.fillText('Aire · ' + label, a.width + 10, 21)
+      return frame.toDataURL('image/png')
+    }
+  }
+  check('sin errores GLSL o WebGL', errors.length === 0 && vp.renderer.getContext().getError() === 0, errors)
+  out.dataset.pass = 'true'
+  out.textContent = JSON.stringify({ pass: true, gl: vp.renderer.getContext().getParameter(vp.renderer.getContext().VERSION), checks })
+} catch (e) {
+  out.dataset.pass = 'false'
+  out.textContent = JSON.stringify({ pass: false, error: String(e.stack || e), checks, errors })
+}
+</script>

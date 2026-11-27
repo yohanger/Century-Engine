@@ -1,0 +1,43 @@
+{
+  "gate": "CENTURY-EDITOR-UX-S03-G001-CORR-006-NATIVE-DOCKING-HIT-TEST-AND-GESTURE-INTEGRITY",
+  "baseline": "CENTURY_EDITOR_NATIVE_DOCKING_HIT_TEST_SOURCE_BASELINE.zip",
+  "baseline_sha256": "0ceebe1c36b05ea0e141b2295dc0760005ba6a87f779605c398257350e723e4b",
+  "baseline_files": 4393,
+  "status": "QA input isolation; production correction not verified",
+  "qa": {
+    "local_previous": "FAIL 0/1",
+    "node_docking": "33/33",
+    "pointer_recovery": "70/70",
+    "mesh": "9/9",
+    "x11_driver_xvfb": "7/7",
+    "documentation": "14/14",
+    "api": "28/28",
+    "electron": "BLOCKED missing Vite"
+  },
+  "changed_files": [
+    "docs/architecture/CENTURY-EDITOR-UX-S03-G001-CORR-006-NATIVE-DOCKING-HIT-TEST-AND-GESTURE-INTEGRITY_IMPLEMENTATION.md",
+    "docs/biblia/04-editor.md",
+    "docs/biblia/Biblia_Tecnica_Century.pdf",
+    "docs/ledger/CE_EDITOR_NATIVE_DOCKING_INPUT_ISOLATION_LEDGER.xlsx",
+    "docs/qa/evidence/native-docking-input-isolation/README.md",
+    "docs/qa/evidence/native-docking-input-isolation/dock7-api.log",
+    "docs/qa/evidence/native-docking-input-isolation/dock7-docbuild.log",
+    "docs/qa/evidence/native-docking-input-isolation/dock7-doccheck.log",
+    "docs/qa/evidence/native-docking-input-isolation/dock7-electron.log",
+    "docs/qa/evidence/native-docking-input-isolation/dock7-headless.log",
+    "docs/qa/evidence/native-docking-input-isolation/dock7-mesh.log",
+    "docs/qa/evidence/native-docking-input-isolation/dock7-mixed4.log",
+    "docs/qa/evidence/native-docking-input-isolation/dock7-native4.log",
+    "docs/qa/evidence/native-docking-input-isolation/dock7-no-button.log",
+    "docs/qa/evidence/native-docking-input-isolation/dock7-pdf.log",
+    "docs/qa/evidence/native-docking-input-isolation/dock7-pointer.log",
+    "docs/qa/evidence/native-docking-input-isolation/dock7-unit.log",
+    "docs/qa/evidence/native-docking-input-isolation/dock7-x11-qa.log",
+    "docs/qa/evidence/native-docking-input-isolation/local-electron-fail.log",
+    "public/docs/content.js",
+    "scripts/qa-electron-native-docking.cjs",
+    "scripts/qa-x11-pointer.py",
+    "scripts/test-native-docking-restoration.mjs"
+  ],
+  "source_changes": []
+}

@@ -1,0 +1,104 @@
+{
+  "gate": "CENTURY-EDITOR-UX-S02-G001-CORR-002-REAL-FRUSTUM-OCCLUSION-CULLING-AND-VIEWPORT-DIAGNOSTICS",
+  "source_baseline": "CENTURY-EDITOR-UX-S02-G001-CORR-001-FULL-EDIT-MODE-RUNTIME-OBSERVABILITY-AND-DOCKING_SOURCE_BASELINE.zip",
+  "source_baseline_sha256": "48203af1e152761ef768cfaaff3fe898656f4fff81dc02228989d6a840897294",
+  "source_files_verified": 3276,
+  "missing_baseline_files": [],
+  "project_fixture": "the_room.zip",
+  "project_fixture_sha256": "151788825ce4c213ed8005c5e68ec0bb1aefde12e8de5be597d1bd2f5cd9c35d",
+  "input_changes": "no baseline local diffs before implementation",
+  "output_files_total": 3287,
+  "changed_count_excluding_manifest": 15,
+  "changes": [
+    {
+      "path": "docs/architecture/CENTURY-EDITOR-UX-S02-G001-CORR-002-REAL-FRUSTUM-OCCLUSION-CULLING-AND-VIEWPORT-DIAGNOSTICS_IMPLEMENTATION.md",
+      "status": "added",
+      "sha256": "bfd71eacb150dcf5f8e5db7167bee8bf01ec8c18e11b068b7b2a091dc4ab3abd"
+    },
+    {
+      "path": "docs/qa/CENTURY-EDITOR-UX-S02-G001-CORR-002-REAL-FRUSTUM-OCCLUSION-CULLING-AND-VIEWPORT-DIAGNOSTICS_EVIDENCE.md",
+      "status": "added",
+      "sha256": "27f625722c99a6b40fc1c24be89334ce2005a1dbc501ad93f6f4d8f9e66dcf5c"
+    },
+    {
+      "path": "docs/qa/LevelForge_DB_Ledger.xlsx",
+      "status": "modified",
+      "sha256": "dbfed48d87ad93e7c06837495b4a5171cbd84c54f92726c771204b99d2d5773b"
+    },
+    {
+      "path": "docs/qa/evidence/CENTURY-EDITOR-UX-S02-G001-CORR-002-REAL-FRUSTUM-OCCLUSION-CULLING-AND-VIEWPORT-DIAGNOSTICS/build.log",
+      "status": "added",
+      "sha256": "ad93033e7f39a0f04a1ed40edf91f741c64cfbf9fa5ed37ad17f38e46626cd7c"
+    },
+    {
+      "path": "docs/qa/evidence/CENTURY-EDITOR-UX-S02-G001-CORR-002-REAL-FRUSTUM-OCCLUSION-CULLING-AND-VIEWPORT-DIAGNOSTICS/domain-node.log",
+      "status": "added",
+      "sha256": "53ba11b0eb3ed220b1217ca778d180a7f76d2b027c492e8a6490952298708b30"
+    },
+    {
+      "path": "docs/qa/evidence/CENTURY-EDITOR-UX-S02-G001-CORR-002-REAL-FRUSTUM-OCCLUSION-CULLING-AND-VIEWPORT-DIAGNOSTICS/focused-node.log",
+      "status": "added",
+      "sha256": "7e90bf7acfc9f8f2ec44debe7ba147a2533b4c4fa8cbf769b6e378b084a31df8"
+    },
+    {
+      "path": "docs/qa/evidence/CENTURY-EDITOR-UX-S02-G001-CORR-002-REAL-FRUSTUM-OCCLUSION-CULLING-AND-VIEWPORT-DIAGNOSTICS/occlusion-three-node.log",
+      "status": "added",
+      "sha256": "776df1e16f2cb6f1e049719f7bfc7ad553ff01332996b2702b391dec9a407fd6"
+    },
+    {
+      "path": "docs/qa/evidence/CENTURY-EDITOR-UX-S02-G001-CORR-002-REAL-FRUSTUM-OCCLUSION-CULLING-AND-VIEWPORT-DIAGNOSTICS/regression-node.log",
+      "status": "added",
+      "sha256": "4c9a1f988bedf8e9ef00cbc1771773852b65db1c1af1eb33706724a68cb201ad"
+    },
+    {
+      "path": "docs/qa/evidence/CENTURY-EDITOR-UX-S02-G001-CORR-002-REAL-FRUSTUM-OCCLUSION-CULLING-AND-VIEWPORT-DIAGNOSTICS/syntax.log",
+      "status": "added",
+      "sha256": "3c58ce07d6a55fb191b79a74baa1ed6f84db50449598a76bd9a1fc271dd05c26"
+    },
+    {
+      "path": "scripts/test-editor-culling-observer-corr002.mjs",
+      "status": "added",
+      "sha256": "c140b9e77a4784e94c6059607ecdec71de89ba2127901189dd174a4af149366d"
+    },
+    {
+      "path": "scripts/test-editor-dual-view-runtime.mjs",
+      "status": "modified",
+      "sha256": "a2875e06dabba6dbaf22c3914801afc1c4e7a7cb3fce5d6eb87b95659c0cca53"
+    },
+    {
+      "path": "scripts/test-viewport-docking-and-camera-loopcut-s02-g001.mjs",
+      "status": "modified",
+      "sha256": "cd29b2e01d1cdf3f372f5c10aa5acad8ad2fe5ea23bfa501a086aff58c450752"
+    },
+    {
+      "path": "src/components/SceneRuntimeObserver.vue",
+      "status": "modified",
+      "sha256": "9ab5ed1bb4150da76f233b5e8408570fe155eb52c2f65eb5551491dab59ee08e"
+    },
+    {
+      "path": "src/engine/runtime/render/camera-occlusion.js",
+      "status": "modified",
+      "sha256": "fd4ec6706f08458493ff5a67c19fefaf8a7448382de6605932788956ff72f941"
+    },
+    {
+      "path": "src/engine/runtime/render/observer-visibility.js",
+      "status": "added",
+      "sha256": "466415730df7b98015d0f08b8e06af24f2f962445087380ce3dad3227de609be"
+    }
+  ],
+  "qa": {
+    "focused": "35/35 PASS (mocked Three)",
+    "regression": "75/77 PASS; DOCK-30/DOCK-C09 historical",
+    "domain": "43/43 PASS",
+    "syntax": "PASS (not Vue build)",
+    "build": "BLOCKED vite not found",
+    "electron": "NOT VERIFIED",
+    "three_runtime": "NOT VERIFIED"
+  },
+  "ledger": {
+    "sheets": 6,
+    "tables": 12
+  },
+  "approval": "PENDIENTE",
+  "closed": false
+}

@@ -1,0 +1,224 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>LF Edit Mesh Modal G001</title></head>
+<body style="background:#17191d;color:#eee"><pre id="mesh-edit-modal-corr-g001-result">Iniciando QA...</pre><div id="panel" style="height:420px;width:360px;overflow:auto"></div>
+<script type="module">
+import * as THREE from 'three'
+import {createApp,nextTick} from 'vue'
+import MeshPanel from '/src/components/MeshPanel.vue'
+import {EditSession} from '/src/core/mesh/session.js'
+import {make} from '/src/engine/runtime/mesh/generators.js'
+import {Sel} from '/src/core/mesh/sel.js'
+import {cutSlideLimit,validLoopCutRing} from '/src/core/mesh/cuts.js'
+import {ContinuousGrab} from '/src/core/editor/continuous-grab.js'
+import {keysMethods} from '/src/core/editor/keys.js'
+import {store} from '/src/core/store.js'
+import '/src/styles.css'
+const out=document.getElementById('mesh-edit-modal-corr-g001-result'),checks=[]
+const check=(name,pass,detail='')=>{checks.push({name,pass:!!pass,detail});if(!pass)throw Error(`${name}: ${detail}`)}
+let app,renderer,keyboard
+try{
+ renderer=new THREE.WebGLRenderer({antialias:false});renderer.setSize(32,32)
+ const camera=new THREE.PerspectiveCamera(60,1,.1,100);camera.position.set(3,5,8);camera.lookAt(0,0,0);camera.updateMatrixWorld(true)
+ const scene=new THREE.Scene(),parent=new THREE.Group(),visual=new THREE.Group()
+ parent.position.x=2;parent.rotation.y=Math.PI/3;scene.add(parent);parent.add(visual);scene.updateMatrixWorld(true)
+ renderer.render(scene,camera);check('WebGL2 con Three.js real',renderer.capabilities.isWebGL2)
+ store.space='world';store.gizmo='translate';store.project={id:'modal-mesh-g001',objects:[{id:'mesh',name:'Malla',type:'mesh',kind:'cube',position:[0,0,0],rotation:[0,0,0],scale:[1,1,1],props:{mesh:{}}}],settings:{gridSize:1,moveSnapOn:false,rotateSnapOn:false,scaleSnapOn:false,rotSnap:15,scaleSnap:.1},meshes:[],assets:[],materials:[],terrain:{},environment:{}}
+ store.edit.id='mesh';store.edit.on=true;store.edit.mode='vertex';store.edit.paint.active=false;store.edit.count={v:8,e:12,f:6,sv:1,se:0,sf:0}
+ const s=Object.create(EditSession.prototype), commits=[]
+ s.poly=make('cube');s.sel=new Sel();s.sel.v.add(0);s.mode='vertex';s.objId='mesh';s.obj=store.project.objects[0];s.visual=visual;s.body={};s.modal=null;s.paintStroke=null;s._shiftSnapHeld=false;s.numericDraft=null;s.lastClient={x:16,y:16};s.dom=renderer.domElement;s.vp={camera,requestRender(){},controls:{enabled:true},isFlying:false,isNavigating:false,wantsNav(){return false}};s.preview={visible:false};s._continuousGrab={begin(){},end(){},locked:false};s._clearSvg=()=>{};s.refresh=()=>{visual.updateWorldMatrix(true,false)};s.commit=(label)=>commits.push(label)
+ s._ray=()=>new THREE.Ray(new THREE.Vector3(0,5,5),new THREE.Vector3(0,-1,-1).normalize());s._project=()=>({x:16,y:16})
+ store.editor={edit:s};app=createApp(MeshPanel);app.mount('#panel');await nextTick()
+ check('MeshPanel con G/R/S disponible',!!document.querySelector('[data-testid="mesh-numeric-transform"]'))
+ check('EditSession no tiene gizmo propio',!s.tc && !s.proxy && !s.gz)
+ check('Edit Mesh usa misma geometría de PolyMesh',s.poly.v.length===8)
+ const initial=s.poly.v.map(p=>[...p]);const px=initial[0][0]
+ s.startModal('grab');await nextTick();check('G inicia modal, no gizmo',s.modal?.kind==='grab'&&!s.tc)
+ s.modalKey({key:'x',shiftKey:false});s.modalKey({key:'2',shiftKey:false});await nextTick()
+ check('G X 2 desplaza el vértice en el mundo',Math.abs(s.poly.v[0][0]-px)>0.01)
+ check('previsualización no guarda historia',commits.length===0)
+ check('HUD modal usa el estado existente',store.edit.hud.startsWith('Mover'))
+ s.modalKey({key:'Enter'});await nextTick()
+ check('Enter confirma una sola operación',commits.length===1 && commits[0]==='Mover')
+ check('modal termina y desaparece el HUD',s.modal===null&&store.edit.hud==='')
+ s.sel.v.add(1);store.edit.count.sv=2
+ const saved=s.poly.v.map(p=>[...p]);s.startModal('rotate');s.modalKey({key:'z',shiftKey:false});s.modalKey({key:'9',shiftKey:false});s.modalKey({key:'0',shiftKey:false});await nextTick()
+ check('R Z 90 produce previsualización geométrica',s.modal?.kind==='rotate'&&store.edit.hud.startsWith('Rotar'))
+ s.modalKey({key:'Escape'});await nextTick()
+ check('Esc revierte la geometría',saved.every((p,i)=>p.every((v,j)=>Math.abs(s.poly.v[i][j]-v)<1e-6)))
+ check('Esc no crea entrada de historial',commits.length===1)
+ s.startModal('scale');s.modalKey({key:'2',shiftKey:false});await nextTick()
+ check('S 2 calcula escala sin TransformControls',s.modal?.kind==='scale'&&store.edit.hud.startsWith('Escalar'))
+ s.modalKey({key:'Escape'});await nextTick()
+ check('cancelar escala restaura la selección',saved.every((p,i)=>p.every((v,j)=>Math.abs(s.poly.v[i][j]-v)<1e-6)))
+ s.setSnapShiftHeld(true);check('Shift se conserva sin crear snap de gizmo',s._shiftSnapHeld===true)
+ const host=document.createElement('div'), canvas=document.createElement('canvas')
+ host.style.cssText='position:relative;width:220px;height:120px'
+ canvas.style.cssText='width:100%;height:100%'
+ host.appendChild(canvas);document.body.appendChild(host)
+ s.dom=canvas
+ const bounds=canvas.getBoundingClientRect()
+ s.lastClient={x:bounds.left+40,y:bounds.top+50}
+ let captured=null
+ Object.defineProperty(document,'pointerLockElement',{configurable:true,get:()=>captured})
+ canvas.requestPointerLock=()=>{captured=canvas;document.dispatchEvent(new Event('pointerlockchange'))}
+ document.exitPointerLock=()=>{captured=null;document.dispatchEvent(new Event('pointerlockchange'))}
+ const grab=s._continuousGrab=new ContinuousGrab(canvas)
+ const press=(type,x,y)=>new PointerEvent(type,{clientX:bounds.left+x,clientY:bounds.top+y,pointerType:'mouse',button:0,buttons:type==='pointerup'?0:1})
+ const move=(dx,dy=0,shiftKey=false)=>canvas.dispatchEvent(new PointerEvent('pointermove',{movementX:dx,movementY:dy,bubbles:true,buttons:1,shiftKey}))
+ const ring=[...s.poly.edges().keys()].find(edge=>validLoopCutRing(s.poly,edge,1))
+ const segment=s.poly.edges().get(ring)
+ s._pickEdge=(x,y)=>x>0 && x<bounds.width && y>0 && y<bounds.height ? ring : null
+ s._screenVerts=()=>s.poly.v.map((_,i)=>({x:i===segment.b?120:20,y:40}))
+ s.preview.geometry=new THREE.BufferGeometry()
+ s.startModal('loopcut')
+ move(bounds.width+10)
+ check('Corte en bucle sigue apuntando a aristas al cruzar el borde',grab.locked && s.modal.cur.x<bounds.width && s.modal.acc.x>bounds.width && s.modal.edge===ring)
+ s._onDown(press('pointerdown',0,0))
+ check('Fijar el anillo ancla el deslizamiento sin salto',s.modal.phase==='slide' && s.modal.slide===0 && s.modal.slideStart.x>bounds.width)
+ move(9)
+ check('El deslizamiento usa el delta continuo',s.modal.slide>0 && s.modal.slide<1)
+ s.modalCancel()
+ check('Cancelar el corte devuelve el ratón',!captured && !s.modal)
+ s.svg=document.createElementNS('http://www.w3.org/2000/svg','svg')
+ s.startModal('knife')
+ move(bounds.width+12,13)
+ const start={...s.modal.cur}
+ s._onDown(press('pointerdown',0,0))
+ move(bounds.width+7,3)
+ check('Cuchillo marca el punto visible y conserva el siguiente dentro del visor',
+   s.modal.p1.x===start.x && s.modal.p1.y===start.y && s.modal.cur.x<bounds.width && s.modal.cur.y<bounds.height)
+ s.modalCancel()
+ s._hideVertexPreview=()=>{}
+ s._drawRect=()=>{}
+ let box
+ s._boxSelect=area=>{box=area}
+ s._onDown(press('pointerdown',33,40))
+ s._onMove(press('pointermove',45,50))
+ move(400,400)
+ s._onUp(press('pointerup',0,0))
+ check('El cuadro de selección llega al borde y confirma con el extremo virtual',box?.x1===bounds.width && box?.y1===bounds.height && !captured)
+ store.edit.paint.active=true
+ let dab
+ s._paintDab=e=>{dab=e}
+ s._paintCursor=()=>{}
+ s._onDown(press('pointerdown',35,45))
+ move(bounds.width+8)
+ check('Pintura aplica el trazo en la posición que muestra el cursor virtual',
+   grab.locked && dab.clientX>bounds.left && dab.clientX<bounds.right)
+ s._onUp(press('pointerup',0,0))
+ check('Soltar el pincel libera el ratón',!captured && !s.paintStroke)
+ store.edit.paint.active=false
+ keyboard={edit:s,vp:s.vp,pointer:{inside:false},_setSnapShiftHeld(){},toggleEdit(){throw Error('Tab cerró Edit Mesh')}}
+ keysMethods._bindKeys.call(keyboard)
+ const key=(target,value,shiftKey=false,modifiers={})=>{
+   const ev=new KeyboardEvent('keydown',{key:value,code:value,bubbles:true,cancelable:true,shiftKey,...modifiers})
+   target.dispatchEvent(ev)
+   return ev.defaultPrevented
+ }
+ s._worldPerPx=()=>0.1
+ Object.assign(store.project.settings,{gridSize:0.25,moveSnapOn:true})
+ s.startModal('shrink')
+ move(3)
+ check('Snap redondea la distancia normal al paso del proyecto',store.edit.modalControl.value===0.25)
+ move(1,0,true)
+ check('Shift suspende Snap sin saltar la vista previa',Math.abs(store.edit.modalControl.value-0.35)<1e-8)
+ check('Tab cede el ratón al Inspector',key(document.body,'Tab') && !captured && s.modal.inspecting)
+ await nextTick()
+ await nextTick()
+ const field=document.querySelector('.modal-settings input')
+ const apply=field.form.querySelector('[type=submit]')
+ check('El valor de la operación recibe foco y selección',document.activeElement===field && field.selectionEnd===field.value.length)
+ for (const value of ['-', '-0', '-0,', '-0,1', '-0,13']) {
+   field.value=value
+   field.setSelectionRange(value.length,value.length)
+   field.dispatchEvent(new Event('input',{bubbles:true}))
+   await nextTick()
+ }
+ check('El Inspector permite escribir decimales con signo sin perder foco ni cursor',
+   field.value==='-0,13' && document.activeElement===field && field.selectionStart===5 && field.selectionEnd===5)
+ check('El valor exacto llega a la vista previa sin redondeo de Snap',store.edit.modalControl.value===-0.13)
+ apply.focus()
+ check('Tab y Shift+Tab recorren los botones sin cerrar Edit Mesh',!key(apply,'Tab') && !key(apply,'Tab',true) && s.modal.inspecting)
+ field.value='-'
+ field.dispatchEvent(new Event('input',{bubbles:true}))
+ await nextTick()
+ field.form.requestSubmit()
+ check('Un valor incompleto conserva la última vista previa y no confirma',
+   s.modal.inspecting && store.edit.modalControl.value===-0.13 && apply.disabled && commits.length===1)
+ field.value='-0,13'
+ field.dispatchEvent(new Event('input',{bubbles:true}))
+ await nextTick()
+ field.form.requestSubmit()
+ check('Aplicar confirma una sola vez y cierra los ajustes de la operación',
+   !s.modal && !store.edit.modalControl && commits.length===2 && !captured)
+ s.startModal('loopcut')
+ move(2)
+ s._onDown(press('pointerdown',0,0))
+ move(Math.round(100*0.31/s.modal.edgeLength))
+ const slideDistance=s.modal.slide*s.modal.edgeLength*cutSlideLimit(s.modal.cuts)
+ check('El corte desliza en pasos de rejilla sobre la arista',Math.abs(slideDistance-0.25)<1e-8)
+ s.modalCancel()
+ s.startModal('bevelVertex')
+ key(document.body,'Tab')
+ await nextTick()
+ await nextTick()
+ const segments=document.querySelector('.modal-settings input[type="number"]')
+ segments.focus()
+ const focused=document.activeElement===segments
+ segments.value='3'
+ segments.dispatchEvent(new Event('input',{bubbles:true}))
+ await nextTick()
+ check('El Inspector actualiza los segmentos del bisel activo',
+   focused && s.modal.segments===3 && store.edit.modalControl.bevelSegments===3,
+   JSON.stringify({focused,text:segments.value,segments:s.modal.segments,control:store.edit.modalControl.bevelSegments}))
+ const resume=[...segments.form.querySelectorAll('button')].find(button=>button.textContent==='Volver al ratón')
+ resume.click()
+ check('Volver al ratón recupera la captura de la operación activa',grab.locked && !s.modal.inspecting)
+ s.modalCancel()
+ const inspector=document.querySelector('[data-mesh-inspector]')
+ const shortcuts=inspector.querySelector('[aria-keyshortcuts="Control+Alt+M"]')
+ const toggleKeys={ctrlKey:true,altKey:true}
+ const operations=[]
+ s.op=name=>operations.push(name)
+ check('Con atajos globales activos, R llega a Edit Mesh desde el Inspector',
+   key(shortcuts,'r') && operations.pop()==='rotate')
+ shortcuts.click()
+ await nextTick()
+ check('El botón desactiva los atajos globales y refleja su estado',
+   !store.edit.globalShortcuts && shortcuts.getAttribute('aria-pressed')==='false')
+ const oldGizmo=store.gizmo
+ check('Fuera del visor, R y Tab quedan libres y no ejecutan acciones de escena',
+   !key(shortcuts,'r') && !key(shortcuts,'Tab') && operations.length===0 && store.gizmo===oldGizmo)
+ keyboard.pointer.inside=true
+ check('Los atajos de malla siguen disponibles sobre el visor',key(canvas,'r') && operations.pop()==='rotate')
+ keyboard.pointer.inside=false
+ const inspectorInput=inspector.querySelector('input[type="text"]:not(:disabled)')
+ inspectorInput.focus()
+ check('El atajo de alternancia funciona con un textbox enfocado',
+   key(inspectorInput,'m',false,toggleKeys) && store.edit.globalShortcuts && document.activeElement===inspectorInput)
+ check('Mantener pulsado el atajo no vuelve a alternarlo',
+   key(inspectorInput,'m',false,{...toggleKeys,repeat:true}) && store.edit.globalShortcuts)
+ s.startModal('shrink')
+ check('Desactivar atajos globales libera el ratón sin cerrar la operación',
+   grab.locked && key(canvas,'m',false,toggleKeys) && !captured && s.modal.inspecting)
+ await nextTick()
+ const directField=inspector.querySelector('.modal-settings input')
+ directField.focus()
+ check('El campo de una operación activa recibe foco y las teclas de escritura',
+   document.activeElement===directField && !key(directField,'g') && s.modal.inspecting)
+ directField.form.querySelector('.modal-actions button[type="button"]').click()
+ check('Volver al ratón en modo local mantiene libre el cursor',!s.modal.inspecting && !captured)
+ s.modalCancel()
+ s.startModal('shrink')
+ check('Una nueva operación en modo local conserva el ratón libre',!captured && !s.modal.inspecting)
+ inspector.dispatchEvent(new PointerEvent('pointerenter'))
+ check('Al entrar en Malla con el puntero se muestran los ajustes de la operación',s.modal.inspecting)
+ s.modalCancel()
+ shortcuts.click()
+ grab.dispose()
+ s.preview.geometry.dispose()
+ host.remove()
+ scene.updateMatrixWorld(true);renderer.render(scene,camera)
+ check('Three.js no reporta errores WebGL',renderer.getContext().getError()===renderer.getContext().NO_ERROR)
+ out.dataset.pass='true';out.textContent=JSON.stringify({pass:true,gl:renderer.getContext().getParameter(renderer.getContext().VERSION),checks},null,2)
+}catch(error){out.dataset.pass='false';out.textContent=JSON.stringify({pass:false,error:String(error?.stack||error),checks},null,2)}finally{keyboard?._keyCleanup();app?.unmount();renderer?.dispose()}
+</script></body></html>

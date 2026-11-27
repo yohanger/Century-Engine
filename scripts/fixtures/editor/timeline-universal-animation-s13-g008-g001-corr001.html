@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="es">
+<meta charset="utf-8">
+<title>Century · CORR-001 Camera Preview / Inspector UX</title>
+<style>
+  html,body { margin:0; height:100%; background:#181d22; color:#dae3e9; font:12px system-ui; }
+  #workspace { display:grid; grid-template-columns:minmax(0,3fr) 334px; width:100%; height:600px; }
+  #timeline,#inspector { min-width:0; overflow:hidden; }
+  #result { display:none; }
+</style>
+<div id="workspace"><div id="timeline"></div><div id="inspector"></div></div>
+<pre id="result"></pre>
+<script type="module">
+const out=document.querySelector('#result'), checks=[]
+const check=(name,pass)=>{checks.push({name,pass:!!pass});if(!pass)throw new Error(name)}
+try {
+  await import('/src/styles.css')
+  const {createApp,h,provide,nextTick}=await import('vue')
+  const THREE=await import('three')
+  const {default:TimelinePanel}=await import('/src/components/TimelinePanel.vue')
+  const {default:InspectorDock}=await import('/src/components/InspectorDock.vue')
+  const {store,setEditor,resetHistory}=await import('/src/core/store.js')
+  const {createProjectData}=await import('/src/core/project.js')
+  const {makeObject}=await import('/src/engine/runtime/nodes/index.js')
+  const {newTimeline,upsertTimelineNodePropertyKey,addTimelineCameraBinding}=await import('/src/core/timeline/model.js')
+  const {createTimelinePlayback,timelinePlaybackKey}=await import('/src/core/timeline/playback-session.js')
+  const project=createProjectData('CORR-001 Vista cámara', 'empty')
+  const camera=makeObject('camera','camera',{id:'camera-qa',name:'Cámara QA',position:[1,2,3]})
+  project.objects=[camera]
+  const timeline=newTimeline('Movimiento de cámara',{id:'timeline-qa',duration:5})
+  project.timelines=[timeline]
+  upsertTimelineNodePropertyKey(timeline,camera,'position',project.activeSceneId,project.objects,0,[1,2,3])
+  upsertTimelineNodePropertyKey(timeline,camera,'position',project.activeSceneId,project.objects,2,[5,2,3])
+  const track=timeline.tracks.find(t=>t.prop==='position')
+  store.project=project;store.timelineId=timeline.id;store.selectedId=camera.id;store.selectedIds=[camera.id]
+  store.prefs.bottomTab='timeline';store.prefs.rightTab='object';store.prefs.bottomOpen=true
+  store.locked=false;store.filmMode=false;store.play.on=false
+  const root=new THREE.Group(),editorCam=new THREE.PerspectiveCamera(75), nodes=new Map([[camera.id,root]])
+  const viewport={persp:editorCam,camera:editorCam,controls:{enabled:true},container:{clientWidth:800,clientHeight:450},requestRender() {}}
+  setEditor({vp:viewport,nodes,_updateGizmoMode(){},stopCameraPilot(){},setSelection(){},setActivePiece(){},snapshotTerrain:()=>project.terrain,
+    restoreTerrain(){},syncAll(){},syncEnvironment(){},syncObject(){},restoreEdit(){},afterUndo(){}})
+  resetHistory()
+  const playback=createTimelinePlayback({
+    getContext:()=>({project:store.project,sceneId:project.activeSceneId,timelineId:store.timelineId,
+      editor:store.editor,selectedNodeId:store.selectedId,playOn:store.play.on,locked:store.locked,cinematic:false}),
+    getProject:()=>store.project,getEditor:()=>store.editor,getObjects:()=>store.project.objects,
+    worldMatrix:()=>new THREE.Matrix4(),
+  })
+  // Montar dentro del área del Timeline, con Inspector separado para mantener dimensiones reales.
+  const timelineApp=createApp({setup(){provide(timelinePlaybackKey,playback);return()=>h(TimelinePanel)}})
+  const inspectorApp=createApp({setup(){provide(timelinePlaybackKey,playback);return()=>h(InspectorDock)}})
+  timelineApp.mount('#timeline');inspectorApp.mount('#inspector')
+  const settle=async()=>{await nextTick();await new Promise(resolve=>requestAnimationFrame(resolve));await nextTick()}
+  await settle()
+  check('Timeline e Inspector montados',!!document.querySelector('#timeline .tlp')&&!!document.querySelector('#inspector .insp'))
+  check('Inspector conserva llaves contextuales',document.querySelectorAll('#inspector .field > .property-key').length>=2)
+  // La fila se identifica por la llave concreta de la propiedad, no por el primer
+  // <label> descendiente: Vec3Field/NumberField también utilizan etiquetas internas.
+  const posKey=document.querySelector('#inspector .insp[data-node-type="camera"] .property-key[aria-label="Insertar clave de Posición en Timeline"]')
+  const posField=posKey?.closest('.field')
+  const posLabel=posField?.querySelector(':scope > label')
+  const control=posField?.querySelector(':scope > .v3')
+  check('Propiedad Posición contiene etiqueta, valor y llave en un solo campo',
+    !!posKey&&!!posField&&posLabel?.textContent?.trim()==='Posición'&&
+    !!control&&posField.querySelector(':scope > .property-key')===posKey)
+  const key=posKey
+  const keyR=key.getBoundingClientRect(),ctrlR=control.getBoundingClientRect()
+  check('Llave alineada horizontalmente al valor',Math.abs((keyR.top+keyR.height/2)-(ctrlR.top+ctrlR.height/2))<=5&&keyR.left>=ctrlR.right-1)
+  const body=document.querySelector('#inspector .insp > .sect > .body')
+  check('Inspector usa espaciado compacto',body&&parseFloat(getComputedStyle(body).paddingTop)<=10)
+  const playhead=document.querySelector('#timeline .playhead')
+  check('Cabezal global debajo de claves',playhead&&getComputedStyle(playhead).zIndex==='1')
+  check('Keyframes conservan posición temporal',document.querySelectorAll('#timeline .lane.property-lane .key.node').length===2)
+  playback.seek(1)
+  playback.refresh(timeline,track)
+  await settle()
+  check('Preview automático sigue a Camera3D de la pista node',viewport.camera!==editorCam&&viewport.camera.isPerspectiveCamera&&Math.abs(viewport.camera.position.x-3)<0.001)
+  check('Preview inhabilita navegación de cámara editorial',viewport.controls.enabled===false)
+  const explicit=addTimelineCameraBinding(timeline,camera,0,{sceneId:project.activeSceneId}).track
+  playback.refresh(timeline,track)
+  check('Toma explícita conserva la prioridad de render',viewport.camera!==editorCam&&viewport.camera.position.x>0)
+  explicit.muted=true
+  track.muted=true
+  playback.refresh(timeline,track)
+  check('Si ninguna pista está activa vuelve cámara del Editor',viewport.camera===editorCam&&viewport.controls.enabled)
+  track.muted=false
+  playback.seek(1);playback.refresh(timeline,track)
+  playback.stop()
+  check('Stop restaura cámara y controles',viewport.camera===editorCam&&viewport.controls.enabled)
+  timelineApp.unmount();inspectorApp.unmount()
+  out.dataset.pass='true'
+  out.textContent=JSON.stringify({pass:true,checks,gl:!!document.createElement('canvas').getContext('webgl')})
+} catch(error) {
+  out.dataset.pass='false'
+  const inspector=document.querySelector('#inspector .insp')
+  const fields=[...document.querySelectorAll('#inspector .insp .field')]
+  out.textContent=JSON.stringify({pass:false,checks,error:error.stack||String(error),
+    inspectorNodeType:inspector?.dataset.nodeType||null,
+    inspectorKeys:[...document.querySelectorAll('#inspector .insp .property-key')].map(key=>({
+      label:key.getAttribute('aria-label'),parentLabel:key.closest('.field')?.querySelector(':scope > label')?.textContent?.trim()||null,
+    })),
+    positionFieldCandidates:fields.filter(field=>[...field.children].some(child=>child.tagName==='LABEL'&&child.textContent.trim()==='Posición'))
+      .map(field=>({children:[...field.children].map(child=>child.tagName+'.'+child.className),html:field.outerHTML.slice(0,450)})),
+  })
+}
+</script>
+</html>

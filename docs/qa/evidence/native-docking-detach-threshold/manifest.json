@@ -1,0 +1,123 @@
+{
+  "baseline": "CENTURY_EDITOR_NATIVE_DOCKING_INPUT_ISOLATION_SOURCE_BASELINE.zip",
+  "baseline_sha256": "e034c4ffb81e24804ed12f176e6f4ea3f6337029bbade62793d5b5eff3a31425",
+  "baseline_files": 4411,
+  "changed": [
+    {
+      "path": "docs/architecture/CENTURY-EDITOR-UX-S03-G001-CORR-006-NATIVE-DOCKING-HIT-TEST-AND-GESTURE-INTEGRITY_IMPLEMENTATION.md",
+      "sha256": "ccb903357e7570dcc1bb9abc42792f106a121db3b0de236fa6347b56c50d17e4",
+      "status": "modified"
+    },
+    {
+      "path": "docs/biblia/04-editor.md",
+      "sha256": "e66aa1ec1fbd0df6de2fc3508e3c25d5cfbcc7e03c19c4d5f9414a1c7d8b4220",
+      "status": "modified"
+    },
+    {
+      "path": "docs/biblia/Biblia_Tecnica_Century.pdf",
+      "sha256": "f76d1b34390cf08073cd9074b3c241a84121637cdaba156af38b4506be8c22d6",
+      "status": "modified"
+    },
+    {
+      "path": "docs/ledger/CE_EDITOR_NATIVE_DOCKING_DETACH_THRESHOLD_LEDGER.xlsx",
+      "sha256": "0b956e4512a0f04a4da556be3f93206ee2838f16549dde316809e5e56368715b",
+      "status": "added"
+    },
+    {
+      "path": "docs/qa/evidence/native-docking-detach-threshold/README.md",
+      "sha256": "a2e048daf9822995a739685641e77cf6d8ad3eca7163aa8764b3adc29d8e600a",
+      "status": "added"
+    },
+    {
+      "path": "docs/qa/evidence/native-docking-detach-threshold/dock8-api.log",
+      "sha256": "a470549b395666ae3745d4b92d9b9e5f59a174d7f2a38fcf59ba9f87df4e75c8",
+      "status": "added"
+    },
+    {
+      "path": "docs/qa/evidence/native-docking-detach-threshold/dock8-docbuild.log",
+      "sha256": "afc3c0a8116c179d549ee718c536a51506b1264bc0b9c0ee16338113d196b88f",
+      "status": "added"
+    },
+    {
+      "path": "docs/qa/evidence/native-docking-detach-threshold/dock8-doccheck.log",
+      "sha256": "2583673da5a62d3821389f07b15a08f8018bfaf10e6f6c6120db51397d91fca6",
+      "status": "added"
+    },
+    {
+      "path": "docs/qa/evidence/native-docking-detach-threshold/dock8-integral-pointer-recovery.log",
+      "sha256": "a681a8231f82e1ab20dae7ef177fde2af7b99b66f349bc2576a84662290d4a19",
+      "status": "added"
+    },
+    {
+      "path": "docs/qa/evidence/native-docking-detach-threshold/dock8-mesh-modal-pointer-authority.log",
+      "sha256": "84537ab1386b6f37a3b65c8353f6736b4f8560bee1c47ff3c77b2234571f8dde",
+      "status": "added"
+    },
+    {
+      "path": "docs/qa/evidence/native-docking-detach-threshold/dock8-native-docking-restoration-electron.log",
+      "sha256": "baf38cadb277e0c4e288dc923fb5dbf896102aa6efd8e7d9a41c7133ac1ed7b5",
+      "status": "added"
+    },
+    {
+      "path": "docs/qa/evidence/native-docking-detach-threshold/dock8-native-docking-restoration.log",
+      "sha256": "4ff038854162ad81563c90d73d559ceb6a4a957564377625f53c6c70c99ae425",
+      "status": "added"
+    },
+    {
+      "path": "docs/qa/evidence/native-docking-detach-threshold/dock8-pdf.log",
+      "sha256": "5f3761d3fef66be20a79db602f218f7eca350ab9a2f288eab360581376709e42",
+      "status": "added"
+    },
+    {
+      "path": "docs/qa/evidence/native-docking-detach-threshold/local-electron.log",
+      "sha256": "0a5ba8a8b8bb01211304c269328b4eeccbf4c8f7d2e0614405a2dece06c0729b",
+      "status": "added"
+    },
+    {
+      "path": "public/docs/content.js",
+      "sha256": "68fef47e582a804383a79585abed772d55e1041765ea7ea7d2396ec24ac5ee23",
+      "status": "modified"
+    },
+    {
+      "path": "scripts/fixtures/editor/dock-detach-points.mjs",
+      "sha256": "6c487ddb944e6e2aca31cf6066936693ba55d248b361284ae05b488f85b40830",
+      "status": "added"
+    },
+    {
+      "path": "scripts/fixtures/editor/native-docking-restoration.html",
+      "sha256": "4f8d174a08da458a9d6ce3b41f35f28033467bcffd7ce0c5a144a80ce98817f4",
+      "status": "modified"
+    },
+    {
+      "path": "scripts/qa-electron-native-docking.cjs",
+      "sha256": "6a59d93d4f4381f6a735f0a5471c8309999a41f5fc8d259ccff2d14a841943a9",
+      "status": "modified"
+    },
+    {
+      "path": "scripts/qa-suites.json",
+      "sha256": "76b0f396650c7862f5a88e598cec7b2b53992d07d05d6be58ac87b54ba1f78bc",
+      "status": "modified"
+    },
+    {
+      "path": "scripts/test-dock-detach-points.mjs",
+      "sha256": "8ce2f561f2a05f59164fc848d816419b29252680d2e7b17af0567bdea8ac7035",
+      "status": "added"
+    },
+    {
+      "path": "scripts/test-native-docking-restoration-electron.mjs",
+      "sha256": "b3299b85e2f6572db0009ea433d550674f992b117d9c7ae6a067abf5e735289b",
+      "status": "modified"
+    }
+  ],
+  "deleted": [],
+  "qa": {
+    "docking": "38/38 PASS",
+    "pointer": "70/70 PASS",
+    "mesh": "9/9 PASS",
+    "documentation_api": "28/28 PASS",
+    "portal": "14/14 PASS",
+    "electron": "BLOCKED: missing Vite",
+    "local_previous": "5 checks PASS then timeout",
+    "gate": "OPEN"
+  }
+}

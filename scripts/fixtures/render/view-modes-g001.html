@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="es">
+<meta charset="utf-8" />
+<title>Century · View Modes · WebGL2 QA</title>
+<style>body{background:#151b26;color:#edf2fc;font:14px system-ui}#stage{width:240px;height:160px;border:1px solid #515e72}#viewmodes-result{display:none}</style>
+<h3>View Modes · QA de materiales y buffers reales</h3>
+<div id="stage"></div><pre id="viewmodes-result"></pre>
+<script type="module">
+import * as THREE from 'three'
+import { Viewport } from '/src/engine/runtime/render/viewport.js'
+import { LodManager } from '/src/engine/runtime/render/lodmgr.js'
+import { Terrain } from '/src/engine/runtime/geometry/terrain.js'
+const out = document.querySelector('#viewmodes-result')
+const checks = [], errors = []
+const check = (name, pass, details) => { checks.push({ name, pass: !!pass, details }); if (!pass) throw new Error(name) }
+let vp
+try {
+  vp = new Viewport(document.querySelector('#stage'))
+  vp.renderer.setSize(240, 160, false)
+  vp.renderer.setPixelRatio(1)
+  vp.renderer.debug.onShaderError = (gl,p,vs,fs) => errors.push(gl.getProgramInfoLog(p) || gl.getShaderInfoLog(fs))
+  vp.sky.visible = false
+  vp.grid.visible = false
+  vp.camera.position.set(0,0,4)
+  vp.camera.lookAt(0,0,0)
+  vp.camera.updateMatrixWorld()
+  const authorMaterial = new THREE.MeshStandardMaterial({ color:0xb12424, roughness:0.9 })
+  const mesh = new THREE.Mesh(new THREE.BoxGeometry(1.4,1.4,1.4), authorMaterial)
+  vp.world.add(mesh)
+  const point = new THREE.PointLight(0xffffff, 1.1, 10)
+  point.position.set(1.3, 2, 2)
+  vp.world.add(point)
+  const originalRender = vp.renderer.render.bind(vp.renderer)
+  let during = null
+  vp.renderer.render = (...args) => { during = mesh.material; return originalRender(...args) }
+  const diag = vp.viewDiagnostics
+  const gl = vp.renderer.getContext()
+  check('VM GPU01 · WebGL2 real', gl.getParameter(gl.VERSION).includes('WebGL 2'))
+  const draw = mode => {
+    during = null
+    diag.draw(mode)
+    const data = new Uint8Array(4)
+    gl.readPixels(gl.drawingBufferWidth>>1, gl.drawingBufferHeight>>1,1,1, gl.RGBA,gl.UNSIGNED_BYTE,data)
+    return { material:during, pixel:[...data], status:diag.last }
+  }
+  const unlit = draw('unlit')
+  check('VM GPU02 · Unlit utiliza MeshBasicMaterial real con albedo de autoría', unlit.material.isMeshBasicMaterial && unlit.material.color.getHex() === authorMaterial.color.getHex(), unlit.pixel)
+  point.intensity = 0; vp.editorSun.intensity = 0
+  const unlitNoLights = draw('unlit')
+  check('VM GPU03 · Unlit no responde a luces', unlit.pixel.every((v,i)=>Math.abs(v-unlitNoLights.pixel[i])<=1), {on:unlit.pixel,off:unlitNoLights.pixel})
+  point.intensity = 1.1; vp.editorSun.intensity = 2
+  const lighting = draw('lighting')
+  check('VM GPU04 · Lighting Only usa material físicamente iluminado con albedo neutro', lighting.material.isMeshStandardMaterial && lighting.material.color.getHex() === 0xa0a0a0)
+  const wire = draw('wireframe')
+  check('VM GPU05 · Wireframe utiliza topología real de la malla', wire.material.isMeshBasicMaterial && wire.material.wireframe && wire.status.triangles === 12, wire.status)
+  const depth = draw('depth')
+  check('VM GPU06 · Depth renderiza material de profundidad', depth.material.isMeshDepthMaterial)
+  const normals = draw('normals')
+  check('VM GPU07 · Normals renderiza normales reales', normals.material.isMeshNormalMaterial)
+  const lights = draw('lights')
+  check('VM GPU08 · complejidad de luces se identifica como broad-phase CPU', lights.status.details.includes('estimación CPU') && lights.status.details.includes('NO coste'), lights.status.details)
+  vp.lodManager = { meshes:[{mesh,cur:2}], terrains:[], clusters:null }
+  const lod2 = draw('lod')
+  vp.lodManager.meshes[0].cur=0
+  const lod0 = draw('lod')
+  check('VM GPU09 · LOD colorea el índice efectivo, no un cálculo aparente', lod2.material.color.getHex()!==lod0.material.color.getHex(), {lod2:lod2.material.color.getHexString(),lod0:lod0.material.color.getHexString()})
+  vp.lodManager = null
+  check('VM GPU10 · LOD sin gestor activo declara indisponibilidad', !diag.capability('lod').supported)
+  const shader = draw('shader')
+  check('VM GPU11 · visualización de fuente GLSL identificada como métrica estática, NO coste GPU', shader.status.supported && shader.status.details.includes('Métrica ESTÁTICA, NO tiempo GPU'), shader.status)
+  const indirect = draw('indirect')
+  check('VM GPU12 · Indirect usa IBL real, con luces directas aisladas y sin afirmar ScreenBounce', indirect.status.supported && indirect.status.details.includes('ScreenBounce excluido'))
+  check('VM GPU13 · clústeres ausentes no se colorean como activos', diag.capability('clusters').supported === false)
+  check('VM GPU14 · autoría intacta y ninguna textura o material sustituido', mesh.material === authorMaterial && vp.world.children.includes(mesh))
+  check('VM GPU15 · escenas mantienen cielo y rejilla previos', vp.sky.visible === false && vp.grid.visible === false)
+  check('VM GPU16 · no hay errores de shaders ni GL', errors.length === 0 && gl.getError() === gl.NO_ERROR, errors)
+  const faces = draw('triangles')
+  check('NC GPU17 · vista Triangles muestra 12 caras realmente indexadas del cubo', faces.status.supported && faces.status.triangles === 12 && faces.status.details.includes('ID de triángulo'), faces.status)
+  check('NC GPU18 · geometría de autoría intacta tras dibujar Triangles', mesh.material === authorMaterial && mesh.geometry.index.count === 36)
+  const t = new Terrain(32, 32)
+  t.mesh.position.set(0, -1, 0)
+  vp.world.add(t.mesh)
+  const obj = { id:'cube', type:'primitive', props:{} }
+  const graph = { vp, terrains:[t], host:{project:{objects:[obj]}, getObject:id=>id==='cube'?obj:null},
+    nodes:new Map([['cube',mesh]]), _clusterGraphRevision:1 }
+  const manager = new LodManager(graph, {editorDiagnostics:true, lod:true, clusterGeometry:false})
+  manager.attach()
+  manager.update(vp.camera)
+  const native = manager.clusters
+  check('NC GPU19 · un cubo pequeño y Terrain se registran nativamente sin activar opciones', native.byMesh.has(mesh) && native.byMesh.has(t.mesh), {entries:native.entries.length})
+  const terrainEntry = native.byMesh.get(t.mesh)
+  check('NC GPU20 · Terrain genera clústeres reales de índices con una única geometría', terrainEntry.terrainActive?.length > 1 && t.mesh.geometry === terrainEntry.base, {pages:terrainEntry.terrainActive?.length})
+  const oldPages = terrainEntry.terrainPages
+  t.heights[0]=4
+  t.refreshRegion(0,0,0,0,true)
+  manager.update(vp.camera)
+  check('NC GPU21 · editar altura invalida y reconstruye clústeres', terrainEntry.terrainPages !== oldPages && terrainEntry.terrainPages?.length > 1)
+  const terrainMode = draw('clusters')
+  check('NC GPU22 · Clusters dibuja páginas verdaderas de Terrain, no colores por objeto', terrainMode.status.supported && terrainMode.status.details.includes('páginas geométricas') && terrainMode.status.details.includes('partición de dibujo directo'), terrainMode.status)
+  const one = new THREE.BufferGeometry()
+  one.setAttribute('position', new THREE.Float32BufferAttribute([0,0,0, 1,0,0, 0,1,0],3))
+  const single = new THREE.Mesh(one, new THREE.MeshBasicMaterial({color:0xffffff}))
+  vp.world.add(single)
+  const singleObj={id:'single-face',type:'primitive',props:{}}
+  graph.host.project.objects.push(singleObj)
+  graph.host.getObject=id=> id==='cube'?obj:id==='single-face'?singleObj:null
+  graph.nodes.set('single-face',single)
+  graph._clusterGraphRevision++
+  manager.update(vp.camera)
+  const singleEntry=native.byMesh.get(single)
+  check('NC GPU24 · una sola cara no indexada se registra automáticamente como clúster nativo',
+    !!singleEntry && singleEntry.directActive?.length===1 && singleEntry.directActive[0].index?.length===3)
+  const singleMode=draw('clusters')
+  check('NC GPU25 · vista Clusters inspecciona también clústeres de dibujo directo',
+    singleMode.status.supported && singleMode.status.details.includes('páginas geométricas'), singleMode.status)
+  manager.detach()
+  check('NC GPU23 · cerrar diagnóstico restaura índice y materiales de Terrain', t.mesh.geometry.index === terrainEntry.sourceIndex && mesh.material === authorMaterial && single.geometry.index===null)
+  single.removeFromParent();one.dispose();single.material.dispose()
+  t.mesh.removeFromParent()
+  t.dispose()
+  out.dataset.pass='true';out.textContent=JSON.stringify({pass:true,gl:gl.getParameter(gl.VERSION),checks})
+} catch (err) {
+  out.dataset.pass='false';out.textContent=JSON.stringify({pass:false,error:String(err.stack || err),checks,errors})
+} finally { if(vp) vp.dispose() }
+</script>

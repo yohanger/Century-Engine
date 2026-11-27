@@ -1,0 +1,50 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>QA ciclo de vida Century</title></head>
+<body><pre id="node-lifecycle-dispatch-corr-g001-result">Ejecutando...</pre><script type="module">
+import * as THREE from 'three'
+import { Game } from '/src/engine/runtime/events/interpreter.js'
+import { NodeLifecycle } from '/src/engine/runtime/scene/node-lifecycle.js'
+import { NodeScriptRuntime } from '/src/engine/runtime/scene/node-scripts.js'
+import { registerNode } from '/src/engine/runtime/nodes/registry.js'
+const el=document.querySelector('#node-lifecycle-dispatch-corr-g001-result')
+const checks=[]
+const check=(name,pass)=>{checks.push({name,pass:!!pass});if(!pass)throw Error(name)}
+let render
+try {
+  render=new THREE.WebGLRenderer({antialias:false})
+  render.setSize(32,32);render.render(new THREE.Scene(),new THREE.PerspectiveCamera(60,1,.01,10))
+  check('WebGL2 real',render.capabilities.isWebGL2)
+  registerNode({type:'corrFixtureNode',create:()=>({}),build:()=>({}),update:()=>{}})
+  const node=(id,scriptId='')=>({id,name:id,type:'corrFixtureNode',parentId:null,scriptId})
+  const project={objects:[node('a','scriptA'),node('b')],scripts:[{id:'scriptA',execution:'node',name:'scriptA',code:`
+    function _ready(){game.state.ready=(game.state.ready||0)+1;game.on('aviso',()=>game.state.aviso=(game.state.aviso||0)+1);game.waitFor('espera',90).then(v=>game.state.espera=v===undefined?'cancelada':'recibida')}
+    function _process(){game.state.frame=(game.state.frame||0)+1}
+  `}]}
+  const nodes=new Map(project.objects.map(o=>[o.id,{}]))
+  const g=new Game({host:{error:(msg)=>{throw Error(msg)}}})
+  const scene={host:{project},nodes};const play={project,game:g,_nodeHandle:id=>nodes.has(id)?{id,name:id}:null}
+  const life=new NodeLifecycle(scene);life.scripts=new NodeScriptRuntime(play)
+  check('Play inactivo',!life.active)
+  life.process(.016);check('Sin registro antes de Play',life.processEntries.size===0)
+  life.start();check('Dos nodos registrados',life.entered.size===2)
+  check('Solo uno tiene callback frame',life.processEntries.size===1)
+  check('Ninguno tiene callback físico',life.physicsEntries.size===0)
+  check('Ready ejecutado',g.state.ready===1)
+  check('Una suscripción del nodo',g.listeners.get('aviso').length===1)
+  check('Una espera pendiente del nodo',g.waiters.get('espera').length===1)
+  life.process(.016);check('Frame una sola vez',g.state.frame===1)
+  life.physicsProcess(.016);check('Física sin callbacks no modifica frame',g.state.frame===1)
+  await g.signal('aviso');check('Signal recibida por nodo',g.state.aviso===1)
+  project.objects=[node('b')];nodes.delete('a');life.sync()
+  check('Desconexión automática de nodo',g.listeners.get('aviso').length===0)
+  check('Espera cancelada al salir',!g.waiters.has('espera'))
+  await Promise.resolve();await Promise.resolve()
+  check('Promesa espera obtiene undefined',g.state.espera==='cancelada')
+  await g.signal('aviso');check('Sin callback después de salir',g.state.aviso===1)
+  check('Registro de proceso quedó vacío',life.processEntries.size===0)
+  const off=g.api.on('aviso',()=>g.state.global=true)
+  life.stop();await g.signal('aviso')
+  check('Suscripción global intacta al parar scripts',g.state.global===true)
+  off();check('Sin errores GL',render.getContext().getError()===render.getContext().NO_ERROR)
+  el.dataset.pass='true';el.textContent=JSON.stringify({pass:true,gl:render.getContext().getParameter(render.getContext().VERSION),checks},null,2)
+}catch(e){el.dataset.pass='false';el.textContent=JSON.stringify({pass:false,error:String(e?.stack||e),checks},null,2)}finally{render?.dispose()}
+</script></body></html>

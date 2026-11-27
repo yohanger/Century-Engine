@@ -1,0 +1,97 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Century S14-G001 · Audio Mixer Fader</title><style>
+body{margin:0;background:#171b22;color:#ddd;font:12px sans-serif;overflow:hidden}
+#audio-mixer-fader-s14-g001-result{margin:0;height:22px;font:10px monospace;overflow:hidden}
+#app{width:640px;height:445px}main{width:640px;height:445px}
+#inspector{position:absolute;left:650px;top:0;width:260px;visibility:hidden}
+</style></head><body><pre id="audio-mixer-fader-s14-g001-result">Preparando Mixer…</pre><div id="app"></div>
+<script type="module">
+import * as THREE from 'three'
+import { createApp,h,nextTick } from 'vue'
+import { store,selectAudioInspector,updateAudioGroup,saveAudioSnapshot,loadAudioSnapshot } from '/src/core/store.js'
+import { normalizeAudio,defaultGroup,dbToGain } from '/src/engine/runtime/audio/config.js'
+import AudioMixer from '/src/components/AudioMixer.vue'
+import AudioMixerInspector from '/src/components/AudioMixerInspector.vue'
+import '/src/styles.css'
+const out=document.getElementById('audio-mixer-fader-s14-g001-result'),checks=[]
+const check=(name,passed,actual)=>{checks.push({name,pass:!!passed,actual});if(!passed)throw Error(name+': '+JSON.stringify(actual))}
+const flush=async()=>{await nextTick();await new Promise(r=>requestAnimationFrame(r));await nextTick()}
+let renderer,app
+try{
+ renderer=new THREE.WebGLRenderer({antialias:false});renderer.setSize(8,8)
+ renderer.render(new THREE.Scene(),new THREE.PerspectiveCamera(60,1,.1,20))
+ check('WebGL2 Electron real',renderer.capabilities.isWebGL2)
+ store.project={id:'s14-fader',activeSceneId:'scene',name:'QA Mixer',objects:[],scenes:[{id:'scene',name:'Escena'}],audio:normalizeAudio({}),scripts:[],assets:[],prefabs:[],profiles:[],materials:[],gameManagers:[],liquids:[],vfx:[],meshes:[],terrain:{enabled:false},uis:[],models:[],animations:[]}
+ store.project.audio.groups.push(defaultGroup('custom-qa','Ambiente 2','master'))
+ store.projSel=null;store.selectedId=null;store.selectedIds=[];store.sceneSel=false;store.audioInspector=null;store.prefs.rightTab='object'
+ app=createApp({render:()=>h('main',{},[h('section',{id:'mixer',style:'width:640px;height:445px'},[h(AudioMixer)]),h('section',{id:'inspector'},[h(AudioMixerInspector)])])})
+ app.mount('#app');await flush()
+ const groups=store.project.audio.groups
+ const group=id=>groups.find(g=>g.id===id)
+ const fader=id=>document.querySelector(`#mixer .fader[data-group-id="${id}"]`)
+ const db=id=>fader(id)?.closest('.strip')?.querySelector('input.db')
+ const rect=id=>fader(id)?.getBoundingClientRect()
+ check('Se montan los seis buses base',groups.length===7 && ['master','music','sfx','voice','ambient','ui'].every(id=>!!group(id)))
+ check('Todos los grupos, incluido el personalizado, tienen fader original',groups.every(g=>!!fader(g.id)))
+ check('Todos los faders, incluido el personalizado, tienen altura real de 120px',groups.every(g=>Math.abs(rect(g.id).height-120)<1),groups.map(g=>[g.id,rect(g.id).height]))
+ check('Los faders no conservan altura global de 16px',groups.every(g=>rect(g.id).height>=119))
+ check('El fader es vertical con escala de -80 a +20',groups.every(g=>{const e=fader(g.id),s=getComputedStyle(e);return e.min==='-80'&&e.max==='20'&&s.writingMode==='vertical-lr'&&s.direction==='rtl'}))
+ check('Los faders se inicializan a 0 dB',groups.every(g=>+fader(g.id).value===0 && group(g.id).volume===0))
+ check('Los valores de texto se inicializan en 0.0',groups.every(g=>db(g.id).value==='0.0'))
+ check('El Inspector toma el mismo grupo',store.audioInspector?.groupId==='master')
+ check('No se añaden propiedades persistentes de QA al proyecto',!('faderGain' in store.project.audio))
+ const movements={master:[],music:[],sfx:[]}
+ document.getElementById('mixer').addEventListener('input',e=>{
+  if(e.target.matches('.fader')&&movements[e.target.dataset.groupId])movements[e.target.dataset.groupId].push(Number(e.target.value))
+ },true)
+ const move=(id,from,to,back=null)=>{
+  const selector=`#mixer .fader[data-group-id="${id}"]`
+  const list=[{type:'mouseMoved',button:'none',buttons:0,selector,x:.5,y:from},
+   {type:'mousePressed',button:'left',buttons:1,selector,x:.5,y:from},
+   {type:'mouseMoved',button:'left',buttons:1,selector,x:.5,y:(from+to)/2},
+   {type:'mouseMoved',button:'left',buttons:1,selector,x:.5,y:to}]
+  if(back!==null){list.push({type:'mouseMoved',button:'left',buttons:1,selector,x:.5,y:back})}
+  list.push({type:'mouseReleased',button:'left',buttons:0,selector,x:.5,y:back??to})
+  return list
+ }
+ window.__lfNativePointerSteps=[...move('master',.2,.75,.25),...move('music',.2,.65),...move('sfx',.2,.45)]
+ let attempts=0
+ while(!window.__lfNativePointerDone && attempts++<350)await new Promise(r=>setTimeout(r,40))
+ check('El runner de Electron ejecutó los gestos nativos',window.__lfNativePointerDone===true)
+ await flush()
+ check('Arrastrar Master genera cambios de valor reales',movements.master.length>=2,movements.master)
+ check('Master alcanza valores intermedios sin saltar a silencio',movements.master.some(v=>v< -10 && v> -70),movements.master)
+ check('Master responde a subida y bajada del mismo gesto',Math.max(...movements.master)-Math.min(...movements.master)>25,movements.master)
+ check('Master no queda bloqueado a -∞ dB',group('master').volume> -35,group('master').volume)
+ check('Arrastrar Música produce cambios intermedios',movements.music.some(v=>v< -10 && v> -75),movements.music)
+ check('Música conserva valor persistido en el grupo',Number(fader('music').value)===group('music').volume,group('music').volume)
+ check('Arrastrar SFX produce valores intermedios',movements.sfx.some(v=>v< -5 && v> -70),movements.sfx)
+ check('El fader Master coincide con el proyecto',Number(fader('master').value)===group('master').volume)
+ check('El texto Master coincide con su dB real',db('master').value===(group('master').volume<=-80?'-∞':`${group('master').volume>0?'+':''}${group('master').volume.toFixed(1)}`))
+ check('La ganancia WebAudio coincide con el dB del bus',Math.abs(dbToGain(group('music').volume)-Math.pow(10,group('music').volume/20))<1e-9)
+ const field=db('master');field.value='-∞';field.dispatchEvent(new Event('change',{bubbles:true}));await flush()
+ check('Escribir -∞ equivale a ganancia cero',group('master').volume===-80 && dbToGain(group('master').volume)===0)
+ check('El fader se actualiza desde la edición numérica',+fader('master').value===-80 && field.value==='-∞')
+ field.value='sin número';field.dispatchEvent(new Event('change',{bubbles:true}));await flush()
+ check('Texto inválido no elimina silencio ni restaura 0 dB',group('master').volume===-80 && field.value==='-∞')
+ field.value='-6,5';field.dispatchEvent(new Event('change',{bubbles:true}));await flush()
+ check('Texto decimal válido modifica dB',group('master').volume===-6.5 && field.value==='-6.5')
+ const inspector=document.querySelector('#inspector .audio-props .field input[type="range"]')
+ check('Inspector sigue enlazado a Master',!!inspector && Number(inspector.value)===-6.5)
+ inspector.value='-15';inspector.dispatchEvent(new Event('input',{bubbles:true}));await flush()
+ check('Inspector sincroniza volumen del Mixer',group('master').volume===-15 && +fader('master').value===-15)
+ const snap=await saveAudioSnapshot('QA Fader');updateAudioGroup('master',{volume:-32});await flush()
+ loadAudioSnapshot(snap);await flush()
+ check('Snapshot restablece el volumen original',group('master').volume===-15)
+ check('Snapshot restablece fader y texto',+fader('master').value===-15 && db('master').value==='-15.0')
+ check('Se conservan mute/solo/bypass y FX',groups.every(g=>!g.mute&&!g.solo&&!g.bypass&&Array.isArray(g.fx)))
+ updateAudioGroup('ui',{volume:-9.5});updateAudioGroup('custom-qa',{volume:4.5});await flush()
+ check('Grupo UI sincroniza fader y texto',+fader('ui').value===-9.5 && db('ui').value==='-9.5')
+ check('Grupo personalizado sincroniza fader y texto',+fader('custom-qa').value===4.5 && db('custom-qa').value==='+4.5')
+ selectAudioInspector('custom-qa');await flush()
+ check('Inspector permite seleccionar un grupo personalizado',document.querySelector('#inspector .audio-props')?.dataset.groupId==='custom-qa')
+ selectAudioInspector('master');await flush()
+ check('No se duplicó ningún bus',groups.length===7)
+ check('Renderer sin errores WebGL',renderer.getContext().getError()===renderer.getContext().NO_ERROR)
+ out.dataset.pass='true';out.textContent=JSON.stringify({pass:true,gl:true,checks},null,2)
+}catch(error){out.dataset.pass='false';out.textContent=JSON.stringify({pass:false,checks,error:String(error?.stack||error)},null,2)}finally{app?.unmount();renderer?.dispose()}
+</script></body></html>

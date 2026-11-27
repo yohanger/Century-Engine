@@ -1,0 +1,78 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Century S15-G007 · Camera Orchestration / WebGL</title></head>
+<body style="margin:0;background:#17212e;color:#e5e7eb;font:12px monospace">
+<div id="view" style="width:384px;height:256px"></div><pre id="camera-orchestration-s15-g007-result">Verificando…</pre>
+<script type="module">
+import * as THREE from 'three'
+import { cameraMethods } from '/src/engine/runtime/events/play-camera.js'
+const out = document.getElementById('camera-orchestration-s15-g007-result')
+const checks = []
+const check = (name, ok) => { checks.push({name, pass: !!ok}); if (!ok) throw new Error(name) }
+const near = (a,b) => Math.abs(a-b) < 1e-5
+let renderer
+try {
+  renderer = new THREE.WebGLRenderer({antialias:false,preserveDrawingBuffer:true})
+  renderer.setSize(384,256)
+  document.querySelector('#view').append(renderer.domElement)
+  const gl = renderer.getContext()
+  check('Contexto de WebGL real activo', !!gl)
+  const scene = new THREE.Scene(); scene.background = new THREE.Color('#1d354e')
+  const mesh = new THREE.Mesh(new THREE.BoxGeometry(1,1,1),new THREE.MeshBasicMaterial({color:'#f0cc9a'}))
+  scene.add(mesh)
+  const objects = [
+    {id:'a',type:'camera',active:true,visible:false,parentId:null,props:{fov:60,profile:'night'}},
+    {id:'b',type:'camera',active:true,visible:true,parentId:null,props:{fov:80,profile:'day'}},
+  ]
+  const nodes = new Map()
+  for (const [id,x] of [['a',0],['b',2]]) {
+    const node = new THREE.Object3D(); node.position.set(x,0,5); node.lookAt(0,0,0); scene.add(node); nodes.set(id,node)
+  }
+  const cam = new THREE.PerspectiveCamera(70,384/256,.1,50), profiles = [], effects = []
+  const pm = Object.assign(Object.create(cameraMethods),{
+    on:true,hasPlayer:false,project:{activeSceneId:'scene-1',objects},ed:{nodes,vp:{}},
+    film:null,tls:[],_gm:{},g:{fov:70},state:{noCamera:false},dom:{style:{}},
+    rt:{log(){}},_nodeEnabled(o){return o.active!==false},
+    _profCamera(p){profiles.push(p)},_dofFocus(c){effects.push(['dof',c.position.x])},
+    _waterFx(c){effects.push(['water',c.position.x])},
+    _viewCamera(){},_tlCamera(c){const r=this.tls.find(r=>!r.finished&&r.cam);if(r)this._cameraApply(c,r.cam)},
+    player:{viewPose(){}},
+  })
+  pm._cameraReset()
+  const frame = delta => {pm._cameraDelta=delta;pm._cameraFrame(cam)}
+  const a = pm._cameraApi().acquire('a')
+  check('Camera3D activa invisible adquiere la vista',!!a)
+  frame(0)
+  check('Salida Camera3D identificada',pm._cameraActive?.id==='a'&&!pm.state.noCamera)
+  check('FOV vertical real aplicado',near(cam.fov,60))
+  check('Posición mundial real aplicada',near(cam.position.z,5))
+  check('Perfil real es night',profiles.at(-1)==='night')
+  renderer.render(scene,cam)
+  const pixel = new Uint8Array(4)
+  gl.readPixels(192,128,1,1,gl.RGBA,gl.UNSIGNED_BYTE,pixel)
+  check('Framebuffer real produce píxeles opacos',pixel[3]===255)
+  check('Sin error WebGL al renderizar',gl.getError()===gl.NO_ERROR)
+  check('Corte entre Camera3D conserva lease',a.use('b')===true)
+  frame(0)
+  check('Cut aplica destino y FOV de inmediato',near(cam.position.x,2)&&near(cam.fov,80))
+  check('Blend inverso de 2 s aceptado',a.use('a',{seconds:2,ease:'linear'})===true)
+  frame(.5)
+  check('Blend lineal sobre transform mundial de Three.js',near(cam.position.x,1.5))
+  check('Blend FOV vertical real',near(cam.fov,75))
+  check('DOF/agua leen una única pose efectiva',effects.slice(-2).every(x=>near(x[1],1.5)))
+  check('Propiedad de cámara rechaza adquisición ajena',pm._cameraApi().acquire('b')===null)
+  frame(1.5)
+  check('Fin de blend sigue destino vivo',near(cam.position.x,0))
+  check('Liberación keep mantiene fuente viva',a.release()===true)
+  nodes.get('a').position.x=3
+  frame(0)
+  check('Movimiento del nodo se refleja sin nueva solicitud',near(cam.position.x,3))
+  check('Una nueva adquisición puede sustituir held',!!pm._cameraApi().acquire('b'))
+  frame(0)
+  check('Nueva autoridad es Camera3D b',pm._cameraActive?.id==='b')
+  pm.project.activeSceneId='scene-2'; pm.project.objects=[]; nodes.clear(); pm._cameraReset()
+  frame(0)
+  check('Cambio de escena no deja cámara fantasma',pm.state.noCamera===true&&pm._cameraActive===null)
+  check('WebGL sigue en estado válido',gl.getError()===gl.NO_ERROR)
+  out.dataset.pass='true';out.textContent=JSON.stringify({pass:true,checks,gl:gl.getParameter(gl.VERSION)},null,2)
+} catch(error) {out.dataset.pass='false';out.textContent=JSON.stringify({pass:false,checks,error:String(error.stack||error)},null,2)}
+finally { renderer?.dispose() }
+</script></body></html>

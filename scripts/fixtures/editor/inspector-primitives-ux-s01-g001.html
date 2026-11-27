@@ -1,0 +1,46 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Century Inspector Primitives S01 QA</title><style>
+body{background:#161616;color:#eee;margin:0;font:12px Arial}#mount{display:flex;gap:12px} .idock{width:296px;height:640px;overflow:auto;--lf-property-label-width:112px} #narrow{width:260px;height:640px;overflow:auto;container-type:insp;--lf-property-label-width:112px}
+</style></head><body><pre id="inspector-primitives-ux-s01-g001-result">Ejecutando…</pre><div id="mount"><div class="idock"><div class="scroll" id="wide"></div></div><div class="idock"><div class="scroll" id="narrow"></div></div></div>
+<script type="module">
+import * as THREE from 'three'
+import {createApp,nextTick} from 'vue'
+import Inspector from '/src/components/Inspector.vue'
+import {store} from '/src/core/store.js'
+import {makeObject} from '/src/engine/runtime/nodes/index.js'
+import '/src/styles.css'
+const out=document.getElementById('inspector-primitives-ux-s01-g001-result'),checks=[]
+const check=(name,pass)=>{checks.push({name,pass:!!pass});if(!pass)throw Error(name)}
+let app,app2,renderer
+const flush=async()=>{await nextTick();await new Promise(r=>requestAnimationFrame(r));await nextTick()}
+try{
+  renderer=new THREE.WebGLRenderer({antialias:false});renderer.setSize(16,16)
+  renderer.render(new THREE.Scene(),new THREE.PerspectiveCamera(65,1,.1,50))
+  check('Three.js WebGL real', renderer.capabilities.isWebGL2)
+  const cube=makeObject('primitive','box',{id:'qa-cube',name:'Cubo de prueba'})
+  cube.id='qa-cube';cube.name='Cubo de prueba'
+  store.project={id:'inspector-qa',objects:[cube],activeSceneId:'scene',scenes:[{id:'scene',name:'Escena'}],scripts:[],assets:[],materials:[],meshes:[],prefabs:[],gameManagers:[],liquids:[],vfx:[],uis:[],profiles:[],terrain:{},environment:{},settings:{}}
+  store.selectedId='qa-cube';store.selectedIds=['qa-cube'];store.projSel=null;store.audioInspector=null
+  app=createApp(Inspector);app.mount('#wide');app2=createApp(Inspector);app2.mount('#narrow');await flush()
+  const wide=document.querySelector('#wide .insp'), narrow=document.querySelector('#narrow .insp')
+  check('Inspector de primitiva real', wide?.dataset.nodeType==='primitive')
+  check('Cabecera separada',!!wide.querySelector('.primitive-head'))
+  check('Una identidad editable',wide.querySelectorAll('.primitive-head .name').length===1)
+  check('Transformación mantiene 3 vectores',wide.querySelectorAll('[data-primitive-section="transform"] .field').length>=4)
+  check('Cortes conserva acción de hornear',!!wide.querySelector('[data-primitive-section="cuts"] button'))
+  check('Modelado tiene editar malla',!!wide.querySelector('[data-primitive-section="mesh"] button'))
+  check('MaterialSection real se usa una vez',wide.querySelectorAll('.mr-primitive').length===1)
+  check('Material expone selector existente',!!wide.querySelector('[data-primitive-section="material"] select'))
+  check('GI conserva selector',!!wide.querySelector('[data-primitive-section="lighting"] select'))
+  check('Script conserva selector',!!wide.querySelector('[data-primitive-section="script"] select'))
+  check('Prefab conserva botón',!!wide.querySelector('[data-primitive-section="prefab"] button'))
+  check('Cabecera aplica fondo diferenciado',getComputedStyle(wide.querySelector('.primitive-head')).backgroundColor!==getComputedStyle(wide).backgroundColor)
+  const matRow=wide.querySelector('.mr-primitive .field')
+  check('Material usa grid en lugar de filas flexibles',getComputedStyle(matRow).display==='grid')
+  check('260px sin desbordamiento de Inspector',narrow.scrollWidth<=narrow.clientWidth+1)
+  check('Campo numérico sigue presente',!!wide.querySelector('[data-testid="uniform-scale-inspector"] input'))
+  const input=wide.querySelector('.primitive-head .name input, .primitive-head input.name')
+  check('Nombre no desaparece',!!input)
+  check('Renderer sin errores GL',renderer.getContext().getError()===renderer.getContext().NO_ERROR)
+  out.dataset.pass='true';out.textContent=JSON.stringify({pass:true,gl:renderer.getContext().getParameter(renderer.getContext().VERSION),checks},null,2)
+}catch(e){out.dataset.pass='false';out.textContent=JSON.stringify({pass:false,error:String(e?.stack||e),checks},null,2)}finally{app?.unmount();app2?.unmount();renderer?.dispose()}
+</script></body></html>

@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="es"><meta charset="utf-8"><title>QA de apertura de scripts</title>
+<main id="assets" style="width:680px;height:420px"></main>
+<main id="signals" style="width:320px;height:550px"></main>
+<pre id="vscode-default-result">Preparando QA…</pre>
+<script type="module">
+import { createApp, nextTick } from 'vue'
+import ProjectPanel from '/src/components/ProjectPanel.vue'
+import Signals from '/src/components/SignalConnectionsPanel.vue'
+import { store, attachFolder, saveAll, callbackGenerationBlockReason, openInVSCode, closeScriptEditor, setScriptCode } from '/src/core/store.js'
+import { createProjectData } from '/src/core/project.js'
+import { parseLfproj } from '/src/core/lfproj.js'
+
+const output = document.querySelector('#vscode-default-result')
+const checks = []
+const check = (name, pass) => {
+  checks.push({ name, pass: !!pass })
+  if (!pass) throw new Error(name)
+}
+const wait = async predicate => {
+  for (let attempt = 0; attempt < 200; attempt++) {
+    if (predicate()) return true
+    await new Promise(resolve => setTimeout(resolve, 20))
+  }
+  return false
+}
+const assetApp = createApp(ProjectPanel)
+const signalApp = createApp(Signals)
+try {
+  const files = new Map()
+  const launches = []
+  const encoder = new TextEncoder()
+  const root = '/QA/proyecto'
+  let launchOk = true
+  window.lf = {
+    openVSCode: async (...args) => {
+      launches.push(args)
+      return launchOk ? { ok: true } : { ok: false, error: 'CLI externo simulado ausente' }
+    },
+    fs: {
+      pickDir: async () => '/QA',
+      mkdir: async () => root,
+      exists: async (_, path) => files.has(path),
+      readFile: async (_, path) => files.get(path) ?? null,
+      scan: async () => [...files].filter(([path]) => path.endsWith('.js')).map(([path, data]) => ({
+        path, size: data.byteLength, mtime: 1,
+      })),
+      writeFiles: async (_, writes, remove) => {
+        for (const { path, data } of writes) files.set(path, typeof data === 'string' ? encoder.encode(data) : data)
+        for (const path of remove) files.delete(path)
+      },
+    },
+  }
+  store.project = createProjectData('QA VS Code S02')
+  const original = "node.expose('alEntrar', () => {})"
+  store.project.scripts = [{ id: 'qa-script', folder: 'Assets', name: 'QA nodo.js', execution: 'node', code: original }]
+  store.project.objects = [
+    { id: 'area', type: 'area3d', name: 'Detector', parentId: null },
+    { id: 'receiver', type: 'node3d', name: 'Receptor', parentId: 'area', scriptIds: ['qa-script'] },
+  ]
+  store.project.signalConnections = []
+  store.locked = false
+  store.projFolder = 'Assets'
+  store.editor = { serializeTerrain: () => store.project.terrain, snapshotTerrain: () => store.project.terrain, thumbnail: () => undefined, player: { on: false } }
+
+  assetApp.mount('#assets')
+  await nextTick()
+  const tile = [...document.querySelectorAll('#assets .tile')].find(el => el.textContent.includes('QA nodo'))
+  check('Assets muestra el recurso .js', tile)
+  tile.dispatchEvent(new MouseEvent('dblclick', { bubbles: true }))
+  check('Doble clic abre el script local sin carpeta', store.scriptEditId === 'qa-script')
+  check('Abrir un script no lanza VS Code', launches.length === 0)
+  check('El proyecto se vincula a su carpeta', await attachFolder({ confirm: false }))
+  check('La opción explícita abre en VS Code', await openInVSCode('qa-script') && launches.length === 1)
+  check('La opción explícita envía la raíz y el archivo correctos', JSON.stringify(launches[0]) === JSON.stringify([root, 'Assets/QA nodo.js']))
+  tile.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, cancelable: true }))
+  const execution = store.menu.items.find(item => item.label === 'Ejecución')
+  const global = execution.children.find(item => item.label === 'Global')
+  const node = execution.children.find(item => item.label === 'Nodo')
+  check('El menú identifica el modo activo', !global.disabled && node.disabled)
+  global.run()
+  check('Global se aplica al mismo recurso', store.project.scripts[0].execution === 'global')
+  node.run()
+  check('Nodo se aplica al mismo recurso', store.project.scripts[0].execution === 'node' && store.project.scripts[0].id === 'qa-script')
+  store.menu = null
+
+  store.projSel = null
+  store.selectedId = 'area'
+  store.selectedIds = ['area']
+  signalApp.mount('#signals')
+  await nextTick()
+  document.querySelector('[aria-label="Conectar body_entered"]').click()
+  await nextTick()
+  const receiver = [...document.querySelectorAll('.sig-receiver-row')].find(row => row.textContent.includes('Receptor'))
+  receiver.click()
+  await nextTick()
+  const script = document.querySelector('#lf-callback-script')
+  script.value = 'qa-script'
+  script.dispatchEvent(new Event('change', { bubbles: true }))
+  await nextTick()
+  check('Signals permite editar el script y mantiene bloqueada la escritura automática', !!callbackGenerationBlockReason('qa-script') && !document.querySelector('.sig-open-script').disabled && document.querySelector('.sig-generate-action').disabled)
+  closeScriptEditor()
+  document.querySelector('.sig-open-script').click()
+  check('Signals abre el receptor elegido en el editor local', store.scriptEditId === 'qa-script' && launches.length === 1)
+  const updated = original + "\nnode.expose('alSalir', () => {})"
+  setScriptCode('qa-script', updated)
+  check('Ctrl+S guarda el código del editor local', await saveAll())
+  await nextTick()
+  const method = [...document.querySelectorAll('.sig-method-choice')].find(el => el.textContent.includes('alSalir'))
+  check('El método editado aparece en el selector', method)
+  method.click()
+  await nextTick()
+  document.querySelector('.sig-dialog button[type="submit"]').click()
+  check('Signals guarda la conexión del callback editado', store.project.signalConnections.some(c => c.receiverId === 'receiver' && c.method === 'alSalir'))
+  check('La conexión se confirma en disco', await saveAll())
+  const reopened = await parseLfproj(files.get('project.lfproj'))
+  check('El archivo reabierto conserva código, ID y modo', reopened.meta.scripts.some(s => s.id === 'qa-script' && s.execution === 'node' && s.code === updated))
+  check('El nodo conserva su asociación', reopened.scenes.get(store.project.activeSceneId).objects.find(o => o.id === 'receiver').scriptIds.includes('qa-script'))
+  check('La conexión se conserva al reabrir', reopened.scenes.get(store.project.activeSceneId).signalConnections.some(c => c.method === 'alSalir'))
+  launchOk = false
+  await openInVSCode('qa-script')
+  check('Un fallo de VS Code se informa y el script local sigue abierto', await wait(() => store.toasts.some(t => t.msg.includes('CLI externo simulado ausente'))) && store.scriptEditId === 'qa-script')
+  output.dataset.pass = 'true'
+  output.textContent = JSON.stringify({ pass: true, checks })
+} catch (error) {
+  output.dataset.pass = 'false'
+  output.textContent = JSON.stringify({ pass: false, checks, error: error.stack })
+}
+</script></html>

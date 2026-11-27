@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="es"><meta charset="utf-8"><title>Century QA S12-G001 · Dialog Preview</title>
+<style>body{margin:0;background:#101419;color:#fff;font:12px system-ui}.stage{position:relative;width:780px;height:440px;border:1px solid #35404c;overflow:hidden;background:#1d252d}</style>
+<div id="mount" class="stage"></div><pre id="timeline-dialog-s12-g001-result" data-stage="inicio"></pre>
+<script type="module">
+import { createApp, h, nextTick, ref } from 'vue'
+import DialogPreview from '/src/components/DialogPreview.vue'
+import { registerUiComponents, RtDialogText } from '/src/engine/runtime/ui/components.js'
+import { TEXT_COLORS } from '/src/engine/runtime/events/textcodes.js'
+import { createProjectData } from '/src/core/project.js'
+import { store } from '/src/core/store.js'
+import { newKey, newTimeline, newTrack } from '/src/core/timeline/model.js'
+import { TimelineEventPreview } from '/src/core/timeline/event-preview.js'
+
+const result=document.getElementById('timeline-dialog-s12-g001-result'), checks=[]
+const check=(name,pass)=>{checks.push({name,pass:!!pass});if(!pass)throw Error(name)}
+const sleep=ms=>new Promise(r=>setTimeout(r,ms))
+async function until(fn,name){for(let i=0;i<100;i++){if(fn())return;await sleep(30)}throw Error('Tiempo agotado: '+name)}
+let app, preview
+try {
+  const project=createProjectData('QA Diálogos S12', 'empty')
+  store.project=project
+  const original=JSON.stringify(project)
+  const dialog=ref(null), clock=ref(0)
+  // Igual que App.vue: el montaje depende del diálogo reactivo; Seek y Stop desmontan UiRoot.
+  app=createApp({render:()=>dialog.value
+    ? h(DialogPreview,{inline:true,timelineDialog:dialog.value,timelineTime:clock.value})
+    : null})
+  // La fixture monta su propio árbol Vue: debe registrar los componentes nativos como src/main.js y Player.
+  registerUiComponents(app)
+  check('Componentes UI nativos registrados en la aplicación aislada', app.component('RtDialogText') === RtDialogText)
+  app.mount('#mount')
+  check('Antes de Play no se monta el diálogo',!document.querySelector('[data-testid="timeline-preview-dialog"]'))
+  const tr=newTrack('commands',{name:'Comandos'})
+  tr.keys=[newKey('commands',.2,{name:'Mostrar texto',list:[{code:'text',p:{speaker:'Ariel',text:'Prueba\\C[2] color',pos:'top',enter:'fade',animTime:200}}]})]
+  const timeline=newTimeline('QA Preview',{duration:4,tracks:[tr]})
+  preview=new TimelineEventPreview({getProject:()=>project, audioEngine:()=>({configure(){}}),onDialog:message=>{dialog.value=message?{...message,at:preview.time}:null}})
+  check('Preview inicia sin modificar el proyecto',preview.start(timeline))
+  preview.update(.3); clock.value=preview.time
+  await until(()=>!!document.querySelector('[data-role="dialog"]'),'UI del diálogo real')
+  await nextTick()
+  check('Modo inline se monta al recibir un diálogo',!!document.querySelector('[data-testid="timeline-preview-dialog"]'))
+  check('UiRoot presenta el rol diálogo del Runtime',!!document.querySelector('[data-role="dialog"]'))
+  check('Datos de texto entregados al render',dialog.value?.text==='Prueba\\C[2] color')
+  check('Nombre entregado al render',dialog.value?.speaker==='Ariel')
+  check('Posición superior conservada',dialog.value?.pos==='top')
+  check('Animación de entrada conservada',dialog.value?.anim?.in==='fade')
+  check('UI no presenta caja auxiliar Vista previa Mensaje',!document.body.textContent.includes('Vista previa · Mensaje'))
+  check('Uso del Canvas/slot del diálogo y no de un segundo Mixer',!document.querySelector('[data-testid="timeline-preview-dialog"] select'))
+  preview.update(.6);clock.value=preview.time;await nextTick()
+  await until(() => !!document.querySelector('[data-testid="timeline-preview-dialog"] .rt-dialog-text .rt-dt-body'), 'componente real de texto')
+  const textRoot=document.querySelector('[data-testid="timeline-preview-dialog"] .rt-dialog-text')
+  check('Componente RtDialogText real montado',!!textRoot)
+  const visibleSpans=()=>[...textRoot.querySelectorAll('.rt-dt-body span')].filter(el=>getComputedStyle(el).visibility!=='hidden')
+  await until(()=>visibleSpans().map(el=>el.textContent).join('')==='Prueba color','texto visible de la interfaz')
+  check('Códigos de texto interpretados',visibleSpans().map(el=>el.textContent).join('')==='Prueba color')
+  check('Código de texto no expuesto literalmente',!textRoot.textContent.includes('\\C[2]'))
+  const colored=visibleSpans().find(el=>el.textContent.includes('color'))
+  const sample=document.createElement('span');sample.style.color=TEXT_COLORS[2];document.body.append(sample)
+  const expectedColor=getComputedStyle(sample).color;sample.remove()
+  check('El color C[2] se aplica al texto renderizado',!!colored && getComputedStyle(colored).color===expectedColor)
+  const before=document.querySelector('[data-testid="timeline-preview-dialog"]')?.textContent
+  preview.pause();preview.update(.6);await nextTick()
+  check('Pause congela el reloj y el diálogo',preview.time===.8999999999999999 || Math.abs(preview.time-.9)<.000001)
+  check('Pause no altera el contenido ya mostrado',document.querySelector('[data-testid="timeline-preview-dialog"]')?.textContent===before)
+  preview.resume();preview.update(.2);clock.value=preview.time;await nextTick()
+  check('Resume continúa el Preview',preview.time>1)
+  preview.seek(2);clock.value=preview.time;await nextTick()
+  check('Seek elimina el diálogo de la escena',dialog.value===null)
+  check('Seek desmonta UiRoot sin cortar la animación del Player',!document.querySelector('[data-role="dialog"]'))
+  check('Seek desmonta el overlay del viewport',!document.querySelector('[data-testid="timeline-preview-dialog"]'))
+  // Volver a reproducir y verificar el mismo ciclo cuando Stop corta la sesión.
+  preview.stop()
+  check('Stop deja el estado de diálogo limpio',dialog.value===null)
+  await nextTick()
+  check('Stop no deja overlay residual',!document.querySelector('[data-testid="timeline-preview-dialog"]'))
+  // Stop mientras hay texto también debe desmontar el overlay inmediatamente.
+  check('Se puede reiniciar Preview después de Seek',preview.start(timeline))
+  preview.update(.4);clock.value=preview.time
+  await until(()=>!!document.querySelector('[data-role="dialog"]'),'diálogo tras reiniciar')
+  preview.stop();await nextTick()
+  check('Stop en diálogo activo limpia mensaje y overlay',dialog.value===null && !document.querySelector('[data-testid="timeline-preview-dialog"]'))
+  check('El proyecto no ha sido modificado',JSON.stringify(project)===original)
+  check('WebGL activo',!!document.createElement('canvas').getContext('webgl'))
+  result.dataset.pass='true';result.textContent=JSON.stringify({pass:true,checks,gl:true},null,2)
+} catch(error) {
+  result.dataset.pass='false';result.dataset.stage='fallo'
+  result.textContent=JSON.stringify({pass:false,error:error?.stack||String(error),checks},null,2)
+} finally {try{preview?.stop();app?.unmount()}catch{}}
+</script></html>

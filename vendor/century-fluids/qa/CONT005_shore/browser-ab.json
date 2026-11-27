@@ -1,0 +1,637 @@
+{
+  "browser": "158.0.8127.42",
+  "viewport": {
+    "width": 1000,
+    "height": 660
+  },
+  "results": [
+    {
+      "scene": "tank",
+      "variant": "before",
+      "setup": {
+        "view": "Superficie + partículasSolo superficieSolo partículas",
+        "quality": "balanced",
+        "intervalMs": 100,
+        "foam": true
+      },
+      "gpu": "ANGLE (Intel, Mesa Intel(R) UHD Graphics 605 (GLK 3), OpenGL 4.6)",
+      "duration": 6.032900000000001,
+      "start": {
+        "time": 0.48,
+        "dropped": 57
+      },
+      "end": {
+        "time": 3.92,
+        "dropped": 325
+      },
+      "frames": 113,
+      "fps": 18.730627061612157,
+      "samples": [
+        {
+          "physics": 5.7,
+          "surface": 36.7,
+          "renderSubmit": 3.9,
+          "heapJS": 24.1
+        },
+        {
+          "physics": 5.1,
+          "surface": 40.2,
+          "renderSubmit": 3.7,
+          "heapJS": 25.2
+        },
+        {
+          "physics": 4.7,
+          "surface": 46.1,
+          "renderSubmit": 2.1,
+          "heapJS": 27.4
+        },
+        {
+          "physics": 4.5,
+          "surface": 46,
+          "renderSubmit": 1.8,
+          "heapJS": 22.3
+        },
+        {
+          "physics": 4.8,
+          "surface": 39.5,
+          "renderSubmit": 2.5,
+          "heapJS": 24
+        },
+        {
+          "physics": 4.5,
+          "surface": 38.4,
+          "renderSubmit": 1.7,
+          "heapJS": 22.9
+        },
+        {
+          "physics": 5.1,
+          "surface": 40.5,
+          "renderSubmit": 1.9,
+          "heapJS": 25.8
+        },
+        {
+          "physics": 4.4,
+          "surface": 39.5,
+          "renderSubmit": 3.1,
+          "heapJS": 27.7
+        },
+        {
+          "physics": 5.3,
+          "surface": 39.8,
+          "renderSubmit": 1.8,
+          "heapJS": 27.2
+        },
+        {
+          "physics": 4.7,
+          "surface": 49.6,
+          "renderSubmit": 3.3,
+          "heapJS": 25.6
+        },
+        {
+          "physics": 4.9,
+          "surface": 49.6,
+          "renderSubmit": 2.9,
+          "heapJS": 19
+        },
+        {
+          "physics": 4.3,
+          "surface": 38.1,
+          "renderSubmit": 3.3,
+          "heapJS": 25.5
+        },
+        {
+          "physics": 4.5,
+          "surface": 39.4,
+          "renderSubmit": 2.4,
+          "heapJS": 26.6
+        },
+        {
+          "physics": 4.3,
+          "surface": 51.4,
+          "renderSubmit": 2.1,
+          "heapJS": 26.3
+        },
+        {
+          "physics": 4.6,
+          "surface": 39.2,
+          "renderSubmit": 2.2,
+          "heapJS": 20.6
+        },
+        {
+          "physics": 4.6,
+          "surface": 41.2,
+          "renderSubmit": 2.4,
+          "heapJS": 23.1
+        },
+        {
+          "physics": 5.2,
+          "surface": 43.9,
+          "renderSubmit": 1.6,
+          "heapJS": 21.7
+        },
+        {
+          "physics": 4.5,
+          "surface": 35.1,
+          "renderSubmit": 1.4,
+          "heapJS": 22.2
+        },
+        {
+          "physics": 4.5,
+          "surface": 39.7,
+          "renderSubmit": 2,
+          "heapJS": 20.9
+        },
+        {
+          "physics": 3.7,
+          "surface": 36.7,
+          "renderSubmit": 1.9,
+          "heapJS": 25.9
+        },
+        {
+          "physics": 3.8,
+          "surface": 34.6,
+          "renderSubmit": 1.4,
+          "heapJS": 21.6
+        },
+        {
+          "physics": 4.9,
+          "surface": 39.7,
+          "renderSubmit": 1.9,
+          "heapJS": 25.5
+        }
+      ],
+      "medians": {
+        "physics": 4.6,
+        "surface": 39.7,
+        "renderSubmit": 2.1,
+        "heapJS": 25.2
+      },
+      "errors": []
+    },
+    {
+      "scene": "tank",
+      "variant": "after",
+      "setup": {
+        "view": "Superficie + partículasSolo superficieSolo partículas",
+        "quality": "balanced",
+        "intervalMs": 100,
+        "foam": true
+      },
+      "gpu": "ANGLE (Intel, Mesa Intel(R) UHD Graphics 605 (GLK 3), OpenGL 4.6)",
+      "duration": 6.033,
+      "start": {
+        "time": 0.45,
+        "dropped": 65
+      },
+      "end": {
+        "time": 3.82,
+        "dropped": 339
+      },
+      "frames": 113,
+      "fps": 18.73031659207691,
+      "samples": [
+        {
+          "physics": 5.2,
+          "surface": 57.8,
+          "renderSubmit": 2.2,
+          "heapJS": 24.1
+        },
+        {
+          "physics": 5.5,
+          "surface": 41.3,
+          "renderSubmit": 4.6,
+          "heapJS": 25.2
+        },
+        {
+          "physics": 5,
+          "surface": 39.5,
+          "renderSubmit": 2,
+          "heapJS": 24.3
+        },
+        {
+          "physics": 7.1,
+          "surface": 45.5,
+          "renderSubmit": 2.3,
+          "heapJS": 28.6
+        },
+        {
+          "physics": 4.6,
+          "surface": 55,
+          "renderSubmit": 3.6,
+          "heapJS": 25
+        },
+        {
+          "physics": 4.7,
+          "surface": 38.7,
+          "renderSubmit": 1.7,
+          "heapJS": 26.8
+        },
+        {
+          "physics": 4.7,
+          "surface": 46.6,
+          "renderSubmit": 1.6,
+          "heapJS": 26.7
+        },
+        {
+          "physics": 5,
+          "surface": 50.5,
+          "renderSubmit": 1.7,
+          "heapJS": 30
+        },
+        {
+          "physics": 4.9,
+          "surface": 49,
+          "renderSubmit": 1.9,
+          "heapJS": 27.6
+        },
+        {
+          "physics": 5,
+          "surface": 48.9,
+          "renderSubmit": 2.3,
+          "heapJS": 28.2
+        },
+        {
+          "physics": 4.3,
+          "surface": 50.7,
+          "renderSubmit": 1.4,
+          "heapJS": 28.3
+        },
+        {
+          "physics": 4.5,
+          "surface": 34.2,
+          "renderSubmit": 2.3,
+          "heapJS": 32.8
+        },
+        {
+          "physics": 4.1,
+          "surface": 37.7,
+          "renderSubmit": 1.4,
+          "heapJS": 20.9
+        },
+        {
+          "physics": 4.5,
+          "surface": 38.2,
+          "renderSubmit": 2.2,
+          "heapJS": 24.3
+        },
+        {
+          "physics": 4,
+          "surface": 38.5,
+          "renderSubmit": 1.5,
+          "heapJS": 21.9
+        },
+        {
+          "physics": 4.4,
+          "surface": 39,
+          "renderSubmit": 1.2,
+          "heapJS": 21.1
+        },
+        {
+          "physics": 4.6,
+          "surface": 39.1,
+          "renderSubmit": 1.9,
+          "heapJS": 22.4
+        },
+        {
+          "physics": 4.8,
+          "surface": 37.9,
+          "renderSubmit": 2.7,
+          "heapJS": 19.7
+        },
+        {
+          "physics": 4.6,
+          "surface": 35.3,
+          "renderSubmit": 1.2,
+          "heapJS": 26
+        },
+        {
+          "physics": 3.5,
+          "surface": 35.4,
+          "renderSubmit": 1.2,
+          "heapJS": 26
+        },
+        {
+          "physics": 4.3,
+          "surface": 36.4,
+          "renderSubmit": 2.3,
+          "heapJS": 24.3
+        },
+        {
+          "physics": 3.6,
+          "surface": 36.4,
+          "renderSubmit": 2.7,
+          "heapJS": 27.4
+        }
+      ],
+      "medians": {
+        "physics": 4.6,
+        "surface": 39.1,
+        "renderSubmit": 2,
+        "heapJS": 26
+      },
+      "errors": []
+    },
+    {
+      "scene": "dam",
+      "variant": "after",
+      "setup": {
+        "view": "Superficie + partículasSolo superficieSolo partículas",
+        "quality": "balanced",
+        "intervalMs": 100,
+        "foam": true
+      },
+      "gpu": "ANGLE (Intel, Mesa Intel(R) UHD Graphics 605 (GLK 3), OpenGL 4.6)",
+      "duration": 6.049699999999999,
+      "start": {
+        "time": 0.36,
+        "dropped": 102
+      },
+      "end": {
+        "time": 2.62,
+        "dropped": 541
+      },
+      "frames": 75,
+      "fps": 12.397308957468969,
+      "samples": [
+        {
+          "physics": 11.1,
+          "surface": 73.8,
+          "renderSubmit": 4.2,
+          "heapJS": 24
+        },
+        {
+          "physics": 9,
+          "surface": 69.4,
+          "renderSubmit": 3.8,
+          "heapJS": 24.9
+        },
+        {
+          "physics": 8.4,
+          "surface": 80.2,
+          "renderSubmit": 5.1,
+          "heapJS": 26.7
+        },
+        {
+          "physics": 7.4,
+          "surface": 68.8,
+          "renderSubmit": 4.4,
+          "heapJS": 31
+        },
+        {
+          "physics": 8.3,
+          "surface": 63.9,
+          "renderSubmit": 4.1,
+          "heapJS": 31.7
+        },
+        {
+          "physics": 7.1,
+          "surface": 66.3,
+          "renderSubmit": 1.7,
+          "heapJS": 30.2
+        },
+        {
+          "physics": 7.3,
+          "surface": 66.7,
+          "renderSubmit": 4,
+          "heapJS": 30.6
+        },
+        {
+          "physics": 5.9,
+          "surface": 68.6,
+          "renderSubmit": 2.8,
+          "heapJS": 33.1
+        },
+        {
+          "physics": 6.3,
+          "surface": 84.1,
+          "renderSubmit": 3.5,
+          "heapJS": 31.6
+        },
+        {
+          "physics": 7.4,
+          "surface": 66.6,
+          "renderSubmit": 3.9,
+          "heapJS": 38.6
+        },
+        {
+          "physics": 5.8,
+          "surface": 66.7,
+          "renderSubmit": 4.3,
+          "heapJS": 36
+        },
+        {
+          "physics": 6.2,
+          "surface": 67.2,
+          "renderSubmit": 2.9,
+          "heapJS": 35.2
+        },
+        {
+          "physics": 13.1,
+          "surface": 76.6,
+          "renderSubmit": 3.9,
+          "heapJS": 17.9
+        },
+        {
+          "physics": 6.5,
+          "surface": 69.4,
+          "renderSubmit": 1.6,
+          "heapJS": 26.7
+        },
+        {
+          "physics": 7.9,
+          "surface": 85.5,
+          "renderSubmit": 4.4,
+          "heapJS": 28.4
+        },
+        {
+          "physics": 6.7,
+          "surface": 69.8,
+          "renderSubmit": 2.8,
+          "heapJS": 34.7
+        },
+        {
+          "physics": 5.3,
+          "surface": 66,
+          "renderSubmit": 3.8,
+          "heapJS": 28.2
+        },
+        {
+          "physics": 5.8,
+          "surface": 65.7,
+          "renderSubmit": 1.6,
+          "heapJS": 23.5
+        },
+        {
+          "physics": 5.3,
+          "surface": 63.9,
+          "renderSubmit": 1.5,
+          "heapJS": 32.1
+        },
+        {
+          "physics": 5.3,
+          "surface": 65.2,
+          "renderSubmit": 1.4,
+          "heapJS": 28.1
+        }
+      ],
+      "medians": {
+        "physics": 7.1,
+        "surface": 68.6,
+        "renderSubmit": 3.8,
+        "heapJS": 30.6
+      },
+      "errors": []
+    },
+    {
+      "scene": "dam",
+      "variant": "before",
+      "setup": {
+        "view": "Superficie + partículasSolo superficieSolo partículas",
+        "quality": "balanced",
+        "intervalMs": 100,
+        "foam": true
+      },
+      "gpu": "ANGLE (Intel, Mesa Intel(R) UHD Graphics 605 (GLK 3), OpenGL 4.6)",
+      "duration": 6.033000000000001,
+      "start": {
+        "time": 0.4,
+        "dropped": 94
+      },
+      "end": {
+        "time": 2.67,
+        "dropped": 499
+      },
+      "frames": 78,
+      "fps": 12.928891098955742,
+      "samples": [
+        {
+          "physics": 9.7,
+          "surface": 78.9,
+          "renderSubmit": 5,
+          "heapJS": 27.6
+        },
+        {
+          "physics": 9,
+          "surface": 84.2,
+          "renderSubmit": 4.3,
+          "heapJS": 29
+        },
+        {
+          "physics": 7.4,
+          "surface": 66.6,
+          "renderSubmit": 4.2,
+          "heapJS": 24.8
+        },
+        {
+          "physics": 8.5,
+          "surface": 77.4,
+          "renderSubmit": 4.7,
+          "heapJS": 26.2
+        },
+        {
+          "physics": 7.9,
+          "surface": 101.3,
+          "renderSubmit": 4.5,
+          "heapJS": 25.9
+        },
+        {
+          "physics": 8.3,
+          "surface": 75.1,
+          "renderSubmit": 4,
+          "heapJS": 32.2
+        },
+        {
+          "physics": 6.9,
+          "surface": 71.4,
+          "renderSubmit": 3.4,
+          "heapJS": 26.7
+        },
+        {
+          "physics": 7.3,
+          "surface": 70.3,
+          "renderSubmit": 3.3,
+          "heapJS": 28.2
+        },
+        {
+          "physics": 7,
+          "surface": 64.8,
+          "renderSubmit": 3,
+          "heapJS": 28.8
+        },
+        {
+          "physics": 5.8,
+          "surface": 68.2,
+          "renderSubmit": 1.7,
+          "heapJS": 34.3
+        },
+        {
+          "physics": 6.8,
+          "surface": 65.8,
+          "renderSubmit": 3.4,
+          "heapJS": 28.8
+        },
+        {
+          "physics": 6.1,
+          "surface": 65.6,
+          "renderSubmit": 2.8,
+          "heapJS": 29.2
+        },
+        {
+          "physics": 7.6,
+          "surface": 81.6,
+          "renderSubmit": 5.1,
+          "heapJS": 30.6
+        },
+        {
+          "physics": 5.5,
+          "surface": 66.2,
+          "renderSubmit": 2.8,
+          "heapJS": 38.1
+        },
+        {
+          "physics": 6.3,
+          "surface": 66.4,
+          "renderSubmit": 1.9,
+          "heapJS": 26
+        },
+        {
+          "physics": 5.2,
+          "surface": 66.4,
+          "renderSubmit": 3,
+          "heapJS": 23.9
+        },
+        {
+          "physics": 5.2,
+          "surface": 62.4,
+          "renderSubmit": 1.7,
+          "heapJS": 32.1
+        },
+        {
+          "physics": 5.7,
+          "surface": 64,
+          "renderSubmit": 2.7,
+          "heapJS": 30.8
+        },
+        {
+          "physics": 5.2,
+          "surface": 64,
+          "renderSubmit": 4.5,
+          "heapJS": 29.8
+        },
+        {
+          "physics": 5.5,
+          "surface": 69.4,
+          "renderSubmit": 2.9,
+          "heapJS": 27.4
+        }
+      ],
+      "medians": {
+        "physics": 6.9,
+        "surface": 68.2,
+        "renderSubmit": 3.4,
+        "heapJS": 28.8
+      },
+      "errors": []
+    }
+  ]
+}

@@ -1,0 +1,106 @@
+TAP version 13
+# Subtest: contrato: Century consume TriangHor como paquete local versionado
+ok 1 - contrato: Century consume TriangHor como paquete local versionado
+  ---
+  duration_ms: 5.753274
+  type: 'test'
+  ...
+# Subtest: los puntos antiguos se delegan a la biblioteca, sin solvers duplicados
+ok 2 - los puntos antiguos se delegan a la biblioteca, sin solvers duplicados
+  ---
+  duration_ms: 0.553156
+  type: 'test'
+  ...
+# Subtest: la misma función pública alimenta los consumidores antiguos
+ok 3 - la misma función pública alimenta los consumidores antiguos
+  ---
+  duration_ms: 0.563913
+  type: 'test'
+  ...
+# Subtest: paridad de índices y calidad para superficies planas, relieve y pintura
+ok 4 - paridad de índices y calidad para superficies planas, relieve y pintura
+  ---
+  duration_ms: 31.731876
+  type: 'test'
+  ...
+# Subtest: los índices LOD y la consulta espacial comparten proveedor
+ok 5 - los índices LOD y la consulta espacial comparten proveedor
+  ---
+  duration_ms: 0.957744
+  type: 'test'
+  ...
+# Subtest: Worker Node real: horneado y actualización incremental no alteran entradas
+ok 6 - Worker Node real: horneado y actualización incremental no alteran entradas
+  ---
+  duration_ms: 108.160548
+  type: 'test'
+  ...
+# Subtest: Worker: cancelación evita publicar un resultado de geometría obsoleta
+ok 7 - Worker: cancelación evita publicar un resultado de geometría obsoleta
+  ---
+  duration_ms: 135.898208
+  type: 'test'
+  ...
+# Subtest: Worker: petición fallida no invalida la fuente ni bloquea nuevos trabajos
+ok 8 - Worker: petición fallida no invalida la fuente ni bloquea nuevos trabajos
+  ---
+  duration_ms: 57.831197
+  type: 'test'
+  ...
+# Subtest: se descartan los resultados de un terreno antiguo y la caché permanece acotada
+ok 9 - se descartan los resultados de un terreno antiguo y la caché permanece acotada
+  ---
+  duration_ms: 153.970655
+  type: 'test'
+  ...
+# Subtest: protocolo público de petición única preserva el contrato de progreso
+ok 10 - protocolo público de petición única preserva el contrato de progreso
+  ---
+  duration_ms: 42.6676
+  type: 'test'
+  ...
+# Subtest: un Worker con plan incompatible nunca reemplaza el último índice válido
+ok 11 - un Worker con plan incompatible nunca reemplaza el último índice válido
+  ---
+  duration_ms: 47.019265
+  type: 'test'
+  ...
+# Subtest: índices fuera de rango son rechazados antes del consumidor
+ok 12 - índices fuera de rango son rechazados antes del consumidor
+  ---
+  duration_ms: 0.690349
+  type: 'test'
+  ...
+# Subtest: el manifiesto de Century declara una única dependencia local de TriangHor
+ok 13 - el manifiesto de Century declara una única dependencia local de TriangHor
+  ---
+  duration_ms: 1.20521
+  type: 'test'
+  ...
+# Subtest: el lockfile identifica a TriangHor como enlace local, no como paquete remoto
+ok 14 - el lockfile identifica a TriangHor como enlace local, no como paquete remoto
+  ---
+  duration_ms: 1.229805
+  type: 'test'
+  ...
+# Subtest: la dependencia local se conserva independiente de dependencias ajenas
+ok 15 - la dependencia local se conserva independiente de dependencias ajenas
+  ---
+  duration_ms: 0.246503
+  type: 'test'
+  ...
+# Subtest: npm ci instala el enlace local sin red en un fixture con el contrato real
+ok 16 - npm ci instala el enlace local sin red en un fixture con el contrato real
+  ---
+  duration_ms: 397.566151
+  type: 'test'
+  ...
+1..16
+# tests 16
+# suites 0
+# pass 16
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 701.467855

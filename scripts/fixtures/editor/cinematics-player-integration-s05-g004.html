@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="es"><meta charset="utf-8"><title>QA FilmMaker → Cinematics → Player · S05-G004</title>
+<style>
+body{margin:0;background:#16191d;color:#dadada;font:12px sans-serif}
+.workspace{display:grid;grid-template-columns:320px minmax(260px,1fr);gap:8px;height:580px}
+.workspace>div{border:1px solid #464a50;min-width:0;min-height:0;overflow:hidden}
+#cinematics-player-result{position:absolute;visibility:hidden}
+</style>
+<div class="workspace"><div id="library"></div><div id="cinematics"></div></div><pre id="cinematics-player-result"></pre>
+<script type="module">
+import { createApp, nextTick } from 'vue'
+import CinematicsPanel from '/src/components/CinematicsPanel.vue'
+import { store, resetHistory } from '/src/core/store.js'
+import { createProjectData, splitProject } from '/src/core/project.js'
+import { buildLfproj } from '/src/core/lfproj.js'
+import { registerCaptureFilm } from '/src/tools-register.js'
+import { newFilm, packNfm } from '/src/filmmaker/film.js'
+import { importFilm } from '/src/core/state/film.js'
+import { newTimeline, isFilmMakerTimeline } from '/src/core/timeline/model.js'
+import { writePackage, readPackage } from '/src/engine/runtime/package/format.js'
+import { createPackageHost } from '/src/engine/runtime/package/host.js'
+import { TimelineRunner } from '/src/engine/runtime/timeline/player.js'
+import { timelineMethods } from '/src/engine/runtime/events/play-timeline.js'
+
+const out=document.querySelector('#cinematics-player-result'), checks=[], apps=[]
+const check=(title,pass)=>{checks.push({title,pass:!!pass});if(!pass)throw Error(title)}
+const tick=async()=>{await nextTick();await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)))}
+function wave(){
+ const n=800,buf=new ArrayBuffer(44+n),v=new DataView(buf)
+ const chars=(i,s)=>{for(let j=0;j<s.length;j++)v.setUint8(i+j,s.charCodeAt(j))}
+ chars(0,'RIFF');v.setUint32(4,36+n,true);chars(8,'WAVE');chars(12,'fmt ');v.setUint32(16,16,true)
+ v.setUint16(20,1,true);v.setUint16(22,1,true);v.setUint32(24,8000,true);v.setUint32(28,8000,true)
+ v.setUint16(32,1,true);v.setUint16(34,8,true);chars(36,'data');v.setUint32(40,n,true)
+ for(let i=0;i<n;i++)v.setUint8(44+i,128+Math.round(Math.sin(i/8000*440*Math.PI*2)*20))
+ return new Uint8Array(buf)
+}
+let run=null
+try{
+ const canvas=document.createElement('canvas'), gl=canvas.getContext('webgl2')||canvas.getContext('webgl')
+ check('Electron dispone de contexto WebGL',!!gl)
+ const p=createProjectData('QA integración FilmMaker','empty'), sceneId=p.activeSceneId
+ p.timelines.push(newTimeline('Timeline gameplay',{duration:3}))
+ store.project=p;store.locked=false;store.projFolder='Assets/Cinematics';store.prefs.bottomTab='anim'
+ store.editor={snapshotTerrain:()=>p.terrain,restoreTerrain(){},syncAll(){},syncEnvironment(){},setSelection(){},applyView(){},afterUndo(){}}
+ resetHistory();registerCaptureFilm()
+ const f=newFilm({name:'Película QA',sceneId,sceneName:p.scenes[0].name,projectId:p.id,projectName:p.name})
+ f.passes=[{id:'pass-1',name:'Entrada',take:-1,duration:1,keys:[{t:0,pos:[0,2,5],rot:[0,0,0],fov:70},{t:1,pos:[1,2,5],rot:[0,20,0],fov:65}]}]
+ f.edit.shots=[{id:'shot-1',pass:'pass-1',in:0,out:1,filter:'',tin:{kind:'cut',dur:.1}}]
+ f.assets=[{id:'audio-film',name:'pista.wav',folder:'Assets/Audio',kind:'audio',ext:'wav'}]
+ f.edit.audio=[{id:'track-a',name:'Música',group:'music',volume:.8,mute:false,solo:false,clips:[{id:'clip-a',asset:'audio-film',start:.2,in:0,dur:.5,volume:.8,fadeIn:.1,fadeOut:.1}]}]
+ const {meta,scene}=splitProject(p,p.terrain)
+ const original=await buildLfproj({meta,scenes:new Map([[sceneId,scene]]),files:new Map()})
+ const bytes=await packNfm(f,new Uint8Array(await original.blob.arrayBuffer()),new Map([['audio-film',wave()]]))
+ check('FilmMaker exporta archivo .nfm real',bytes.byteLength>100)
+ const result=await importFilm(bytes)
+ check('El importador crea una toma y montaje',result.timelines.length===2)
+ check('El importador conserva su procedencia',p.timelines.filter(isFilmMakerTimeline).length===2)
+ check('Timeline de gameplay permanece independiente',p.timelines.some(t=>t.name==='Timeline gameplay'&&!isFilmMakerTimeline(t)))
+ check('Montaje conserva pista de cámara',p.timelines.find(t=>t.name===result.montage)?.tracks.some(t=>t.kind==='camera'))
+ check('Montaje conserva pista de audio',p.timelines.find(t=>t.name===result.montage)?.tracks.some(t=>t.kind==='audio'))
+ check('Archivo WAV incorporado en Assets',p.assets.some(a=>a.id==='audio-film'))
+ const movie=p.timelines.find(t=>t.name===result.montage)
+ const data=splitProject(p,p.terrain)
+ const pkgBytes=await writePackage({data:data.meta,scenes:[{id:sceneId,name:p.scenes[0].name,data:data.scene}],files:new Map([['audio-film',wave()]])})
+ check('Game.rtpkg construido por exportador de Player',pkgBytes.byteLength>100)
+ const pkg=await readPackage(pkgBytes)
+ check('Paquete conserva los recursos FilmMaker',pkg.game.timelines.some(t=>t.id===movie.id&&isFilmMakerTimeline(t)))
+ check('Paquete conserva la pista de audio importada',pkg.game.timelines.find(t=>t.id===movie.id).tracks.some(t=>t.kind==='audio'))
+ check('Paquete conserva la escena de la película',pkg.sceneIds.includes(sceneId))
+ check('El recurso WAV existe en paquete exportado',!!(await pkg.file('audio-film')))
+ const host=createPackageHost({pkg,storage:{get:()=>null,set(){},remove(){},keys:()=>[]}})
+ check('Host exportado recibe los mismos timelines',host.project.timelines.some(t=>t.id===movie.id))
+ const events=[]
+ const playback=new TimelineRunner(host.project.timelines.find(t=>t.id===movie.id),{
+  camera:pose=>{if(pose)events.push('cam')},audio:k=>events.push('audio:'+k.clip),
+  commands:list=>events.push('cmd:'+list[0].code),letterbox:()=>{},error:e=>{throw e},
+  node:()=>{},bake:()=>{},bakeFrame:()=>{},resolveCamera:()=>null,
+ })
+ playback.update(0)
+ check('Runtime aplica cámara cinematográfica',events.includes('cam'))
+ playback.update(.35)
+ check('Runtime ejecuta pista de audio al cruzar su clave',events.some(x=>x.startsWith('audio:')))
+ playback.pause();const paused=playback.time;playback.update(.2)
+ check('Pausa congela el reloj',playback.time===paused)
+ playback.resume();playback.update(.2)
+ check('Reanudación avanza el reloj',playback.time>paused)
+ playback.stop()
+ check('Stop finaliza la película',playback.finished===true)
+ const wrong={project:{timelines:pkg.game.timelines,activeSceneId:'otro',scenes:p.scenes},state:{},control:true}
+ Object.assign(wrong,timelineMethods);wrong._tlInit()
+ check('Player bloquea película de otra escena',(()=>{try{wrong.timelinePlay(movie.id);return false}catch(e){return /pertenece a la escena/.test(e.message)}})())
+ check('Rechazo no reserva física ni controles',wrong.tls.length===0&&wrong.control===true)
+ const app=createApp(CinematicsPanel);app.mount('#cinematics');apps.push(app);await tick()
+ check('Visor Cinematics real montado',!!document.querySelector('#cinematics [data-test="cinematics-viewer"]'))
+ check('Solo incluye tomas/montajes FilmMaker',document.querySelectorAll('#cinematics .movie').length===2)
+ check('No muestra Timeline gameplay',!document.querySelector('#cinematics').textContent.includes('Timeline gameplay'))
+ check('No ofrece funciones de autoría',![...document.querySelectorAll('#cinematics button')].some(b=>/crear|grabar|añadir pista|clave/i.test(b.textContent)))
+ document.querySelector('#cinematics').style.width='260px';await tick()
+ check('Visor con ancho 260 mantiene controles',!!document.querySelector('#cinematics .transport'))
+ check('Importación y FilmMaker siguen visibles',document.querySelector('#cinematics').textContent.includes('Importar .nfm')&&document.querySelector('#cinematics').textContent.includes('Abrir FilmMaker'))
+ check('El origen FilmMaker sigue tras importar y empaquetar',pkg.game.timelines.filter(isFilmMakerTimeline).length===2)
+ check('El archivo fuente NFM no se transforma en un recurso falso',!pkg.game.cinematics)
+ gl.getExtension('WEBGL_lose_context')?.loseContext()
+ out.dataset.pass='true';out.textContent=JSON.stringify({pass:true,checks})
+}catch(error){out.dataset.pass='false';out.textContent=JSON.stringify({pass:false,checks,error:error.stack})}
+finally{run?.stop?.();for(const a of apps)a.unmount()}
+</script></html>

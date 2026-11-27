@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><title>Century · Inspector Escena · S13-G004</title>
+<style>body{background:#171717;color:#ddd;margin:0;font:12px Arial}#mount{display:flex;gap:10px}.panel{height:630px;overflow-y:auto;overflow-x:hidden;--lf-property-label-width:112px}.wide{width:320px}.narrow{width:260px}pre{max-height:260px;overflow:auto}</style></head>
+<body><pre id="scene-ux-s13-g004-result">Ejecutando...</pre><div id="mount"><div id="wide" class="panel wide"></div><div id="narrow" class="panel narrow"></div></div>
+<script type="module">
+import * as THREE from 'three'
+import { createApp, nextTick } from 'vue'
+import ScenePanel from '/src/components/ScenePanel.vue'
+import ColorInput from '/src/components/ColorInput.vue'
+import { store } from '/src/core/store.js'
+import { createProjectData } from '/src/core/project.js'
+import '/src/styles.css'
+
+const output = document.getElementById('scene-ux-s13-g004-result')
+const checks = []
+const check = (name, pass, actual) => {
+  checks.push({ name, pass: !!pass, ...(actual === undefined ? {} : { actual }) })
+  if (!pass) throw Error(name)
+}
+const flush = async () => { await nextTick(); await new Promise(resolve => requestAnimationFrame(resolve)); await nextTick(); await new Promise(resolve => requestAnimationFrame(resolve)); await nextTick() }
+const get = (id, root = document.getElementById('wide')) => root.querySelector(`details[data-scene-fold="${id}"]`)
+let app, appNarrow, renderer
+try {
+  renderer = new THREE.WebGLRenderer({ antialias: false })
+  renderer.setSize(16, 16)
+  renderer.render(new THREE.Scene(), new THREE.PerspectiveCamera(65,1,.1,50))
+  check('WebGL real activo', !!renderer.capabilities.isWebGL2)
+  store.project = createProjectData('QA Scene S13 G004')
+  store.project.environment.lightingMode = 'manual'
+  store.project.environment.weather.on = false
+  store.project.objects = []
+  store.prefs.inspFold = { 'primitive:Transformación': true }
+  app = createApp(ScenePanel); app.component('ColorInput', ColorInput); app.mount('#wide')
+  appNarrow = createApp(ScenePanel); appNarrow.component('ColorInput',ColorInput); appNarrow.mount('#narrow')
+  await flush()
+  const wide = document.getElementById('wide'), narrow = document.getElementById('narrow')
+  check('ScenePanel real montado', !!wide.querySelector('.sp'))
+  check('Tres grupos de autoridad únicos', wide.querySelectorAll('details.ownership-group').length === 3)
+  check('Escena inicia expandida', get('group-scene')?.open === true)
+  check('Mundo inicia expandido', get('group-world')?.open === true)
+  check('Recursos inician expandidos', get('group-resources')?.open === true)
+  check('Apartados montados con claves únicas y condicionales conservados', (() => { const a=[...wide.querySelectorAll('details[data-scene-fold]')].map(n=>n.dataset.sceneFold);return a.length >= 15 && a.length <= 18 && new Set(a).size === a.length })())
+  check('GameManager permanece en grupo Escena', !!get('game-manager')?.querySelector('select'))
+  check('Transiciones mantienen controles de Fade', get('scene-transitions')?.textContent.includes('Fade In al entrar') && get('scene-transitions')?.textContent.includes('Fade Out al salir'))
+  check('Clima mantiene ParamForm de propiedades', !!get('world-weather')?.querySelector('input'))
+  check('Iluminación horneada permanece en Recursos', !!get('group-resources')?.querySelector('details[data-scene-fold="resources-bake"]'))
+  check('Nivel conserva estado inicial plegado', get('world-level')?.open === false)
+  check('Nubes conservan estado inicial plegado', get('world-clouds')?.open === false)
+  check('Panel sin documentación activa con ayudas desactivadas', wide.querySelectorAll('.lf-help').length === 0)
+  document.documentElement.classList.add('lf-tips')
+  await flush()
+  check('Activar ayudas no restaura párrafos documentales', wide.querySelectorAll('.lf-help').length === 0)
+  const sceneBefore = JSON.stringify(store.project)
+  const transition = get('scene-transitions')
+  transition.querySelector('summary').click(); await flush()
+  check('Transiciones se contrae con clic', transition.open === false)
+  check('La preferencia de Transiciones queda guardada', store.prefs.inspFold['fold:scene:scene-transitions'] === true)
+  check('Contraer no altera datos del proyecto', JSON.stringify(store.project) === sceneBefore)
+  check('Contraer no elimina controles de Fade', !!transition.querySelector('input[type="checkbox"]'))
+  transition.querySelector('summary').click(); await flush()
+  check('Transiciones se reabren con clic', transition.open === true)
+  check('Reabrir revierte el estado guardado', store.prefs.inspFold['fold:scene:scene-transitions'] === false)
+  const world = get('group-world')
+  world.querySelector(':scope > summary').click(); await flush()
+  check('Grupo Mundo se contrae sin cambiar subgrupos', world.open === false && get('world-weather').open === true)
+  check('Mundo conserva aviso solar si se pliega', world.querySelector('summary').textContent.includes('Sin luz solar'))
+  check('Claves anteriores siguen intactas', store.prefs.inspFold['primitive:Transformación'] === true)
+  world.querySelector(':scope > summary').click(); await flush()
+  check('Grupo Mundo se puede reabrir', world.open === true)
+  check('Autoridad meteorológica inicialmente manual', wide.querySelector('[data-authority="weather"]').textContent.includes('desactivada'))
+  store.project.environment.weather.on = true; await flush()
+  check('World controla clima cuando se activa', wide.querySelector('[data-authority="weather"]').textContent.includes('World controla'))
+  check('World conserva autoridad sobre nubes', wide.querySelector('[data-authority="clouds"]').textContent.includes('World puede sustituir'))
+  check('World conserva autoridad sobre niebla', wide.querySelector('[data-authority="fog"]').textContent.includes('World puede sustituir'))
+  store.project.environment.weather.on = false; await flush()
+  check('Meteorología manual permanece editable', wide.querySelector('[data-authority="weather"]').textContent.includes('desactivada'))
+  store.project.environment.skyMode='hdri'; store.project.assets=[]; await flush()
+  check('HDRI ausente indicado en encabezado del Cielo', get('world-sky').querySelector('summary').textContent.includes('Sin panoramas HDRI'))
+  const resources=get('group-resources')
+  store.bake.state.stale = true; await flush()
+  check('Bake obsoleto visible aun con Recursos plegados', (()=>{resources.querySelector('summary').click();return resources.querySelector('summary').textContent.includes('Horneado desactualizado')})())
+  check('Panel estrecho sin scroll horizontal', narrow.scrollWidth <= narrow.clientWidth + 1, { scrollWidth:narrow.scrollWidth, clientWidth:narrow.clientWidth })
+  check('Cabeceras nativas accesibles y enfocables', [...wide.querySelectorAll('details[data-scene-fold] > summary')].every(x=>x.tabIndex>=0))
+  check('Proyecto sigue sin cambios por los toggles', store.project.scenes.length > 0 && store.prefs.inspFold['fold:scene:group-world'] === false)
+  check('WebGL sin errores', renderer.getContext().getError() === renderer.getContext().NO_ERROR)
+  const pass = checks.length === 36 && checks.every(c => c.pass)
+  output.dataset.pass = String(pass)
+  output.textContent=JSON.stringify({pass,checks,gl:true,stage:`${checks.length}: final`},null,2)
+} catch(error) {
+  output.dataset.pass = 'false'
+  output.textContent=JSON.stringify({pass:false,error:String(error?.stack||error),checks,gl:!!renderer},null,2)
+} finally {
+  app?.unmount();appNarrow?.unmount();renderer?.dispose()
+}
+</script></body></html>

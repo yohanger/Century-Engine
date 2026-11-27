@@ -1,0 +1,49 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Century Scene Inspector Ownership S02 QA</title>
+<style>body{background:#161616;color:#eee;margin:0;font:12px Arial}#mount{display:flex;gap:10px}.panel{height:650px;overflow-y:auto;overflow-x:hidden;--lf-property-label-width:112px}.wide{width:320px}.narrow{width:260px}</style></head>
+<body><pre id="scene-inspector-ownership-s02-g001-result">Ejecutando…</pre><div id="mount"><div id="wide" class="panel wide"></div><div id="narrow" class="panel narrow"></div></div>
+<script type="module">
+import * as THREE from 'three'
+import {createApp,nextTick} from 'vue'
+import ScenePanel from '/src/components/ScenePanel.vue'
+import ColorInput from '/src/components/ColorInput.vue'
+import {store} from '/src/core/store.js'
+import {createProjectData} from '/src/core/project.js'
+import '/src/styles.css'
+const output=document.getElementById('scene-inspector-ownership-s02-g001-result'),checks=[]
+const check=(name,pass)=>{checks.push({name,pass:!!pass});if(!pass)throw Error(name)}
+const flush=async()=>{await nextTick();await new Promise(resolve=>requestAnimationFrame(resolve));await nextTick()}
+let app,app2,renderer
+try{
+ renderer=new THREE.WebGLRenderer({antialias:false});renderer.setSize(16,16);renderer.render(new THREE.Scene(),new THREE.PerspectiveCamera(65,1,.1,50))
+ check('WebGL de Three.js activo',!!renderer.capabilities.isWebGL2)
+ store.project=createProjectData('QA Scene S02');store.project.environment.weather.on=false
+ app=createApp(ScenePanel);app.component('ColorInput',ColorInput);app.mount('#wide');app2=createApp(ScenePanel);app2.component('ColorInput',ColorInput);app2.mount('#narrow');await flush()
+ const wide=document.getElementById('wide'),narrow=document.getElementById('narrow')
+ check('Grupo Escena',!!wide.querySelector('[data-owner-group="scene"]'))
+ check('Grupo Mundo',!!wide.querySelector('[data-owner-group="world"]'))
+ check('Grupo Recursos',!!wide.querySelector('[data-owner-group="resources"]'))
+ check('Cada grupo tiene encabezado',wide.querySelectorAll('.owner-heading').length===3)
+ check('GameManager permanece en Escena',!!wide.querySelector('[data-owner-group="scene"] select'))
+ check('Transiciones permanecen en Escena',wide.querySelector('[data-owner-group="scene"]').textContent.includes('Fade In al entrar'))
+ check('Nivel permanece en Mundo',wide.querySelector('[data-owner-group="world"]').textContent.includes('Nivel'))
+ check('Iluminación celestial permanece',wide.querySelector('[data-owner-group="world"]').textContent.includes('Iluminación celestial'))
+ check('Bake está en Recursos',wide.querySelector('[data-owner-group="resources"]').textContent.includes('Iluminación horneada'))
+ check('Estado inicial: clima desactivado',wide.querySelector('[data-authority="weather"]').textContent.includes('desactivada'))
+ check('Nubes manuales cuando clima apagado',wide.querySelector('[data-authority="clouds"]').textContent.includes('valores manuales'))
+ const initialClouds=store.project.environment.cloudsCoverage
+ store.project.environment.weather.on=true;await flush()
+ check('Clima activado actualiza estado sin un segundo modelo',wide.querySelector('[data-authority="weather"]').textContent.includes('World controla'))
+ check('Nubes indican prevalencia de World',wide.querySelector('[data-authority="clouds"]').textContent.includes('World puede sustituir'))
+ check('Niebla indica prevalencia de World',wide.querySelector('[data-authority="fog"]').textContent.includes('World puede sustituir'))
+ check('Cobertura manual intacta tras activar World',store.project.environment.cloudsCoverage===initialClouds)
+ store.project.environment.weather.on=false;await flush()
+ check('Clima se puede desactivar sin destruir nubes manuales',wide.querySelector('[data-authority="clouds"]').textContent.includes('valores manuales') && store.project.environment.cloudsCoverage===initialClouds)
+ store.project.environment.lightingMode='cycle';await flush()
+ check('Ciclo celestial explica autoridad de niebla',wide.querySelector('[data-authority="fog"]').textContent.includes('Ciclo celestial activo'))
+ check('Panel de 260px sin scroll horizontal',narrow.scrollWidth<=narrow.clientWidth+1)
+ check('Colores de encabezado diferenciados',getComputedStyle(wide.querySelector('.owner-heading')).backgroundColor!==getComputedStyle(wide.querySelector('.ownership-group')).backgroundColor)
+ check('La lista de secciones no duplica iluminación horneada',wide.querySelectorAll('[data-owner-group="resources"] details').length===1)
+ check('WebGL sin errores',renderer.getContext().getError()===renderer.getContext().NO_ERROR)
+ output.dataset.pass='true';output.textContent=JSON.stringify({pass:true,gl:renderer.getContext().getParameter(renderer.getContext().VERSION),checks},null,2)
+}catch(err){output.dataset.pass='false';output.textContent=JSON.stringify({pass:false,error:String(err?.stack||err),checks},null,2)}finally{app?.unmount();app2?.unmount();renderer?.dispose()}
+</script></body></html>

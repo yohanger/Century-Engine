@@ -1,0 +1,92 @@
+import test from 'node:test'
+import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
+import { addMenuPosition, addSubmenuPosition } from '../src/components/add-menu-model.js'
+
+const read = (name) => readFileSync(new URL(`../src/components/${name}.vue`, import.meta.url), 'utf8')
+const bar = read('MenuBar')
+const list = read('MenuList')
+const context = read('ContextMenu')
+const add = read('AddModal')
+const theme = readFileSync(new URL('../src/styles.css', import.meta.url), 'utf8')
+
+test('MENU-01 barra sin logotipo SVG y sin perder comandos', () => {
+  assert.doesNotMatch(bar, /class="brand"|<svg\b/)
+  assert.match(bar, /items\(m\.ids\)/)
+  assert.match(bar, /openAddMenu\(/)
+  assert.match(bar, /@mouseenter="hoverMenu/)
+  assert.match(bar, /-webkit-app-region: drag/)
+  assert.match(bar, /-webkit-app-region: no-drag/)
+})
+test('MENU-02 un único sistema de menús por activación y clic de alternancia', () => {
+  assert.match(bar, /store\.menu = null\s+store\.addModal = null\s+if \(m\.add\)/)
+  assert.match(bar, /toggle && current === m\.label/)
+  assert.match(context, /closest\?\.\('\[data-menubar-trigger\]'\)/)
+  assert.match(add, /\[data-menubar-trigger\]/)
+})
+test('MENU-03 no existe velo modal y los clics exteriores llegan a la UI', () => {
+  assert.match(context, /\.veil \{[^}]*pointer-events: none; background: transparent;/)
+  assert.match(context, /\.pop \{[^}]*pointer-events: auto;/)
+  assert.match(context, /window\.addEventListener\('pointerdown', onPointerDown, true\)/)
+  assert.match(context, /window\.addEventListener\('contextmenu', onOutsideContextMenu, true\)/)
+  assert.match(context, /e\.key === 'Escape'/)
+  assert.match(add, /\.add-menu-layer \{[^}]*pointer-events: none; background: transparent;/)
+  assert.match(add, /function outside\(e\)/)
+})
+test('MENU-04 selección neutral compartida, foco visible y riesgo semántico preservado', () => {
+  assert.match(theme, /--menu-hover: #353535/)
+  assert.match(theme, /--menu-selected: #414141/)
+  assert.doesNotMatch(list, /--blue-wash/)
+  assert.doesNotMatch(add, /--blue-wash/)
+  assert.match(list, /\.item:focus-visible/)
+  assert.match(add, /\.am-item:focus-visible/)
+  assert.match(list, /\.item\.danger:hover/)
+})
+test('MENU-05 animaciones de opacidad, sin transformar anclajes y movimiento reducido', () => {
+  assert.match(list, /animation: menu-appear/)
+  assert.match(add, /animation: add-menu-appear/)
+  assert.match(list, /prefers-reduced-motion: reduce/)
+  assert.match(add, /prefers-reduced-motion: reduce/)
+  assert.doesNotMatch(list, /transform:|translate:/)
+})
+test('MENU-06 navegación con teclado, estados ARIA y activación accesible', () => {
+  for (const key of ['ArrowDown', 'ArrowUp', 'ArrowRight', 'ArrowLeft', 'Home', 'End', 'Enter']) assert.ok(list.includes(key))
+  assert.match(list, /:aria-disabled/)
+  assert.match(list, /:aria-haspopup/)
+  assert.match(list, /:aria-expanded/)
+  assert.match(list, /@keydown="onKeydown"/)
+  assert.match(context, /function focusFirst\(\)/)
+  assert.match(add, /@keydown="key"/)
+  assert.match(add, /input ref="input" v-model="search"/)
+  assert.match(add, /role="region" aria-label="Añadir nodo"/)
+})
+test('MENU-07 submenú no hereda clic de hoja, y usa anclajes con inversión', () => {
+  assert.match(list, /e\.target\.closest\('\[role="menuitem"\]'\) !== e\.currentTarget/)
+  assert.match(list, /if \(open\.value !== i\) return/)
+  assert.match(list, /window\.innerWidth - 4/)
+  assert.match(list, /window\.innerHeight - b\.height - 6/)
+  assert.deepEqual(addMenuPosition({ x: 1999, y: 1050 }, { width: 1024, height: 600 }), { left: 748, top: 242 })
+  const p = addSubmenuPosition({ top: 580 }, { left: 850, right: 1118 }, { width: 1152, height: 640 })
+  assert.equal(p.left, 588)
+  assert.equal(p.top, 282)
+})
+test('MENU-08 el menú Añadir sigue usando registro, búsqueda, categorías y preferencias', () => {
+  assert.match(add, /addMenuTree\(m\.value\?\.items \|\| \[\]\)/)
+  assert.match(add, /searchAddNodes\(tree\.value, search\.value\)/)
+  assert.match(add, /function openBranch\(/)
+  assert.match(add, /function toggleChild\(/)
+  assert.match(add, /m\.value\?\.refresh\?\.\(\)/)
+  assert.match(add, /@click="choose\(/)
+})
+
+
+test('MENU-CORR-01 runner Electron acepta keyframes scoped y respeta movimiento reducido', () => {
+  const fixture = readFileSync(new URL('./fixtures/editor/menus-ux-s01-g001-integral.html', import.meta.url), 'utf8')
+  assert.match(fixture, /prefers-reduced-motion: reduce/)
+  assert.match(fixture, /animationName\.split\(','\)/)
+  assert.match(fixture, /const scopedName=new RegExp/)
+  assert.match(fixture, /animationDuration\.split\(','\)/)
+  assert.match(fixture, /appearance\(document\.querySelector\('\.menu'\),'menu-appear'\)/)
+  assert.match(fixture, /appearance\(document\.querySelector\('\.am-root'\),'add-menu-appear'\)/)
+  assert.doesNotMatch(fixture, /animationName==='(?:add-)?menu-appear'/)
+})

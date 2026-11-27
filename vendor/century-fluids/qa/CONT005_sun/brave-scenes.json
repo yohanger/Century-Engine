@@ -1,0 +1,1075 @@
+{
+  "url": "http://127.0.0.1:4177/",
+  "browser": "158.0.8127.42",
+  "mode": "headful",
+  "viewport": [
+    1280,
+    800
+  ],
+  "renderer": "ANGLE (Intel, Mesa Intel(R) UHD Graphics 605 (GLK 3), OpenGL 4.6 (Core Profile) Mesa 25.0.7-0ubuntu0.24.04.2)",
+  "device": {
+    "vendorId": 32902,
+    "deviceId": 12676,
+    "vendorString": "Google Inc. (Intel)",
+    "deviceString": "ANGLE (Intel, Mesa Intel(R) UHD Graphics 605 (GLK 3), OpenGL 4.6 (Core Profile) Mesa 25.0.7-0ubuntu0.24.04.2)",
+    "driverVendor": "Mesa",
+    "driverVersion": "25.0.7"
+  },
+  "scenes": [
+    {
+      "id": "tank",
+      "displayedParticles": 64,
+      "triangles": 2264,
+      "stoppedSimTime": 3.72,
+      "mode": "Solo solver físico · un paso por reloj",
+      "active": {
+        "frames": [
+          83.30000000000018,
+          33.30000000000018,
+          50,
+          66.69999999999982,
+          66.80000000000018,
+          66.59999999999945,
+          66.60000000000036,
+          50,
+          66.69999999999982,
+          66.60000000000036,
+          66.69999999999982,
+          66.69999999999982,
+          100,
+          50,
+          83.40000000000055,
+          66.59999999999945,
+          66.69999999999982,
+          66.60000000000036,
+          50,
+          83.30000000000018,
+          66.80000000000018,
+          66.59999999999945,
+          83.40000000000055,
+          66.59999999999945,
+          66.60000000000036,
+          66.69999999999982,
+          50,
+          83.30000000000018,
+          83.39999999999964,
+          83.40000000000055,
+          66.59999999999945,
+          49.900000000000546,
+          66.79999999999927,
+          66.60000000000036,
+          50,
+          66.69999999999982,
+          49.900000000000546,
+          66.69999999999982,
+          66.69999999999982,
+          66.60000000000036,
+          66.79999999999927,
+          66.60000000000036,
+          83.30000000000018,
+          66.69999999999982,
+          83.30000000000018,
+          50,
+          66.69999999999982,
+          50,
+          66.60000000000036,
+          50,
+          66.69999999999982,
+          66.69999999999982,
+          83.30000000000018,
+          66.69999999999982,
+          66.69999999999982,
+          66.59999999999945,
+          83.30000000000109,
+          83.39999999999964,
+          66.60000000000036,
+          83.39999999999964,
+          66.70000000000073,
+          66.5,
+          66.79999999999927,
+          49.899999999999636,
+          66.70000000000073,
+          50,
+          50,
+          66.69999999999891,
+          50,
+          66.60000000000036,
+          66.70000000000073,
+          50,
+          66.69999999999891,
+          49.900000000001455,
+          83.39999999999964,
+          50,
+          66.69999999999891,
+          49.900000000001455,
+          50,
+          66.79999999999927,
+          50,
+          66.60000000000036,
+          50,
+          66.69999999999891,
+          50,
+          66.60000000000036,
+          50,
+          66.70000000000073,
+          50,
+          66.60000000000036,
+          50,
+          83.39999999999964,
+          50,
+          66.69999999999891,
+          50,
+          66.60000000000036,
+          50,
+          66.70000000000073,
+          50,
+          50,
+          66.60000000000036,
+          50.099999999998545
+        ],
+        "measures": [
+          {
+            "physicsSubmitMs": 6.3,
+            "surfaceUpdateMs": 46.7,
+            "renderSubmitMs": 2.4,
+            "heapMiB": 24.6
+          },
+          {
+            "physicsSubmitMs": 6.3,
+            "surfaceUpdateMs": 30.9,
+            "renderSubmitMs": 1.9,
+            "heapMiB": 17.8
+          },
+          {
+            "physicsSubmitMs": 5.2,
+            "surfaceUpdateMs": 35.2,
+            "renderSubmitMs": 2.9,
+            "heapMiB": 24.7
+          },
+          {
+            "physicsSubmitMs": 5.3,
+            "surfaceUpdateMs": 43,
+            "renderSubmitMs": 2.2,
+            "heapMiB": 22.7
+          },
+          {
+            "physicsSubmitMs": 4.9,
+            "surfaceUpdateMs": 40.7,
+            "renderSubmitMs": 1.7,
+            "heapMiB": 26.2
+          },
+          {
+            "physicsSubmitMs": 5.1,
+            "surfaceUpdateMs": 44.6,
+            "renderSubmitMs": 3.2,
+            "heapMiB": 19
+          },
+          {
+            "physicsSubmitMs": 4.5,
+            "surfaceUpdateMs": 40.4,
+            "renderSubmitMs": 2.7,
+            "heapMiB": 21.4
+          },
+          {
+            "physicsSubmitMs": 4.3,
+            "surfaceUpdateMs": 45.4,
+            "renderSubmitMs": 2.2,
+            "heapMiB": 27.5
+          },
+          {
+            "physicsSubmitMs": 4.1,
+            "surfaceUpdateMs": 36.5,
+            "renderSubmitMs": 1.4,
+            "heapMiB": 24.3
+          },
+          {
+            "physicsSubmitMs": 4.8,
+            "surfaceUpdateMs": 37.7,
+            "renderSubmitMs": 1.5,
+            "heapMiB": 24.8
+          },
+          {
+            "physicsSubmitMs": 6,
+            "surfaceUpdateMs": 48.9,
+            "renderSubmitMs": 2,
+            "heapMiB": 26.4
+          },
+          {
+            "physicsSubmitMs": 4.2,
+            "surfaceUpdateMs": 35.6,
+            "renderSubmitMs": 1.3,
+            "heapMiB": 25
+          },
+          {
+            "physicsSubmitMs": 4.4,
+            "surfaceUpdateMs": 37.3,
+            "renderSubmitMs": 1.7,
+            "heapMiB": 25.6
+          },
+          {
+            "physicsSubmitMs": 4.2,
+            "surfaceUpdateMs": 47.5,
+            "renderSubmitMs": 2.3,
+            "heapMiB": 24.2
+          },
+          {
+            "physicsSubmitMs": 4.5,
+            "surfaceUpdateMs": 38.9,
+            "renderSubmitMs": 2.5,
+            "heapMiB": 23.6
+          },
+          {
+            "physicsSubmitMs": 4.6,
+            "surfaceUpdateMs": 33.7,
+            "renderSubmitMs": 1.7,
+            "heapMiB": 29.4
+          },
+          {
+            "physicsSubmitMs": 4.3,
+            "surfaceUpdateMs": 34.4,
+            "renderSubmitMs": 2,
+            "heapMiB": 26.8
+          },
+          {
+            "physicsSubmitMs": 5,
+            "surfaceUpdateMs": 37,
+            "renderSubmitMs": 2.4,
+            "heapMiB": 24.7
+          },
+          {
+            "physicsSubmitMs": 4.3,
+            "surfaceUpdateMs": 34.4,
+            "renderSubmitMs": 2,
+            "heapMiB": 28
+          },
+          {
+            "physicsSubmitMs": 4,
+            "surfaceUpdateMs": 33.2,
+            "renderSubmitMs": 2.2,
+            "heapMiB": 27.2
+          },
+          {
+            "physicsSubmitMs": 4.6,
+            "surfaceUpdateMs": 33.7,
+            "renderSubmitMs": 2.1,
+            "heapMiB": 27.1
+          },
+          {
+            "physicsSubmitMs": 4.2,
+            "surfaceUpdateMs": 34.5,
+            "renderSubmitMs": 2.9,
+            "heapMiB": 31.5
+          },
+          {
+            "physicsSubmitMs": 4.3,
+            "surfaceUpdateMs": 35.4,
+            "renderSubmitMs": 2.1,
+            "heapMiB": 28.6
+          }
+        ],
+        "fps": 15.65233403922291,
+        "measuredSeconds": 6.5165999999999995,
+        "simulatedSeconds": 3.38,
+        "dropped": 345,
+        "intervalMs": 100,
+        "view": "surface",
+        "quality": "balanced"
+      },
+      "heap": {
+        "usedSize": 23455032,
+        "totalSize": 35098624,
+        "embedderHeapUsedSize": 4053560,
+        "backingStorageSize": 9183998
+      }
+    },
+    {
+      "id": "dam",
+      "displayedParticles": 96,
+      "triangles": 4100,
+      "stoppedSimTime": 3.08,
+      "mode": "Solo solver físico · un paso por reloj",
+      "active": {
+        "frames": [
+          83.39999999999964,
+          49.899999999999636,
+          100,
+          50,
+          83.30000000000109,
+          33.399999999999636,
+          116.70000000000073,
+          99.89999999999964,
+          33.399999999999636,
+          83.29999999999927,
+          50,
+          83.30000000000109,
+          33.399999999999636,
+          100,
+          33.29999999999927,
+          83.40000000000146,
+          33.19999999999891,
+          83.39999999999964,
+          116.60000000000036,
+          100,
+          33.399999999999636,
+          100,
+          66.70000000000073,
+          116.60000000000036,
+          100,
+          116.60000000000036,
+          100,
+          33.399999999999636,
+          83.29999999999927,
+          50,
+          100.10000000000036,
+          33.29999999999927,
+          100,
+          16.600000000000364,
+          16.600000000000364,
+          83.39999999999964,
+          50.100000000000364,
+          99.89999999999964,
+          50.100000000000364,
+          183.29999999999927,
+          100,
+          66.60000000000218,
+          116.69999999999709,
+          16.600000000002183,
+          133.39999999999782,
+          100,
+          16.600000000002183,
+          116.70000000000073,
+          100,
+          16.599999999998545,
+          116.70000000000073,
+          100,
+          50,
+          83.29999999999927,
+          50.099999999998545,
+          99.90000000000146,
+          16.700000000000728,
+          83.29999999999927,
+          100,
+          16.700000000000728,
+          83.29999999999927,
+          33.29999999999927,
+          100.10000000000218,
+          99.89999999999782,
+          33.400000000001455,
+          83.29999999999927,
+          33.400000000001455,
+          116.59999999999854,
+          83.29999999999927,
+          16.700000000000728,
+          83.29999999999927,
+          66.70000000000073,
+          83.29999999999927,
+          16.700000000000728,
+          33.29999999999927,
+          116.70000000000073,
+          83.40000000000146,
+          33.29999999999927,
+          83.29999999999927,
+          66.70000000000073,
+          83.29999999999927,
+          33.29999999999927,
+          83.40000000000146,
+          16.599999999998545,
+          116.60000000000218,
+          83.5,
+          33.19999999999709,
+          83.40000000000146,
+          16.599999999998545,
+          33.400000000001455,
+          83.29999999999927,
+          33.29999999999927
+        ],
+        "measures": [
+          {
+            "physicsSubmitMs": 8,
+            "surfaceUpdateMs": 45.6,
+            "renderSubmitMs": 1.9,
+            "heapMiB": 34.2
+          },
+          {
+            "physicsSubmitMs": 9.7,
+            "surfaceUpdateMs": 51.1,
+            "renderSubmitMs": 1.2,
+            "heapMiB": 32.5
+          },
+          {
+            "physicsSubmitMs": 9.1,
+            "surfaceUpdateMs": 61.9,
+            "renderSubmitMs": 2.6,
+            "heapMiB": 28.5
+          },
+          {
+            "physicsSubmitMs": 7.1,
+            "surfaceUpdateMs": 60.4,
+            "renderSubmitMs": 1.4,
+            "heapMiB": 26.5
+          },
+          {
+            "physicsSubmitMs": 6.4,
+            "surfaceUpdateMs": 63.1,
+            "renderSubmitMs": 1.6,
+            "heapMiB": 28.4
+          },
+          {
+            "physicsSubmitMs": 5.7,
+            "surfaceUpdateMs": 68,
+            "renderSubmitMs": 1.2,
+            "heapMiB": 34.7
+          },
+          {
+            "physicsSubmitMs": 7.3,
+            "surfaceUpdateMs": 70.3,
+            "renderSubmitMs": 3.3,
+            "heapMiB": 30.8
+          },
+          {
+            "physicsSubmitMs": 6,
+            "surfaceUpdateMs": 66.8,
+            "renderSubmitMs": 2.1,
+            "heapMiB": 31.2
+          },
+          {
+            "physicsSubmitMs": 5.5,
+            "surfaceUpdateMs": 72.8,
+            "renderSubmitMs": 1.3,
+            "heapMiB": 30.8
+          },
+          {
+            "physicsSubmitMs": 5.6,
+            "surfaceUpdateMs": 64.2,
+            "renderSubmitMs": 1.6,
+            "heapMiB": 28.8
+          },
+          {
+            "physicsSubmitMs": 6,
+            "surfaceUpdateMs": 87.8,
+            "renderSubmitMs": 3.5,
+            "heapMiB": 26.9
+          },
+          {
+            "physicsSubmitMs": 5.7,
+            "surfaceUpdateMs": 67.5,
+            "renderSubmitMs": 1.4,
+            "heapMiB": 35.1
+          },
+          {
+            "physicsSubmitMs": 5.8,
+            "surfaceUpdateMs": 65.8,
+            "renderSubmitMs": 2.8,
+            "heapMiB": 30.6
+          },
+          {
+            "physicsSubmitMs": 6.7,
+            "surfaceUpdateMs": 67.9,
+            "renderSubmitMs": 2.4,
+            "heapMiB": 30.5
+          },
+          {
+            "physicsSubmitMs": 5.7,
+            "surfaceUpdateMs": 64.8,
+            "renderSubmitMs": 1.4,
+            "heapMiB": 27
+          },
+          {
+            "physicsSubmitMs": 5.3,
+            "surfaceUpdateMs": 62.7,
+            "renderSubmitMs": 2.6,
+            "heapMiB": 37.7
+          },
+          {
+            "physicsSubmitMs": 5,
+            "surfaceUpdateMs": 63.1,
+            "renderSubmitMs": 2.2,
+            "heapMiB": 33
+          },
+          {
+            "physicsSubmitMs": 5.6,
+            "surfaceUpdateMs": 63.1,
+            "renderSubmitMs": 2.4,
+            "heapMiB": 37
+          },
+          {
+            "physicsSubmitMs": 5.2,
+            "surfaceUpdateMs": 62,
+            "renderSubmitMs": 2.4,
+            "heapMiB": 34.1
+          },
+          {
+            "physicsSubmitMs": 5.5,
+            "surfaceUpdateMs": 62.2,
+            "renderSubmitMs": 2.5,
+            "heapMiB": 32.4
+          },
+          {
+            "physicsSubmitMs": 5.6,
+            "surfaceUpdateMs": 63.1,
+            "renderSubmitMs": 2.6,
+            "heapMiB": 30.4
+          },
+          {
+            "physicsSubmitMs": 4.9,
+            "surfaceUpdateMs": 64.3,
+            "renderSubmitMs": 2.5,
+            "heapMiB": 40.1
+          },
+          {
+            "physicsSubmitMs": 5,
+            "surfaceUpdateMs": 63.1,
+            "renderSubmitMs": 1.4,
+            "heapMiB": 31.5
+          }
+        ],
+        "fps": 14.08213558647503,
+        "measuredSeconds": 6.533099999999998,
+        "simulatedSeconds": 2.84,
+        "dropped": 440,
+        "intervalMs": 100,
+        "view": "surface",
+        "quality": "balanced"
+      },
+      "heap": {
+        "usedSize": 25101476,
+        "totalSize": 54235136,
+        "embedderHeapUsedSize": 4225296,
+        "backingStorageSize": 12151195
+      }
+    },
+    {
+      "id": "obstacle",
+      "displayedParticles": 80,
+      "triangles": 3292,
+      "stoppedSimTime": 3.16,
+      "mode": "Solo solver físico · un paso por reloj",
+      "active": {
+        "frames": [
+          66.69999999999709,
+          66.60000000000218,
+          83.39999999999782,
+          50,
+          83.30000000000291,
+          50,
+          83.39999999999782,
+          66.60000000000218,
+          66.69999999999709,
+          66.70000000000073,
+          66.60000000000218,
+          50,
+          83.29999999999927,
+          83.39999999999782,
+          116.60000000000218,
+          83.29999999999927,
+          50.099999999998545,
+          83.30000000000291,
+          16.69999999999709,
+          33.30000000000291,
+          66.69999999999709,
+          50,
+          83.30000000000291,
+          50,
+          83.29999999999927,
+          50,
+          66.70000000000073,
+          50,
+          83.29999999999927,
+          50,
+          66.70000000000073,
+          50,
+          133.29999999999927,
+          100,
+          16.599999999998545,
+          100.10000000000218,
+          99.89999999999782,
+          100,
+          16.700000000000728,
+          100,
+          100,
+          16.700000000000728,
+          66.59999999999854,
+          33.400000000001455,
+          66.70000000000073,
+          50,
+          83.29999999999927,
+          50,
+          83.29999999999927,
+          66.70000000000073,
+          133.29999999999927,
+          83.40000000000146,
+          66.59999999999854,
+          83.29999999999927,
+          50,
+          100,
+          50,
+          100,
+          50.10000000000218,
+          83.19999999999709,
+          16.80000000000291,
+          49.89999999999782,
+          66.70000000000073,
+          66.59999999999854,
+          66.70000000000073,
+          83.29999999999927,
+          83.40000000000146,
+          50,
+          83.29999999999927,
+          66.70000000000073,
+          133.29999999999927,
+          66.60000000000218,
+          66.69999999999709,
+          100,
+          16.700000000000728,
+          100,
+          100,
+          99.90000000000146,
+          133.39999999999782,
+          100,
+          100,
+          100,
+          33.30000000000291,
+          66.69999999999709,
+          50,
+          100,
+          99.90000000000146,
+          150.09999999999854,
+          100
+        ],
+        "measures": [
+          {
+            "physicsSubmitMs": 8.5,
+            "surfaceUpdateMs": 32.8,
+            "renderSubmitMs": 2.6,
+            "heapMiB": 39.7
+          },
+          {
+            "physicsSubmitMs": 7,
+            "surfaceUpdateMs": 36.9,
+            "renderSubmitMs": 1.5,
+            "heapMiB": 37
+          },
+          {
+            "physicsSubmitMs": 7.9,
+            "surfaceUpdateMs": 43.6,
+            "renderSubmitMs": 1.6,
+            "heapMiB": 33
+          },
+          {
+            "physicsSubmitMs": 5.4,
+            "surfaceUpdateMs": 46.7,
+            "renderSubmitMs": 1.4,
+            "heapMiB": 43
+          },
+          {
+            "physicsSubmitMs": 6.7,
+            "surfaceUpdateMs": 55.5,
+            "renderSubmitMs": 1.8,
+            "heapMiB": 37.8
+          },
+          {
+            "physicsSubmitMs": 5.3,
+            "surfaceUpdateMs": 53,
+            "renderSubmitMs": 1.7,
+            "heapMiB": 44.8
+          },
+          {
+            "physicsSubmitMs": 5.4,
+            "surfaceUpdateMs": 54.4,
+            "renderSubmitMs": 1.6,
+            "heapMiB": 45.7
+          },
+          {
+            "physicsSubmitMs": 5.1,
+            "surfaceUpdateMs": 52.3,
+            "renderSubmitMs": 1.5,
+            "heapMiB": 43.6
+          },
+          {
+            "physicsSubmitMs": 4.6,
+            "surfaceUpdateMs": 52.4,
+            "renderSubmitMs": 1.5,
+            "heapMiB": 36.8
+          },
+          {
+            "physicsSubmitMs": 6.7,
+            "surfaceUpdateMs": 68.1,
+            "renderSubmitMs": 3.8,
+            "heapMiB": 42.7
+          },
+          {
+            "physicsSubmitMs": 6.6,
+            "surfaceUpdateMs": 68,
+            "renderSubmitMs": 3.8,
+            "heapMiB": 45.2
+          },
+          {
+            "physicsSubmitMs": 5,
+            "surfaceUpdateMs": 52,
+            "renderSubmitMs": 3.5,
+            "heapMiB": 47.8
+          },
+          {
+            "physicsSubmitMs": 5.7,
+            "surfaceUpdateMs": 51,
+            "renderSubmitMs": 1.4,
+            "heapMiB": 35.2
+          },
+          {
+            "physicsSubmitMs": 6.2,
+            "surfaceUpdateMs": 57.4,
+            "renderSubmitMs": 1.8,
+            "heapMiB": 40.8
+          },
+          {
+            "physicsSubmitMs": 6.4,
+            "surfaceUpdateMs": 66.8,
+            "renderSubmitMs": 1.7,
+            "heapMiB": 35.1
+          },
+          {
+            "physicsSubmitMs": 5.6,
+            "surfaceUpdateMs": 53.9,
+            "renderSubmitMs": 3.3,
+            "heapMiB": 41.3
+          },
+          {
+            "physicsSubmitMs": 5.2,
+            "surfaceUpdateMs": 52.4,
+            "renderSubmitMs": 1.4,
+            "heapMiB": 38.6
+          },
+          {
+            "physicsSubmitMs": 4.8,
+            "surfaceUpdateMs": 53.2,
+            "renderSubmitMs": 1.6,
+            "heapMiB": 39.6
+          },
+          {
+            "physicsSubmitMs": 4.8,
+            "surfaceUpdateMs": 54.1,
+            "renderSubmitMs": 1.4,
+            "heapMiB": 44.6
+          },
+          {
+            "physicsSubmitMs": 6.3,
+            "surfaceUpdateMs": 68.9,
+            "renderSubmitMs": 3.5,
+            "heapMiB": 47.8
+          },
+          {
+            "physicsSubmitMs": 8.1,
+            "surfaceUpdateMs": 60.6,
+            "renderSubmitMs": 3.1,
+            "heapMiB": 48.3
+          },
+          {
+            "physicsSubmitMs": 5,
+            "surfaceUpdateMs": 63.8,
+            "renderSubmitMs": 1.7,
+            "heapMiB": 38.2
+          },
+          {
+            "physicsSubmitMs": 6.7,
+            "surfaceUpdateMs": 71.4,
+            "renderSubmitMs": 3.3,
+            "heapMiB": 25.6
+          },
+          {
+            "physicsSubmitMs": 5.8,
+            "surfaceUpdateMs": 69.7,
+            "renderSubmitMs": 3.7,
+            "heapMiB": 26.4
+          }
+        ],
+        "fps": 13.622726994428463,
+        "measuredSeconds": 6.533199999999997,
+        "simulatedSeconds": 2.91,
+        "dropped": 412,
+        "intervalMs": 100,
+        "view": "surface",
+        "quality": "balanced"
+      },
+      "heap": {
+        "usedSize": 14105028,
+        "totalSize": 89624576,
+        "embedderHeapUsedSize": 1738504,
+        "backingStorageSize": 7232949
+      }
+    },
+    {
+      "id": "float",
+      "displayedParticles": 80,
+      "triangles": 2536,
+      "stoppedSimTime": 3.35,
+      "mode": "Fluido + Jolt WASM · un paso por reloj",
+      "active": {
+        "frames": [
+          116.70000000000073,
+          116.59999999999854,
+          83.40000000000146,
+          100,
+          116.70000000000073,
+          100,
+          116.59999999999854,
+          83.40000000000146,
+          83.29999999999927,
+          66.70000000000073,
+          83.29999999999927,
+          83.29999999999927,
+          50,
+          83.29999999999927,
+          16.700000000000728,
+          33.29999999999927,
+          66.70000000000073,
+          66.70000000000073,
+          100,
+          83.29999999999927,
+          66.60000000000218,
+          66.79999999999927,
+          66.60000000000218,
+          49.89999999999418,
+          66.80000000000291,
+          49.900000000001455,
+          66.69999999999709,
+          66.70000000000437,
+          66.69999999999709,
+          50,
+          66.59999999999854,
+          66.70000000000437,
+          50,
+          66.59999999999854,
+          100.09999999999854,
+          66.59999999999854,
+          66.70000000000437,
+          50,
+          66.59999999999854,
+          50.099999999998545,
+          66.59999999999854,
+          66.59999999999854,
+          66.70000000000437,
+          66.69999999999709,
+          66.70000000000437,
+          49.89999999999418,
+          66.70000000000437,
+          66.69999999999709,
+          66.70000000000437,
+          66.59999999999854,
+          50,
+          66.69999999999709,
+          66.59999999999854,
+          50,
+          83.30000000000291,
+          50.099999999998545,
+          66.59999999999854,
+          50,
+          83.40000000000146,
+          50,
+          83.30000000000291,
+          50,
+          66.59999999999854,
+          83.40000000000146,
+          66.69999999999709,
+          33.200000000004366,
+          83.39999999999418,
+          66.70000000000437,
+          66.59999999999854,
+          50.099999999998545,
+          83.20000000000437,
+          66.69999999999709,
+          66.69999999999709,
+          50,
+          66.60000000000582,
+          66.69999999999709,
+          66.69999999999709,
+          50,
+          66.60000000000582,
+          66.69999999999709,
+          83.40000000000146,
+          50,
+          83.29999999999563,
+          50,
+          83.30000000000291,
+          50,
+          100,
+          100,
+          83.40000000000146,
+          66.59999999999854,
+          83.30000000000291,
+          50,
+          83.39999999999418,
+          83.30000000000291
+        ],
+        "measures": [
+          {
+            "physicsSubmitMs": 9.3,
+            "surfaceUpdateMs": 46.6,
+            "renderSubmitMs": 1.5,
+            "heapMiB": 34.2
+          },
+          {
+            "physicsSubmitMs": 9.6,
+            "surfaceUpdateMs": 39.9,
+            "renderSubmitMs": 2.8,
+            "heapMiB": 48.5
+          },
+          {
+            "physicsSubmitMs": 8.9,
+            "surfaceUpdateMs": 42.9,
+            "renderSubmitMs": 2.3,
+            "heapMiB": 54.1
+          },
+          {
+            "physicsSubmitMs": 9,
+            "surfaceUpdateMs": 44.3,
+            "renderSubmitMs": 2,
+            "heapMiB": 52.2
+          },
+          {
+            "physicsSubmitMs": 7,
+            "surfaceUpdateMs": 42.5,
+            "renderSubmitMs": 2.2,
+            "heapMiB": 25.7
+          },
+          {
+            "physicsSubmitMs": 9.3,
+            "surfaceUpdateMs": 43,
+            "renderSubmitMs": 2.5,
+            "heapMiB": 36.7
+          },
+          {
+            "physicsSubmitMs": 6,
+            "surfaceUpdateMs": 39,
+            "renderSubmitMs": 1.4,
+            "heapMiB": 28.6
+          },
+          {
+            "physicsSubmitMs": 6.5,
+            "surfaceUpdateMs": 40.8,
+            "renderSubmitMs": 1.4,
+            "heapMiB": 36
+          },
+          {
+            "physicsSubmitMs": 12.1,
+            "surfaceUpdateMs": 39.6,
+            "renderSubmitMs": 1.4,
+            "heapMiB": 42.2
+          },
+          {
+            "physicsSubmitMs": 6.7,
+            "surfaceUpdateMs": 37.6,
+            "renderSubmitMs": 1.3,
+            "heapMiB": 50
+          },
+          {
+            "physicsSubmitMs": 5.9,
+            "surfaceUpdateMs": 36,
+            "renderSubmitMs": 1.9,
+            "heapMiB": 36.7
+          },
+          {
+            "physicsSubmitMs": 5.9,
+            "surfaceUpdateMs": 35.5,
+            "renderSubmitMs": 2.5,
+            "heapMiB": 41.4
+          },
+          {
+            "physicsSubmitMs": 5.7,
+            "surfaceUpdateMs": 35.3,
+            "renderSubmitMs": 2.6,
+            "heapMiB": 46.4
+          },
+          {
+            "physicsSubmitMs": 6.4,
+            "surfaceUpdateMs": 34.7,
+            "renderSubmitMs": 2.2,
+            "heapMiB": 55.9
+          },
+          {
+            "physicsSubmitMs": 5.7,
+            "surfaceUpdateMs": 36.2,
+            "renderSubmitMs": 3.3,
+            "heapMiB": 29.7
+          },
+          {
+            "physicsSubmitMs": 7.2,
+            "surfaceUpdateMs": 40.5,
+            "renderSubmitMs": 2.3,
+            "heapMiB": 38.7
+          },
+          {
+            "physicsSubmitMs": 7.4,
+            "surfaceUpdateMs": 38.8,
+            "renderSubmitMs": 2.1,
+            "heapMiB": 45.6
+          },
+          {
+            "physicsSubmitMs": 6.2,
+            "surfaceUpdateMs": 36.2,
+            "renderSubmitMs": 2.2,
+            "heapMiB": 55.2
+          },
+          {
+            "physicsSubmitMs": 6.8,
+            "surfaceUpdateMs": 38.7,
+            "renderSubmitMs": 1.9,
+            "heapMiB": 29.8
+          },
+          {
+            "physicsSubmitMs": 6.3,
+            "surfaceUpdateMs": 35.3,
+            "renderSubmitMs": 3.3,
+            "heapMiB": 38.6
+          },
+          {
+            "physicsSubmitMs": 6.9,
+            "surfaceUpdateMs": 40.1,
+            "renderSubmitMs": 2.3,
+            "heapMiB": 45.3
+          },
+          {
+            "physicsSubmitMs": 6.8,
+            "surfaceUpdateMs": 37.8,
+            "renderSubmitMs": 1.4,
+            "heapMiB": 37
+          },
+          {
+            "physicsSubmitMs": 8.9,
+            "surfaceUpdateMs": 43.4,
+            "renderSubmitMs": 1.5,
+            "heapMiB": 43.9
+          },
+          {
+            "physicsSubmitMs": 6,
+            "surfaceUpdateMs": 36.9,
+            "renderSubmitMs": 4.8,
+            "heapMiB": 43.9
+          }
+        ],
+        "fps": 14.388048735688482,
+        "measuredSeconds": 6.533200000000001,
+        "simulatedSeconds": 3.1100000000000003,
+        "dropped": 375,
+        "intervalMs": 100,
+        "view": "surface",
+        "quality": "balanced"
+      },
+      "heap": {
+        "usedSize": 16249972,
+        "totalSize": 89624576,
+        "embedderHeapUsedSize": 5569024,
+        "backingStorageSize": 11403765
+      }
+    }
+  ],
+  "heapAfter20Transitions": {
+    "usedSize": 44224624,
+    "totalSize": 89886720,
+    "embedderHeapUsedSize": 9324016,
+    "backingStorageSize": 13876073
+  },
+  "transitions": 20,
+  "errors": [],
+  "responses": [],
+  "humanVisualAcceptance": false
+}

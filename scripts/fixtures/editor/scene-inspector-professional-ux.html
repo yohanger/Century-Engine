@@ -1,0 +1,75 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Inspector de escena</title><style>#app{width:340px;height:650px}pre{white-space:pre-wrap}</style></head><body><div id="app"></div><pre id="scene-inspector-professional-result">Cargando…</pre>
+<script>
+(() => {
+  const out = document.getElementById('scene-inspector-professional-result')
+  const checks = []
+  let stage = 'bootstrap', finished = false
+  const progress = next => {
+    if (finished) return
+    stage = next
+    out.dataset.stage = stage
+    out.dataset.checks = String(checks.length)
+    out.textContent = JSON.stringify({stage, checks}, null, 2)
+  }
+  const finish = (pass, error) => {
+    if (finished && (!error || out.dataset.pass === 'false')) return
+    finished = true
+    out.dataset.pass = String(pass)
+    out.textContent = JSON.stringify({pass, stage, checks, ...(error ? {error:String(error.stack || error)} : {gl:'WebGL2'})}, null, 2)
+  }
+  const fail = error => finish(false, error || 'Error sin detalle')
+  window.addEventListener('error', event => {
+    if (event.error || event.message) fail(event.error || `${event.message} (${event.filename}:${event.lineno}:${event.colno})`)
+    else if (event.target?.tagName === 'SCRIPT') fail(`No se pudo cargar el script: ${event.target.src || '(inline)'}`)
+  }, true)
+  window.addEventListener('unhandledrejection', event => fail(event.reason))
+  window.__sceneInspectorQA = {checks, progress, finish, fail}
+  progress('bootstrap')
+})()
+</script>
+<script type="module">
+const {checks, progress, finish, fail} = window.__sceneInspectorQA
+const check = (name, pass) => { checks.push({name,pass:!!pass}); progress(`check:${checks.length}:${name}`); if (!pass) throw Error(name) }
+let nextTick
+const tick=async()=>{await nextTick();await new Promise(r=>requestAnimationFrame(r));await nextTick();await new Promise(r=>requestAnimationFrame(r));await nextTick()}
+const q=s=>document.querySelector('#app '+s),sec=id=>q(`[data-scene-fold="${id}"]`),head=id=>sec(id).querySelector(':scope > summary')
+const visible=el=>!!el&&el.getClientRects().length>0
+let app,renderer
+try {
+ progress('import:styles'); await import('/src/styles.css')
+ progress('import:three'); const THREE = await import('three')
+ progress('import:vue'); const vue = await import('vue'); const {createApp} = vue; nextTick = vue.nextTick
+ progress('import:InspectorDock'); const {default:InspectorDock} = await import('/src/components/InspectorDock.vue')
+ progress('import:ColorInput'); const {default:ColorInput} = await import('/src/components/ColorInput.vue')
+ progress('import:store'); const {store} = await import('/src/core/store.js')
+ progress('import:project'); const {createProjectData} = await import('/src/core/project.js')
+ progress('webgl'); renderer=new THREE.WebGLRenderer({antialias:false});renderer.setSize(16,16);renderer.render(new THREE.Scene(),new THREE.PerspectiveCamera())
+ progress('project'); store.project=createProjectData('QA Scene');store.project.objects=[];store.selectedId=null;store.selectedIds=[];store.sceneSel=true;store.projSel=null;store.edit.on=false;store.paint.on=false;store.prefs.inspFold={};store.prefs.rightTab='object';store.locked=false
+ store.project.environment.lightingMode='cycle';store.project.environment.time.on=true;store.project.environment.time.hour=12
+ store.editor={syncEnvironment(){},snapshotTerrain(){return []}}
+ const mount=()=>{progress('mount');app=createApp(InspectorDock,{pane:'object'});app.config.errorHandler=(error)=>{fail(error);throw error};app.component('ColorInput',ColorInput);app.mount('#app')}
+ mount();await tick()
+ check('Vue y WebGL',!!q('[data-scene-inspector]')&&renderer.capabilities.isWebGL2)
+ check('Sin encabezado redundante',!q('.scenehead')&&q('.details-title').textContent.includes(store.project.scenes[0].name))
+ check('Tres autoridades',q('[data-scene-inspector]').querySelectorAll('[data-owner-group]').length===3)
+ check('Iconos nativos',!!head('world-celestial').querySelector('svg'))
+ head('world-level').click();await tick();check('Plegado nativo persistente',sec('world-level').open&&store.prefs.inspFold['fold:scene:world-level']===false)
+ app.unmount();mount();await tick();check('Plegado al remontar',sec('world-level').open)
+ head('world-level').click();await tick();check('Plegado restaurado',!sec('world-level').open)
+ const search=q('input[type=search]');const find=async v=>{search.value=v;search.dispatchEvent(new Event('input',{bubbles:true}));await tick()}
+ const before=JSON.stringify(store.prefs.inspFold);await find('EXPOSICION');check('Búsqueda por campo y acentos',visible(sec('world-sky'))&&sec('world-sky').open&&!visible(sec('game-manager')))
+ check('Búsqueda no modifica preferencia',JSON.stringify(store.prefs.inspFold)===before)
+ await find('imposible-xyz');check('Sin resultados',visible(q('.details-empty')))
+ await find('');check('Restauración de preferencias',visible(sec('game-manager'))&&!sec('world-level').open)
+ const slider=q('[data-testid=scene-clock] input[type=range]');check('Ciclo y campo numérico',visible(slider)&&!!q('[data-testid=scene-clock] .nf input'))
+ slider.value='18';slider.dispatchEvent(new Event('input',{bubbles:true}));await tick();check('Hora interactiva real',store.project.environment.time.hour===18&&q('.clock-head').textContent.includes('18:00'))
+ store.project.environment.lightingMode='manual';await tick();check('Modo manual conserva condiciones',!q('[data-testid=scene-clock]'))
+ store.project.environment.lightingMode='cycle';await tick();check('Ciclo conserva hora',q('.clock-head').textContent.includes('18:00'))
+ store.project.environment.weather.on=true;await tick();check('Aviso de autoridad',q('[data-authority=weather]').textContent.includes('World controla'))
+ document.getElementById('app').style.width='240px';await tick();check('Panel estrecho sin desbordamiento',q('[data-scene-inspector]').scrollWidth<=q('[data-scene-inspector]').clientWidth+1)
+ check('Control numérico responsivo',visible(q('[data-testid=scene-clock] .nf input')))
+ check('Sin errores WebGL',renderer.getContext().getError()===renderer.getContext().NO_ERROR)
+ const pass=checks.length === 19 && checks.every(c=>c.pass);finish(pass,pass?undefined:Error('Comprobaciones incompletas'))
+} catch(error){fail(error)}
+finally{try{app?.unmount()}catch(error){fail(error)};try{renderer?.dispose()}catch(error){fail(error)}}
+</script></body></html>

@@ -1,0 +1,180 @@
+{
+  "gate": "CENTURY-EDITOR-UX-S04-G001-UNDO-CONTEXT-AND-MOUSE-SENSITIVITY",
+  "baseline": "CENTURY_EDITOR_SESSION_S01_G001_SOURCE_BASELINE.zip",
+  "baseline_sha256": "4c7c9a15b839f6e1d785fae72acb25fa2841a2714d91b3d889aad76c0df28a74",
+  "baseline_files": 4017,
+  "files": [
+    {
+      "path": "docs/architecture/CENTURY-EDITOR-UX-S04-G001-UNDO-CONTEXT-AND-MOUSE-SENSITIVITY_IMPLEMENTATION.md",
+      "before_sha256": null,
+      "after_sha256": "6ee72177bf66ffe00969ec9e88cc6a6ffb14a85202c8e63496c4648c4ce4a89a"
+    },
+    {
+      "path": "docs/ledger/CE_EDITOR_UX_S04_G001_LEDGER.xlsx",
+      "before_sha256": null,
+      "after_sha256": "f63d8a7a397b6f632870de415779c652b54cb96b0b3aa6fd46335d7b89f0a5b6"
+    },
+    {
+      "path": "docs/qa/CENTURY-EDITOR-UX-S04-G001-UNDO-CONTEXT-AND-MOUSE-SENSITIVITY_QA.md",
+      "before_sha256": null,
+      "after_sha256": "103313506d9e0120e5edba78070df5d3e1983d7d010cf085c433ea239b8b6012"
+    },
+    {
+      "path": "docs/qa/evidence/CENTURY-EDITOR-UX-S04-G001-UNDO-CONTEXT-AND-MOUSE-SENSITIVITY/build-blocked.log",
+      "before_sha256": null,
+      "after_sha256": "ad93033e7f39a0f04a1ed40edf91f741c64cfbf9fa5ed37ad17f38e46626cd7c"
+    },
+    {
+      "path": "docs/qa/evidence/CENTURY-EDITOR-UX-S04-G001-UNDO-CONTEXT-AND-MOUSE-SENSITIVITY/electron-blocked.log",
+      "before_sha256": null,
+      "after_sha256": "e1495cea5b4b89f165adf7547d0df109eade90fb8a473d63611dd20d303fad38"
+    },
+    {
+      "path": "docs/qa/evidence/CENTURY-EDITOR-UX-S04-G001-UNDO-CONTEXT-AND-MOUSE-SENSITIVITY/focal-node.log",
+      "before_sha256": null,
+      "after_sha256": "ae292fa00138ad97845e1a33ff95ed31212b391e5d4f55c895d416486475df10"
+    },
+    {
+      "path": "docs/qa/evidence/CENTURY-EDITOR-UX-S04-G001-UNDO-CONTEXT-AND-MOUSE-SENSITIVITY/regression-after.log",
+      "before_sha256": null,
+      "after_sha256": "235883d3434f6637e38139efaf52270decb64279567648daa41ce1330b9684e9"
+    },
+    {
+      "path": "docs/qa/evidence/CENTURY-EDITOR-UX-S04-G001-UNDO-CONTEXT-AND-MOUSE-SENSITIVITY/regression-before.log",
+      "before_sha256": null,
+      "after_sha256": "79640df94407993b8ab927e6395f3804b4be82aad78370d153dc3c9ec9c02a9a"
+    },
+    {
+      "path": "docs/qa/evidence/CENTURY-EDITOR-UX-S04-G001-UNDO-CONTEXT-AND-MOUSE-SENSITIVITY/regression-command.txt",
+      "before_sha256": null,
+      "after_sha256": "3632960aa7b79048b779c8f6ea9c1b37bc0e8991a22b7b290fd79fd4ac946374"
+    },
+    {
+      "path": "docs/qa/evidence/CENTURY-EDITOR-UX-S04-G001-UNDO-CONTEXT-AND-MOUSE-SENSITIVITY/syntax.log",
+      "before_sha256": null,
+      "after_sha256": "141291d8b92acb28a734175dc4ef48bb374c00b17c49d6691e834713d32a55f8"
+    },
+    {
+      "path": "docs/qa/evidence/CENTURY-EDITOR-UX-S04-G001-UNDO-CONTEXT-AND-MOUSE-SENSITIVITY/toml-blocked.log",
+      "before_sha256": null,
+      "after_sha256": "d50261ce8a481acf0c8228f1ba1f614ee1dfd8a4397c48eb3d3ba3d9012e15da"
+    },
+    {
+      "path": "electron/editor-config.cjs",
+      "before_sha256": "9ea14ccaa26804e99513ffe17c16d78528fca1f316b2369dfbf02b2f113e65c2",
+      "after_sha256": "705fae86aa0ce7a8511b20719debcd9d379611d2bc3dd6a2e5ce9faa6b0616e0"
+    },
+    {
+      "path": "electron/editor.toml",
+      "before_sha256": "ea3823de066202d8f39abbd19f5119713e91f686f8ef7459ca1f7f2e62d5a1d8",
+      "after_sha256": "745b4dbb63175814806d477ea2d73c7968e389ac4ce57884dce3dde71864e9c6"
+    },
+    {
+      "path": "scripts/fixtures/editor/undo-context-and-mouse-sensitivity.html",
+      "before_sha256": null,
+      "after_sha256": "da9ff41fd7785f7378dabbbb409ccda4c2e739d935396ebb09272b31981fd616"
+    },
+    {
+      "path": "scripts/qa-suites.json",
+      "before_sha256": "998a82b5961ef9f12180e8a75c0843adc7f5c0aaeb0c318bddaf2512796e7e18",
+      "after_sha256": "f822c130317c3cb7772bdf5cfe564037b5a57fd28b06e58d7768b3ec8464e558"
+    },
+    {
+      "path": "scripts/test-editable-subtract-csg.mjs",
+      "before_sha256": "260294b33c31665066082eab372036faabea0abb95168509b2b89a779d0d06b0",
+      "after_sha256": "08dcc6b08db599c24cf6cb7f99d66b5c295ace27827c46b557cc6d7faa427717"
+    },
+    {
+      "path": "scripts/test-editor-mouse-sensitivity-config.mjs",
+      "before_sha256": null,
+      "after_sha256": "eb87089c179c9cee03ae4736f61c75bbf9be8c3b4403f15800020ca86d7c3434"
+    },
+    {
+      "path": "scripts/test-editor-property-readability-s01-g001.mjs",
+      "before_sha256": "0bc9eaeda5e827ecd7aab3bb5728359c4be2eda4e472bde2154864164cddc199",
+      "after_sha256": "cf9c8ae089f68d758dc315b177c73adddf8669f1304677009f136617a1013873"
+    },
+    {
+      "path": "scripts/test-editor-ux-hub-gizmos-g001.mjs",
+      "before_sha256": "1db4359fe6fd31d163a9ca6f4822db8ab1fa9144913e63ed961b15680767c344",
+      "after_sha256": "c7257d7d586150cc929bae6a10f7b0c553a94838729a41663583f59f74c5653c"
+    },
+    {
+      "path": "scripts/test-editor-viewbar-ux-g001.mjs",
+      "before_sha256": "d3bc1322e4d9eddb676a05571fb5cb7de1c252a2a16c75fd837c38c2e0931e73",
+      "after_sha256": "5acd65f0a72bca833eae9aa1a0e2a16aaaa6079ea42d2a9e759b30af08726ef4"
+    },
+    {
+      "path": "scripts/test-editor-viewport-controls-s02-g001-integral.mjs",
+      "before_sha256": "7c8902c2c81d4db08044e3ebe58bfcfdb11dae74546fe17609642d0f0eb4eeff",
+      "after_sha256": "afdc2b5bc9a06467b61f5655cee2464776983eb452b8b85a7a9498c55e6e55e9"
+    },
+    {
+      "path": "scripts/test-three-s04-g002.mjs",
+      "before_sha256": "d8fd0ed2797750694fe24327f6097e21913875c151bd5a9c4401f182d0b0d647",
+      "after_sha256": "730b6566d1ce28a0ccd9786e516cfc4b7d06b7df7b4470755eb56a28010fadb4"
+    },
+    {
+      "path": "scripts/test-undo-context-and-mouse-sensitivity-electron.mjs",
+      "before_sha256": null,
+      "after_sha256": "86f04ea8b69ca087777b061ca24846e1a0f2ff8d3cf6b123ae7487ac1da516ed"
+    },
+    {
+      "path": "scripts/test-undo-context-and-mouse-sensitivity.mjs",
+      "before_sha256": null,
+      "after_sha256": "170d312ffe5117343aaa19db15d545bbcb9ae793e9d80a736763ca81e81b57da"
+    },
+    {
+      "path": "src/components/PreferencesModal.vue",
+      "before_sha256": "cfe8397b8b3160fa7f21b4fd7de2d74701913a47123d47046c1e8c766a54433f",
+      "after_sha256": "9f436f86e6061817092acaa6985e51ea69f16c8778ab672408e76747a056921a"
+    },
+    {
+      "path": "src/components/SceneRuntimeObserver.vue",
+      "before_sha256": "05b0e6417787dbe1e7b3853156de1b5a934c0fbf6ead95571d1c9b01b6f90ba3",
+      "after_sha256": "f3a7ec4157d9dc5b7111606a7a0dabdd2c13fa38101a88bfc3d8d7ec5e5a2d42"
+    },
+    {
+      "path": "src/core/editor.js",
+      "before_sha256": "582f068d5b7735376b0e3439da6554018a2f9a4516cf5386656f7feafdb19e91",
+      "after_sha256": "7662162d82050e3e97218c78adb8d5ba632600a2e74e44f157538c9a209aa69b"
+    },
+    {
+      "path": "src/core/editor/appearance.js",
+      "before_sha256": "0480624e384a7d26a5f9f93d34ddf2e454dcfe62e0a86a29cbaa5b70e39f0268",
+      "after_sha256": "ca5d2ab29ebc41a5b470bc7e7cea50fa1efc7eeac742dc7dcbd4e64220a433d4"
+    },
+    {
+      "path": "src/core/editor/keys.js",
+      "before_sha256": "1168a2fe0f89c52a3ba2d1da3e01858c4c19504a8d40650936ff3dd18f6925be",
+      "after_sha256": "728d18ec0e50ccf5f14f0a42689337d7ca8f28d457f2cb7d77b25d8167723956"
+    },
+    {
+      "path": "src/core/editor/meshedit.js",
+      "before_sha256": "4b643b9456da8660fc323adb64ee137572697e017b936e81669ae50c782713f9",
+      "after_sha256": "b42686ccfae8850c2eabf5389460215a03aceb8f64f0121db00fcb476c725168"
+    },
+    {
+      "path": "src/core/editor/mouse-sensitivity.js",
+      "before_sha256": null,
+      "after_sha256": "bb19db4c6209837b4a023c10f2314e96861a52a5baeabb857ece3df65181e473"
+    },
+    {
+      "path": "src/core/mesh/session.js",
+      "before_sha256": "213a305e09e4d651f26f3c4280cadcf7e0e73fce21caee9cae1fe1aec11490ed",
+      "after_sha256": "a45224962fcbec49c2cbe2b6e12b2211b1f425aa942ee2ff32490fbbd7a81e97"
+    },
+    {
+      "path": "src/core/state/history.js",
+      "before_sha256": "1f8411c8ad74cc6ac4da36f43b9df8eaada441cb87cd51982b10acdb5247cd24",
+      "after_sha256": "77f815a34a18a273f62b9bef30c4b2717de1873f287a68c4c92b7bbeff7d9b92"
+    },
+    {
+      "path": "src/core/state/state.js",
+      "before_sha256": "696f10dbc002f5fda79ead12d7dcc481290cd2be5f4886386c05b39b8791bd8f",
+      "after_sha256": "fa6e2cb9be8e51f61b3148b8533ba6663077985b77f24b66d58dd7296df86530"
+    }
+  ],
+  "manifest_self_excluded": true,
+  "removed": []
+}

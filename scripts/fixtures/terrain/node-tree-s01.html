@@ -1,0 +1,53 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Terrain Node S01 — Electron QA</title></head>
+<body style="background:#15191e;color:#ddd"><pre id="terrain-node-s01-result">Cargando...</pre><div id="app" style="width:340px;height:400px"></div>
+<script type="module">
+import * as THREE from 'three'
+import {createApp, nextTick} from 'vue'
+import SceneTree from '/src/components/SceneTree.vue'
+import {store, syncPieces} from '/src/core/store.js'
+import {getDef, allDefs} from '/src/engine/runtime/nodes/index.js'
+import {shiftANodeCatalog} from '/src/core/add-menu-catalog.js'
+const out=document.querySelector('#terrain-node-s01-result'),checks=[]
+const check=(name,pass,detail='')=>{checks.push({name,pass:!!pass,detail});if(!pass)throw new Error(`${name}: ${detail}`)}
+let app,renderer
+try {
+ const scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(65,1,.1,30)
+ renderer=new THREE.WebGLRenderer({antialias:false});renderer.setSize(16,16)
+ renderer.render(scene,camera)
+ check('Electron WebGL2 válido',renderer.capabilities.isWebGL2)
+ const t1={id:'t1',name:'Terreno A',ox:0,oz:0,size:32,segments:64,enabled:true,version:0}
+ const t2={id:'t2',name:'Terreno B',ox:32,oz:0,size:32,segments:64,enabled:true,version:0}
+ const terrains=[t1,t2]
+ const ed={terrains,_id:'t1',get terrain(){return this.terrains.find(t=>t.id===this._id)},setActivePiece(id){this._id=id},afterPiecesChanged(){},applyView(){},setSelection(){},syncObject(){},removeObject(){},snapshotTerrain(){return {id:t1.id,enabled:t1.enabled,extra:[{id:t2.id,enabled:t2.enabled}]}},vp:{requestRender(){}}}
+ store.project={id:'test',activeSceneId:'s1',scenes:[{id:'s1',name:'Escena 1'}],objects:[{id:'o1',name:'Cubo',type:'primitive',kind:'box',open:true,parentId:null,visible:true,locked:false}],terrain:{enabled:true},scripts:[]}
+ store.editor=ed
+ syncPieces()
+ store.activePieceId='t1';store.selectedId=null;store.selectedIds=[];store.terrainSel=false;store.sceneSel=true
+ store.prefs.rightTab='object'
+ app=createApp(SceneTree);app.mount('#app');await nextTick()
+ let rows=[...document.querySelectorAll('.list .row[data-id]')]
+ check('terrenos y objeto como nodos reales en el mismo árbol',rows.length===3 && ['o1','t1','t2'].every(id=>rows.some(r=>r.dataset.id===id)))
+ check('registro Terrain con categoría Ambiente',getDef('terrain')?.category==='Ambiente')
+ check('Shift+A deriva Terreno del registro real',shiftANodeCatalog(allDefs()).some(x=>x.type==='terrain' && x.category==='Ambiente'))
+ check('no existe fila de terreno fuera de la lista',!document.querySelector('.terrow') && document.querySelectorAll('.list').length===1)
+ rows[1].dispatchEvent(new MouseEvent('click',{bubbles:true}));await nextTick()
+ check('click de terreno abre su panel e ID real',store.terrainSel && store.activePieceId==='t2' && store.selectedId==='t2' && store.prefs.rightTab==='object')
+ check('la pieza queda seleccionada visualmente',document.querySelector('[data-id="t2"]').classList.contains('sel'))
+ const hide=document.querySelector('[data-id="t2"] button[data-tooltip="Ocultar"]')
+ hide?.dispatchEvent(new MouseEvent('click',{bubbles:true}));await nextTick()
+ check('ocultar afecta solo al render de la pieza',t1.enabled && t2.enabled && !t2.visible && store.project.terrain.enabled)
+ check('la pieza sigue en el árbol, sin perder datos',!!document.querySelector('[data-id="t2"]') && terrains.length===2)
+ document.querySelector('[data-id="t2"] button[data-tooltip="Mostrar"]')?.dispatchEvent(new MouseEvent('click',{bubbles:true}));await nextTick()
+ check('restaurar visibilidad mantiene su ID',t2.enabled && t2.visible && store.pieces[1].id==='t2')
+ document.querySelector('[data-id="o1"]')?.dispatchEvent(new MouseEvent('click',{bubbles:true}));await nextTick()
+ check('selección de objeto normal sigue funcionando',store.selectedId==='o1' && !store.terrainSel)
+ check('nodos reales ligados a los IDs físicos, sin duplicar alturas',store.project.objects.length===3 && store.project.objects.filter(o=>o.type==='terrain').every(o=>o.props.terrainId===o.id && !('heights' in o)))
+ t1.enabled=false;syncPieces();await nextTick()
+ check('pieza inactiva no deja fantasma en jerarquía',!document.querySelector('[data-id="t1"]') && store.project.objects.filter(o=>o.type==='terrain').length===1)
+ t1.enabled=true;syncPieces();await nextTick()
+ check('reactivar pieza recupera nodo sin duplicados',store.project.objects.filter(o=>o.type==='terrain').length===2)
+ check('sin errores GPU',renderer.getContext().getError()===renderer.getContext().NO_ERROR)
+ out.dataset.pass='true';out.textContent=JSON.stringify({pass:true,gl:renderer.getContext().getParameter(renderer.getContext().VERSION),checks},null,2)
+}catch(err){out.dataset.pass='false';out.textContent=JSON.stringify({pass:false,checks,error:String(err?.stack||err)},null,2)}
+finally{app?.unmount();renderer?.dispose()}
+</script></body></html>

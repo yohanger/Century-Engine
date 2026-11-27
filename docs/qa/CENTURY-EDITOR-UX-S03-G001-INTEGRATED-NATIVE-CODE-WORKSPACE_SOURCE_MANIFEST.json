@@ -1,0 +1,35 @@
+{
+  "gate": "CENTURY-EDITOR-UX-S03-G001-INTEGRATED-NATIVE-CODE-WORKSPACE",
+  "authority": "CE-EDITOR-UX-CA-002-INTEGRATED-CODE-WORKSPACE-AUTHORITY",
+  "source": "CORR-005 SOURCE_BASELINE",
+  "baseline_files": 3315,
+  "modified_files": [
+    "docs/qa/LevelForge_DB_Ledger.xlsx",
+    "scripts/test-editor-docking-s03-g001-integral.mjs",
+    "scripts/test-script-editor-godot-ux-s04-g001-integral.mjs",
+    "scripts/test-viewport-docking-and-camera-loopcut-s02-g001.mjs",
+    "scripts/test-vscode-default-script-editor-s02-g001.mjs",
+    "src/App.vue",
+    "src/components/DockTree.vue",
+    "src/components/FloatingEditorWindow.vue",
+    "src/components/ScriptEditor.vue",
+    "src/components/Toolbar.vue",
+    "src/core/editor/docking.js",
+    "src/core/editor/view-dock-session.js",
+    "src/core/state/database.js"
+  ],
+  "new_files": [
+    "docs/architecture/CE-EDITOR-UX-CA-002-INTEGRATED-CODE-WORKSPACE-AUTHORITY_AMENDMENT.md",
+    "docs/architecture/CENTURY-EDITOR-UX-S03-G001-INTEGRATED-NATIVE-CODE-WORKSPACE_IMPLEMENTATION.md",
+    "docs/qa/CENTURY-EDITOR-UX-S03-G001-INTEGRATED-NATIVE-CODE-WORKSPACE_BASELINE_COMPARISON.log",
+    "docs/qa/CENTURY-EDITOR-UX-S03-G001-INTEGRATED-NATIVE-CODE-WORKSPACE_BUILD.log",
+    "docs/qa/CENTURY-EDITOR-UX-S03-G001-INTEGRATED-NATIVE-CODE-WORKSPACE_CODE_TESTS.log",
+    "docs/qa/CENTURY-EDITOR-UX-S03-G001-INTEGRATED-NATIVE-CODE-WORKSPACE_EVIDENCE.md",
+    "docs/qa/CENTURY-EDITOR-UX-S03-G001-INTEGRATED-NATIVE-CODE-WORKSPACE_REGRESSION.log",
+    "scripts/test-code-workspace-integration.mjs"
+  ],
+  "deleted_files": [],
+  "test_status": "Node Code 10/10 PASS; focused 97/99; extended 146/153 (7 inherited failures)",
+  "build": "NO COMPILADO; vite: not found",
+  "qa_visual": "NO VERIFICADO"
+}

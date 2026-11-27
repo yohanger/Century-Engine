@@ -1,0 +1,476 @@
+{
+  "url": "http://127.0.0.1:4174/",
+  "browser": "158.0.8127.42",
+  "mode": "headful",
+  "viewport": [
+    1280,
+    800
+  ],
+  "renderer": "ANGLE (Intel, Mesa Intel(R) UHD Graphics 605 (GLK 3), OpenGL 4.6 (Core Profile) Mesa 25.0.7-0ubuntu0.24.04.2)",
+  "device": {
+    "vendorId": 32902,
+    "deviceId": 12676,
+    "vendorString": "Google Inc. (Intel)",
+    "deviceString": "ANGLE (Intel, Mesa Intel(R) UHD Graphics 605 (GLK 3), OpenGL 4.6 (Core Profile) Mesa 25.0.7-0ubuntu0.24.04.2)",
+    "driverVendor": "Mesa",
+    "driverVersion": "25.0.7"
+  },
+  "scenes": [
+    {
+      "id": "tank",
+      "displayedParticles": 64,
+      "triangles": 1692,
+      "stoppedSimTime": 1.04,
+      "mode": "Solo solver físico · un paso por reloj",
+      "active": {
+        "frames": [
+          66.70000000000073,
+          500,
+          533.2999999999993,
+          599.9000000000015,
+          699.8999999999996,
+          683.2999999999993,
+          750,
+          1016.6000000000004,
+          700,
+          766.6000000000004,
+          899.9999999999982
+        ],
+        "measures": [
+          {
+            "physicsSubmitMs": 8.8,
+            "surfaceUpdateMs": 199.3,
+            "renderSubmitMs": 3.3,
+            "heapMiB": 16.9
+          },
+          {
+            "physicsSubmitMs": 8.5,
+            "surfaceUpdateMs": 469,
+            "renderSubmitMs": 12.9,
+            "heapMiB": 24.8
+          },
+          {
+            "physicsSubmitMs": 8.1,
+            "surfaceUpdateMs": 552.5,
+            "renderSubmitMs": 10.4,
+            "heapMiB": 21.6
+          },
+          {
+            "physicsSubmitMs": 6.3,
+            "surfaceUpdateMs": 658.2,
+            "renderSubmitMs": 11.3,
+            "heapMiB": 18.5
+          },
+          {
+            "physicsSubmitMs": 5.8,
+            "surfaceUpdateMs": 637.6,
+            "renderSubmitMs": 18.9,
+            "heapMiB": 23.7
+          },
+          {
+            "physicsSubmitMs": 5.9,
+            "surfaceUpdateMs": 685.3,
+            "renderSubmitMs": 14.4,
+            "heapMiB": 23.7
+          },
+          {
+            "physicsSubmitMs": 19.9,
+            "surfaceUpdateMs": 837.8,
+            "renderSubmitMs": 65,
+            "heapMiB": 24.5
+          },
+          {
+            "physicsSubmitMs": 5.6,
+            "surfaceUpdateMs": 617.1,
+            "renderSubmitMs": 29.5,
+            "heapMiB": 21.9
+          },
+          {
+            "physicsSubmitMs": 6.3,
+            "surfaceUpdateMs": 707.9,
+            "renderSubmitMs": 29.1,
+            "heapMiB": 27.1
+          },
+          {
+            "physicsSubmitMs": 6,
+            "surfaceUpdateMs": 839.9,
+            "renderSubmitMs": 23.4,
+            "heapMiB": 28
+          },
+          {
+            "physicsSubmitMs": 6.7,
+            "surfaceUpdateMs": 693.4,
+            "renderSubmitMs": 11.4,
+            "heapMiB": 24
+          }
+        ],
+        "fps": 1.5243268711112345,
+        "measuredSeconds": 7.2162999999999995,
+        "simulatedSeconds": 0.53,
+        "dropped": 274,
+        "intervalMs": 500,
+        "view": "both",
+        "quality": "balanced"
+      },
+      "heap": {
+        "usedSize": 23905364,
+        "totalSize": 33787904,
+        "embedderHeapUsedSize": 3317656,
+        "backingStorageSize": 7382084
+      }
+    },
+    {
+      "id": "dam",
+      "displayedParticles": 100,
+      "triangles": 3088,
+      "stoppedSimTime": 1.17,
+      "mode": "Solo solver físico · un paso por reloj",
+      "active": {
+        "frames": [
+          66.69999999999709,
+          50,
+          266.6999999999971,
+          50,
+          49.900000000001455,
+          50,
+          50,
+          50,
+          499.90000000000146,
+          550.0999999999985,
+          583.2000000000044,
+          583.3999999999942,
+          583.2000000000044,
+          600,
+          583.2999999999956,
+          566.6000000000058,
+          583.2999999999956,
+          666.5999999999985,
+          633.3000000000029
+        ],
+        "measures": [
+          {
+            "physicsSubmitMs": 7.3,
+            "surfaceUpdateMs": 209.6,
+            "renderSubmitMs": 1.8,
+            "heapMiB": 34.9
+          },
+          {
+            "physicsSubmitMs": 11.3,
+            "surfaceUpdateMs": 210.7,
+            "renderSubmitMs": 1.7,
+            "heapMiB": 25
+          },
+          {
+            "physicsSubmitMs": 9,
+            "surfaceUpdateMs": 498.5,
+            "renderSubmitMs": 8.4,
+            "heapMiB": 31.2
+          },
+          {
+            "physicsSubmitMs": 8.6,
+            "surfaceUpdateMs": 531.3,
+            "renderSubmitMs": 6.9,
+            "heapMiB": 35.4
+          },
+          {
+            "physicsSubmitMs": 8.3,
+            "surfaceUpdateMs": 529.2,
+            "renderSubmitMs": 7.1,
+            "heapMiB": 26.4
+          },
+          {
+            "physicsSubmitMs": 7.9,
+            "surfaceUpdateMs": 539.5,
+            "renderSubmitMs": 8.2,
+            "heapMiB": 32.8
+          },
+          {
+            "physicsSubmitMs": 9.6,
+            "surfaceUpdateMs": 538.2,
+            "renderSubmitMs": 8.2,
+            "heapMiB": 39.7
+          },
+          {
+            "physicsSubmitMs": 8.3,
+            "surfaceUpdateMs": 534.8,
+            "renderSubmitMs": 7,
+            "heapMiB": 30.4
+          },
+          {
+            "physicsSubmitMs": 8,
+            "surfaceUpdateMs": 531.8,
+            "renderSubmitMs": 8,
+            "heapMiB": 36.4
+          },
+          {
+            "physicsSubmitMs": 7.7,
+            "surfaceUpdateMs": 535.5,
+            "renderSubmitMs": 7.6,
+            "heapMiB": 25.4
+          },
+          {
+            "physicsSubmitMs": 7.4,
+            "surfaceUpdateMs": 610.2,
+            "renderSubmitMs": 7.6,
+            "heapMiB": 34.1
+          },
+          {
+            "physicsSubmitMs": 7.3,
+            "surfaceUpdateMs": 599,
+            "renderSubmitMs": 8.8,
+            "heapMiB": 26.8
+          },
+          {
+            "physicsSubmitMs": 7.6,
+            "surfaceUpdateMs": 632.3,
+            "renderSubmitMs": 9.2,
+            "heapMiB": 26.5
+          }
+        ],
+        "fps": 2.6888568112988604,
+        "measuredSeconds": 7.066199999999997,
+        "simulatedSeconds": 0.7,
+        "dropped": 329,
+        "intervalMs": 500,
+        "view": "both",
+        "quality": "balanced"
+      },
+      "heap": {
+        "usedSize": 32909236,
+        "totalSize": 54497280,
+        "embedderHeapUsedSize": 5662760,
+        "backingStorageSize": 8918501
+      }
+    },
+    {
+      "id": "obstacle",
+      "displayedParticles": 80,
+      "triangles": 2012,
+      "stoppedSimTime": 1.02,
+      "mode": "Solo solver físico · un paso por reloj",
+      "active": {
+        "frames": [
+          66.69999999999709,
+          133.3000000000029,
+          383.29999999999563,
+          116.70000000000437,
+          633.2999999999956,
+          633.3000000000029,
+          666.5999999999985,
+          766.5,
+          916.6999999999971,
+          1133.199999999997,
+          866.6000000000058,
+          933.3000000000029
+        ],
+        "measures": [
+          {
+            "physicsSubmitMs": 15.1,
+            "surfaceUpdateMs": 239.7,
+            "renderSubmitMs": 3.6,
+            "heapMiB": 35.4
+          },
+          {
+            "physicsSubmitMs": 23.1,
+            "surfaceUpdateMs": 312.6,
+            "renderSubmitMs": 3.2,
+            "heapMiB": 44.6
+          },
+          {
+            "physicsSubmitMs": 9.2,
+            "surfaceUpdateMs": 583.3,
+            "renderSubmitMs": 15,
+            "heapMiB": 40.6
+          },
+          {
+            "physicsSubmitMs": 13.8,
+            "surfaceUpdateMs": 582.2,
+            "renderSubmitMs": 7.5,
+            "heapMiB": 27.7
+          },
+          {
+            "physicsSubmitMs": 8.3,
+            "surfaceUpdateMs": 646.3,
+            "renderSubmitMs": 51.2,
+            "heapMiB": 46.4
+          },
+          {
+            "physicsSubmitMs": 16.6,
+            "surfaceUpdateMs": 806.9,
+            "renderSubmitMs": 16.3,
+            "heapMiB": 34.1
+          },
+          {
+            "physicsSubmitMs": 8.6,
+            "surfaceUpdateMs": 1088.6,
+            "renderSubmitMs": 11.9,
+            "heapMiB": 35.5
+          },
+          {
+            "physicsSubmitMs": 9.4,
+            "surfaceUpdateMs": 782,
+            "renderSubmitMs": 31.7,
+            "heapMiB": 36.7
+          },
+          {
+            "physicsSubmitMs": 7.2,
+            "surfaceUpdateMs": 864.5,
+            "renderSubmitMs": 22.3,
+            "heapMiB": 48.7
+          },
+          {
+            "physicsSubmitMs": 7.9,
+            "surfaceUpdateMs": 890.9,
+            "renderSubmitMs": 28.3,
+            "heapMiB": 28.6
+          }
+        ],
+        "fps": 1.6552865714876888,
+        "measuredSeconds": 7.2495,
+        "simulatedSeconds": 0.5,
+        "dropped": 294,
+        "intervalMs": 500,
+        "view": "both",
+        "quality": "balanced"
+      },
+      "heap": {
+        "usedSize": 44213620,
+        "totalSize": 90935296,
+        "embedderHeapUsedSize": 3964784,
+        "backingStorageSize": 8284139
+      }
+    },
+    {
+      "id": "float",
+      "displayedParticles": 80,
+      "triangles": 2236,
+      "stoppedSimTime": 1.01,
+      "mode": "Fluido + Jolt WASM · un paso por reloj",
+      "active": {
+        "frames": [
+          66.69999999999709,
+          916.6000000000058,
+          100,
+          383.3000000000029,
+          83.30000000000291,
+          600,
+          483.1999999999971,
+          583.3999999999942,
+          533.3000000000029,
+          533.1999999999971,
+          583.3000000000029,
+          566.6999999999971,
+          566.6000000000058,
+          766.5999999999913
+        ],
+        "measures": [
+          {
+            "physicsSubmitMs": 8.7,
+            "surfaceUpdateMs": 203.8,
+            "renderSubmitMs": 1.3,
+            "heapMiB": 50.4
+          },
+          {
+            "physicsSubmitMs": 18.8,
+            "surfaceUpdateMs": 223.8,
+            "renderSubmitMs": 3.2,
+            "heapMiB": 34.8
+          },
+          {
+            "physicsSubmitMs": 13.8,
+            "surfaceUpdateMs": 294.9,
+            "renderSubmitMs": 3.1,
+            "heapMiB": 36.5
+          },
+          {
+            "physicsSubmitMs": 10.6,
+            "surfaceUpdateMs": 417.9,
+            "renderSubmitMs": 10.8,
+            "heapMiB": 22.4
+          },
+          {
+            "physicsSubmitMs": 16.2,
+            "surfaceUpdateMs": 501.5,
+            "renderSubmitMs": 5.6,
+            "heapMiB": 44.6
+          },
+          {
+            "physicsSubmitMs": 11.8,
+            "surfaceUpdateMs": 481.7,
+            "renderSubmitMs": 7.2,
+            "heapMiB": 34.9
+          },
+          {
+            "physicsSubmitMs": 10.5,
+            "surfaceUpdateMs": 474.6,
+            "renderSubmitMs": 7.4,
+            "heapMiB": 25.5
+          },
+          {
+            "physicsSubmitMs": 11.3,
+            "surfaceUpdateMs": 516.5,
+            "renderSubmitMs": 7.6,
+            "heapMiB": 29.3
+          },
+          {
+            "physicsSubmitMs": 10.8,
+            "surfaceUpdateMs": 513.5,
+            "renderSubmitMs": 7.3,
+            "heapMiB": 34.2
+          },
+          {
+            "physicsSubmitMs": 9.8,
+            "surfaceUpdateMs": 511.5,
+            "renderSubmitMs": 7.9,
+            "heapMiB": 37.3
+          },
+          {
+            "physicsSubmitMs": 10.2,
+            "surfaceUpdateMs": 701.3,
+            "renderSubmitMs": 9.7,
+            "heapMiB": 52.4
+          },
+          {
+            "physicsSubmitMs": 17.1,
+            "surfaceUpdateMs": 716.6,
+            "renderSubmitMs": 12.6,
+            "heapMiB": 47.8
+          }
+        ],
+        "fps": 2.069108214359612,
+        "measuredSeconds": 6.766199999999997,
+        "simulatedSeconds": 0.56,
+        "dropped": 309,
+        "intervalMs": 500,
+        "view": "both",
+        "quality": "balanced"
+      },
+      "heap": {
+        "usedSize": 23210912,
+        "totalSize": 90411008,
+        "embedderHeapUsedSize": 2815704,
+        "backingStorageSize": 7723828
+      }
+    }
+  ],
+  "heapAfter20Transitions": {
+    "usedSize": 33713728,
+    "totalSize": 90411008,
+    "embedderHeapUsedSize": 8247552,
+    "backingStorageSize": 10389670
+  },
+  "transitions": 20,
+  "errors": [
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)",
+      "url": "http://127.0.0.1:4174/favicon.ico",
+      "line": 0,
+      "column": 0,
+      "lineNumber": 0,
+      "columnNumber": 0
+    }
+  ],
+  "responses": [],
+  "humanVisualAcceptance": false
+}

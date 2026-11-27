@@ -1,0 +1,109 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Century S06 CORR-004 · núcleo de edición</title>
+<style>body{background:#181818;color:#eee}#core-isolated{height:170px;border:1px solid #555}#core-app{height:520px}#s06-corr004-result{font:11px monospace;max-height:100px;overflow:auto}</style>
+</head><body>
+<pre id="s06-corr004-result" data-stage="Inicializando">Inicializando</pre>
+<div id="core-isolated"></div><div id="core-app"></div>
+<script type="module">
+import { createApp, nextTick } from 'vue'
+import { EditorView, basicSetup } from 'codemirror'
+import { EditorState } from '@codemirror/state'
+import { javascript } from '@codemirror/lang-javascript'
+import '/src/styles.css'
+import ScriptEditor from '/src/components/ScriptEditor.vue'
+import { store } from '/src/core/store.js'
+import { createProjectData } from '/src/core/project.js'
+import { floatDockPanel } from '/src/core/editor/docking.js'
+const result = document.querySelector('#s06-corr004-result')
+const checks=[]
+const original='function _ready() {\n  console.log("ok")\n}\n\nfunction _process(dt) {}\n'
+const before={project:store.project,modal:store.modal,id:store.scriptEditId,mode:store.ui.mode,layout:store.prefs.dockLayout}
+const check=(name,pass,detail='')=>{
+  const entry={name,pass:!!pass,detail:String(detail)}
+  checks.push(entry)
+  result.dataset.stage=name
+  result.dataset.checks=String(checks.length)
+  if(!pass) throw new Error(`${name}: ${detail}`)
+}
+const cases=[['barras','///////'],['asteriscos','*******'],['JSDoc vacío','/**/'],['bloque cerrado','/*****/']]
+let app, isolate, integrated, error=null
+const last = (view)=>view.state.doc.toString()
+try {
+  // Comparación controlada: CodeMirror sin ninguna extensión propia frente al ScriptEditor existente.
+  isolate=new EditorView({parent:document.querySelector('#core-isolated'),state:EditorState.create({doc:original,extensions:[basicSetup,javascript()]})})
+  store.ui.mode='desktop'
+  store.project=createProjectData('S06 CORE QA')
+  store.project.scripts=[{id:'core-a',folder:'Assets',name:'Nucleo.js',execution:'node',code:original},
+    {id:'core-b',folder:'Assets',name:'Otro.js',execution:'global',code:'function otro() {}\n'}]
+  store.modal='script';store.scriptEditId='core-a'
+  store.prefs.dockLayout=floatDockPanel(store.prefs.dockLayout,'scriptEditor',{x:18,y:35,w:850,h:500})
+  app=createApp(ScriptEditor);app.mount('#core-app')
+  const integratedNode=()=>document.querySelector('.edwin.se .cm-editor')
+  const getIntegrated=()=>integratedNode() && EditorView.findFromDOM(integratedNode())
+  check('C4-E01 CodeMirror aislado creado',!!isolate)
+  const steps=[],expected=[]
+  let counter=0
+  for (const phase of ['aislado','integrado']) {
+    for (const [label,seq] of cases) {
+      let accumulated=''
+      for (const char of seq) {
+        accumulated+=char
+        const key = char==='/' ? {key:'/',code:'Slash',keyCode:191} : {key:'*',code:'Digit8',keyCode:56,modifiers:8}
+        steps.push({...key,text:char,focus:phase==='aislado'?'#core-isolated .cm-content':'.edwin.se .cm-content'})
+        expected.push({phase,label,seq,prefix:accumulated,last:accumulated.length===seq.length})
+        counter++
+      }
+    }
+  }
+  window.__lfNativeKeyAfter=async(index)=>{
+    try {
+      await nextTick()
+      // Vue y CodeMirror procesan la transacción; no utilizar requestAnimationFrame oculto.
+      await new Promise(resolve=>setTimeout(resolve,12))
+      const e=expected[index]
+      const view=e.phase==='aislado' ? isolate : getIntegrated()
+      check('C4-E input '+index+' · editor disponible',!!view)
+      const now=last(view)
+      const want=e.prefix+original
+      check('C4-E input '+index+' · documento íntegro',now===want,JSON.stringify({actual:now.slice(0,40),expected:want.slice(0,40)}))
+      check('C4-E input '+index+' · cursor estable',view.state.selection.main.head===e.prefix.length,`${view.state.selection.main.head} != ${e.prefix.length}`)
+      const visible=view.dom.querySelector('.cm-line')?.textContent || ''
+      check('C4-E input '+index+' · texto visible',visible.startsWith(e.prefix),JSON.stringify(visible.slice(0,40)))
+      if(e.phase==='integrado') {
+        check('C4-E input '+index+' · store coincide',store.project.scripts[0].code===now)
+        check('C4-E input '+index+' · documento único',document.querySelectorAll('.edwin.se .cm-editor').length===1)
+      }
+      if(e.last){
+        check('C4-E '+e.phase+' · patrón '+e.label,now===e.seq+original)
+        view.dispatch({changes:{from:0,to:e.seq.length},selection:{anchor:0}})
+        await nextTick()
+        check('C4-E '+e.phase+' · restauración',last(view)===original)
+        if(e.phase==='integrado')check('C4-E integrado · store restaurado',store.project.scripts[0].code===original)
+      }
+      return {ok:true}
+    } catch(err){
+      error=String(err?.stack||err)
+      result.dataset.pass='false'
+      result.textContent=JSON.stringify({pass:false,stage:result.dataset.stage,error,checks},null,2)
+      return {ok:false,error,checks}
+    }
+  }
+  window.__lfNativeKeySteps=steps
+  const started=Date.now()
+  while(!window.__lfNativeKeyDone&&!error&&Date.now()-started<45000) await new Promise(resolve=>setTimeout(resolve,35))
+  if(error)throw Error(error)
+  check('C4-E secuencia completa de teclado nativo',window.__lfNativeKeyDone===true&&steps.length===50)
+  check('C4-E CodeMirror aislado sin alteraciones',last(isolate)===original)
+  check('C4-E integrado sin alteraciones',last(getIntegrated())===original)
+  check('C4-E store final idéntico',store.project.scripts[0].code===original)
+  check('C4-E ambos editores conservan 2 funciones visibles',last(isolate).includes('_process')&&last(getIntegrated()).includes('_process'))
+  result.dataset.pass='true'
+  result.textContent=JSON.stringify({pass:true,gl:'CodeMirror aislado e integración de Century · entrada nativa CDP',checks},null,2)
+} catch(err) {
+  result.dataset.pass='false'
+  result.textContent=JSON.stringify({pass:false,error:String(err?.stack||err),checks},null,2)
+} finally {
+  // El runner extrae los resultados desde DOM; conservarlos hasta la lectura.
+  app?.unmount();isolate?.destroy()
+  store.project=before.project;store.modal=before.modal;store.scriptEditId=before.id;store.ui.mode=before.mode;store.prefs.dockLayout=before.layout
+}
+</script></body></html>

@@ -1,0 +1,22 @@
+{
+  "name": "nether-film-maker-mobile",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Nether Film Maker Android (Capacitor): diagnóstico nativo de cámara S01 dentro del proyecto existente; LAN/monitor posteriores.",
+  "scripts": {
+    "web": "node ../scripts/build-filmmaker-web.mjs",
+    "sync": "npm run web && npx cap sync android",
+    "open": "npx cap open android",
+    "apk": "npm run sync && cd android && ./gradlew assembleDebug",
+    "apk:release": "npm run sync && cd android && ./gradlew assembleRelease"
+  },
+  "dependencies": {
+    "@capacitor/android": "8.5.3",
+    "@capacitor/core": "8.5.3",
+    "@capacitor/filesystem": "^8.1.5",
+    "@capacitor/share": "^8.0.3"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "8.5.3"
+  }
+}

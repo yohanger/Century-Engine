@@ -1,0 +1,41 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Inspector de materiales</title></head><body><pre id="material-inspector-result">Cargando…</pre><div id="app" style="width:300px"></div>
+<script type="module">
+import '/src/styles.css'
+import { createApp, nextTick, markRaw } from 'vue'
+import * as THREE from 'three'
+import ModelMaterialSection from '/src/components/ModelMaterialSection.vue'
+import ColorInput from '/src/components/ColorInput.vue'
+import ContextMenu from '/src/components/ContextMenu.vue'
+import { store, resetHistory, undo, redo, configureHistory, cancelPendingAutosave } from '/src/core/store.js'
+import { modelSlotState } from '/src/engine/runtime/render/model-material.js'
+import { writeAssetDrag } from '/src/core/editor/asset-drop.js'
+const out=document.getElementById('material-inspector-result'), checks=[]
+const check=(name,pass)=>{checks.push({name,pass:!!pass});if(!pass)throw Error(name)}
+const tick=async()=>{await nextTick();await new Promise(r=>requestAnimationFrame(r));await nextTick()}
+let app, geo, original, second, texture
+try {
+  store.locked=false;store.play.on=false;store.edit.on=false
+  geo=new THREE.BoxGeometry(); texture=new THREE.Texture(); original=new THREE.MeshStandardMaterial({name:'car_mat',color:0xaabbcc,roughness:.6,map:texture}); second=new THREE.MeshStandardMaterial({name:'wheel_mat'})
+  const root=new THREE.Group();root.add(new THREE.Mesh(geo,original),new THREE.Mesh(geo,second))
+  const obj={id:'car',name:'Car',type:'model',modelId:'m',parentId:null,position:[0,0,0],rotation:[0,0,0],scale:[1,1,1],props:{},visible:true}
+  store.project={id:'material-test',activeSceneId:'scene',objects:[obj],scenes:[{id:'scene',name:'Escena'}],environment:{},terrain:{},materials:[{id:'shared',name:'Wood.material',color:'#123456',roughness:.8,metallic:0,opacity:1,mat:{}}],assets:[{id:'tex',kind:'texture',name:'wood.png'}]}
+  store.editor=markRaw({models:new Map([['m',root]]),snapshotTerrain:()=>({layers:[],foliage:[]}),syncObject(){},syncAll(){},syncEnvironment(){},setSelection(){}})
+  configureHistory({save(){},hasDisk:()=>false,markPending(){}});store.selectedIds=['car'];store.selectedId='car';resetHistory()
+  app=createApp({components:{ModelMaterialSection,ContextMenu},setup:()=>({store}),template:'<ModelMaterialSection :obj="store.project.objects[0]"/><ContextMenu v-if="store.menu"/>'});app.component('ColorInput',ColorInput);app.mount('#app');await tick()
+  const panels=()=>[...document.querySelectorAll('.mr-model')], state=()=>modelSlotState(store.project.objects[0],'slot-0')
+  check('Dos slots independientes y esfera por slot',panels().length===2&&document.querySelectorAll('.mr-sphere').length===2)
+  check('Sin botón de creación local obligatorio',!document.querySelector('.mr-actions')&&!state())
+  const input=panels()[0].querySelector('.mr-properties .nf input');input.focus();input.value='0.31';input.dispatchEvent(new Event('input',{bubbles:true}));input.blur();await tick()
+  check('Edición directa crea override local',state()?.roughness===.31&&state().inheritImportedMaps===true)
+  check('Original y segundo slot intactos',original.roughness===.6&&original.map===texture&&!modelSlotState(store.project.objects[0],'slot-1'))
+  undo();await tick();check('Undo restaura material importado',!state());redo();await tick();check('Redo recupera edición',state()?.roughness===.31)
+  panels()[1].querySelector('summary').click();await tick();check('Plegado independiente',panels()[0].open&&!panels()[1].open)
+  const transfer=new DataTransfer();writeAssetDrag(transfer,[{kind:'texture',id:'tex'}]);panels()[0].querySelector('select[aria-label="Textura Albedo"]').closest('.resource-drop-slot').dispatchEvent(new DragEvent('drop',{bubbles:true,cancelable:true,dataTransfer:transfer}));await tick();check('Drop asigna mapa por slot',state()?.mat.maps.albedo==='tex')
+  panels()[0].querySelector('.mr-more').click();await tick();check('Menú contextual nativo',!!store.menu&&store.menu.items.some(i=>i.label==='Restaurar original'))
+  const restore=[...document.querySelectorAll('[role="menuitem"]')].find(el=>el.textContent.includes('Restaurar original'));restore.click();await tick();check('Restaurar elimina override',!state())
+  const select=panels()[0].querySelector('select[aria-label="Material del slot"]');select.value='shared';select.dispatchEvent(new Event('change',{bubbles:true}));await tick();check('Asignación de recurso compartido',state()?.materialId==='shared')
+  check('Sin desbordamiento horizontal',panels().every(el=>el.scrollWidth<=el.clientWidth+1))
+  out.dataset.pass='true';out.textContent=JSON.stringify({pass:true,gl:'Inspector Vue y recursos Three.js',checks},null,2)
+}catch(error){out.dataset.pass='false';out.textContent=JSON.stringify({pass:false,checks,error:String(error.stack||error)},null,2)}
+finally{cancelPendingAutosave();app?.unmount();store.menu=null;geo?.dispose();original?.dispose();second?.dispose();texture?.dispose()}
+</script></body></html>

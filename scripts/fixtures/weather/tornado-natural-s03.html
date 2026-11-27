@@ -1,0 +1,52 @@
+<!doctype html><html lang="es"><head><meta charset="UTF-8"><title>Century S03 · polvo y VFX existente</title></head><body>
+<pre id="natural-s03-result">Iniciando...</pre><script type="module">
+import * as THREE from 'three'
+import { World } from '/src/engine/runtime/world/world.js'
+import { NatureFX } from '/src/engine/runtime/world/nature.js'
+const output=document.querySelector('#natural-s03-result'), checks=[]
+const check=(name,pass,details='')=>{checks.push({name,pass:!!pass,details});if(!pass)throw new Error(name+': '+JSON.stringify(details))}
+let renderer,nature
+try {
+  renderer=new THREE.WebGLRenderer({antialias:false,preserveDrawingBuffer:true});renderer.setSize(160,120);renderer.setPixelRatio(1)
+  const gl=renderer.getContext()
+  check('WebGL2 del Electron interno',renderer.capabilities.isWebGL2)
+  const scene=new THREE.Scene();scene.background=new THREE.Color('#1b2633')
+  const cam=new THREE.PerspectiveCamera(65,160/120,0.1,500)
+  cam.position.set(0,6,22);cam.lookAt(0,2,0)
+  const world=new World(58).configure({weather:{on:true,preset:'storm',cloudModel:'classic',tornadoEnabled:true,
+    tornadoMode:'script',tornadoDevelopmentSeconds:2,tornadoOrganizationSeconds:2,tornadoFormationSeconds:2,
+    tornadoIntensity:35,tornadoRadius:10,tornadoMoveSpeed:0}})
+  world.startTornado({weatherTransition:0});world.tornadoStep(7);world.update(0.05)
+  check('fase física del World activa',world.tornado.active && world.tornado.intensity>7)
+  let type='dirt',water=null
+  const terrain={enabled:true, groundAt:()=>0,paintAt:()=>0,layers:[{surface:type,color:'#a98b65'}]}
+  nature=new NatureFX(scene,{scene,camera:()=>cam,terrains:()=>[terrain],objects:()=>[],ground:()=>0,
+    waterAt:()=>water,soilAt:()=>0})
+  const frame=world.frame()
+  const capture=()=>{renderer.render(scene,cam);const p=new Uint8Array(160*120*4);gl.readPixels(0,0,160,120,gl.RGBA,gl.UNSIGNED_BYTE,p);check('WebGL sin errores',gl.getError()===gl.NO_ERROR);return p}
+  const blank=capture()
+  check('no se crea polvo al construir NatureFX',nature._tornadoDust===null)
+  for(let i=0;i<140;i++)nature.update(frame,cam,1/60,120,true,true,world)
+  const fx=nature._tornadoDust
+  check('VFX reutilizado sin .vfx de Assets',!!fx && fx.simulation.count>0,{count:fx?.simulation.count})
+  check('capacidad acotada',fx.simulation.capacity===96)
+  check('misma física de World para viento VFX',!!fx.simulation.flowAt && !!world.windAt3D)
+  check('emisión sobre tierra con superficie explícita',fx.simulation.totalBirths>0)
+  check('renderer original dibuja partículas',fx.renderer.mesh.visible && fx.renderer.geometry.instanceCount>0)
+  const withDust=capture()
+  let difference=0;for(let i=0;i<blank.length;i+=4)difference+=Math.abs(blank[i]-withDust[i])+Math.abs(blank[i+1]-withDust[i+1])+Math.abs(blank[i+2]-withDust[i+2])
+  check('el polvo cambia píxeles de escena',difference>0,{difference})
+  nature.update(frame,cam,0,120,false,false,world)
+  check('Stop libera renderer y limpia partículas',fx.simulation.count===0 && nature._tornadoDust===null && !scene.children.includes(fx.renderer.mesh))
+  type='grass';for(let i=0;i<25;i++)nature.update(frame,cam,1/60,120,true,true,world)
+  check('superficie no desprendible no genera polvo',nature._tornadoDust===null)
+  type='dirt';water={surface:1,depth:1};for(let i=0;i<25;i++)nature.update(frame,cam,1/60,120,true,true,world)
+  check('agua física evita polvo terrestre',nature._tornadoDust===null)
+  nature.dispose();nature=null
+  check('Dispose retira renderer temporal',!scene.children.some(n=>n.name==='VFX billboards'))
+  check('el clima no crea un segundo Sky',scene.children.filter(n=>n.material?.fragmentShader?.includes('tornadoCondensation')).length===0)
+  output.dataset.pass='true';output.dataset.checks=JSON.stringify(checks)
+  output.textContent=JSON.stringify({pass:true,gl:gl.getParameter(gl.VERSION),checks},null,2)
+} catch(error){output.dataset.pass='false';output.dataset.checks=JSON.stringify(checks);output.textContent=JSON.stringify({pass:false,checks,error:String(error.stack||error)},null,2)}
+finally{nature?.dispose();renderer?.dispose()}
+</script></body></html>

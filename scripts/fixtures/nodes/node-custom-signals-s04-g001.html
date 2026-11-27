@@ -1,0 +1,63 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Century S04 — Custom Signals Electron</title></head>
+<body><pre id="node-custom-signals-s04-g001-result">Comprobando…</pre>
+<script type="module">
+import * as THREE from 'three'
+import {nodesMethods} from '/src/engine/runtime/events/play-nodes.js'
+import {NodeLifecycle} from '/src/engine/runtime/scene/node-lifecycle.js'
+import {NodeScriptRuntime} from '/src/engine/runtime/scene/node-scripts.js'
+import {registerNode} from '/src/engine/runtime/nodes/registry.js'
+registerNode({type:'s04ElectronNode',label:'QA S04',create:()=>({}),build:()=>({}),update:()=>{}})
+const out=document.getElementById('node-custom-signals-s04-g001-result'),checks=[]
+const check=(name,ok)=>{checks.push({name,pass:!!ok});if(!ok)throw Error(name)}
+let renderer,life
+const obj=(id,scriptId=id)=>({id,name:id,parentId:null,type:'s04ElectronNode',scriptId})
+try {
+  renderer=new THREE.WebGLRenderer({antialias:false});renderer.setSize(16,16)
+  const scene3=new THREE.Scene(),camera=new THREE.PerspectiveCamera(60,1,.1,10);camera.position.z=2
+  scene3.add(new THREE.Mesh(new THREE.BoxGeometry(.3,.3,.3),new THREE.MeshBasicMaterial({color:0x4466aa})))
+  renderer.render(scene3,camera)
+  check('WebGL2 real',renderer.capabilities.isWebGL2)
+  const a=obj('a'),b=obj('b'),c=obj('c'),project={activeSceneId:'uno',objects:[a,b,c],scripts:[
+    {id:'a',execution:'node',code:`node.define_signal('evento');node.expose('emitir',(n)=>node.emit_signal('evento',n))`},
+    {id:'b',execution:'node',code:`let n=0;node.expose('recibir',(v)=>{n+=v;game.record('b',n)});node.expose('total',()=>n)`},
+    {id:'c',execution:'node',code:`node.expose('recibir',(v)=>game.record('c',v));node.expose('fallar',()=>Promise.reject(Error('rechazo'))) `},
+  ]}
+  const nodes=new Map(),records=[],errors=[]
+  for(const o of project.objects){const n=new THREE.Group();n._lfNodeOwner=o;scene3.add(n);nodes.set(o.id,n)}
+  life=new NodeLifecycle({nodes,host:{project}})
+  const play={on:true,_referenceSession:{},project,ed:{nodes,nodeLifecycle:life},
+    game:{api:{record:(...args)=>records.push(args)},report:(err,where)=>errors.push([err.message,where])},
+    pos:new THREE.Vector3(),vp:{requestRender(){}},vm:{held:new Map()},_animMethodsFor:()=>({}),_tagLayerApi:()=>({}),_persistMarked:()=>false,_persistSet:()=>false}
+  Object.assign(play,nodesMethods);play.game.api.node=(id)=>play._nodeHandle(id)
+  life.scripts=new NodeScriptRuntime(play);life.start()
+  const ah=play._nodeHandle('a'),bh=play._nodeHandle('b'),ch=play._nodeHandle('c')
+  check('instancias JS inicializadas',life.scripts.instances.size===3)
+  check('conectar b',ah.connect('evento',bh,'recibir')===true)
+  check('conectar c',ah.connect('evento',ch,'recibir')===true)
+  check('duplicado no se repite',ah.connect('evento',bh,'recibir')===false)
+  check('emitir devuelve void',ah.call('emitir',3)===undefined)
+  check('orden de recepción',records.map(r=>r[0]).join(',')==='b,c')
+  check('argumentos',records[0][1]===3&&records[1][1]===3)
+  check('estado privado por instancia',bh.call('total')===3)
+  check('desconecta b',ah.disconnect('evento',bh,'recibir')===true)
+  check('desconexión repetida',ah.disconnect('evento',bh,'recibir')===false)
+  ah.call('emitir',5)
+  check('desconexión efectiva',records.length===3&&records[2][0]==='c')
+  check('método inexistente rechazado',(()=>{try{ah.connect('evento',bh,'privado');return false}catch{return true}})())
+  check('señal no declarada rechazada',(()=>{try{ah.connect('no',bh,'recibir');return false}catch{return true}})())
+  check('desmontar c libera conexión',(()=>{
+    project.objects=project.objects.filter(o=>o!==c);scene3.remove(nodes.get('c'));nodes.delete('c');life.sync()
+    return life.scripts.instances.get('a').signals.get('evento').size===0
+  })())
+  ah.call('emitir',6)
+  check('sin receptores no hay entrega',records.length===3)
+  check('no hay callbacks periódicos agregados',life.processEntries.size===0&&life.physicsEntries.size===0)
+  check('solo dueño tiene emit_signal',typeof ah.emit_signal==='undefined')
+  check('receptor retirado es inválido',!ch.is_valid())
+  play.on=false;play._referenceSession=null;life.stop()
+  check('Stop libera instancias',life.scripts.instances.size===0)
+  check('WebGL sin errores',renderer.getContext().getError()===renderer.getContext().NO_ERROR)
+  out.dataset.pass='true';out.textContent=JSON.stringify({pass:true,gl:renderer.getContext().getParameter(renderer.getContext().VERSION),checks},null,2)
+} catch(error) {out.dataset.pass='false';out.textContent=JSON.stringify({pass:false,error:String(error.stack||error),checks},null,2)}
+finally {life?.stop();renderer?.dispose()}
+</script></body></html>

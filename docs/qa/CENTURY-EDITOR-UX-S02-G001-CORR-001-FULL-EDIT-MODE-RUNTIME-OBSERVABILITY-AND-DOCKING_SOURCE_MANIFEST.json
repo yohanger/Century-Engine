@@ -1,0 +1,188 @@
+{
+  "gate": "CENTURY-EDITOR-UX-S02-G001-CORR-001-FULL-EDIT-MODE-RUNTIME-OBSERVABILITY-AND-DOCKING",
+  "source_archive": "source_baseline(5).zip",
+  "baseline_sha256": "0d5c191d818e073fc11ba1342869cbd710f45e57b66c08a0981119fede462e0e",
+  "files_in_original_baseline": 3266,
+  "original_files_removed": 0,
+  "changed_existing": 16,
+  "added_files_before_manifest": 9,
+  "qa_status": "PARCIAL | Node específico 28/28 PASS | build/Electron no verificados | no aprobado/cerrado",
+  "changes": [
+    {
+      "path": "docs/architecture/CE-EDITOR-UX-CA-001-EDIT-PLAY-INDEPENDENT-AUTHORITY-AND-DOCKING.md",
+      "operation": "added",
+      "new_sha256": "85f8a7d2cf31b871d0d4408ccf25b211e696862a7c4d56dccff9e2739bbb995d",
+      "size": 1819
+    },
+    {
+      "path": "docs/architecture/CENTURY-EDITOR-UX-S02-G001-CORR-001-FULL-EDIT-MODE-RUNTIME-OBSERVABILITY-AND-DOCKING_IMPLEMENTATION.md",
+      "operation": "added",
+      "new_sha256": "d7363d7ade565158318dc47e9d7d39b157552c9c680e5c34e1654ce51f9d2f8a",
+      "size": 4110
+    },
+    {
+      "path": "docs/qa/CENTURY-EDITOR-UX-S02-G001-CORR-001-FULL-EDIT-MODE-RUNTIME-OBSERVABILITY-AND-DOCKING_EVIDENCE.md",
+      "operation": "added",
+      "new_sha256": "70f17218e5bf4386c136ecd2cff6b1cc40393ffaeb03aa9caafb9296675276b4",
+      "size": 2725
+    },
+    {
+      "path": "docs/qa/LevelForge_DB_Ledger.xlsx",
+      "operation": "modified",
+      "old_sha256": "4fec0c0ee8cd57a69eed9a65639dc6f4d1a1622c43e14daa1bd354560df8047b",
+      "new_sha256": "5ef0115c3aa1bb29b563503fa8027945bd3d63db20528dc5f84b91123e1d9934",
+      "size": 957844
+    },
+    {
+      "path": "docs/qa/evidence/CENTURY-EDITOR-UX-S02-G001-CORR-001-FULL-EDIT-MODE-RUNTIME-OBSERVABILITY-AND-DOCKING/build.log",
+      "operation": "added",
+      "new_sha256": "ad93033e7f39a0f04a1ed40edf91f741c64cfbf9fa5ed37ad17f38e46626cd7c",
+      "size": 91
+    },
+    {
+      "path": "docs/qa/evidence/CENTURY-EDITOR-UX-S02-G001-CORR-001-FULL-EDIT-MODE-RUNTIME-OBSERVABILITY-AND-DOCKING/domain-node.log",
+      "operation": "added",
+      "new_sha256": "30f5dcb30d9d7a4bea8fee2d39669a1791feb8028cbabce3ef2a78ca673b4727",
+      "size": 10640
+    },
+    {
+      "path": "docs/qa/evidence/CENTURY-EDITOR-UX-S02-G001-CORR-001-FULL-EDIT-MODE-RUNTIME-OBSERVABILITY-AND-DOCKING/focused-node.log",
+      "operation": "added",
+      "new_sha256": "167cc9de1de1e1c4394ea3c09914b78659c2dadac81d849305d370bdf453811d",
+      "size": 6517
+    },
+    {
+      "path": "docs/qa/evidence/CENTURY-EDITOR-UX-S02-G001-CORR-001-FULL-EDIT-MODE-RUNTIME-OBSERVABILITY-AND-DOCKING/regression-node.log",
+      "operation": "added",
+      "new_sha256": "e132296627adbe60ec0e36bafdc60acdbb27b6555e3291c4825ec9fb38e629de",
+      "size": 173793
+    },
+    {
+      "path": "docs/qa/evidence/CENTURY-EDITOR-UX-S02-G001-CORR-001-FULL-EDIT-MODE-RUNTIME-OBSERVABILITY-AND-DOCKING/syntax.log",
+      "operation": "added",
+      "new_sha256": "2fe6eabf2cb4b3bb60c8de0e4879665e961d9c54c8dbb94d731b05f837a7dd19",
+      "size": 660
+    },
+    {
+      "path": "scripts/test-editor-docking-s03-g001-integral.mjs",
+      "operation": "modified",
+      "old_sha256": "81957f2731da2e0d4db4429a6255ac047a3d34a3fc6d1a075cec11422d50ae63",
+      "new_sha256": "2082ddc0f8ec0cc735d7558c8a77d77d1f3ad22b8401277bdcab245f91625681",
+      "size": 18337
+    },
+    {
+      "path": "scripts/test-editor-dual-view-runtime.mjs",
+      "operation": "added",
+      "new_sha256": "8e2b9b9595ada34c53cd0430f641c94f568166c11513798a7e3e548aeb75546f",
+      "size": 4816
+    },
+    {
+      "path": "scripts/test-selection-highlight-multi-visibility.mjs",
+      "operation": "modified",
+      "old_sha256": "2b496c92cea440f65284e560d2b0255e86f733191c5cf52a7bd4fcd3ba0c91f0",
+      "new_sha256": "74977dc7569c8c675929e67fe2c75674f1ee6fea04106f4d47d05a5beb0305b5",
+      "size": 10564
+    },
+    {
+      "path": "scripts/test-viewport-docking-and-camera-loopcut-s02-g001.mjs",
+      "operation": "modified",
+      "old_sha256": "4328b31e4f2aa013812192f0b44ec13b2c25948fc8855aa64ba42b9c88b97ea3",
+      "new_sha256": "981cb962f1691344ab6fa5d5ef5d1c8d59d95db18ca743a265518458c8d10b47",
+      "size": 11271
+    },
+    {
+      "path": "src/App.vue",
+      "operation": "modified",
+      "old_sha256": "0183dbbddc2a1e62e3513a1edc8cb46c9daabbe0044b41e6dad6c85ff561de38",
+      "new_sha256": "08b64a95be8af4687cd529c0357e5c5827a0b91b4dad08a9bd6513b749b56d73",
+      "size": 35190
+    },
+    {
+      "path": "src/components/DockFloating.vue",
+      "operation": "modified",
+      "old_sha256": "9d026d8e67b3eb1de9ee0bc112f64d32ee32d687c5399dd60b5bdaa62bfb09b3",
+      "new_sha256": "befd5993f86ab8b97f1435e6f7db4d26d8d3ee3e85c664de7087b7af55558f6b",
+      "size": 2009
+    },
+    {
+      "path": "src/components/DockPanelBank.vue",
+      "operation": "modified",
+      "old_sha256": "7951e888991a1738ab746b2067c1de9dd3d7806bbeb754572ff31c76c1d31324",
+      "new_sha256": "ec8fabea2e7e4d53aa7c5327bfcce5e3a531869a39615c67f1994273a5ede406",
+      "size": 3606
+    },
+    {
+      "path": "src/components/Inspector.vue",
+      "operation": "modified",
+      "old_sha256": "1a10e3b2eeac02cb211f1491657920dc2e7e574741d043a4c29551e52b545c6c",
+      "new_sha256": "ae950301bc21e7b40eee1a48443cb22c156455e8ca418504c44bd6c41cd795b8",
+      "size": 134952
+    },
+    {
+      "path": "src/components/SceneRuntimeObserver.vue",
+      "operation": "modified",
+      "old_sha256": "d11c6b769abdba73fdd4785b6241a5835970072b5fc6464512433a036e1222e4",
+      "new_sha256": "677e435d34d80bbc23e0170e8f149f57165f2f3884563a31f998f49e5708d1a5",
+      "size": 17143
+    },
+    {
+      "path": "src/components/ViewBar.vue",
+      "operation": "modified",
+      "old_sha256": "35a79c658851db9554b509a4df9d26919ebbfefebf1251c477f87e1c4ea2ffc8",
+      "new_sha256": "6ac9c74c75b5e4ba1b427f06cd7cc268740c1b52eb94ce8196f85655629046f8",
+      "size": 9106
+    },
+    {
+      "path": "src/core/editor/docking.js",
+      "operation": "modified",
+      "old_sha256": "2fc7d1fff9b2c6e67909d69b314b3d466cb1b571c6266f73af934177be88f442",
+      "new_sha256": "97ba03c20dc1c3577cb2c87c6c72e6141be4bdbc166773ee9ff922268b20ba81",
+      "size": 13246
+    },
+    {
+      "path": "src/core/editor/gizmo.js",
+      "operation": "modified",
+      "old_sha256": "44421cf6c6e51f4c70587666af2f853df44263ce54456136d6ac692144bb0e09",
+      "new_sha256": "f2f8c2a604ce6c614b8070f462166c99ea27491f12107ac8904b266e5ad12161",
+      "size": 32054
+    },
+    {
+      "path": "src/core/editor/keys.js",
+      "operation": "modified",
+      "old_sha256": "268aacfbafc7712bd205056dc8c8d3f55f8f0d23980b66986ebd9ca66735a25f",
+      "new_sha256": "e2572d4d48bf70c5a9c574e1e90fc735b87ce9d39cae13f8641c5503434e6e6a",
+      "size": 13759
+    },
+    {
+      "path": "src/core/editor/play-session.js",
+      "operation": "modified",
+      "old_sha256": "ca6a3b2f06dc3a9d41eba2ed9043fb1aa0ed1e723898c4147198ebc9f97ddeb9",
+      "new_sha256": "fbcffc641fc9fa767671beaee541b5510afbe713e9e204e0035e580a45ae71ba",
+      "size": 4187
+    },
+    {
+      "path": "src/core/editor/selection.js",
+      "operation": "modified",
+      "old_sha256": "fedb6fc58e8e33e1b2d2bbc0236481535b04fc488e3ce9d9c6e3cd71de19c2e0",
+      "new_sha256": "c641102fbfed2724a1b3ba08d858432fecdc14a81d2dfb57449c4145fa072367",
+      "size": 9083
+    },
+    {
+      "path": "src/engine/runtime/render/camera-occlusion.js",
+      "operation": "modified",
+      "old_sha256": "82745934ba25ecef5240c8702d4243549f17482f419b5ee8584ffdf44ad85413",
+      "new_sha256": "85caef13d7bb92ce94b2580bbacc9a4c1ca069f14fd2fd5f79858cc468605971",
+      "size": 5835
+    }
+  ],
+  "source_baseline_files_excluded": [
+    "node_modules",
+    "dist",
+    "dist-runtime",
+    "release",
+    "coverage",
+    ".git",
+    "build",
+    "cache"
+  ]
+}

@@ -1,0 +1,111 @@
+<!doctype html><html lang="es"><meta charset="utf-8"><title>Century · Reducción y diagnóstico</title>
+<style>body{margin:0;background:#131820;color:#e5edf8;font:14px system-ui}main{padding:18px;max-width:960px;margin:auto}button{background:#27364a;color:inherit;padding:9px;border:1px solid #687f9b;border-radius:4px;cursor:pointer}#stage{width:100%;height:440px;position:relative;margin-top:12px}#status{min-height:22px}#result{white-space:pre-wrap}</style>
+<main><h2>LOD y diagnóstico del renderer</h2><button id="near">Acercar · LOD 0</button> <button id="far">Alejar · LOD reducido</button> <button id="shader">Lecturas activas</button><p id="status">Preparando geometría…</p><div id="stage"></div><pre id="result"></pre></main>
+<script type="module">
+import * as THREE from 'three'
+import { Viewport } from '/src/engine/runtime/render/viewport.js'
+import { LodManager } from '/src/engine/runtime/render/lodmgr.js'
+import { Terrain } from '/src/engine/runtime/geometry/terrain.js'
+import { environmentMethods } from '/src/engine/runtime/scene/environment.js'
+const checks=[],errors=[]
+const check=(name,pass,details)=>{checks.push({name,pass:!!pass,details});if(!pass)throw Error(name)}
+const wait=async predicate=>{const start=performance.now();while(!predicate()){if(performance.now()-start>20000)throw Error('Worker LOD no respondió');await new Promise(r=>setTimeout(r,30))}}
+let vp,manager
+try{
+ vp=new Viewport(document.querySelector('#stage'))
+ vp.renderer.setPixelRatio(1);vp.renderer.setSize(800,440,false)
+ vp.renderer.debug.onShaderError=(gl,p,vs,fs)=>errors.push(gl.getProgramInfoLog(p)||gl.getShaderInfoLog(fs))
+ vp.sky.visible=false;vp.grid.visible=false
+ vp.camera.aspect=800/440;vp.camera.updateProjectionMatrix()
+ const material=new THREE.MeshBasicMaterial({color:'#7799cc'})
+ const source=new THREE.SphereGeometry(1,64,48),mesh=new THREE.Mesh(source,material)
+ vp.world.add(mesh)
+ const object={id:'sphere',type:'primitive',props:{}}
+ const graph={vp,terrains:[],nodes:new Map([['sphere',mesh]]),host:{project:{objects:[object]},getObject:id=>id==='sphere'?object:null},_clusterGraphRevision:1}
+ manager=new LodManager(graph,{editorDiagnostics:true,lod:true})
+ manager.attach()
+ const place=z=>{vp.camera.position.set(0,0,z);vp.camera.lookAt(0,0,0);vp.camera.updateMatrixWorld();manager.update(vp.camera)}
+ place(1.5)
+ await wait(()=>manager.meshes[0]?.set.ready)
+ check('Worker produce niveles topológicos con error medido',manager.meshes[0].set.levels.length>1)
+ place(1.5);vp.viewDiagnostics.draw('lod')
+ const nearCount=mesh.geometry.index.count/3
+ place(80);vp.viewDiagnostics.draw('lod')
+ const farCount=mesh.geometry.index.count/3
+ check('Alejar reduce la geometría efectiva',farCount<nearCount,{nearCount,farCount,level:manager.meshes[0].cur})
+ check('HUD cuenta caras del nivel activo',Object.values(vp.viewDiagnostics.last.lodHistogram).reduce((a,b)=>a+b,0)===farCount)
+ place(1.5);vp.viewDiagnostics.draw('lod')
+ check('Acercar recupera geometría fuente',mesh.geometry===source)
+ check('Swap diagnóstico conserva material de autoría',mesh.material===material)
+ // Material real compilado: sin mapas activos, las funciones opcionales de Three no elevan la puntuación.
+ const pbr=new THREE.MeshStandardMaterial({color:'#7799cc'})
+ mesh.material=pbr
+ vp.viewDiagnostics.draw('shader')
+ check('Shader sin mapas no recibe lecturas de funciones inactivas',vp.viewDiagnostics.last.shaderKnown===1&&vp.viewDiagnostics.last.maxTextureCalls<=1,vp.viewDiagnostics.last)
+ mesh.material=pbr;vp.sky.visible=true
+ const outside=new THREE.Mesh(source,new THREE.MeshStandardMaterial());outside.position.x=1e6;vp.world.add(outside)
+ const renderOnce=vp.renderer.render.bind(vp.renderer);let sceneDraws=0
+ vp.renderer.render=(...args)=>{sceneDraws++;return renderOnce(...args)}
+ vp.viewDiagnostics.draw('shader');vp.viewDiagnostics.draw('shader')
+ vp.renderer.render=renderOnce
+ check('Shader Complexity no duplica escenas por el cielo sin caché',sceneDraws===2,{sceneDraws})
+ outside.removeFromParent();outside.material.dispose()
+ vp.sky.visible=false;mesh.material=material
+ // Dos páginas de un BatchedMesh real, seleccionadas a niveles distintos.
+ mesh.visible=false
+ const left=new THREE.BoxGeometry(1,1,1).translate(-1.2,0,0)
+ const right=new THREE.BoxGeometry(1,1,1).translate(1.2,0,0)
+ left.computeBoundingSphere();right.computeBoundingSphere()
+ const owner=new THREE.Mesh(left,material);vp.world.add(owner);owner.visible=false
+ const batch=new THREE.BatchedMesh(2,100,100,material)
+ batch.addInstance(batch.addGeometry(left));batch.addInstance(batch.addGeometry(right))
+ batch._lfClusterSource=owner;vp.world.add(batch)
+ const entry={mesh:owner,batch,ids:[{level:0},{level:2}],shared:{pages:[[{geo:left}], [{geo:right},{geo:right},{geo:right}]]}}
+ manager.clusters.byMesh.set(owner,entry)
+ const render=vp.renderer.render.bind(vp.renderer),childCount=vp.scene.children.length;let colors=[]
+ vp.renderer.render=(scene,camera)=>{colors=scene.children.filter(x=>x.isMesh&&x.geometry!==source&&x!==vp.sky).map(x=>x.material?.color?.getHexString());return render(scene,camera)}
+ vp.viewDiagnostics.draw('lod')
+ vp.renderer.render=render
+ check('Un lote muestra colores de sus dos niveles efectivos',colors.includes('36bf92')&&colors.includes('d7bf60'),colors)
+ check('Histograma de lote conserva ambos niveles',vp.viewDiagnostics.last.lodHistogram[0]===12&&vp.viewDiagnostics.last.lodHistogram[2]===12,vp.viewDiagnostics.last.lodHistogram)
+ check('Diagnóstico restaura visibilidad y retira proxies',batch.visible&&owner.visible===false&&vp.scene.children.length===childCount)
+ batch.removeFromParent();owner.removeFromParent();batch.dispose();left.dispose();right.dispose();mesh.visible=true
+ // Cielo debe quedar detrás de un objeto opaco incluso con el objeto más allá del radio de la esfera.
+ place(1.5);mesh.position.z=-1600;mesh.scale.setScalar(300);mesh.updateMatrixWorld(true)
+ vp.camera.far=4000;vp.camera.updateProjectionMatrix();vp.sky.visible=true
+ vp.sky.position.copy(vp.camera.position);vp.skyMat.uniforms.uClouds.value=0
+ const pixel=()=>{vp.renderer.render(vp.scene,vp.camera);const data=new Uint8Array(4);const gl=vp.renderer.getContext();gl.readPixels(gl.drawingBufferWidth>>1,gl.drawingBufferHeight>>1,1,1,gl.RGBA,gl.UNSIGNED_BYTE,data);return [...data]}
+ vp.sky.visible=false;const opaque=pixel();vp.sky.visible=true;const withSky=pixel()
+ check('Cielo lejano respeta profundidad de opacos',opaque.slice(0,3).some(x=>x>0)&&opaque.every((x,i)=>Math.abs(x-withSky[i])<=1),{opaque,withSky})
+ check('Cielo se dibuja después de opacos con depth test',vp.sky.renderOrder>0&&vp.skyMat.depthTest&&!vp.skyMat.depthWrite)
+ mesh.position.z=0;mesh.scale.setScalar(1);mesh.updateMatrixWorld(true)
+ mesh.visible=false;vp.camera.position.set(0,5,0);vp.camera.lookAt(0,105,-1);vp.camera.updateMatrixWorld();vp.sky.position.copy(vp.camera.position)
+ const u=vp.skyMat.uniforms
+ vp._ensureCloudNoise();u.uClouds.value=1;u.uCloudSteps.value=24;u.uCloudDiagnostic.value=1;u.uCovg.value=0;u.uCamY.value=5;u.uCBase.value=1500;u.uCThick.value=1400
+ u.uMode.value=0;u.top.value.setRGB(0,0,0);u.horizon.value.setRGB(0,0,0);u.ground.value.setRGB(0,0,0);u.uSunColor.value.setRGB(0,0,0);u.uMoonColor.value.setRGB(0,0,0);u.uCAmb.value.setRGB(0,0,0)
+ const emptyRay=pixel()
+ check('Mapa de nubes cuenta búsquedas ejecutadas, no intervalos saltados',emptyRay[0]>80&&emptyRay[1]>emptyRay[0]*0.65,{emptyRay})
+ u.uCloudDiagnostic.value=0;u.uClouds.value=0;vp.sky.visible=false;mesh.visible=true
+ const hiddenTerrain=new Terrain(32,32);vp.world.add(hiddenTerrain.mesh);graph.terrains.push(hiddenTerrain)
+ manager.update(vp.camera);hiddenTerrain.mesh.visible=false;manager.update(vp.camera)
+ check('Páginas de terreno oculto no contaminan los contadores visibles',vp.perf.stats.extra.clusterTerrainPages===0&&vp.perf.stats.extra.triangHorPagesTotal===0)
+ const previousManager=manager
+ graph._viewDiagnosticLod=manager;graph._viewDiagnosticLodKey=JSON.stringify([true,1,1])
+ graph.baseRender=()=>({lod:true,lodQuality:2,drawDistance:1})
+ graph._releaseViewDiagnosticLod=environmentMethods._releaseViewDiagnosticLod.bind(graph)
+ environmentMethods._syncViewDiagnosticLod.call(graph,'lod')
+ await wait(()=>graph._viewDiagnosticLod&&graph._viewDiagnosticLod!==previousManager)
+ manager=graph._viewDiagnosticLod;place(1.5)
+ await wait(()=>manager.meshes[0]?.set.ready)
+ check('Cambiar calidad del editor reconstruye su autoridad LOD',manager.quality===2&&previousManager.meshes.length===0)
+ check('WebGL no genera errores de shaders',errors.length===0,errors)
+ const show=mode=>{vp.viewDiagnostics.draw(mode);document.querySelector('#status').textContent=`LOD ${manager.meshes[0].cur} · ${mesh.geometry.index.count/3} triángulos · ${mode}`}
+ document.querySelector('#near').onclick=()=>{place(1.5);show('lod')}
+ document.querySelector('#far').onclick=()=>{place(80);show('lod')}
+ document.querySelector('#shader').onclick=()=>{place(1.5);mesh.material=pbr;show('shader');mesh.material=material}
+ place(1.5);show('lod')
+ document.querySelector('#result').textContent=`${checks.length} verificaciones WebGL correctas`
+ window.qa={vp,manager,mesh,checks,errors}
+ const out=document.createElement('pre');out.id='diagnostics-reduction-result';out.hidden=true;out.dataset.pass='true';out.textContent=JSON.stringify({pass:true,checks,gl:vp.renderer.getContext().getParameter(vp.renderer.getContext().VERSION)});document.body.append(out)
+}catch(error){const out=document.createElement('pre');out.id='diagnostics-reduction-result';out.dataset.pass='false';out.textContent=JSON.stringify({pass:false,error:String(error.stack),checks,errors});document.body.append(out)}
+</script></html>

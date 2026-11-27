@@ -1,0 +1,142 @@
+{
+  "host": {
+    "node": "v26.13.1",
+    "cpu": "Intel(R) Pentium(R) Silver N5030 CPU @ 1.10GHz",
+    "platform": "linux",
+    "kernel": "6.14.0-37-generic"
+  },
+  "units": {
+    "time": "ms",
+    "memory": "bytes"
+  },
+  "playground": [
+    {
+      "id": "tank",
+      "steps": 360,
+      "massKg": 110.59199999999989,
+      "limits": 56,
+      "maximumPenetrationMeters": 2.914335439641036e-15,
+      "solidContacts": 0,
+      "surfaceTriangles": 1952,
+      "maxBodyX": 0,
+      "maxBodyZ": 0,
+      "positions": [],
+      "speed": {
+        "max": 0.1904701637731165,
+        "mean": 0.035582885359333745
+      },
+      "surfaceComponents": {
+        "count": 1,
+        "largestTriangleShare": 1
+      }
+    },
+    {
+      "id": "dam",
+      "steps": 360,
+      "massKg": 165.888,
+      "limits": 132,
+      "maximumPenetrationMeters": 5.9674487573602164e-15,
+      "solidContacts": 0,
+      "surfaceTriangles": 4260,
+      "maxBodyX": 0,
+      "maxBodyZ": 0,
+      "positions": [],
+      "speed": {
+        "max": 0.23762692273181707,
+        "mean": 0.06230373480641029
+      }
+    },
+    {
+      "id": "obstacle",
+      "steps": 360,
+      "massKg": 138.23999999999987,
+      "limits": 50,
+      "maximumPenetrationMeters": 7.105427357601002e-15,
+      "solidContacts": 29504,
+      "surfaceTriangles": 3324,
+      "maxBodyX": 0,
+      "maxBodyZ": 0,
+      "positions": [],
+      "speed": {
+        "max": 0.14919115292633606,
+        "mean": 0.033379039153103106
+      }
+    },
+    {
+      "id": "float",
+      "steps": 1200,
+      "massKg": 138.23999999999987,
+      "limits": 134,
+      "maximumPenetrationMeters": 4.2387597674886646e-8,
+      "solidContacts": 39212,
+      "surfaceTriangles": 2548,
+      "lowestBodyY": 0.1598065346479416,
+      "highestBodyY": 0.593999981880188,
+      "maxBodyX": 0.00825177039951086,
+      "maxBodyZ": 0.06767059862613678,
+      "positions": [
+        {
+          "step": 60,
+          "xyz": [
+            -2.578308569001864e-17,
+            0.1628848910331726,
+            3.5557592784065824e-17
+          ]
+        },
+        {
+          "step": 120,
+          "xyz": [
+            6.847029369129237e-15,
+            0.20929479598999023,
+            1.5021348461056766e-16
+          ]
+        },
+        {
+          "step": 240,
+          "xyz": [
+            -1.6669295943572138e-9,
+            0.35984525084495544,
+            1.6396468627277727e-9
+          ]
+        },
+        {
+          "step": 360,
+          "xyz": [
+            -0.0000023219363356474787,
+            0.1599995344877243,
+            0.00269253458827734
+          ]
+        },
+        {
+          "step": 600,
+          "xyz": [
+            -0.0054535213857889175,
+            0.15988844633102417,
+            0.046161502599716187
+          ]
+        },
+        {
+          "step": 1200,
+          "xyz": [
+            0.0007764339097775519,
+            0.1598065346479416,
+            0.06767059862613678
+          ]
+        }
+      ],
+      "speed": {
+        "max": 0.026679706900865918,
+        "mean": 0.008251052565639561
+      },
+      "bodyContained": true
+    }
+  ],
+  "memory": {
+    "rss": 176467968,
+    "heapTotal": 88178688,
+    "heapUsed": 42048064,
+    "external": 7969583,
+    "arrayBuffers": 2779324
+  },
+  "maxRssKiB": 172332
+}

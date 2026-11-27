@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="es"><meta charset="utf-8"><title>Century S13-G005-G002 · Limpieza Terreno</title>
+<style>html,body{margin:0;background:#151a20;color:#e6ebef;font:12px system-ui}#app{width:350px;height:700px}#inspector-terrain-cleanup-s13-g005-g002-result{display:none}</style>
+<div id="app"></div><pre id="inspector-terrain-cleanup-s13-g005-g002-result"></pre>
+<script>
+(()=>{
+ const out=document.getElementById('inspector-terrain-cleanup-s13-g005-g002-result'),checks=[]
+ let stage='bootstrap',finished=false
+ const report=()=>{if(!finished){out.dataset.stage=stage;out.textContent=JSON.stringify({pass:null,stage,checks})}}
+ const progress=s=>{stage=s;report()}
+ const check=(name,pass,actual)=>{checks.push({name,pass:!!pass,...actual===undefined?{}:{actual}});progress(`${checks.length}: ${name}`);if(!pass)throw Error(`Falló: ${name}`)}
+ const finish=error=>{if(finished)return;finished=true;clearTimeout(watchdog)
+  const pass=!error&&checks.length===45&&checks.every(c=>c.pass)
+  out.dataset.pass=String(pass);out.dataset.checks=String(checks.length);out.dataset.stage=pass?'final:PASS':'final:FAIL'
+  out.textContent=JSON.stringify({pass,stage,...error?{error:String(error.stack||error)}:{},checks,gl:!!document.createElement('canvas').getContext('webgl')},null,2)
+ }
+ const watchdog=setTimeout(()=>finish(new Error(`Watchdog: ${stage}`)),42000)
+ window.addEventListener('error',e=>{if(e.message||e.error)finish(e.error||new Error(e.message))})
+ window.addEventListener('unhandledrejection',e=>finish(e.reason||new Error('Promesa rechazada')))
+ window.__lfTerrainCleanupQA={check,finish,progress};report()
+})()
+</script>
+<script type="module">
+const {check,finish,progress}=window.__lfTerrainCleanupQA
+let app,renderer,terrain
+try {
+ progress('Montaje real de InspectorDock y TerrainPanel')
+ const [{createApp,nextTick},{default:InspectorDock},{store,selectPiece,selectObject,selectScene,syncPieces},{Terrain,DEFAULT_LAYERS},{makeObject},{createProjectData},THREE]=await Promise.all([
+   import('vue'),import('/src/components/InspectorDock.vue'),import('/src/core/store.js'),
+   import('/src/engine/runtime/geometry/terrain.js'),import('/src/engine/runtime/nodes/index.js'),
+   import('/src/core/project.js'),import('three')])
+ await import('/src/styles.css')
+ renderer=new THREE.WebGLRenderer({antialias:false});renderer.setSize(8,8);renderer.render(new THREE.Scene(),new THREE.PerspectiveCamera())
+ check('WebGL real disponible',!!renderer.getContext())
+ terrain=new Terrain(32,16);terrain.id='terrain-fold-qa';terrain.name='Terreno plegado';terrain.setOffset(1,3,5)
+ const cube=makeObject('primitive','box',{id:'cube-terrain-fold',name:'Cubo de QA'})
+ // Proyecto válido: Escena monta ScenePanel antes de seleccionar Terrain.
+ const project=createProjectData('QA Terrain S13 G005')
+ project.objects=[cube]
+ project.scenes[0].name='Escena QA'
+ project.terrain={...project.terrain,enabled:true,size:32,segments:16,
+  layers:DEFAULT_LAYERS.map(x=>({...x})),foliage:[]}
+ const ed={terrains:[terrain],_activeId:terrain.id,get terrain(){return this.terrains[0]},setActivePiece(id){this._activeId=id},
+  setSelection(){},_syncTerrainGizmo(){},syncObject(){},removeObject(){},snapshotTerrain(){return this.terrain.snapshot()},vp:{requestRender(){}}}
+ store.project=project;store.editor=ed;store.selectedId=null;store.selectedIds=[];store.terrainSel=false;store.sceneSel=true
+ store.audioInspector=null;store.projSel=null;store.temporalSelection=null;store.foliageCounts={}
+ store.prefs.inspFold={'fold:node:terrain:terrain-pieces':true,'fold:node:primitive:transform':true}
+ store.prefs.rightTab='terrain';store.view.foliage=true;syncPieces()
+ app=createApp(InspectorDock);app.mount('#app')
+ const flush=async()=>{await nextTick();await new Promise(r=>requestAnimationFrame(r));await nextTick();await new Promise(r=>requestAnimationFrame(r))}
+ const terrainRoot=()=>document.querySelector('#app .insp[data-node-type="terrain"]')
+ const panel=()=>terrainRoot()?.querySelector('[data-testid="terrain-context-inspector"]')
+ const sect=id=>panel()?.querySelector(`[data-fold-id="terrain-${id}"]`)
+ const header=id=>sect(id)?.querySelector(':scope > header')
+ const ids=['pieces','water','brush','layers','foliage','generator','size']
+ await flush()
+ check('Pestaña Terrain heredada migra a Inspector',store.prefs.rightTab==='object')
+ check('Inspector tiene pestañas existentes',document.querySelectorAll('#app .tabs button').length===2)
+ check('Escena se monta antes de elegir Terreno',document.querySelector('#app .insp')?.dataset.nodeType==='scene')
+ selectPiece(terrain.id);await flush()
+ check('La pieza usa su ID de nodo real',store.selectedId===terrain.id&&store.activePieceId===terrain.id)
+ check('El Inspector identifica terreno',terrainRoot()?.dataset.nodeType==='terrain')
+ check('Un solo TerrainPanel montado',document.querySelectorAll('#app [data-testid="terrain-context-inspector"]').length===1)
+ check('Existen exactamente siete secciones de Terreno',panel()?.querySelectorAll(':scope > .sect.terrain-sect').length===7)
+ check('Identificadores semánticos y orden correcto',ids.every((id,i)=>panel()?.querySelectorAll(':scope > .sect')[i]?.dataset.foldId===`terrain-${id}`))
+ check('Los siete encabezados admiten teclado',ids.every(id=>header(id)?.getAttribute('role')==='button'&&header(id).tabIndex===0))
+ check('Los siete estados incluyen aria-expanded',ids.every(id=>['true','false'].includes(header(id)?.getAttribute('aria-expanded'))))
+ check('La preferencia previa cierra Piezas al montar',sect('pieces')?.classList.contains('closed'))
+ check('aria-expanded refleja el estado inicial',header('pieces')?.getAttribute('aria-expanded')==='false')
+ check('Las otras seis secciones inician abiertas',ids.slice(1).every(id=>!sect(id)?.classList.contains('closed')))
+ check('Contador de Piezas permanece visible cerrada',header('pieces')?.textContent.includes('Piezas de terreno')&&header('pieces')?.textContent.includes('1'))
+ check('Al cerrar, sus controles no son visibles',getComputedStyle(sect('pieces').querySelector(':scope > .body')).display==='none')
+ const before=JSON.stringify(store.project),oldPrefs=store.prefs.inspFold['fold:node:primitive:transform']
+ header('pieces').click();await flush()
+ check('Clic abre Piezas y actualiza accesibilidad',!sect('pieces').classList.contains('closed')&&header('pieces').getAttribute('aria-expanded')==='true')
+ check('El cambio escribe la misma clave semántica',store.prefs.inspFold['fold:node:terrain:terrain-pieces']===false)
+ check('El plegado no altera datos del proyecto',JSON.stringify(store.project)===before)
+ const key=code=>header('pieces').dispatchEvent(new KeyboardEvent('keydown',{key:code,bubbles:true,cancelable:true}))
+ const enter=key('Enter');await flush()
+ check('Enter contrae y evita acción nativa',enter===false&&header('pieces').getAttribute('aria-expanded')==='false')
+ const space=key(' ');await flush()
+ check('Espacio expande sin hacer scroll',space===false&&header('pieces').getAttribute('aria-expanded')==='true')
+ key('Escape');await flush()
+ check('Escape no cambia el plegado',header('pieces').getAttribute('aria-expanded')==='true')
+ check('Las siete secciones tienen su propio cuerpo',ids.every(id=>!!sect(id)?.querySelector(':scope > .body')))
+ check('Agua física conserva la casilla Simulación',!!sect('water')?.querySelector('input[type="checkbox"]'))
+ check('Pincel mantiene herramientas reales',sect('brush')?.textContent.includes('Elevar')&&sect('brush').textContent.includes('Pintar'))
+ check('Capas conserva selector y botón Añadir',sect('layers')?.textContent.includes('Añadir capa'))
+ check('Generador conserva parámetros y acciones',sect('generator')?.textContent.includes('Generate')&&sect('generator').textContent.includes('Seed'))
+ check('Tamaño mantiene resolución y Apply',sect('size')?.textContent.includes('Resolución')&&sect('size').textContent.includes('Aplicar tamaño'))
+ const eye=header('foliage')?.querySelector('button.eye')
+ check('Visibilidad de vegetación sigue en su encabezado',!!eye&&eye.getAttribute('aria-label')==='Mostrar u ocultar vegetación')
+ const prefBefore=JSON.stringify(store.prefs.inspFold);const openBefore=header('foliage').getAttribute('aria-expanded')
+ eye.click();await flush()
+ check('El ojo cambia la visibilidad sin plegar Vegetación',store.view.foliage===false&&header('foliage').getAttribute('aria-expanded')===openBefore)
+ check('El ojo no modifica preferencias de plegado',JSON.stringify(store.prefs.inspFold)===prefBefore)
+ header('water').click();await flush()
+ check('Cada sección guarda estado independiente',sect('water')?.classList.contains('closed')&&!sect('brush')?.classList.contains('closed'))
+ selectObject('cube-terrain-fold');await flush()
+ check('Cubo usa el Inspector original sin TerrainPanel',!panel()&&document.querySelector('#app .insp')?.dataset.nodeType==='primitive')
+ check('Cubo conserva su propia preferencia',document.querySelector('#app .insp[data-node-type="primitive"] [data-fold-id="transform"]')?.classList.contains('closed')===true)
+ selectPiece(terrain.id);await flush()
+ check('Volver a Terreno restaura plegado independiente',sect('water')?.classList.contains('closed')&&sect('pieces')&&!sect('pieces').classList.contains('closed'))
+ check('Preferencias de otra familia no se sobrescriben',store.prefs.inspFold['fold:node:primitive:transform']===oldPrefs)
+
+ check('No hay párrafos instructivos de Piezas y Pincel',!panel()?.textContent.includes('Arrastra las flechas')&&!panel()?.textContent.includes('Haz clic y arrastra de'))
+ check('El generador mantiene advertencia de sustitución de alturas',sect('generator')?.textContent.includes('Generate reemplaza las alturas'))
+ check('Listas de capas y vegetación siguen separadas',panel()?.querySelectorAll('.terrain-scroll-list').length===2)
+ const baseLayers=store.project.terrain.layers
+ store.project.terrain.layers=Array.from({length:6},(_,i)=>({...baseLayers[0],id:`qa-layer-${i}`,name:`Capa QA ${i}`}))
+ await flush()
+ const layerList=sect('layers')?.querySelector('.terrain-scroll-list')
+ check('Con seis capas se activa el scroll interno',layerList?.classList.contains('terrain-scroll-list--long'))
+ check('El scroll tiene límite efectivo de 280px',getComputedStyle(layerList).maxHeight==='280px'&&getComputedStyle(layerList).overflowY==='auto')
+ check('Las seis capas siguen editables',layerList?.querySelectorAll('.layer').length===6)
+ store.project.terrain.layers=baseLayers;await flush()
+ check('La lista corta recupera altura libre',!sect('layers')?.querySelector('.terrain-scroll-list')?.classList.contains('terrain-scroll-list--long'))
+ const oldWidth=document.querySelector('#app').style.width
+ document.querySelector('#app').style.width='245px';await flush()
+ check('En 245px las filas se adaptan sin recortar controles',getComputedStyle(sect('size')?.querySelector('.row')).gridTemplateColumns.split(' ').length===1)
+ document.querySelector('#app').style.width=oldWidth;await flush()
+ check('WebGL finaliza sin errores',renderer.getContext().getError()===renderer.getContext().NO_ERROR)
+ finish()
+} catch(error){finish(error)}finally{try{app?.unmount()}catch{}try{terrain?.mesh?.geometry?.dispose?.()}catch{}try{renderer?.dispose()}catch{}}
+</script>
+</html>

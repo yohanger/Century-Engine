@@ -1,0 +1,7 @@
+{
+  "appId": "com.levelforge.netherfilmmaker",
+  "appName": "Nether Film Maker",
+  "webDir": "../dist-film",
+  "android": { "allowMixedContent": false, "captureInput": true, "webContentsDebuggingEnabled": true },
+  "server": { "androidScheme": "https" }
+}

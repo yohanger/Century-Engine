@@ -1,0 +1,239 @@
+{
+  "gate": "CENTURY-EDITOR-UX-S03-G001-CORR-004-UNIVERSAL-NATIVE-DOCKING-AND-SEAMLESS-WINDOW-DRAG",
+  "baseline": "CENTURY-EDITOR-UX-S03-G001-CORR-003-NATIVE-DRAG-AND-DROP-CODE-DOCKING_SOURCE_BASELINE.zip",
+  "source_baseline_sha256": "03d30bfb11bd48f0ac6735d1faa73e579383dd406da606a33fb4c8c3a5a53855",
+  "amendment": "CE-EDITOR-DOCKING-CA-003-UNIVERSAL-NATIVE-WINDOW-AUTHORITY",
+  "status": "IMPLEMENTADO_EN_FUENTE_QA_ELECTRON_NO_VERIFICADO",
+  "tests": {
+    "focused": "12/12 PASS",
+    "regression": "163/165 PASS; 2 inherited FAIL",
+    "syntax": "30/30 PASS",
+    "build": "BLOCKED vite not found",
+    "electron": "NOT VERIFIED",
+    "multimonitor": "NOT VERIFIED"
+  },
+  "changed_files": [
+    {
+      "path": "docs/architecture/CE-EDITOR-DOCKING-CA-003-UNIVERSAL-NATIVE-WINDOW-AUTHORITY.md",
+      "size": 1777,
+      "sha256": "8a3269bf9cbcd1a34dd6c49e445bf7fcdaa1eb5ce8c2c23a87a22d2808c26de2",
+      "action": "added"
+    },
+    {
+      "path": "docs/architecture/CENTURY-EDITOR-UX-S03-G001-CORR-004-UNIVERSAL-NATIVE-DOCKING-AND-SEAMLESS-WINDOW-DRAG_IMPLEMENTATION.md",
+      "size": 2209,
+      "sha256": "ab073ab2bd429185f7a4ad652b93035934d48ccf42aeb1f1219b29b50c07bfc3",
+      "action": "added"
+    },
+    {
+      "path": "docs/qa/CENTURY-EDITOR-UX-S03-G001-CORR-004-UNIVERSAL-NATIVE-DOCKING-AND-SEAMLESS-WINDOW-DRAG_BUILD.log",
+      "size": 91,
+      "sha256": "ad93033e7f39a0f04a1ed40edf91f741c64cfbf9fa5ed37ad17f38e46626cd7c",
+      "action": "added"
+    },
+    {
+      "path": "docs/qa/CENTURY-EDITOR-UX-S03-G001-CORR-004-UNIVERSAL-NATIVE-DOCKING-AND-SEAMLESS-WINDOW-DRAG_EVIDENCE.md",
+      "size": 1556,
+      "sha256": "d75174c2b0a1002e168e5b284f9398833670276b5020800b57d153c46fa298d5",
+      "action": "added"
+    },
+    {
+      "path": "docs/qa/CENTURY-EDITOR-UX-S03-G001-CORR-004-UNIVERSAL-NATIVE-DOCKING-AND-SEAMLESS-WINDOW-DRAG_FOCUSED.log",
+      "size": 2650,
+      "sha256": "43382d37c3cb854426f4ed24b872da5f7c0cc9dd12b3cba558058ab4fd03d215",
+      "action": "added"
+    },
+    {
+      "path": "docs/qa/CENTURY-EDITOR-UX-S03-G001-CORR-004-UNIVERSAL-NATIVE-DOCKING-AND-SEAMLESS-WINDOW-DRAG_REGRESSION.log",
+      "size": 191698,
+      "sha256": "149cf0c7f27f718f069df15e899723e86cdfaf0c065e134cd4baf488150a440f",
+      "action": "added"
+    },
+    {
+      "path": "docs/qa/LevelForge_DB_Ledger.xlsx",
+      "size": 971290,
+      "sha256": "679ed4ecb3767cce62646fbbd2c32e89e6d8d69840c9dcde0debca05e262c79a",
+      "action": "modified"
+    },
+    {
+      "path": "electron/main.cjs",
+      "size": 24415,
+      "sha256": "ea464be102eef6b99208b0edb82ea2c105204a2f15e02155624e80f709ffa386",
+      "action": "modified"
+    },
+    {
+      "path": "electron/preload.cjs",
+      "size": 4068,
+      "sha256": "479a01b79a375433b6677986b7bb1b34e5db549f2dfac47c72c36f0e22a3d8c8",
+      "action": "modified"
+    },
+    {
+      "path": "scripts/test-century-code-native-docking-corr002.mjs",
+      "size": 4117,
+      "sha256": "e2021744d8f4387efc7e32321c8022cd93ec3c27596d7b4e303b4800620ecda3",
+      "action": "modified"
+    },
+    {
+      "path": "scripts/test-century-code-native-drag-docking-corr003.mjs",
+      "size": 8220,
+      "sha256": "dba621571b059d8ec1f3ee93d00b2be7d7a0c12d1cd363b6491c8ea5d6bf39f4",
+      "action": "modified"
+    },
+    {
+      "path": "scripts/test-century-code-professional-workspace.mjs",
+      "size": 6358,
+      "sha256": "e50edb5197db92bd9e9c438405f3b6167d9fd37da7e7fba814e1641792a1f3f2",
+      "action": "modified"
+    },
+    {
+      "path": "scripts/test-code-workspace-integration.mjs",
+      "size": 6820,
+      "sha256": "9ba72d9eb87182fcc53365f3accd20bfb8bf3b651916a29352a707647b74f9b2",
+      "action": "modified"
+    },
+    {
+      "path": "scripts/test-editor-docking-s03-g001-integral.mjs",
+      "size": 18465,
+      "sha256": "9fb655d0c0833d754c9483b68631e8f9fc82891dee4b684464deadf5b393291c",
+      "action": "modified"
+    },
+    {
+      "path": "scripts/test-editor-windows-layout-corr-g001.mjs",
+      "size": 8179,
+      "sha256": "d4cddbc7d1ce83045da7b4ce302b2b9328d0d50d485858f1456431a157dbe71b",
+      "action": "modified"
+    },
+    {
+      "path": "scripts/test-native-dock-universal.mjs",
+      "size": 6666,
+      "sha256": "24e1eed40d725d2e9470227fea221986b61567bfb0ceffef35a7245522d6c6a1",
+      "action": "added"
+    },
+    {
+      "path": "scripts/test-viewport-docking-and-camera-loopcut-s02-g001.mjs",
+      "size": 11375,
+      "sha256": "40406f671be5880af853acd26c3f493e35921c846c49f5f724f116731f6ccd17",
+      "action": "modified"
+    },
+    {
+      "path": "src/App.vue",
+      "size": 39515,
+      "sha256": "c5093c67e33c19d744753c0aa85b2b1f818a315193db98ca9fb80f1edc5aad95",
+      "action": "modified"
+    },
+    {
+      "path": "src/components/AppWindow.vue",
+      "size": 18424,
+      "sha256": "99c98fe3021ed88d569fdc5ddfc794216f2529cdbb9081f14b811917026d4399",
+      "action": "modified"
+    },
+    {
+      "path": "src/components/DatabaseModal.vue",
+      "size": 18164,
+      "sha256": "ed35ed5fd07cc59188c76f2dba739d0d021fd408dbe343e86b333955230a37e9",
+      "action": "modified"
+    },
+    {
+      "path": "src/components/DockFloating.vue",
+      "size": 1998,
+      "sha256": "5c1fe5f3ef759b7c8d9abae65df8980bf05a06d81e1c653b4660bbb3db8d2fc7",
+      "action": "modified"
+    },
+    {
+      "path": "src/components/DockPanelBank.vue",
+      "size": 4003,
+      "sha256": "b620a4815b2845cfd9658736d3c4857cf6c0f1978df5c82def66281af38d21b1",
+      "action": "modified"
+    },
+    {
+      "path": "src/components/DockTree.vue",
+      "size": 11821,
+      "sha256": "b991634c99a9d02c97879d634ce8e6d19c5e61a92cb7d65bf24bf714c2681bd5",
+      "action": "modified"
+    },
+    {
+      "path": "src/components/DocsWindow.vue",
+      "size": 1865,
+      "sha256": "f784c36d5fe4566e5f70c0f552c85c3c37704f9679680aeb39d1358f1003a5e2",
+      "action": "modified"
+    },
+    {
+      "path": "src/components/EventEditor.vue",
+      "size": 34385,
+      "sha256": "912745f9225f37f6f2237343dd8f557031c7cd327750bb347366bc5b531e1723",
+      "action": "modified"
+    },
+    {
+      "path": "src/components/FloatingEditorWindow.vue",
+      "size": 23284,
+      "sha256": "bf7cf3193b5a1be8b2ed0f8a32e06d0f2f54e4c0669de7c9b1376b1299cfab92",
+      "action": "modified"
+    },
+    {
+      "path": "src/components/LocalizationWindow.vue",
+      "size": 24840,
+      "sha256": "9e78fdfa4fb766588b7b1ee15253da279206f6130dc0575b4a1f0aa97cf6ce25",
+      "action": "modified"
+    },
+    {
+      "path": "src/components/ShaderEditor.vue",
+      "size": 9580,
+      "sha256": "6d72b1ba42228e5132d799113ca7e9d7564f8b02b5b1589226593f9e118ffe3a",
+      "action": "modified"
+    },
+    {
+      "path": "src/components/ShaderGraphEditor.vue",
+      "size": 58602,
+      "sha256": "887565188bd08c848d51887db32b4e27ed57de521397909f80ed9fa0b551b1da",
+      "action": "modified"
+    },
+    {
+      "path": "src/components/ThemeEditor.vue",
+      "size": 12895,
+      "sha256": "eb0f7a3a39a3980a0accf8cdcde21137146da7d401d00f92ec8731d3182a9f5c",
+      "action": "modified"
+    },
+    {
+      "path": "src/components/Toolbar.vue",
+      "size": 18100,
+      "sha256": "c1c074a7c0d7f42967746ade3636d85fab8d66ba2c400b5bc2f7ac20afc7d6cb",
+      "action": "modified"
+    },
+    {
+      "path": "src/core/editor/dock-gesture.js",
+      "size": 4496,
+      "sha256": "32cf0bfb561dfdf80c76365aaa4d2b553eb568abfdc4fb402bc871a5d749a929",
+      "action": "added"
+    },
+    {
+      "path": "src/core/editor/docking.js",
+      "size": 13661,
+      "sha256": "f733fa8f3da18c46db4a7d2725f95abb23d3cbba1ed64609aa034dcd0e206f37",
+      "action": "modified"
+    },
+    {
+      "path": "src/core/editor/native-dock.js",
+      "size": 1183,
+      "sha256": "166e4ea2ede1a21691e98826bdaee68136ffa0fa2cf9cdbb99f98906d998c086",
+      "action": "added"
+    },
+    {
+      "path": "src/core/editor/native-tool-registry.js",
+      "size": 829,
+      "sha256": "9e10788a9db5505c775e823a967b1f40461592f82447cf0c8bf3bd77e7320c97",
+      "action": "modified"
+    },
+    {
+      "path": "src/core/editor/native-tool-window.js",
+      "size": 3992,
+      "sha256": "451938a67ff22100071c739a4a7937a7903696cb1e7de745bc45039e24b8a6d7",
+      "action": "modified"
+    },
+    {
+      "path": "src/core/editor/view-dock-session.js",
+      "size": 3679,
+      "sha256": "1949e0b61c73928d662e5a6aff5a81fa2121bcf5aa36617b5db024f5201c6df6",
+      "action": "modified"
+    }
+  ]
+}

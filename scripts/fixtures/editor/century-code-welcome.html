@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Century Code · Bienvenida</title>
+  <style>
+    html, body, #century-code-qa { width: 100%; height: 100%; margin: 0; overflow: hidden; }
+    #century-code-welcome-result { display: none; }
+  </style>
+</head>
+<body>
+  <pre id="century-code-welcome-result">Ejecutando…</pre>
+  <div id="century-code-qa"></div>
+  <script type="module">
+    import { createApp, nextTick } from 'vue'
+    import '/src/styles.css'
+    import ScriptEditor from '/src/components/ScriptEditor.vue'
+    import { store } from '/src/core/store.js'
+    import { createProjectData } from '/src/core/project.js'
+    import { floatDockPanel } from '/src/core/editor/docking.js'
+
+    const output = document.querySelector('#century-code-welcome-result')
+    const activeDocument = new URLSearchParams(location.search).has('active')
+    const checks = []
+    const check = (name, pass, detail = '') => {
+      checks.push({ name, pass: !!pass, detail })
+      if (!pass) throw new Error(`${name}: ${detail}`)
+    }
+    const tick = async () => { await nextTick(); await new Promise(requestAnimationFrame); await nextTick() }
+    const before = {
+      project: store.project, modal: store.modal, id: store.scriptEditId,
+      mode: store.ui.mode, layout: store.prefs.dockLayout,
+    }
+
+    try {
+      store.ui.mode = 'desktop'
+      store.project = createProjectData('Proyecto Century')
+      store.project.scripts = activeDocument ? [
+        { id:'qa-camera', folder:'Assets/Scripts', name:'FPS-Camara.js', execution:'node', code:`// Script ordinario adjunto al CharacterBody3D que contiene una Camera3D hija «VistaFPS».
+const LOOK_SENSITIVITY = 0.126
+const PITCH_LIMIT = 85
+let camera = null
+
+function _ready() {
+  camera = node.get_node('VistaFPS')
+  if (!camera || camera.type !== 'camera') throw new Error('Falta Camera3D hija')
+}
+
+function _process(delta) {
+  const active = game.camera.active
+  if (!active) return
+  node.rotation = [0, delta, 0]
+}` },
+        { id:'qa-interaction', folder:'Assets/Scripts', name:'FPS-Interaccion.js', execution:'node', code:'function interact() { return true }' },
+        { id:'qa-locomotion', folder:'Assets/Scripts', name:'FPS-Locomocion.js', execution:'node', code:'function move(delta) { return delta }' },
+      ] : []
+      store.scriptEditId = activeDocument ? 'qa-camera' : null
+      store.modal = 'script'
+      store.prefs.dockLayout = floatDockPanel(store.prefs.dockLayout, 'codeView', { x: 18, y: 18, w: 1120, h: 665 })
+      createApp(ScriptEditor).mount('#century-code-qa')
+      await tick()
+
+      if (activeDocument) {
+        check('El documento activo monta un único CodeMirror', document.querySelectorAll('.cm-editor').length === 1)
+        check('La barra de actividad y el command center están visibles', !!document.querySelector('.se-activity') && !!document.querySelector('.se-command-center'))
+        check('Explorer conserva los tres scripts', document.querySelectorAll('.se-file').length === 3)
+        check('Pestaña, breadcrumbs y ejecución forman una jerarquía compacta',
+          !!document.querySelector('.active-tab') && !!document.querySelector('.script-breadcrumb .script-execution'))
+        check('La barra de estado profesional permanece visible', !!document.querySelector('.script-status .status-position'))
+        const commandCenter = document.querySelector('.se-command-center input')
+        commandCenter.value = 'Locomocion'
+        commandCenter.dispatchEvent(new Event('input', { bubbles:true }))
+        await tick()
+        check('El command center filtra el Explorer en tiempo real', document.querySelectorAll('.se-file').length === 1)
+        commandCenter.dispatchEvent(new KeyboardEvent('keydown', { key:'Enter', bubbles:true }))
+        await tick()
+        check('Enter abre el primer resultado del command center', store.scriptEditId === 'qa-locomotion')
+        commandCenter.value = ''
+        commandCenter.dispatchEvent(new Event('input', { bubbles:true }))
+        store.scriptEditId = 'qa-camera'
+        await tick()
+      } else {
+        check('El shell de Code permanece visible sin scripts', !!document.querySelector('.edwin.se.se-welcome-shell'))
+        check('La bienvenida reemplaza el lienzo vacío', !!document.querySelector('.se-welcome'))
+        check('Explorador, pestaña y estado conservan la anatomía del editor',
+          !!document.querySelector('.se-sidebar') && !!document.querySelector('.welcome-tab') && !!document.querySelector('.script-status'))
+        check('Las acciones principales son compactas', document.querySelectorAll('.se-start-actions button').length === 3)
+        check('No se monta CodeMirror sin documento', !document.querySelector('.cm-editor'))
+      }
+
+      output.dataset.pass = 'true'
+      output.textContent = JSON.stringify({ pass: true, gl: activeDocument ? 'Vue, CodeMirror y chrome profesional de Century Code' : 'Vue y shell de bienvenida de Century Code', checks }, null, 2)
+    } catch (error) {
+      output.dataset.pass = 'false'
+      output.textContent = JSON.stringify({ pass: false, checks, error: String(error?.stack || error) }, null, 2)
+    }
+
+    addEventListener('pagehide', () => {
+      store.project = before.project
+      store.modal = before.modal
+      store.scriptEditId = before.id
+      store.ui.mode = before.mode
+      store.prefs.dockLayout = before.layout
+    }, { once: true })
+  </script>
+</body>
+</html>

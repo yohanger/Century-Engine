@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><title>Century · Agua en Edit y Play</title>
+<style>body{margin:12px;background:#18202a;color:#fff;font:14px sans-serif}button{padding:8px;margin:0 8px 8px 0}#viewport{width:600px;height:340px;position:relative}#evidence{display:flex;gap:8px}figure{margin:8px 0}img{width:300px}pre{white-space:pre-wrap;max-width:900px}</style></head>
+<body><h1>Agua: región vacía → lago → Play → Edit</h1><button id="play">Entrar en Play</button><button id="edit">Volver a Edit</button><div id="viewport"></div><div id="evidence"></div><pre id="water-empty-domain-result">Ejecutando…</pre>
+<script type="module">
+import * as THREE from 'three'
+import { nextTick } from 'vue'
+import { Editor } from '/src/core/editor.js'
+import { createProjectData } from '/src/core/project.js'
+import { setEditor, store } from '/src/core/store.js'
+import { Terrain } from '/src/engine/runtime/geometry/terrain.js'
+import { makeObject } from '/src/engine/runtime/nodes/index.js'
+import { rendererPreset } from '/src/engine/runtime/render/config.js'
+
+const output=document.querySelector('#water-empty-domain-result'),checks=[],images=[],errors=[],warnings=[]
+const originalError=console.error.bind(console),originalWarn=console.warn.bind(console)
+console.error=(...args)=>{errors.push(args.map(String).join(' '));originalError(...args)}
+console.warn=(...args)=>{warnings.push(args.map(String).join(' '));originalWarn(...args)}
+window.addEventListener('error',event=>errors.push(event.message))
+window.addEventListener('unhandledrejection',event=>errors.push(String(event.reason)))
+const check=(name,condition,detail)=>{checks.push({name,pass:!!condition,detail});output.dataset.stage=name;if(!condition)throw new Error(name+': '+JSON.stringify(detail))}
+const frame=async()=>{await nextTick();await new Promise(requestAnimationFrame);await nextTick()}
+let editor
+try {
+  check('página de diagnóstico correcta',document.title==='Century · Agua en Edit y Play' && document.querySelector('h1').textContent.includes('lago'))
+  const project=createProjectData('Agua vacía y lago')
+  project.objects=[]
+  project.render={...rendererPreset('mobile'),look:'clasico',profile:'bajo',bloom:0,ao:0,staticOcclusion:false,indirectProbeGrid:false,dynamicReflections:false,puddleReflections:false}
+  project.environment.weather.on=false
+  project.environment.time.on=false
+  project.environment.waterSimulation={enabled:true,regions:[{id:'empty-land',x:-8,z:-8,width:16,height:16,cellSize:1,initialDepth:0}]}
+  store.project=project;store.locked=false
+  const terrain=new Terrain(24,24,project.terrain.layers)
+  terrain.heights.fill(-1);terrain.refreshAll()
+  project.objects.push(makeObject('terrain','terrain',{id:terrain.id,props:{terrainId:terrain.id}}),
+    makeObject('water','water',{id:'lake',name:'Lago',position:[0,0.5,0],props:{shape:'rect',width:8,length:8,res:1,color:'#007dff',deepColor:'#004ec2',opacity:0.95,waveHeight:0}}))
+  editor=new Editor(document.querySelector('#viewport'));setEditor(editor)
+  await editor.loadScene({terrain:terrain.serialize(),settings:project.settings});terrain.dispose()
+  editor.syncAll();editor.syncEnvironment();store.ready=true
+  const vp=editor.vp
+  vp.grid.visible=false;vp.overlay.visible=false
+  vp.persp.position.set(10,12,15);vp.persp.lookAt(0,0,0);vp.controls.target.set(0,0,0);vp.controls.update()
+  await frame()
+  const pose={position:vp.persp.position.clone(),quaternion:vp.persp.quaternion.clone()}
+  const capture=label=>{
+    const water=editor._activeWaterWorld || editor._physicalWaterView?.water
+    const view=editor._physicalWaterView,region=water?.regions.get('empty-land')
+    check(label+': existe agua física',!!region && region.volume()>0,region?.volume())
+    check(label+': hay triángulos de agua',!!view && [...view.items.values()].some(i=>i.mesh.visible && i.mesh.geometry.drawRange.count>0))
+    const gl=vp.renderer.getContext(),width=gl.drawingBufferWidth,height=gl.drawingBufferHeight
+    const read=()=>{vp.look.render(0);const pixels=new Uint8Array(width*height*4);gl.readPixels(0,0,width,height,gl.RGBA,gl.UNSIGNED_BYTE,pixels);return pixels}
+    const wet=read(),src=vp.dom.toDataURL('image/png')
+    view.group.visible=false
+    const dry=read();view.group.visible=true
+    let changed=0
+    for(let k=0;k<wet.length;k+=4)if(Math.abs(wet[k]-dry[k])+Math.abs(wet[k+1]-dry[k+1])+Math.abs(wet[k+2]-dry[k+2])>20)changed++
+    check(label+': agua realmente dibujada por WebGL',changed>30,{changedPixels:changed,volume:region.volume()})
+    read()
+    const figure=document.createElement('figure'),caption=document.createElement('figcaption'),img=new Image()
+    caption.textContent=label;img.src=src;figure.append(caption,img);document.querySelector('#evidence').append(figure)
+    images.push({label,changedPixels:changed,volume:region.volume()})
+    return region.volume()
+  }
+  const initial=capture('Edit inicial')
+  let transition
+  document.querySelector('#play').onclick=()=>{transition=editor.player.start({here:true})}
+  document.querySelector('#edit').onclick=()=>{transition=editor.player.stop()}
+  document.querySelector('#play').click();await transition
+  check('entrar en Play mediante el control',editor.player.on && vp.playing)
+  vp.camera.position.copy(pose.position);vp.camera.quaternion.copy(pose.quaternion)
+  await frame();await frame()
+  const during=capture('Play')
+  check('Play conserva el volumen inicial',Math.abs(during-initial)<1e-6,{initial,during})
+  document.querySelector('#edit').click();await transition
+  check('volver a Edit mediante el control',!editor.player.on && !vp.playing)
+  await frame()
+  const restored=capture('Edit al detener')
+  check('Edit recupera el agua inicial',Math.abs(restored-initial)<1e-6,{initial,restored})
+  check('sin overlay de Vite',!document.querySelector('vite-error-overlay'))
+  check('programas GPU enlazados',vp.renderer.info.programs.every(p=>p.diagnostics?.runnable!==false))
+  check('sin errores en consola ni excepciones',errors.length===0,errors)
+  const result={pass:true,checks,images,warnings,gl:glName(vp.renderer)}
+  output.dataset.pass='true';output.textContent=JSON.stringify(result,null,2)
+} catch(error) {
+  output.dataset.pass='false';output.textContent=JSON.stringify({pass:false,error:String(error.stack||error),checks,images},null,2)
+}
+function glName(renderer){const gl=renderer.getContext();return gl.getParameter(gl.VERSION)+' / '+gl.getParameter(gl.RENDERER)}
+</script></body></html>

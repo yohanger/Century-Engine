@@ -1,0 +1,10 @@
+{
+  "appId": "com.levelforge.netherfilmmaker",
+  "productName": "Nether Film Maker",
+  "executableName": "nether-film-maker",
+  "extraMetadata": { "main": "electron/filmmaker.cjs", "name": "nether-film-maker", "description": "Rodaje de cinemáticas para Century" },
+  "directories": { "output": "release-filmmaker", "buildResources": "build" },
+  "files": ["dist/**/*", "electron/**/*", "package.json"],
+  "linux": { "target": ["AppImage"], "category": "Video", "icon": "build/icon.png", "synopsis": "Rodaje de cinemáticas para Century", "maintainer": "Century <levelforge@example.com>" },
+  "publish": [{ "provider": "generic", "url": "https://levelforge.invalid/updates" }]
+}

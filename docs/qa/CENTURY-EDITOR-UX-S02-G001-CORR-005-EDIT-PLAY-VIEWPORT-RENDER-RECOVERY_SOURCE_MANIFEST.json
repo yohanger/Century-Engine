@@ -1,0 +1,95 @@
+{
+  "gate": "CENTURY-EDITOR-UX-S02-G001-CORR-005-EDIT-PLAY-VIEWPORT-RENDER-RECOVERY",
+  "authorized": "Listo. CENTURY-EDITOR-UX-S02-G001-CORR-005-EDIT-PLAY-VIEWPORT-RENDER-RECOVERY autoriza comenzar",
+  "authority": "CE-EDITOR-UX-CA-001-EDIT-PLAY-INDEPENDENT-AUTHORITY-AND-DOCKING",
+  "source_baseline": "CENTURY-EDITOR-UX-S02-G001-CORR-004-REMOVE-REDUNDANT-PREVIEW-LABEL_SOURCE_BASELINE.zip",
+  "source_baseline_sha256": "c763e48b60ae9fb90b20e282e9d8c5f8f2fda0b9545b5238aaf8652dd622f6db",
+  "source_files_verified": 3304,
+  "source_files_missing": [],
+  "source_files_changed_before_work": 0,
+  "changed_files_excluding_manifest": [
+    {
+      "path": "docs/architecture/CENTURY-EDITOR-UX-S02-G001-CORR-005-EDIT-PLAY-VIEWPORT-RENDER-RECOVERY_IMPLEMENTATION.md",
+      "status": "added",
+      "sha256": "46d1d63ae847cd665fa05f9c0eb4f6f48bb5128119f15d0ae683ba33d416bff3"
+    },
+    {
+      "path": "docs/qa/CENTURY-EDITOR-UX-S02-G001-CORR-005-EDIT-PLAY-VIEWPORT-RENDER-RECOVERY_EVIDENCE.md",
+      "status": "added",
+      "sha256": "f5eb72b0db736559fbae5148ffc2b57da19b2dd24115fdf0d4c79a96b8487b0d"
+    },
+    {
+      "path": "docs/qa/LevelForge_DB_Ledger.xlsx",
+      "status": "modified",
+      "sha256": "39243b9e3749fe8e5c8eb30849954792d8f6f059ab3ffb14edc904b58dd1b64a"
+    },
+    {
+      "path": "docs/qa/evidence/CENTURY-EDITOR-UX-S02-G001-CORR-005-EDIT-PLAY-VIEWPORT-RENDER-RECOVERY/baseline-docking-node.log",
+      "status": "added",
+      "sha256": "5e1199f6657c8c79648c07d657e3660755b53eb39851872265914f6f1a461f54"
+    },
+    {
+      "path": "docs/qa/evidence/CENTURY-EDITOR-UX-S02-G001-CORR-005-EDIT-PLAY-VIEWPORT-RENDER-RECOVERY/build.log",
+      "status": "added",
+      "sha256": "ad93033e7f39a0f04a1ed40edf91f741c64cfbf9fa5ed37ad17f38e46626cd7c"
+    },
+    {
+      "path": "docs/qa/evidence/CENTURY-EDITOR-UX-S02-G001-CORR-005-EDIT-PLAY-VIEWPORT-RENDER-RECOVERY/domain-node.log",
+      "status": "added",
+      "sha256": "17ca86b45fb779ffc5ebcae7fc25a58ad50792b6eb6f88a6b73c03bec79eeea3"
+    },
+    {
+      "path": "docs/qa/evidence/CENTURY-EDITOR-UX-S02-G001-CORR-005-EDIT-PLAY-VIEWPORT-RENDER-RECOVERY/focused-node.log",
+      "status": "added",
+      "sha256": "14df1ac2fac01b425475154c81009ea35e70ff769735902bf9918222e504079d"
+    },
+    {
+      "path": "docs/qa/evidence/CENTURY-EDITOR-UX-S02-G001-CORR-005-EDIT-PLAY-VIEWPORT-RENDER-RECOVERY/lifecycle-node.log",
+      "status": "added",
+      "sha256": "92363f92e4912451ce8247cb25ec753d175922c847537445e990f91367c4f95a"
+    },
+    {
+      "path": "docs/qa/evidence/CENTURY-EDITOR-UX-S02-G001-CORR-005-EDIT-PLAY-VIEWPORT-RENDER-RECOVERY/regression-node.log",
+      "status": "added",
+      "sha256": "9a3987018677b1f0e6f8399fd6c881505669351831c6af9143ff80e7e63be149"
+    },
+    {
+      "path": "docs/qa/evidence/CENTURY-EDITOR-UX-S02-G001-CORR-005-EDIT-PLAY-VIEWPORT-RENDER-RECOVERY/syntax.log",
+      "status": "added",
+      "sha256": "3cd58359dec373d48232d0515f67181e2ffaf81899613251bf6d217fc84e7d1e"
+    },
+    {
+      "path": "scripts/test-viewport-dock-render-recovery.mjs",
+      "status": "added",
+      "sha256": "2fa43a4db784678b83233402196b074db6c88e424ebcab9a6ddbae888fdfb36c"
+    },
+    {
+      "path": "scripts/test-viewport-docking-and-camera-loopcut-s02-g001.mjs",
+      "status": "modified",
+      "sha256": "bc7bab135a034377ee48cf079f5a05352ed8bb9e1a59b8f6f758406484dcc977"
+    },
+    {
+      "path": "src/App.vue",
+      "status": "modified",
+      "sha256": "531c888e91630c666591af2ef4884d4668a561bd7f5faa3521763776f77ee8d7"
+    },
+    {
+      "path": "src/core/editor/view-dock-session.js",
+      "status": "modified",
+      "sha256": "d7dfaab8a723fa6b60c3ef9bdd8f676cff24f8c1746fc033cce7975879a238f8"
+    }
+  ],
+  "qa": {
+    "focused_node": "25/25 PASS",
+    "domain_node": "28/28 PASS",
+    "lifecycle_node": "8/8 PASS",
+    "regression_node": "117/119 PASS; DOCK-30 and DOCK-C09 inherited",
+    "baseline_docking": "50/52 PASS; same DOCK-30 and DOCK-C09",
+    "script_syntax": "PASS",
+    "vite_build": "BLOCKED vite: not found",
+    "electron_visual": "NOT VERIFIED",
+    "gate_approval": "PENDING",
+    "closed": false
+  },
+  "git_operations": "none"
+}

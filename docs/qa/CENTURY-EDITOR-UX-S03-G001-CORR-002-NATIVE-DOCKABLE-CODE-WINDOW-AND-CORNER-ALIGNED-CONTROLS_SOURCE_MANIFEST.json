@@ -1,0 +1,90 @@
+{
+  "gate": "CENTURY-EDITOR-UX-S03-G001-CORR-002-NATIVE-DOCKABLE-CODE-WINDOW-AND-CORNER-ALIGNED-CONTROLS",
+  "source_baseline": "CENTURY-EDITOR-UX-S03-G001-CORR-001-PROFESSIONAL-CODE-WORKSPACE-AND-NATIVE-WINDOW-UX_SOURCE_BASELINE.zip",
+  "source_baseline_sha256": "51ea318c9fc972132bad04fe8647f2bc288a78b4caadd78d583030de5f82d700",
+  "original_files": 3334,
+  "new_files": 8,
+  "modified_files": 6,
+  "deleted_files": [],
+  "files": [
+    {
+      "path": "docs/architecture/CENTURY-EDITOR-UX-S03-G001-CORR-002-NATIVE-DOCKABLE-CODE-WINDOW-AND-CORNER-ALIGNED-CONTROLS_IMPLEMENTATION.md",
+      "status": "ADDED",
+      "sha256": "3e5d83df59670121fec2a56426dae86c297b8782a201da630f412535ea1dbf78"
+    },
+    {
+      "path": "docs/qa/CENTURY-EDITOR-UX-S03-G001-CORR-002-NATIVE-DOCKABLE-CODE-WINDOW-AND-CORNER-ALIGNED-CONTROLS_BASELINE_REGRESSION.log",
+      "status": "ADDED",
+      "sha256": "d01a1a5bad3926c6369445b078f32b98977f12d096c1dd92abc71f55262ff3e0"
+    },
+    {
+      "path": "docs/qa/CENTURY-EDITOR-UX-S03-G001-CORR-002-NATIVE-DOCKABLE-CODE-WINDOW-AND-CORNER-ALIGNED-CONTROLS_BUILD.log",
+      "status": "ADDED",
+      "sha256": "ad93033e7f39a0f04a1ed40edf91f741c64cfbf9fa5ed37ad17f38e46626cd7c"
+    },
+    {
+      "path": "docs/qa/CENTURY-EDITOR-UX-S03-G001-CORR-002-NATIVE-DOCKABLE-CODE-WINDOW-AND-CORNER-ALIGNED-CONTROLS_EVIDENCE.md",
+      "status": "ADDED",
+      "sha256": "852dc2541d09d16d869e9bdcd6f97c372dbf13f7ba8b26fd422499e2260d7f7b"
+    },
+    {
+      "path": "docs/qa/CENTURY-EDITOR-UX-S03-G001-CORR-002-NATIVE-DOCKABLE-CODE-WINDOW-AND-CORNER-ALIGNED-CONTROLS_NEW_TESTS.log",
+      "status": "ADDED",
+      "sha256": "3b49ed8dc005db7b21e9634e6041a27fd8c79c5029d717d5e6679bd126f0cb44"
+    },
+    {
+      "path": "docs/qa/CENTURY-EDITOR-UX-S03-G001-CORR-002-NATIVE-DOCKABLE-CODE-WINDOW-AND-CORNER-ALIGNED-CONTROLS_REGRESSION.log",
+      "status": "ADDED",
+      "sha256": "54e451fe13162d2268eaa6a99c4ff66c7751d873465472df5a91ba5081f9fad6"
+    },
+    {
+      "path": "docs/qa/CENTURY-EDITOR-UX-S03-G001-CORR-002-NATIVE-DOCKABLE-CODE-WINDOW-AND-CORNER-ALIGNED-CONTROLS_SYNTAX.log",
+      "status": "ADDED",
+      "sha256": "0c669c3e0cc1e2ce4c3d7e2b7380996b0e3a3f1da8d4dc1886b3e6eec054051c"
+    },
+    {
+      "path": "docs/qa/LevelForge_DB_Ledger.xlsx",
+      "status": "MODIFIED",
+      "sha256": "586e9153051864935637151bf3fa6ace01616e4d475f94f3736c6d5c06d5153a"
+    },
+    {
+      "path": "electron/main.cjs",
+      "status": "MODIFIED",
+      "sha256": "03274a708c8de2ba5efce420d64639fc80b99500307f4524f7ded2ba27f0602f"
+    },
+    {
+      "path": "scripts/test-century-code-native-docking-corr002.mjs",
+      "status": "ADDED",
+      "sha256": "bbdebc7cf46dbe7d84eb8a936012624cacbb20b1d6e8b3ec713cf9f3e87605d9"
+    },
+    {
+      "path": "src/components/DockTree.vue",
+      "status": "MODIFIED",
+      "sha256": "a87ed67b38b15c55d0a69ea1e66286f42c2a0dbc092cb5dde2d176a32c2b186c"
+    },
+    {
+      "path": "src/components/FloatingEditorWindow.vue",
+      "status": "MODIFIED",
+      "sha256": "1e14282dc155fe149b385fc695deb4e73c640a2e8b43578e17666cd5ad9c4b26"
+    },
+    {
+      "path": "src/components/ScriptEditor.vue",
+      "status": "MODIFIED",
+      "sha256": "378b161972469e836b81e5a99ff2eb0ebfd49b05fa5d44c7c0016aaf53cfa551"
+    },
+    {
+      "path": "src/core/editor/view-dock-session.js",
+      "status": "MODIFIED",
+      "sha256": "1d6e22751fa48bfcaa113657e9836be1fa1aa7a09543b81837952133111d9627"
+    }
+  ],
+  "qa_status": "IMPLEMENTADO EN FUENTE; NODE TESTS PASS ACOTADO; VITE/ELECTRON NO VERIFICADO",
+  "ledger_sheets": [
+    "ROADMAP",
+    "BACKLOG",
+    "DEPENDENCIES",
+    "GATES",
+    "EVIDENCE",
+    "TRACEABILITY"
+  ]
+}

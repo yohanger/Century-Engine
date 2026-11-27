@@ -1,0 +1,934 @@
+{
+  "entorno": {
+    "electron": "44.5.1",
+    "compositor": "Mutter / GNOME Shell 46",
+    "backend": "Wayland",
+    "entrada": "Puntero de compositor por org.gnome.Mutter.RemoteDesktop. DevTools se usó para observación DOM."
+  },
+  "mismoGestoAntes": {
+    "ubicacion": {
+      "kind": "float",
+      "id": "hierarchy",
+      "x": 5,
+      "y": 29,
+      "w": 620,
+      "h": 460
+    },
+    "ventana": true,
+    "traza": [
+      {
+        "phase": "hit-test",
+        "event": "pointermove",
+        "owner": "editor",
+        "buttons": 1,
+        "client": {
+          "x": 49,
+          "y": 52
+        },
+        "screen": {
+          "x": 49,
+          "y": 52
+        },
+        "editor": {
+          "x": 49,
+          "y": 52
+        },
+        "actualCapture": true,
+        "focused": true,
+        "reason": "no-connected-group",
+        "target": null
+      },
+      {
+        "phase": "hit-test",
+        "event": "pointermove",
+        "owner": "editor",
+        "buttons": 1,
+        "client": {
+          "x": 49,
+          "y": 41
+        },
+        "screen": {
+          "x": 49,
+          "y": 41
+        },
+        "editor": {
+          "x": 49,
+          "y": 41
+        },
+        "actualCapture": true,
+        "focused": true,
+        "reason": "no-connected-group",
+        "target": null
+      },
+      {
+        "phase": "native-request",
+        "event": "pointermove",
+        "owner": "editor",
+        "buttons": 1,
+        "client": {
+          "x": 49,
+          "y": 41
+        },
+        "screen": {
+          "x": 49,
+          "y": 41
+        },
+        "editor": {
+          "x": 49,
+          "y": 41
+        },
+        "actualCapture": true,
+        "focused": true,
+        "reason": "no-valid-target"
+      },
+      {
+        "phase": "hit-test",
+        "event": "pointermove",
+        "owner": "editor",
+        "buttons": 1,
+        "client": {
+          "x": 1230,
+          "y": 390
+        },
+        "screen": {
+          "x": 1230,
+          "y": 390
+        },
+        "editor": {
+          "x": 1230,
+          "y": 390
+        },
+        "actualCapture": true,
+        "focused": true,
+        "reason": "valid",
+        "target": {
+          "zone": "right",
+          "groupId": "lf-dock-right",
+          "edge": "center",
+          "beforeTab": null,
+          "onTabs": false
+        }
+      },
+      {
+        "phase": "cancel",
+        "event": "pointercancel",
+        "owner": "editor",
+        "buttons": null,
+        "client": {},
+        "screen": {},
+        "editor": {},
+        "actualCapture": false,
+        "focused": false,
+        "reason": "blur"
+      }
+    ],
+    "liberacion": {
+      "owner": "editor",
+      "event": "pointerup",
+      "button": 0,
+      "buttons": 0,
+      "client": [
+        1230,
+        390
+      ],
+      "screen": [
+        1230,
+        390
+      ],
+      "trusted": true,
+      "tag": "DIV",
+      "cls": "scroll"
+    }
+  },
+  "mismoGestoDespues": {
+    "ubicacion": {
+      "zone": "right",
+      "groupId": "lf-dock-right",
+      "active": true,
+      "kind": "dock"
+    },
+    "ventana": false,
+    "traza": [
+      {
+        "phase": "hit-test",
+        "event": "pointermove",
+        "owner": "editor",
+        "buttons": 1,
+        "client": {
+          "x": 49,
+          "y": 52
+        },
+        "screen": {
+          "x": 49,
+          "y": 52
+        },
+        "editor": {
+          "x": 49,
+          "y": 52
+        },
+        "actualCapture": true,
+        "focused": true,
+        "reason": "no-connected-group",
+        "target": null
+      },
+      {
+        "phase": "hit-test",
+        "event": "pointermove",
+        "owner": "editor",
+        "buttons": 1,
+        "client": {
+          "x": 49,
+          "y": 41
+        },
+        "screen": {
+          "x": 49,
+          "y": 41
+        },
+        "editor": {
+          "x": 49,
+          "y": 41
+        },
+        "actualCapture": true,
+        "focused": true,
+        "reason": "no-connected-group",
+        "target": null
+      },
+      {
+        "phase": "native-request",
+        "event": "pointermove",
+        "owner": "editor",
+        "buttons": 1,
+        "client": {
+          "x": 49,
+          "y": 41
+        },
+        "screen": {
+          "x": 49,
+          "y": 41
+        },
+        "editor": {
+          "x": 49,
+          "y": 41
+        },
+        "actualCapture": true,
+        "focused": true,
+        "reason": "no-valid-target"
+      },
+      {
+        "phase": "hit-test",
+        "event": "pointermove",
+        "owner": "editor",
+        "buttons": 1,
+        "client": {
+          "x": 1220,
+          "y": 380
+        },
+        "screen": {
+          "x": 1220,
+          "y": 380
+        },
+        "editor": {
+          "x": 1220,
+          "y": 380
+        },
+        "actualCapture": true,
+        "focused": true,
+        "reason": "valid",
+        "target": {
+          "zone": "right",
+          "groupId": "lf-dock-right",
+          "edge": "center",
+          "beforeTab": null,
+          "onTabs": false
+        }
+      },
+      {
+        "phase": "finish",
+        "event": "pointerup",
+        "owner": "editor",
+        "buttons": 0,
+        "client": {
+          "x": 1220,
+          "y": 380
+        },
+        "screen": {
+          "x": 1220,
+          "y": 380
+        },
+        "editor": {
+          "x": 1220,
+          "y": 380
+        },
+        "actualCapture": false,
+        "focused": true
+      },
+      {
+        "phase": "hit-test",
+        "event": "pointerup",
+        "owner": "editor",
+        "buttons": 0,
+        "client": {
+          "x": 1220,
+          "y": 380
+        },
+        "screen": {
+          "x": 1220,
+          "y": 380
+        },
+        "editor": {
+          "x": 1220,
+          "y": 380
+        },
+        "actualCapture": false,
+        "focused": true,
+        "reason": "valid",
+        "target": {
+          "zone": "right",
+          "groupId": "lf-dock-right",
+          "edge": "center",
+          "beforeTab": null,
+          "onTabs": false
+        }
+      },
+      {
+        "phase": "committed",
+        "event": "pointerup",
+        "owner": "editor",
+        "buttons": 0,
+        "client": {
+          "x": 1220,
+          "y": 380
+        },
+        "screen": {
+          "x": 1220,
+          "y": 380
+        },
+        "editor": {
+          "x": 1220,
+          "y": 380
+        },
+        "actualCapture": false,
+        "focused": true,
+        "target": {
+          "zone": "right",
+          "groupId": "lf-dock-right",
+          "edge": "center",
+          "beforeTab": null,
+          "onTabs": false
+        }
+      }
+    ]
+  },
+  "desdeVentanaAntes": {
+    "destinoBajoPuntero": {
+      "point": [
+        125,
+        390
+      ],
+      "zone": "center"
+    },
+    "ubicacion": {
+      "kind": "float",
+      "id": "hierarchy",
+      "x": -721,
+      "y": 474,
+      "w": 620,
+      "h": 460
+    },
+    "traza": [
+      {
+        "phase": "start",
+        "event": "pointerdown",
+        "owner": "native",
+        "buttons": 1,
+        "client": {
+          "x": 43,
+          "y": 17
+        },
+        "screen": {
+          "x": 59,
+          "y": 27
+        },
+        "editor": {
+          "x": 59,
+          "y": 27
+        },
+        "actualCapture": false,
+        "focused": true
+      },
+      {
+        "phase": "capture",
+        "event": "pointermove",
+        "owner": "native",
+        "buttons": 1,
+        "client": {
+          "x": 24,
+          "y": 29
+        },
+        "screen": {
+          "x": 40,
+          "y": 39
+        },
+        "editor": {
+          "x": 40,
+          "y": 39
+        },
+        "actualCapture": true,
+        "focused": true,
+        "reason": "acquired"
+      },
+      {
+        "phase": "hit-test",
+        "event": "pointermove",
+        "owner": "native",
+        "buttons": 1,
+        "client": {
+          "x": 24,
+          "y": 29
+        },
+        "screen": {
+          "x": 40,
+          "y": 39
+        },
+        "editor": {
+          "x": 40,
+          "y": 39
+        },
+        "actualCapture": true,
+        "focused": true,
+        "reason": "no-connected-group",
+        "target": null
+      },
+      {
+        "phase": "hit-test",
+        "event": "pointermove",
+        "owner": "native",
+        "buttons": 1,
+        "client": {
+          "x": -35,
+          "y": 71
+        },
+        "screen": {
+          "x": -54,
+          "y": 83
+        },
+        "editor": {
+          "x": -54,
+          "y": 83
+        },
+        "actualCapture": true,
+        "focused": true,
+        "reason": "outside-editor",
+        "target": null
+      },
+      {
+        "phase": "hit-test",
+        "event": "pointermove",
+        "owner": "native",
+        "buttons": 1,
+        "client": {
+          "x": -245,
+          "y": 236
+        },
+        "screen": {
+          "x": -358,
+          "y": 292
+        },
+        "editor": {
+          "x": -358,
+          "y": 292
+        },
+        "actualCapture": true,
+        "focused": true,
+        "reason": "outside-editor",
+        "target": null
+      },
+      {
+        "phase": "finish",
+        "event": "pointerup",
+        "owner": "native",
+        "buttons": 0,
+        "client": {
+          "x": -245,
+          "y": 236
+        },
+        "screen": {
+          "x": -662,
+          "y": 501
+        },
+        "editor": {
+          "x": -662,
+          "y": 501
+        },
+        "actualCapture": false,
+        "focused": true
+      },
+      {
+        "phase": "hit-test",
+        "event": "pointerup",
+        "owner": "native",
+        "buttons": 0,
+        "client": {
+          "x": -245,
+          "y": 236
+        },
+        "screen": {
+          "x": -662,
+          "y": 501
+        },
+        "editor": {
+          "x": -662,
+          "y": 501
+        },
+        "actualCapture": false,
+        "focused": true,
+        "reason": "outside-editor",
+        "target": null
+      }
+    ]
+  },
+  "desdeVentanaDespues": {
+    "ubicacion": {
+      "zone": "center",
+      "groupId": "lf-dock-center",
+      "active": true,
+      "kind": "dock"
+    },
+    "ventana": false,
+    "indicadorAntesDeSoltar": [
+      [
+        "lf-dock-group dock-hover",
+        "center"
+      ]
+    ],
+    "traza": [
+      {
+        "phase": "native-transfer",
+        "event": "dragstart",
+        "owner": "native",
+        "buttons": 1,
+        "client": {
+          "x": 43,
+          "y": 17
+        },
+        "screen": {
+          "x": 1208,
+          "y": 46
+        },
+        "editor": null,
+        "actualCapture": false,
+        "focused": true
+      },
+      {
+        "phase": "native-activated",
+        "event": "dragenter",
+        "owner": "native",
+        "buttons": 0,
+        "client": {
+          "x": 76,
+          "y": 39
+        },
+        "screen": {
+          "x": 1241,
+          "y": 68
+        },
+        "editor": null,
+        "actualCapture": false,
+        "focused": false
+      },
+      {
+        "phase": "hit-test",
+        "event": "dragenter",
+        "owner": "native",
+        "buttons": 0,
+        "client": {
+          "x": 135,
+          "y": 376
+        },
+        "screen": {
+          "x": 662,
+          "y": 512
+        },
+        "editor": {
+          "x": 135,
+          "y": 376
+        },
+        "actualCapture": false,
+        "focused": false,
+        "reason": "valid",
+        "target": {
+          "zone": "center",
+          "groupId": "lf-dock-center",
+          "edge": "center",
+          "beforeTab": null,
+          "onTabs": false
+        }
+      },
+      {
+        "phase": "hit-test",
+        "event": "dragover",
+        "owner": "native",
+        "buttons": 0,
+        "client": {
+          "x": 135,
+          "y": 376
+        },
+        "screen": {
+          "x": 135,
+          "y": 376
+        },
+        "editor": {
+          "x": 135,
+          "y": 376
+        },
+        "actualCapture": false,
+        "focused": false,
+        "reason": "valid",
+        "target": {
+          "zone": "center",
+          "groupId": "lf-dock-center",
+          "edge": "center",
+          "beforeTab": null,
+          "onTabs": false
+        }
+      },
+      {
+        "phase": "hit-test",
+        "event": "dragover",
+        "owner": "native",
+        "buttons": 0,
+        "client": {
+          "x": 135,
+          "y": 376
+        },
+        "screen": {
+          "x": 135,
+          "y": 376
+        },
+        "editor": {
+          "x": 135,
+          "y": 376
+        },
+        "actualCapture": false,
+        "focused": false,
+        "reason": "valid",
+        "target": {
+          "zone": "center",
+          "groupId": "lf-dock-center",
+          "edge": "center",
+          "beforeTab": null,
+          "onTabs": false
+        }
+      },
+      {
+        "phase": "hit-test",
+        "event": "dragover",
+        "owner": "native",
+        "buttons": 0,
+        "client": {
+          "x": 125,
+          "y": 380
+        },
+        "screen": {
+          "x": 125,
+          "y": 380
+        },
+        "editor": {
+          "x": 125,
+          "y": 380
+        },
+        "actualCapture": false,
+        "focused": false,
+        "reason": "valid",
+        "target": {
+          "zone": "center",
+          "groupId": "lf-dock-center",
+          "edge": "center",
+          "beforeTab": null,
+          "onTabs": false
+        }
+      },
+      {
+        "phase": "hit-test",
+        "event": "drop",
+        "owner": "native",
+        "buttons": 0,
+        "client": {
+          "x": 125,
+          "y": 380
+        },
+        "screen": {
+          "x": 662,
+          "y": 512
+        },
+        "editor": {
+          "x": 125,
+          "y": 380
+        },
+        "actualCapture": false,
+        "focused": false,
+        "reason": "valid",
+        "target": {
+          "zone": "center",
+          "groupId": "lf-dock-center",
+          "edge": "center",
+          "beforeTab": null,
+          "onTabs": false
+        }
+      },
+      {
+        "phase": "committed",
+        "event": "drop",
+        "owner": "native",
+        "buttons": 0,
+        "client": {
+          "x": 125,
+          "y": 380
+        },
+        "screen": {
+          "x": 662,
+          "y": 512
+        },
+        "editor": {
+          "x": 125,
+          "y": 380
+        },
+        "actualCapture": false,
+        "focused": false,
+        "target": {
+          "zone": "center",
+          "groupId": "lf-dock-center",
+          "edge": "center",
+          "beforeTab": null,
+          "onTabs": false
+        }
+      }
+    ]
+  },
+  "movimientoCabecera": {
+    "origenInicial": [
+      373,
+      128
+    ],
+    "origenFinal": [
+      483,
+      198
+    ],
+    "diferencia": [
+      110,
+      70
+    ],
+    "calibracionFinal": [
+      {
+        "owner": "tool",
+        "event": "pointermove",
+        "button": -1,
+        "buttons": 0,
+        "client": [
+          217,
+          57
+        ],
+        "screen": [
+          1382,
+          86
+        ],
+        "trusted": true,
+        "tag": "DIV",
+        "cls": "panel-head"
+      }
+    ],
+    "protocolo": [
+      "[1359449.484]  -> xdg_toplevel#43.move(wl_seat#17, 56330)",
+      "[1378200.533]  -> wl_data_device#18.start_drag(wl_data_source#44, wl_surface#57, wl_surface#60, 56337)",
+      "[1382815.025] wl_data_device#18.drop()"
+    ]
+  },
+  "editorCompilado": {
+    "protocolo": "file:",
+    "gruposCentro": [
+      {
+        "id": "lf-dock-g-1",
+        "tabs": [
+          "hierarchy"
+        ],
+        "active": "hierarchy"
+      },
+      {
+        "id": "lf-dock-center",
+        "tabs": [
+          "codeView",
+          "sceneView",
+          "gameView"
+        ],
+        "active": "codeView"
+      }
+    ],
+    "ventana": false,
+    "eventos": [
+      {
+        "owner": "lf-tool-code",
+        "name": "dragstart",
+        "xy": [
+          32,
+          17
+        ],
+        "screen": [
+          498,
+          101
+        ],
+        "trusted": true,
+        "cls": "native-code-tab",
+        "type": []
+      },
+      {
+        "owner": "editor",
+        "name": "drop",
+        "xy": [
+          322,
+          143
+        ],
+        "screen": [
+          1082,
+          742
+        ],
+        "trusted": true,
+        "cls": "",
+        "type": [
+          "application/x-lf-native-dock",
+          "chromium/x-drag-id"
+        ]
+      }
+    ],
+    "indicadores": [
+      {
+        "zone": "center",
+        "groupId": "lf-dock-center",
+        "edge": "center",
+        "beforeTab": "sceneView",
+        "onTabs": true
+      }
+    ],
+    "protocoloWayland": [
+      "[3511148.230]  -> xdg_toplevel#60.move(wl_seat#17, 56797)",
+      "[3539723.989]  -> wl_data_device#18.start_drag(wl_data_source#63, wl_surface#55, wl_surface#54, 56802)",
+      "[3543526.971] wl_data_device#18.drop()"
+    ],
+    "mismoGesto": {
+      "rightTabs": [
+        "object",
+        "hierarchy"
+      ],
+      "opened": [
+        {
+          "name": "lf-tool-code",
+          "closed": true
+        },
+        {
+          "name": "lf-tool-panel-1",
+          "closed": true
+        }
+      ],
+      "previews": [
+        {
+          "zone": "center",
+          "groupId": "lf-dock-center",
+          "edge": "center",
+          "beforeTab": "sceneView",
+          "onTabs": true
+        },
+        {
+          "zone": "center",
+          "groupId": "lf-dock-center",
+          "edge": "center",
+          "beforeTab": "sceneView",
+          "onTabs": true
+        },
+        {
+          "zone": "center",
+          "groupId": "lf-dock-center",
+          "edge": "center",
+          "beforeTab": "sceneView",
+          "onTabs": true
+        },
+        null,
+        null,
+        null,
+        {
+          "zone": "right",
+          "groupId": "lf-dock-right",
+          "edge": "center",
+          "beforeTab": null,
+          "onTabs": false
+        },
+        null
+      ],
+      "eventos": [
+        {
+          "owner": "editor",
+          "name": "pointerdown",
+          "xy": [
+            50,
+            114
+          ],
+          "screen": [
+            50,
+            114
+          ],
+          "trusted": true,
+          "cls": "",
+          "type": null
+        },
+        {
+          "owner": "editor",
+          "name": "pointerup",
+          "xy": [
+            1220,
+            370
+          ],
+          "screen": [
+            1220,
+            370
+          ],
+          "trusted": true,
+          "cls": "",
+          "type": null
+        }
+      ]
+    },
+    "soltarFuera": {
+      "ventana": true,
+      "ubicacion": {
+        "id": "hierarchy",
+        "x": 1165,
+        "y": 29,
+        "w": 620,
+        "h": 460
+      },
+      "indicadorAnterior": {
+        "zone": "right",
+        "groupId": "lf-dock-right",
+        "edge": "center",
+        "beforeTab": null,
+        "onTabs": false
+      },
+      "indicadorFinal": null,
+      "evento": {
+        "owner": "lf-tool-panel-2",
+        "name": "dragend",
+        "xy": [
+          55,
+          22
+        ],
+        "screen": [
+          1220,
+          51
+        ],
+        "trusted": true,
+        "cls": "aw-title native-dock-title",
+        "type": [
+          "application/x-lf-native-dock"
+        ]
+      }
+    }
+  }
+}

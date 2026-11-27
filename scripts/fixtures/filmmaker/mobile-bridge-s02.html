@@ -1,0 +1,59 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>FilmMaker S02 · QA WebRTC Electron</title></head><body>
+<canvas id="source" width="640" height="360" style="width:320px"></canvas>
+<video id="monitor" autoplay playsinline muted style="width:320px"></video>
+<pre id="s02-electron-result" data-stage="starting">Iniciando WebRTC en Electron embebido…</pre>
+<script type="module">
+const target = document.getElementById('s02-electron-result'), checks=[]
+const assert = (ok, message) => { if (!ok) throw new Error(message); checks.push(message) }
+const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
+let pc1, pc2, stream, raf = 0
+async function ice(pc) {
+  if (pc.iceGatheringState === 'complete') return
+  await new Promise((resolve, reject) => {
+    const timeout = setTimeout(() => reject(new Error('ICE agotado')), 8000)
+    const check = () => { if (pc.iceGatheringState === 'complete') { clearTimeout(timeout); resolve() } }
+    pc.addEventListener('icegatheringstatechange', check)
+  })
+}
+const finish = (pass, error = '') => { target.dataset.pass = String(pass); target.textContent = JSON.stringify({pass,checks,error}) }
+try {
+  const canvas = document.getElementById('source')
+  const gl = canvas.getContext('webgl2') || canvas.getContext('webgl')
+  assert(!!gl, 'Renderer WebGL disponible en Electron')
+  let step=0
+  const render = () => { step++; gl.clearColor(.1 + .1 * Math.sin(step / 20), .25, .65, 1); gl.clear(gl.COLOR_BUFFER_BIT); raf=requestAnimationFrame(render) }
+  render()
+  assert(typeof canvas.captureStream === 'function', 'Captura nativa del canvas WebGL disponible')
+  stream = canvas.captureStream(10)
+  assert(stream.getVideoTracks().length === 1, 'Una pista de vídeo del canvas existente')
+  pc1 = new RTCPeerConnection({ iceServers:[] }); pc2 = new RTCPeerConnection({ iceServers:[] })
+  for (const track of stream.getTracks()) pc1.addTrack(track, stream)
+  const channel=pc1.createDataChannel('lf-camera-orientation',{ordered:false,maxRetransmits:0})
+  let received=false, frames=0, monitorSource=false
+  pc2.ondatachannel = ({channel: c}) => { c.onopen = () => c.send(JSON.stringify({version:1,type:'orientation',seq:1,quaternionXYZW:[0,0,0,1]})) }
+  channel.onmessage = event => { const p=JSON.parse(event.data); received = p.type === 'orientation' && p.quaternionXYZW[3] === 1 }
+  pc2.ontrack = async event => {
+    const video = document.getElementById('monitor')
+    video.srcObject = event.streams[0]
+    await video.play()
+    monitorSource = video.srcObject !== stream
+    if (video.requestVideoFrameCallback) {
+      const count = () => { frames++; if (frames < 5) video.requestVideoFrameCallback(count) }
+      video.requestVideoFrameCallback(count)
+    } else video.addEventListener('loadeddata', () => { frames++ }, {once:true})
+  }
+  await pc1.setLocalDescription(await pc1.createOffer()); await ice(pc1)
+  await pc2.setRemoteDescription(pc1.localDescription)
+  await pc2.setLocalDescription(await pc2.createAnswer()); await ice(pc2)
+  await pc1.setRemoteDescription(pc2.localDescription)
+  assert(pc1.localDescription.type === 'offer', 'Oferta local real WebRTC')
+  assert(pc1.remoteDescription.type === 'answer', 'Respuesta real WebRTC')
+  for (let n=0; n<60 && (!received || frames<1); n++) await sleep(150)
+  assert(channel.readyState === 'open', 'DataChannel cifrado por WebRTC abierto')
+  assert(received, 'Control de orientación recibido por el DataChannel')
+  assert(monitorSource, 'Monitor desacoplado del stream local')
+  assert(frames > 0, 'Fotograma de WebGL decodificado realmente')
+  finish(true)
+} catch(error) { finish(false, String(error?.stack || error)) }
+finally { cancelAnimationFrame(raf); stream?.getTracks().forEach(t=>t.stop()); pc1?.close(); pc2?.close() }
+</script></body></html>

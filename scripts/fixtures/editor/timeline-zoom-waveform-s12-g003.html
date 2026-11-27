@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="es"><meta charset="utf-8"><title>QA S12-G003 · Zoom y onda PCM</title>
+<style>
+body{margin:0;background:#151b21;color:#e1e6eb;font:12px sans-serif}
+#timeline{height:340px;width:900px;overflow:hidden}
+#timeline-zoom-waveform-s12-g003-result{display:none}
+</style>
+<div id="timeline"></div><pre id="timeline-zoom-waveform-s12-g003-result"></pre>
+<script type="module">
+import { createApp, h, nextTick } from 'vue'
+import TimelinePanel from '/src/components/TimelinePanel.vue'
+import { createProjectData } from '/src/core/project.js'
+import { putAsset, deleteAsset } from '/src/core/db.js'
+import { store, setEditor, resetHistory, openTimelineEditor } from '/src/core/store.js'
+import { newKey, newTrack, newTimeline } from '/src/core/timeline/model.js'
+import { createTimelinePlayback, timelinePlaybackKey } from '/src/core/timeline/playback-session.js'
+const report=document.querySelector('#timeline-zoom-waveform-s12-g003-result')
+const checks=[]
+const check=(name,condition)=>{checks.push({name,pass:!!condition});return !!condition}
+const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms))
+async function until(predicate,label){for(let i=0;i<160;i++){if(predicate())return;await sleep(30)}throw Error('Tiempo agotado: '+label)}
+function wav(seconds=6){
+  const rate=16000,frames=rate*seconds,buffer=new ArrayBuffer(44+frames*2),dv=new DataView(buffer)
+  const tag=(at,s)=>[...s].forEach((c,i)=>dv.setUint8(at+i,c.charCodeAt(0)))
+  tag(0,'RIFF');dv.setUint32(4,buffer.byteLength-8,true);tag(8,'WAVE');tag(12,'fmt ')
+  dv.setUint32(16,16,true);dv.setUint16(20,1,true);dv.setUint16(22,1,true)
+  dv.setUint32(24,rate,true);dv.setUint32(28,rate*2,true);dv.setUint16(32,2,true);dv.setUint16(34,16,true)
+  tag(36,'data');dv.setUint32(40,frames*2,true)
+  for(let i=0;i<frames;i++){
+    const envelope=i<rate?0:i<2*rate?.25:i<4*rate?.85:.55
+    dv.setInt16(44+i*2,Math.round(Math.sin(2*Math.PI*170*i/rate)*envelope*30000),true)
+  }
+  return buffer
+}
+const project=createProjectData('QA zoom PCM','empty')
+const asset={id:'s12g003-audio',name:'s12g003-prueba.wav',kind:'audio',ext:'wav',folder:'Assets'}
+const key=newKey('audio',3,{id:'s12g003-key',clip:asset.name,duration:0})
+const track=newTrack('audio',{id:'s12g003-track',keys:[key]})
+const timeline=newTimeline('QA zoom',{id:'s12g003-timeline',duration:35,tracks:[track]})
+project.assets=[asset];project.timelines=[timeline]
+store.project=project;store.locked=false;store.play.on=false
+setEditor({snapshotTerrain:()=>project.terrain})
+const playback=createTimelinePlayback({getProject:()=>store.project,getEditor:()=>store.editor,getObjects:()=>project.objects,
+  getContext:()=>({project:store.project,sceneId:project.activeSceneId,editor:store.editor,timelineId:store.timelineId,playOn:false,locked:false,cinematic:false}),
+  requestFrame:()=>1,cancelFrame:()=>{}})
+const app=createApp({render:()=>h(TimelinePanel)})
+app.provide(timelinePlaybackKey,playback)
+const scroller=()=>document.querySelector('#timeline .scroll')
+const wave=()=>document.querySelector('#timeline .key.audio .timeline-waveform')
+const path=()=>wave()?.querySelector('path')
+const clip=()=>document.querySelector('#timeline .key.audio')
+const zoom=()=>Number(document.querySelector('#timeline .zoom-slider')?.value)
+const columns=()=>Number(wave()?.dataset.waveformColumns)
+const start=()=>Number(wave()?.dataset.waveformWindowStart)
+const tick=async()=>{await nextTick();await sleep(60)}
+const scroll=async value=>{scroller().scrollLeft=value;scroller().dispatchEvent(new Event('scroll'));await tick()}
+const wheel=async (delta,px,ctrl=true,mode=0)=>{
+  const sc=scroller(),r=sc.getBoundingClientRect(),atX=r.left+px
+  const evt=new WheelEvent('wheel',{bubbles:true,cancelable:true,deltaY:delta,deltaMode:mode,ctrlKey:ctrl,clientX:atX,clientY:r.top+45})
+  sc.dispatchEvent(evt);await tick();return evt
+}
+let mounted=false,diagnostic={}
+try{
+  await putAsset(project.id,asset.id,asset.name,wav())
+  resetHistory();openTimelineEditor(timeline.id)
+  app.mount('#timeline');mounted=true
+  await until(()=>wave()?.dataset.audioAnalysis==='ready'&&path(),'PCM listo y onda visible')
+  await tick()
+  const originalDuration=store.project.timelines[0].tracks[0].keys[0].duration
+  const initialZoom=zoom(),initialWidth=clip().getBoundingClientRect().width
+  const firstWave=wave(),initialColumns=columns()
+  check('La onda está dentro del clip original',!!clip().contains(firstWave))
+  check('La onda contiene un path PCM visible',!!path()?.getAttribute('d'))
+  check('La onda usa más de 128 columnas al ancho 420 px',initialColumns>128)
+  check('La resolución coincide con el ancho sin superar bins',initialColumns>=400&&initialColumns<=420)
+  check('El Audio original conserva duration cero',originalDuration===0)
+  check('El zoom inicial es 70 px/s',Math.abs(initialZoom-70)<.01)
+  check('El clip representa 6 segundos a zoom inicial',Math.abs(initialWidth-420)<1)
+  const s=scroller(),cursor=230
+  const initialTime=(s.scrollLeft+cursor)/initialZoom
+  const event=await wheel(-140,cursor)
+  const zoomed=zoom()
+  check('Ctrl+rueda cancela el scroll nativo',event.defaultPrevented)
+  check('Ctrl+rueda aumenta la escala temporal',zoomed>initialZoom)
+  check('El instante bajo el cursor se mantiene durante el zoom',Math.abs((s.scrollLeft+cursor)/zoomed-initialTime)<.05)
+  check('La onda amplía resolución o conserva el máximo visible',columns()>=initialColumns)
+  check('La nueva forma de onda contiene geometría PCM',!!path()?.getAttribute('d'))
+  const noCtrl=await wheel(120,cursor,false)
+  check('Rueda normal no activa el zoom',zoom()===zoomed)
+  check('Rueda normal no queda bloqueada por Zoom',!noCtrl.defaultPrevented)
+  const beforeRapid=(s.scrollLeft+cursor)/zoom()
+  const a=new WheelEvent('wheel',{bubbles:true,cancelable:true,ctrlKey:true,deltaY:-70,clientX:s.getBoundingClientRect().left+cursor})
+  const b=new WheelEvent('wheel',{bubbles:true,cancelable:true,ctrlKey:true,deltaY:-70,clientX:s.getBoundingClientRect().left+cursor})
+  s.dispatchEvent(a);s.dispatchEvent(b);await tick()
+  check('Dos gestos Ctrl+rueda rápidos mantienen el anclaje',Math.abs((s.scrollLeft+cursor)/zoom()-beforeRapid)<.05)
+  await scroll(650)
+  check('La ventana PCM se desplaza dentro del clip sin rehacer fuente',start()>0)
+  check('La onda sigue dentro del área del clip',!!path()?.getAttribute('d'))
+  check('La ventana visible no supera 2.048 columnas',columns()<=2048)
+  check('El audio no se vuelve a analizar al desplazar',wave()?.dataset.audioAnalysis==='ready')
+  const slider=document.querySelector('#timeline .zoom-slider')
+  slider.value='720';slider.dispatchEvent(new Event('input',{bubbles:true}));await tick()
+  check('El slider existente sigue llegando al máximo',Math.abs(zoom()-720)<.01)
+  check('Zoom extremo limita la geometría al viewport',columns()<=2048)
+  check('El zoom extremo conserva la ruta PCM',!!path()?.getAttribute('d'))
+  slider.value='70';slider.dispatchEvent(new Event('input',{bubbles:true}));await tick()
+  check('El slider recupera el zoom inicial',Math.abs(zoom()-70)<.01)
+  check('El zoom no modifica la duración persistida',store.project.timelines[0].tracks[0].keys[0].duration===0)
+  check('El cabezal usa el mismo reloj de la sesión',playback.time.value===0)
+  diagnostic={initialColumns,initialWidth,zoomed,finalColumns:columns(),scrollLeft:s.scrollLeft}
+  // Comprobaciones completas: cada condición queda en el reporte, aunque otra falle.
+  if(checks.some(item=>!item.pass))throw Error('Comprobaciones completas: '+checks.filter(c=>!c.pass).map(c=>c.name).join(' | '))
+  report.dataset.pass='true';report.textContent=JSON.stringify({pass:true,checks,diagnostic,gl:!!document.createElement('canvas').getContext('webgl')},null,2)
+}catch(error){report.dataset.pass='false';report.textContent=JSON.stringify({pass:false,error:error?.stack||String(error),checks,diagnostic},null,2)}
+finally{playback.dispose();if(mounted)app.unmount();try{await deleteAsset(project.id,asset.id)}catch{}}
+</script></html>

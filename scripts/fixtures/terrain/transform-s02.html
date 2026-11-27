@@ -1,0 +1,47 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Terrain S02 · QA de traslación vertical</title></head>
+<body style="background:#14191d;color:#ddd"><pre id="terrain-transform-s02-result">Iniciando...</pre>
+<script type="module">
+import * as THREE from 'three'
+import { Terrain } from '/src/engine/runtime/geometry/terrain.js'
+import { groundAtAll, raycastAll, mergePieces, rangeAll } from '/src/engine/runtime/geometry/terrains.js'
+const out=document.getElementById('terrain-transform-s02-result'),checks=[]
+const check=(name,ok,detail='')=>{checks.push({name,pass:!!ok,detail});if(!ok)throw new Error(`${name}: ${detail}`)}
+let renderer,ground
+try{
+  renderer=new THREE.WebGLRenderer({antialias:false,preserveDrawingBuffer:true});renderer.setSize(192,128)
+  document.body.append(renderer.domElement)
+  check('WebGL2 del Electron',renderer.capabilities.isWebGL2)
+  ground=new Terrain(16,8)
+  const local=ground.heights.slice()
+  const scene=new THREE.Scene();scene.background=new THREE.Color('#778899')
+  const camera=new THREE.PerspectiveCamera(55,192/128,0.1,100)
+  camera.position.set(18,19,20);camera.lookAt(0,5,0)
+  const light=new THREE.HemisphereLight('#ffffff','#777777',2);scene.add(light,ground.mesh,ground.foliage.group)
+  ground.setOffset(0,0,7)
+  renderer.render(scene,camera)
+  check('malla desplazada a Y=7',ground.mesh.position.y===7)
+  check('vegetación comparte Y=7',ground.foliage.group.position.y===7)
+  check('las alturas locales permanecen intactas',local.every((h,i)=>h===ground.heights[i]))
+  check('altura mundial de suelo en Y=7',Math.abs(groundAtAll([ground],0,0)-7)<1e-5)
+  const ray=new THREE.Ray(new THREE.Vector3(0,30,0),new THREE.Vector3(0,-1,0))
+  const hit=raycastAll([ground],ray)
+  check('raycast devuelve Y=7',Math.abs(hit?.point.y-7)<0.001,JSON.stringify(hit?.point))
+  check('distancia del rayo se conserva',Math.abs(hit?.distance-23)<0.001)
+  check('rango de altura mundial trasladado',rangeAll([ground]).every(v=>Math.abs(v-7)<0.001))
+  const saved=ground.serialize()
+  check('persistencia incluye Y',saved.oy===7)
+  ground.setOffset(0,0,-3)
+  check('movimiento a cota negativa',ground.groundAt(0,0)===-3)
+  ground.restore(ground.snapshot())
+  check('Undo local conserva cota negativa',ground.oy===-3)
+  const merged=mergePieces([ground])
+  check('exportación hornea altura mundial en la malla',merged!==ground && merged.heights.every(v=>Math.abs(v+3)<0.001))
+  const old={...saved};delete old.oy
+  ground.setOffset(0,0,7)
+  ground.restore({...ground.snapshot(),oy:old.oy})
+  check('pieza sin oy heredada restaura Y=0',ground.oy===0)
+  check('sin errores OpenGL',renderer.getContext().getError()===renderer.getContext().NO_ERROR)
+  out.dataset.pass='true';out.textContent=JSON.stringify({pass:true,gl:renderer.getContext().getParameter(renderer.getContext().VERSION),checks},null,2)
+}catch(error){out.dataset.pass='false';out.textContent=JSON.stringify({pass:false,checks,error:String(error?.stack||error)},null,2)}
+finally{ground?.dispose();renderer?.dispose()}
+</script></body></html>

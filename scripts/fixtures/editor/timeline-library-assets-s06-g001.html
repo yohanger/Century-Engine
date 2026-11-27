@@ -1,0 +1,60 @@
+<!doctype html><html lang="es"><meta charset="utf-8"><title>QA biblioteca Timeline</title>
+<style>body{margin:0;background:#151515;color:#ddd}#timeline{width:760px;height:340px}#assets{width:760px;height:280px}</style>
+<div id="timeline"></div><div id="assets"></div><pre id="timeline-library-result">Preparando…</pre>
+<script type="module">
+import { createApp, nextTick } from 'vue'
+import Timeline from '/src/components/TimelinePanel.vue'
+import ProjectPanel from '/src/components/ProjectPanel.vue'
+import { dialogs } from '/src/core/dialogs.js'
+import { store, createTimeline, openTimelineEditor, folderEntries } from '/src/core/store.js'
+import { configureHistory, resetHistory, cancelPendingAutosave, undo, redo } from '/src/core/state/history.js'
+import { createProjectData, splitProject } from '/src/core/project.js'
+import { buildLfproj } from '/src/core/lfproj.js'
+import { isFilmMakerTimeline } from '/src/core/timeline/model.js'
+import { newFilm, packNfm } from '/src/filmmaker/film.js'
+import { importFilm } from '/src/core/state/film.js'
+import { registerCaptureFilm } from '/src/tools-register.js'
+const checks = [], check = (name, pass) => { checks.push({name,pass:!!pass}); if(!pass)throw new Error(name) }
+const wait = async predicate => {for(let i=0;i<120;i++){if(predicate())return true;await new Promise(r=>setTimeout(r,15))}return false}
+const a=createApp(Timeline), b=createApp(ProjectPanel), out=document.querySelector('#timeline-library-result')
+try {
+ store.project=createProjectData('S06 QA');store.locked=false;store.play.on=false;store.projFolder='Assets';store.timelineId=null
+ store.ui.mode='mobile';store.prefs.bottomTab='timeline'
+ store.editor={snapshotTerrain:()=>store.project.terrain,serializeTerrain:()=>store.project.terrain,syncAll(){},syncEnvironment(){},setSelection(){},restoreTerrain(){},applyView(){}}
+ configureHistory({save(){},hasDisk:()=>false,markPending(){},syncPieces(){}});resetHistory()
+ a.mount('#timeline');b.mount('#assets');await nextTick()
+ check('Biblioteca vacía visible',document.querySelector('.timeline-library').textContent.includes('Crea un Timeline'))
+ const create=document.querySelector('.library-top button');create.click();check('Crear solicita nombre',await wait(()=>dialogs.list.length===1))
+ dialogs.list[0].done(null);await nextTick();check('Cancelar no crea',store.project.timelines.length===0)
+ create.click();await wait(()=>dialogs.list.length===1);dialogs.list[0].done('Entrada');check('Aceptar abre recurso',await wait(()=>store.project.timelines.length===1&&store.timelineId))
+ await nextTick();const first=store.project.timelines[0]
+ check('Recurso en Assets por ID',folderEntries('Assets').some(e=>e.id===first.id&&e.kind==='timeline'))
+ check('Editor conserva pistas',!!document.querySelector('.add-track-menu'))
+ check('Biblioteca selecciona creado',document.querySelector('.timeline-item.active').textContent.includes('Entrada'))
+ const second=createTimeline('Salida',false)
+ registerCaptureFilm()
+ const project=store.project, film=newFilm({name:'Película QA',sceneId:project.activeSceneId,sceneName:project.scenes[0].name,projectId:project.id,projectName:project.name})
+ film.passes=[{id:'pass-qa',name:'Película',take:-1,duration:1,keys:[{t:0,pos:[0,2,5],rot:[0,0,0],fov:70},{t:1,pos:[1,2,5],rot:[0,0,0],fov:70}]}]
+ const {meta,scene}=splitProject(project,project.terrain)
+ const source=await buildLfproj({meta,scenes:new Map([[meta.activeSceneId,scene]]),files:new Map()})
+ const bytes=await packNfm(film,new Uint8Array(await source.blob.arrayBuffer()))
+ const result=await importFilm(bytes)
+ check('El importador real crea una película FilmMaker',result.timelines.length===1&&store.project.timelines.filter(isFilmMakerTimeline).length===1)
+ await nextTick()
+ check('Biblioteca excluye películas FilmMaker',document.querySelectorAll('.timeline-item').length===2)
+ check('La película importada no aparece por nombre en la biblioteca',![...document.querySelectorAll('.timeline-item')].some(item=>item.textContent.includes('Película')))
+ const search=document.querySelector('[aria-label="Buscar Timeline"]');search.value='salida';search.dispatchEvent(new Event('input'));await nextTick()
+ check('Búsqueda filtra',document.querySelectorAll('.timeline-item').length===1)
+ document.querySelector('.timeline-item').click();await nextTick();check('Selección cambia editor',store.timelineId===second.id)
+ search.value='';search.dispatchEvent(new Event('input'));await nextTick()
+ const tile=[...document.querySelectorAll('#assets .tile')].find(e=>e.textContent.includes('Entrada'))
+ check('Assets muestra creado',tile);tile.dispatchEvent(new MouseEvent('contextmenu',{bubbles:true,cancelable:true}));await nextTick()
+ for(const label of ['Renombrar','Duplicar','Mover a','Exportar selección (.levelpackage)…','Copiar ruta','Eliminar'])check('Menú habilita '+label,store.menu.items.some(i=>i.label===label&&!i.disabled))
+ store.menu.items.find(i=>i.label==='Duplicar').run();check('Duplicar desde menú',await wait(()=>store.project.timelines.length===4))
+ undo();check('Undo duplicación',store.project.timelines.length===3);redo();check('Redo duplicación',store.project.timelines.length===4)
+ document.querySelector('#timeline').style.width='260px';await nextTick();await new Promise(r=>setTimeout(r,80))
+ const root=document.querySelector('.tlp');check('Panel 260 px sin desbordamiento exterior',root.scrollWidth<=root.clientWidth+2)
+ out.dataset.pass='true';out.textContent=JSON.stringify({pass:true,checks})
+} catch(error){out.dataset.pass='false';out.textContent=JSON.stringify({pass:false,checks,error:error.stack})}
+finally{cancelPendingAutosave();a.unmount();b.unmount()}
+</script></html>

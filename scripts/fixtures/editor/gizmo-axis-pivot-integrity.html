@@ -1,0 +1,42 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Transform axis integrity</title></head><body><pre id="gizmo-axis-pivot-integrity-result">Cargando</pre><script type="module">
+import * as THREE from 'three'
+import { TransformControls } from 'three/addons/controls/TransformControls.js'
+import { gizmoMethods } from '/src/core/editor/gizmo.js'
+import { nodeScaleTarget } from '/src/engine/runtime/nodes/three-helpers.js'
+import { store } from '/src/core/store.js'
+const output=document.getElementById('gizmo-axis-pivot-integrity-result'),checks=[]
+const check=(name,ok)=>{checks.push({name,passed:!!ok});if(!ok)throw Error(name)}
+const V=(...a)=>new THREE.Vector3(...a)
+let renderer,tc
+try {
+ renderer=new THREE.WebGLRenderer({antialias:false});renderer.setSize(480,320);document.body.append(renderer.domElement)
+ const scene=new THREE.Scene(),parent=new THREE.Group(),nested=new THREE.Group(),node=new THREE.Group(),visual=new THREE.Group(),child=new THREE.Group()
+ parent.scale.set(2,1,3);parent.rotation.y=.5;nested.rotation.z=.4;node.position.set(1,1,.5);node.rotation.y=.35
+ scene.add(parent);parent.add(nested);nested.add(node);node.add(visual,child);node.userData.visual=visual;child.position.x=1
+ store.project={id:'axis-pivot',objects:[],settings:{moveSnapOn:false,rotateSnapOn:false,scaleSnapOn:false,gridSize:1,rotSnap:15,scaleSnap:.25}}
+ scene.updateMatrixWorld(true)
+ const e=Object.assign({_shiftSnapHeld:false},gizmoMethods)
+ for(const ortho of [false,true]){
+  const camera=ortho?new THREE.OrthographicCamera(-6,6,4,-4,.1,100):new THREE.PerspectiveCamera(60,1.5,.1,100)
+  const pivot=node.getWorldPosition(V());camera.position.copy(pivot).add(V(6,5,8));camera.lookAt(pivot);scene.add(camera);camera.updateMatrixWorld(true)
+  tc=new TransformControls(camera,renderer.domElement);scene.add(tc.getHelper());tc.setMode('translate');tc.attach(node)
+  tc.addEventListener('mouseDown',()=>e._beginSnapDrag(tc));tc.addEventListener('objectChange',()=>e._applySnapDrag(tc));tc.addEventListener('mouseUp',()=>e._endSnapDrag(tc))
+  for(const space of ['world','local']){
+   tc.setSpace(space);scene.updateMatrixWorld(true);renderer.render(scene,camera)
+   const origin=node.getWorldPosition(V()),q=node.quaternion.clone(),scale=node.scale.clone()
+   const axis=V(1,0,0);if(space==='local')axis.applyQuaternion(node.getWorldQuaternion(new THREE.Quaternion()).normalize())
+   const pointer=(offset,button)=>{const ndc=origin.clone().addScaledVector(axis,offset).project(camera);return {x:ndc.x,y:ndc.y,button}}
+   tc.axis='X';scene.updateMatrixWorld(true);tc.pointerDown(pointer(.5,0));tc.pointerMove(pointer(1.5,-1));tc.pointerUp({button:0})
+   const delta=node.getWorldPosition(V()).sub(origin)
+   check(`${ortho?'Ortho':'Perspective'} ${space}: axis projection`,delta.clone().cross(axis).length()<1e-5 && delta.dot(axis)>.1)
+   check(`${ortho?'Ortho':'Perspective'} ${space}: rotation and scale unchanged`,q.angleTo(node.quaternion)<1e-6 && scale.distanceTo(node.scale)<1e-6)
+  }
+  tc.dispose();tc.getHelper().removeFromParent();tc=null;scene.remove(camera)
+ }
+ check('Node3D scale target is its root',nodeScaleTarget(node,'node3d')===node)
+ check('Primitive scale target is its visual',nodeScaleTarget(node,'primitive')===visual)
+ check('WebGL2',renderer.capabilities.isWebGL2)
+ output.dataset.pass='true';output.textContent=JSON.stringify({pass:true,checks,gl:renderer.getContext().getParameter(renderer.getContext().VERSION)})
+} catch(e){output.dataset.pass='false';output.textContent=JSON.stringify({pass:false,error:String(e.stack||e),checks})}
+finally{tc?.dispose();renderer?.dispose()}
+</script></body></html>

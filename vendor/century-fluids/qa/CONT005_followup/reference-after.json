@@ -1,0 +1,92 @@
+{
+  "host": {
+    "node": "v26.13.1",
+    "cpu": "Intel(R) Pentium(R) Silver N5030 CPU @ 1.10GHz",
+    "platform": "linux",
+    "kernel": "6.14.0-37-generic"
+  },
+  "units": {
+    "time": "ms",
+    "memory": "bytes"
+  },
+  "reference": {
+    "steps": 1200,
+    "massKg": 85.18400000000011,
+    "maxBalanceErrorNs": 8.615872643356872e-14,
+    "maxPenetrationMeters": 0,
+    "maxCompressionRelative": 0,
+    "limits": 93,
+    "atStep240": {
+      "limits": 88,
+      "speed": {
+        "max": 0.12727630278787516,
+        "mean": 0.041352035671553676
+      }
+    },
+    "beforePerturbation": {
+      "max": 0.0479301686874646,
+      "mean": 0.010517696964828323
+    },
+    "response": {
+      "max": 0.2632536498625334,
+      "mean": 0.024038700827562695
+    },
+    "final": {
+      "max": 0.06736052880175032,
+      "mean": 0.018186645544371535
+    },
+    "meanFloorForceN": 835.6550400000013,
+    "weightN": 835.6550400000011,
+    "meanFloorTractionPa": 1485.6089600000023,
+    "digest": "7c21b29535de0a51d5fb7d8e82bd5f0787518a7c5ccac9d0078fdf253c762316"
+  },
+  "referenceScenes": [
+    {
+      "id": "tank",
+      "physicsMs": {
+        "samples": 540,
+        "p50": 3.210602999999537,
+        "p95": 4.908521999999721
+      },
+      "meshMs": {
+        "samples": 45,
+        "p50": 41.49589999999989,
+        "p95": 72.18336999999883
+      }
+    },
+    {
+      "id": "dam",
+      "physicsMs": {
+        "samples": 540,
+        "p50": 6.204115000000456,
+        "p95": 9.9481569999989
+      },
+      "meshMs": {
+        "samples": 45,
+        "p50": 75.34380500000043,
+        "p95": 101.92807900000116
+      }
+    },
+    {
+      "id": "obstacle",
+      "physicsMs": {
+        "samples": 540,
+        "p50": 4.768989000000147,
+        "p95": 7.677843999998004
+      },
+      "meshMs": {
+        "samples": 45,
+        "p50": 55.15598800000225,
+        "p95": 81.62065099999745
+      }
+    }
+  ],
+  "memory": {
+    "rss": 170602496,
+    "heapTotal": 85331968,
+    "heapUsed": 20379128,
+    "external": 14489589,
+    "arrayBuffers": 12332751
+  },
+  "maxRssKiB": 166732
+}

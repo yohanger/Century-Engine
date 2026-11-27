@@ -1,0 +1,30 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Confirmación modal Edit Mesh</title><style>#viewport{width:640px;height:360px;position:relative}pre{white-space:pre-wrap}</style></head><body><button id="start">Iniciar operación</button><div id="viewport"></div><pre id="mesh-modal-result">Cargando…</pre>
+<script>window.__lfNativePointerReady=new Promise(resolve=>{window.__lfNativePointerResolve=resolve})</script>
+<script type="module">
+const out=document.getElementById('mesh-modal-result'),checks=[],captureDiagnostics=[]
+let finished=false,editor,S
+const stage=name=>{out.dataset.stage=name}
+const check=(name,passed)=>{checks.push({name,passed:!!passed});out.dataset.checks=String(checks.length);if(!passed)throw Error(name)}
+const finish=error=>{if(finished)return;finished=true;out.dataset.pass=String(!error);out.textContent=JSON.stringify({pass:!error,checks,captureDiagnostics,stage:out.dataset.stage,...(error?{error:String(error.stack||error)}:{gl:'Editor Three.js / ratón y teclado nativos'})},null,2);window.__lfNativePointerResolve()}
+window.addEventListener('error',e=>{if(e.error)finish(e.error)},true)
+window.addEventListener('unhandledrejection',e=>finish(e.reason))
+try {
+ stage('imports');await import('/src/styles.css');document.documentElement.classList.add('lf-editor')
+ const {nextTick}=await import('vue'),{Editor}=await import('/src/core/editor.js'),{EditSession}=await import('/src/core/mesh/session.js'),{registerTools}=await import('/src/core/tools.js');registerTools({mesh:{EditSession}})
+ S=await import('/src/core/store.js');const {store}=S,{splitProject}=await import('/src/core/project.js'),{makeObject}=await import('/src/engine/runtime/nodes/index.js'),{Terrain}=await import('/src/engine/runtime/geometry/terrain.js'),db=await import('/src/core/db.js')
+ const frame=async()=>{await nextTick();await new Promise(r=>requestAnimationFrame(r));await nextTick()}
+ stage('project');const p=S.createProjectData('Navegación QA','empty-project',{renderer:'compat'});p.id='qa-mesh-modal-pointer';p.objects=[makeObject('primitive','box',{id:'cube',name:'Cubo'}),makeObject('primitive','box',{id:'other',name:'Otro',position:[2,0,0]})]
+ const terrain=new Terrain(32,8,p.terrain.layers);terrain.enabled=false;const serialized=terrain.serialize();terrain.dispose();const {meta,scene}=splitProject(p,serialized);await db.saveScene(p.id,p.activeSceneId,scene);await db.saveProject(meta);await db.confirmProject(p.id)
+ editor=new Editor(document.querySelector('#viewport'));S.setEditor(editor);store.ready=true;check('Abre proyecto real',await S.openProject(p.id));await frame();S.cancelPendingAutosave()
+ const canvas=editor.dom,vp=editor.vp;canvas.id='qa-mesh-modal-canvas';canvas.tabIndex=0;store.gizmo='translate';let session=null
+ S.selectObject('cube');editor.enterEdit();await frame();session=editor.edit;check('Edit Mesh activo',!!session&&store.edit.on);session.setMode('vertex');session.sel.v.add(0);session.refresh();store.edit.globalShortcuts=true
+ const wait=ms=>new Promise(r=>setTimeout(r,ms)),until=async fn=>{for(let i=0;i<80;i++){if(fn())return true;await wait(25)}return false}
+ let scenario=0,before=null,selection=null,events=[];const originalRequest=canvas.requestPointerLock.bind(canvas)
+ window.addEventListener('pointerdown',e=>{if(e.isTrusted&&e.target===canvas)events.push(e.button)},true)
+ document.querySelector('#start').addEventListener('click',e=>{try{check('Gesto de inicio nativo',e.isTrusted);before=JSON.stringify(session.poly.v);selection=JSON.stringify([...session.sel.v]);if(scenario===2)canvas.requestPointerLock=()=>Promise.reject(new DOMException('QA fallback','NotAllowedError'));else canvas.requestPointerLock=originalRequest;canvas.focus();session.startModal('grab');session.modalKey({key:'x',shiftKey:false});session.modalKey({key:'1',shiftKey:false});check('Preview modal cambia geometría',!!session.modal&&JSON.stringify(session.poly.v)!==before)}catch(e){finish(e)}})
+ const steps=[];for(const button of ['left','right','left'])steps.push({type:'mousePressed',button:'left',buttons:1,selector:'#start'},{type:'mouseReleased',button:'left',buttons:0,selector:'#start',verify:true},{type:'mousePressed',button,buttons:button==='left'?1:2,selector:'#qa-mesh-modal-canvas',verify:true},{type:'mouseReleased',button,buttons:0,selector:'#qa-mesh-modal-canvas',verify:true})
+ window.__lfNativePointerSteps=steps
+ window.__lfNativePointerAfter=async index=>{try{if(index%4===1){check('Modal preparado',!!session.modal);if(scenario<2)check('Pointer Lock nativo concedido',await until(()=>session._continuousGrab.locked&&document.pointerLockElement===canvas));else check('Fallback sin lock',await until(()=>!session._continuousGrab.active&&!document.pointerLockElement));events=[]}else if(index%4===2){check('Clic nativo entregado al propietario',events.includes(scenario===1?2:0));check('Modal finalizado',session.modal===null);check('Geometría confirmada o restaurada',scenario===1?JSON.stringify(session.poly.v)===before:JSON.stringify(session.poly.v)!==before);check('Cursor y lock liberados',await until(()=>!session._continuousGrab.active&&!document.pointerLockElement&&canvas.style.cursor!=='none'))}else if(index%4===3){check('Sin selección accidental',JSON.stringify([...session.sel.v])===selection);check('Sin vuelo ni reserva',!vp._flying&&!session._continuousGrab.active);scenario++}return {ok:true}}catch(e){finish(e);return {ok:false,error:String(e.stack||e),checks}}}
+ stage('native-modal');window.__lfNativePointerResolve();await new Promise(resolve=>{const t=setInterval(()=>{if(window.__lfNativePointerDone||finished){clearInterval(t);resolve()}},25)});if(!finished)finish()
+}catch(e){finish(e)}finally{S?.cancelPendingAutosave?.()}
+</script></body></html>

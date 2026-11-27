@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="es">
+<head><meta charset="utf-8"><title>LF Cloud Altitude / Planet WebGL2 Compile</title></head>
+<body data-qa="running"><pre id="result">Compilando shader de cielo en WebGL 2…</pre>
+<script type="module">
+import { SKY_FRAG } from '../../../src/engine/runtime/render/skylib.js'
+const output = document.querySelector('#result')
+try {
+  const gl = document.createElement('canvas').getContext('webgl2', { antialias: false })
+  if (!gl) throw new Error('WebGL 2 no disponible')
+  const adapt = (source, volume = false) => `#version 300 es\n${volume ? '#define LF_CLOUD_VOLUME\n' : ''}precision highp float;\nprecision highp sampler3D;\n${source.replaceAll('varying vec3 vDir;', 'in vec3 vDir;').replaceAll('texture2D(', 'texture(').replaceAll('gl_FragColor', 'fragColor').replace(/^\s*#include <(?:tonemapping_fragment|colorspace_fragment)>/gm, '')}`
+  const vertex = `#version 300 es\nprecision highp float;\nin vec3 position; out vec3 vDir;\nuniform mat4 projectionMatrix; uniform mat4 modelViewMatrix;\nvoid main(){ vDir=normalize(position); gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0); }`
+  function compile(src, type) {
+    const shader = gl.createShader(type)
+    gl.shaderSource(shader, src)
+    gl.compileShader(shader)
+    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(shader))
+    return shader
+  }
+  const v = compile(vertex, gl.VERTEX_SHADER)
+  for (const enabled of [false, true]) {
+    const f = compile(adapt(SKY_FRAG, enabled).replace('in vec3 vDir;', 'in vec3 vDir;\nout vec4 fragColor;'), gl.FRAGMENT_SHADER)
+    const program = gl.createProgram()
+    gl.attachShader(program, v); gl.attachShader(program, f); gl.linkProgram(program)
+    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(program))
+    gl.deleteProgram(program); gl.deleteShader(f)
+  }
+  gl.deleteShader(v)
+  document.body.dataset.qa = 'pass'
+  output.textContent = 'WEBGL2 PASS: cielo con y sin LF_CLOUD_VOLUME compila y enlaza.'
+} catch (e) {
+  document.body.dataset.qa = 'fail'
+  output.textContent = String(e?.stack || e)
+}
+</script>
+</body>
+</html>

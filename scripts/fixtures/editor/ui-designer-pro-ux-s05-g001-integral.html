@@ -1,0 +1,136 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Century UI Designer S05 QA</title></head><body>
+<pre id="ui-designer-s05-result">Ejecutando…</pre><div id="ui-designer-qa"></div>
+<script type="module">
+import {createApp,nextTick} from 'vue'
+import '/src/styles.css'
+import UiEditor from '/src/components/UiEditor.vue'
+import {store} from '/src/core/store.js'
+import {createProjectData} from '/src/core/project.js'
+import {floatDockPanel} from '/src/core/editor/docking.js'
+import {parseUi} from '/src/engine/runtime/ui/sfc.js'
+import {UI_TOOL_DRAG} from '/src/engine/runtime/ui/design.js'
+import {registerUiComponents} from '/src/engine/runtime/ui/components.js'
+import RtInventoryGrid from '/src/engine/runtime/ui/RtInventoryGrid.vue'
+import {h,reactive} from 'vue'
+const output=document.querySelector('#ui-designer-s05-result'),checks=[]
+const check=(name,pass,detail='')=>{checks.push({name,pass:!!pass,detail});if(!pass)throw Error(name+': '+detail)}
+const tick=async()=>{await nextTick();await new Promise(requestAnimationFrame);await nextTick()}
+const before={project:store.project,id:store.uiEditId,modal:store.modal,uiMode:store.ui.mode,dockLayout:store.prefs.dockLayout}
+let app,inventoryApp,ready
+window.__lfNativePointerReady=new Promise(resolve=>{ready=resolve})
+try{
+  store.ui.mode='desktop'
+  store.project=createProjectData('UI Designer QA')
+  store.project.uis=[{id:'qa-ui-01',name:'Prueba.ui',folder:'Assets/UI',code:'<template>\n\n</template>\n'}]
+  store.uiEditId='qa-ui-01'
+  store.prefs.dockLayout=floatDockPanel(store.prefs.dockLayout,'uiEditor',{x:18,y:45,w:1100,h:680})
+  app=createApp(UiEditor);registerUiComponents(app);app.mount('#ui-designer-qa');await tick();await tick()
+  const root=()=>document.querySelector('.aw-layer .aw')
+  check('Editor de interfaces real montado',!!root())
+  check('Panel de herramientas existente',!!root()?.querySelector('.dsg [data-pane="tools"]'))
+  check('Jerarquía original montada',!!root()?.querySelector('[data-dock="controls"]'))
+  check('Inspector original montado',!!root()?.querySelector('[data-testid="ui-design-inspector"]'))
+  check('Canvas real y Overlay montados',!!root()?.querySelector('[data-testid="ui-canvas"] .ov'))
+  check('Modo Diseño inicial conserva .ui vacío',!!root()?.querySelector('[data-testid="ui-mode-designer"].on'))
+  check('Paleta presenta grupos plegables',root()?.querySelectorAll('.tool-group').length>0)
+  const search=root().querySelector('input[aria-label="Buscar herramienta de interfaz"]')
+  check('Búsqueda de herramientas visible',!!search)
+  const oldCount=root().querySelectorAll('[data-tool]').length
+  search.value='boton';search.dispatchEvent(new Event('input',{bubbles:true}));await tick()
+  check('Filtro reduce herramientas de catálogo sin duplicarlas',root().querySelectorAll('[data-tool]').length<oldCount)
+  search.value='';search.dispatchEvent(new Event('input',{bubbles:true}));await tick()
+  const tool=root().querySelector('[data-tool="button"]')
+  check('Herramienta botón se recupera tras borrar filtro',!!tool)
+  tool.dispatchEvent(new MouseEvent('dblclick',{bubbles:true,cancelable:true}));await tick();await tick()
+  const ui=store.project.uis.find(x=>x.id==='qa-ui-01'),parsed=parseUi(ui?.code)
+  check('Doble clic crea un control en el diseño autoritativo',!!parsed.design && parsed.design.includes('button'))
+  check('La plantilla generada conserva un botón real',parsed.template.includes('<button'))
+  check('Jerarquía muestra el control nuevo',root().querySelectorAll('[data-dock="controls"] [role="treeitem"]').length>=2)
+  check('Inspector muestra control seleccionado',!!root().querySelector('[data-testid="ui-inspector-selection"] strong')?.textContent.trim() && root().querySelector('[data-testid="ui-inspector-selection"] strong')?.textContent.trim()!=='Formulario')
+  const snap=root().querySelector('[data-testid="ui-canvas-snap"] input')
+  check('Canvas usa Snap real del diseñador',!!snap && snap.checked)
+  snap.click();await tick()
+  check('Snap alterna su estado visual',!snap.checked)
+  check('El cambio de Snap no reescribe el .ui',ui.code===store.project.uis.find(x=>x.id==='qa-ui-01').code)
+  const tree=root().querySelector('[data-dock="controls"] [role="treeitem"]')
+  check('Jerarquía accesible con teclado',!!tree && tree.tabIndex===0)
+  check('Vista HTML aún disponible',!!root().querySelector('[data-testid="ui-mode-html"]'))
+  check('Vista previa del Player comparte UiRoot real',!!root().querySelector('.rt-ui-root'))
+  snap.click();await tick()
+  const step=root().querySelector('[aria-label="Paso de snap"]')
+  step.value='16';step.dispatchEvent(new Event('change',{bubbles:true}));await tick()
+  const ov=root().querySelector('[data-testid="ui-canvas"] .ov')
+  const canvasSelector='[data-testid="ui-canvas"] .ov'
+  const toolSelector='[data-tool="label"]'
+  window.__lfNativePointerSteps=[
+    {type:'mouseMoved',selector:toolSelector,button:'none'},
+    {type:'mousePressed',selector:toolSelector,button:'left',buttons:1},
+    {type:'mouseMoved',selector:toolSelector,x:.92,button:'left',buttons:1},
+    {type:'mouseMoved',selector:canvasSelector,x:.48,y:.48,button:'left',buttons:1},
+    {type:'mouseMoved',selector:canvasSelector,x:.55,y:.55,button:'left',buttons:1},
+    {type:'mouseReleased',selector:canvasSelector,x:.55,y:.55,button:'left'},
+
+  ]
+  ready()
+  const until=performance.now()+24000
+  while(!window.__lfNativePointerDone && performance.now()<until) await new Promise(resolve=>setTimeout(resolve,35))
+  check('Se completó el gesto de puntero',window.__lfNativePointerDone)
+  await tick()
+  const readDesign=()=>JSON.parse(parseUi(ui.code).design)
+  const dropped=readDesign().controls.find(control=>control.type==='label')
+  check('Arrastrar desde la paleta por puntero nativo coloca una etiqueta',!!dropped)
+  check('Colocar respeta el snap de 16 px',dropped.x%16===0 && dropped.y%16===0)
+  const bounds=ov.getBoundingClientRect()
+  const box=ov.querySelector('.box[data-tooltip^="etiqueta"]')
+  check('El control nuevo se mide como un elemento real del lienzo',!!box)
+  const rect=box.getBoundingClientRect()
+  const x=rect.left+rect.width/2,y=rect.top+rect.height/2
+  const pointerEvent=(type,clientX,clientY,buttons)=>new PointerEvent(type,{bubbles:true,cancelable:true,pointerId:73,button:0,buttons,clientX,clientY})
+  // Los PointerEvent sintéticos no crean un puntero capturable en Chromium.
+  ov.setPointerCapture=()=>{}
+  try {
+    const original=ui.code
+    box.dispatchEvent(pointerEvent('pointerdown',x,y,1))
+    ov.dispatchEvent(pointerEvent('pointermove',bounds.left+bounds.width*.78,bounds.top+bounds.height*.66,1))
+    await tick()
+    check('La vista previa se mueve antes de reescribir el .ui',!!root().querySelector('.rt-label[style*="translate:"]') && ui.code===original)
+    ov.dispatchEvent(pointerEvent('pointerup',bounds.left+bounds.width*.78,bounds.top+bounds.height*.66,0))
+  } finally { delete ov.setPointerCapture }
+  await tick()
+  const moved=readDesign().controls.find(control=>control.id===dropped.id)
+  check('Soltar guarda la posición nueva ajustada a 16 px',moved.x>dropped.x && moved.x%16===0 && moved.y%16===0,JSON.stringify({from:dropped.x,to:moved.x}))
+
+  const transfer=new DataTransfer()
+  root().querySelector('[data-tool="inventory"]').dispatchEvent(new DragEvent('dragstart',{bubbles:true,dataTransfer:transfer}))
+  check('La paleta identifica el tipo de control en el arrastre',transfer.getData(UI_TOOL_DRAG)==='inventory')
+  ov.dispatchEvent(new DragEvent('drop',{bubbles:true,cancelable:true,dataTransfer:transfer,clientX:bounds.left+bounds.width*.2,clientY:bounds.top+bounds.height*.22}))
+  await tick(); await tick()
+  const storedInventory=readDesign().controls.find(control=>control.type==='inventory')
+  check('La cuadrícula se guarda y genera el enlace a una lista',!!storedInventory && parseUi(ui.code).script.includes('ref([])'))
+  check('El editor dibuja las 12 casillas con el componente runtime',root().querySelectorAll('.rt-inventory-slot').length===12)
+
+  const inventory=document.createElement('div')
+  document.body.appendChild(inventory)
+  inventory.style.width='340px'
+  const state=reactive({items:[{label:'Llave'},null,{label:'Poción'}],move:null})
+  inventoryApp=createApp({render:()=>h(RtInventoryGrid,{
+    modelValue:state.items,slots:8,cellMin:64,
+    'onUpdate:modelValue':next=>{state.items=next},onMove:move=>{state.move=move},
+  })})
+  inventoryApp.mount(inventory)
+  await tick()
+  const columns=()=>getComputedStyle(inventory.firstElementChild).gridTemplateColumns.split(' ').length
+  const desktop=columns()
+  inventory.style.width='150px'
+  check('La cuadrícula reduce columnas al estrechar el contenedor',desktop>columns())
+  const slots=inventory.querySelectorAll('button'), payload=new DataTransfer()
+  slots[0].dispatchEvent(new DragEvent('dragstart',{bubbles:true,dataTransfer:payload}))
+  slots[2].dispatchEvent(new DragEvent('drop',{bubbles:true,cancelable:true,dataTransfer:payload}))
+  await tick()
+  check('Soltar sobre una casilla ocupada intercambia las dos entradas',state.items[0].label==='Poción' && state.items[2].label==='Llave' && state.move.from===0 && state.move.to===2)
+  slots[2].click();slots[1].click();await tick()
+  check('Seleccionar dos casillas permite mover sin arrastrar',state.items[1].label==='Llave' && state.items[2]===null)
+  output.dataset.pass='true';output.textContent=JSON.stringify({pass:true,gl:'UI Designer en Electron (DOM), sin render GPU ni QA visual',checks},null,2)
+}catch(err){output.dataset.pass='false';output.textContent=JSON.stringify({pass:false,checks,error:String(err?.stack||err)},null,2)}
+finally{ready?.();inventoryApp?.unmount();app?.unmount();store.project=before.project;store.uiEditId=before.id;store.modal=before.modal;store.ui.mode=before.uiMode;store.prefs.dockLayout=before.dockLayout}
+</script></body></html>

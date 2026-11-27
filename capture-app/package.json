@@ -1,0 +1,44 @@
+{
+  "name": "levelforge-capture",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Century Capture: captura de movimiento con el móvil (cuerpo + cámara virtual) y editor de tomas que exporta .lfcap para Century.",
+  "main": "index.js",
+  "scripts": {
+    "start": "expo start --dev-client",
+    "android": "expo run:android",
+    "build:apk": "eas build -p android --profile preview",
+    "prebuild": "expo prebuild -p android",
+    "fetch-model": "node scripts/fetch-model.mjs",
+    "test": "node --no-warnings scripts/test-app.mjs",
+    "bundle-check": "expo export --platform android --output-dir .bundle-check",
+    "web": "expo start --web",
+    "build:web": "expo export --platform web --output-dir dist-web"
+  },
+  "dependencies": {
+    "@expo/metro-runtime": "~4.0.1",
+    "@react-native-community/slider": "4.5.5",
+    "expo": "~52.0.46",
+    "expo-asset": "~11.0.5",
+    "expo-build-properties": "~0.13.2",
+    "expo-dev-client": "~5.0.20",
+    "expo-document-picker": "~13.0.3",
+    "expo-file-system": "~18.0.12",
+    "expo-keep-awake": "~14.0.3",
+    "expo-sensors": "~14.0.2",
+    "expo-sharing": "~13.0.1",
+    "expo-status-bar": "~2.0.1",
+    "expo-system-ui": "~4.0.9",
+    "react": "18.3.1",
+    "react-dom": "^18.3.1",
+    "react-native": "0.76.9",
+    "react-native-mediapipe": "0.6.0",
+    "react-native-svg": "15.8.0",
+    "react-native-vision-camera": "4.6.4",
+    "react-native-web": "^0.19.13",
+    "react-native-worklets-core": "1.5.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.25.2"
+  }
+}

@@ -1,0 +1,8 @@
+# Contexto editorial, sensibilidad y preferencias
+
+Gate ratificado. Base: SOURCE_BASELINE de persistencia editorial (4.017 archivos). Su aprobación sigue pendiente; la copia local del usuario no está disponible. Se conserva la enmienda de estado editorial persistente.
+
+- El historial registra modificaciones reales, no entrada/salida de Edit Mesh. La conversión de primitiva y la inicialización de geometría Substract siguen siendo cambios documentales. Undo/Redo conserva el contexto actual; si el destino elimina, bloquea o convierte la malla activa en una geometría no editable, se rechaza antes de tocar el historial. Las operaciones temporales pendientes no se restauran ni se descartan por Undo. La selección de componentes histórica solo se recupera cuando corresponde a la misma malla y modo; el modo activo nunca se restaura desde una entrada histórica.
+- Multiplicador editorial general `mouseSensitivity` (0.10–3.00), aplicado una sola vez a los valores existentes de órbita, desplazamiento, zoom y mirada libre. No afecta al cursor del sistema, al trackpad dedicado, ni al Player. TOML conserva las claves previas; el valor faltante recibe 1.00. Se mantiene el mecanismo existente de sincronización de preferencias.
+- Preferencias reutiliza AppWindow, Icon, NumberField y ColorInput. Categorías, búsqueda sin acentos, secciones plegables, indicadores de cambios y restablecimiento individual/general. Se conservan opciones previas, incluidos los ajustes heredados; no se agrega otra autoridad de preferencias.
+- Pruebas de handlers y de integración; cierre/aprobación sujetos a evidencia local. Sin nuevas dependencias.

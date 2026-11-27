@@ -1,0 +1,54 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Hierarchy Reorder CORR-001 · Electron native drag</title></head>
+<body style="margin:0;background:#17191b;color:#ddd"><pre id="hierarchy-reorder-corr001-result" style="font-size:11px">Cargando prueba de arrastre nativo...</pre><div id="app" style="height:340px;width:320px;overflow:hidden"></div>
+<script type="module">
+import * as THREE from 'three'
+import {createApp,nextTick} from 'vue'
+import SceneTree from '/src/components/SceneTree.vue'
+import {store,resetHistory,undo,redo} from '/src/core/store.js'
+const out=document.getElementById('hierarchy-reorder-corr001-result'),checks=[],events={start:0,drop:0}
+const check=(name,pass,details='')=>{checks.push({name,pass:!!pass,details});if(!pass)throw Error(`${name}: ${JSON.stringify(details)}`)}
+let app,gl
+try{
+ gl=new THREE.WebGLRenderer({antialias:false});gl.setSize(8,8)
+ gl.render(new THREE.Scene(),new THREE.Camera())
+ check('Electron WebGL2',gl.capabilities.isWebGL2)
+ const mk=(id,type='primitive',parentId=null)=>({id,type,name:id.toUpperCase(),kind:'box',parentId,position:[0,0,0],rotation:[0,0,0],scale:[1,1,1],visible:true,locked:false,open:true,props:{}})
+ store.project={id:'hierarchy-corr',name:'Fixture',activeSceneId:'s1',scenes:[{id:'s1',name:'Escena'}],objects:[mk('a'),mk('b'),mk('c'),mk('d'),mk('parent','group'),mk('terrain','terrain')],terrain:{enabled:true,layers:[],foliage:[]},materials:[],scripts:[],profiles:[],gameManagers:[],timelines:[],assets:[],environment:{}}
+ store.editor={snapshotTerrain:()=>({layers:[],foliage:[]}),syncObject(){},syncAll(){},setSelection(){},restoreTerrain(){},applyView(){},syncEnvironment(){}}
+ store.selectedId=null;store.selectedIds=[];store.sceneSel=true;store.terrainSel=false
+ resetHistory()
+ const before = Object.fromEntries(store.project.objects.map(o=>[o.id,JSON.stringify(o)]))
+ app=createApp(SceneTree);app.mount('#app');await nextTick()
+ const root=()=>store.project.objects.filter(o=>!o.parentId).map(o=>o.id)
+ check('la jerarquía tiene seis nodos',root().length===6)
+ check('las filas siguen siendo arrastrables',[...document.querySelectorAll('.list [role="treeitem"]')].every(e=>e.draggable))
+ const appEl=document.getElementById('app')
+ appEl.addEventListener('dragstart',()=>events.start++,true)
+ appEl.addEventListener('drop',()=>events.drop++,true)
+ window.__lfNativeDndRead=id=>({roots:root(),parent:store.project.objects.find(o=>o.id===id)?.parentId??null})
+ window.__lfNativeDndSteps=[
+   {from:'d',to:'a',zone:'before',expectRoot:'d,a,b,c,parent,terrain',expectParent:null},
+   {from:'c',to:'parent',zone:'inside',expectRoot:'d,a,b,parent,terrain',expectParent:'parent'},
+   {from:'c',to:'@scene',zone:'root',expectRoot:'d,a,b,parent,terrain,c',expectParent:null},
+   {from:'terrain',to:'b',zone:'before',expectRoot:'d,a,terrain,b,parent,c',expectParent:null},
+   {from:'a',to:'b',zone:'after',expectRoot:'d,terrain,b,a,parent,c',expectParent:null},
+ ]
+ const started=Date.now()
+ while(!window.__lfNativeDndDone && Date.now()-started<18000)await new Promise(r=>setTimeout(r,60))
+ check('Electron ejecutó cinco arrastres nativos',window.__lfNativeDndDone===true)
+ check('eventos dragstart reales observados',events.start>=5,events)
+ check('eventos drop reales observados',events.drop>=5,events)
+ check('la raíz tiene seis objetos sin duplicados',new Set(root()).size===6)
+ check('los nodos finales mantienen transformaciones',store.project.objects.every(o=>JSON.stringify(o)===before[o.id]))
+ check('la selección y las rutas de Inspector no cambiaron',!store.selectedId && store.sceneSel)
+ check('único nodo Terrain',store.project.objects.filter(o=>o.type==='terrain').length===1)
+ check('canUndo habilitado',store.canUndo===true)
+ undo();await nextTick()
+ check('Undo devuelve orden previo',root().join(',')==='d,a,terrain,b,parent,c')
+ redo();await nextTick()
+ check('Redo recupera orden final',root().join(',')==='d,terrain,b,a,parent,c')
+ check('sin errores WebGL',gl.getContext().getError()===gl.getContext().NO_ERROR)
+ out.dataset.pass='true';out.textContent=JSON.stringify({pass:true,checks,gl:gl.getContext().getParameter(gl.getContext().VERSION)},null,2)
+}catch(e){out.dataset.pass='false';out.textContent=JSON.stringify({pass:false,error:String(e?.stack||e),checks},null,2)}
+finally{app?.unmount();gl?.dispose()}
+</script></body></html>

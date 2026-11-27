@@ -1,0 +1,63 @@
+{
+  "gate": "CENTURY-EDITOR-UX-S02-G001-CORR-004-REMOVE-REDUNDANT-PREVIEW-LABEL",
+  "authorized": "Listo. CENTURY-EDITOR-UX-S02-G001-CORR-004-REMOVE-REDUNDANT-PREVIEW-LABEL autoriza comenzar",
+  "authority": "CE-EDITOR-UX-CA-001-EDIT-PLAY-INDEPENDENT-AUTHORITY-AND-DOCKING",
+  "source_baseline": "CENTURY-EDITOR-UX-S02-G001-CORR-003-FOCUS-INDEPENDENT-EDIT-PLAY-VIEWPORT-LIFECYCLE_SOURCE_BASELINE.zip",
+  "source_baseline_sha256": "7b3b072ec53dbc98c1b072497f08d4af444b5c2c7d1446a5e8ff97429402e2c3",
+  "source_files_verified": 3297,
+  "source_files_missing": [],
+  "source_files_changed_before_work": 0,
+  "source_change": "src/components/ViewBar.vue: removed 1 chip label line only",
+  "changed_files_excluding_manifest": [
+    {
+      "path": "docs/architecture/CENTURY-EDITOR-UX-S02-G001-CORR-004-REMOVE-REDUNDANT-PREVIEW-LABEL_IMPLEMENTATION.md",
+      "status": "added",
+      "sha256": "edd0752dd6eb07f4c7955e152f8ac7ce31d892344e1cb9edc4bd8c524dc012bf"
+    },
+    {
+      "path": "docs/qa/CENTURY-EDITOR-UX-S02-G001-CORR-004-REMOVE-REDUNDANT-PREVIEW-LABEL_EVIDENCE.md",
+      "status": "added",
+      "sha256": "2b5ed0b5e28babd3b122bc8e7e64c3b07037594aba5908d3de517135f305309c"
+    },
+    {
+      "path": "docs/qa/LevelForge_DB_Ledger.xlsx",
+      "status": "modified",
+      "sha256": "5a41ce695aa1df50bbc28e483191e946141e7cd87e2e2b76d18fece1e69562e4"
+    },
+    {
+      "path": "docs/qa/evidence/CENTURY-EDITOR-UX-S02-G001-CORR-004-REMOVE-REDUNDANT-PREVIEW-LABEL/build.log",
+      "status": "added",
+      "sha256": "ad93033e7f39a0f04a1ed40edf91f741c64cfbf9fa5ed37ad17f38e46626cd7c"
+    },
+    {
+      "path": "docs/qa/evidence/CENTURY-EDITOR-UX-S02-G001-CORR-004-REMOVE-REDUNDANT-PREVIEW-LABEL/label-regression.log",
+      "status": "added",
+      "sha256": "aaaff892655d5e22be6be8291c533863ea4490e4c3f68558d45b42fa32d1b4bc"
+    },
+    {
+      "path": "docs/qa/evidence/CENTURY-EDITOR-UX-S02-G001-CORR-004-REMOVE-REDUNDANT-PREVIEW-LABEL/lifecycle-node.log",
+      "status": "added",
+      "sha256": "46e309debdb7269e1931c2ed96284f3521478ffad4675576834d34b036b3bb98"
+    },
+    {
+      "path": "docs/qa/evidence/CENTURY-EDITOR-UX-S02-G001-CORR-004-REMOVE-REDUNDANT-PREVIEW-LABEL/syntax.log",
+      "status": "added",
+      "sha256": "36147dd68a45971c21c1d561a8d6f63963242f6561b553085194945cace32496"
+    },
+    {
+      "path": "src/components/ViewBar.vue",
+      "status": "modified",
+      "sha256": "f23cfc12cc5af1eed59bb31f92038feb58488071fb44e9c216c73969cbad6e9c"
+    }
+  ],
+  "qa": {
+    "lifecycle_node": "8/8 PASS",
+    "label_regression": "PASS",
+    "viewbar_script_syntax": "PASS",
+    "vite_build": "BLOCKED vite: not found",
+    "electron_visual": "NOT VERIFIED",
+    "gate_approval": "PENDING",
+    "closed": false
+  },
+  "git_operations": "none"
+}

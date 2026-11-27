@@ -1,0 +1,47 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>AddMenu categorías CORR-G001 · Electron</title></head>
+<body style="background:#171b21;color:#ddd"><pre id="addmenu-categories-corr-g001-result">Cargando...</pre><div id="app"></div>
+<script type="module">
+import * as THREE from 'three'
+import { createApp, nextTick } from 'vue'
+import AddModal from '/src/components/AddModal.vue'
+import { store } from '/src/core/store.js'
+import { openAddMenu } from '/src/core/commands.js'
+import { getDef, allDefs } from '/src/engine/runtime/nodes/index.js'
+import { shiftANodeCatalog } from '/src/core/add-menu-catalog.js'
+import { searchAddNodes, addMenuTree } from '/src/components/add-menu-model.js'
+const out=document.getElementById('addmenu-categories-corr-g001-result'),checks=[]
+const check=(name,ok,detail='')=>{checks.push({name,pass:!!ok,detail});if(!ok)throw new Error(`${name}: ${detail}`)}
+let app,renderer
+try {
+ renderer=new THREE.WebGLRenderer({antialias:false});renderer.setSize(16,16)
+ renderer.render(new THREE.Scene(),new THREE.PerspectiveCamera())
+ check('WebGL2 Electron disponible',renderer.capabilities.isWebGL2)
+ const created=[]
+ store.project={id:'cat-corr',activeSceneId:'scene-1',name:'Fixture',objects:[],scenes:[{id:'scene-1',name:'Escena'}],models:[]}
+ store.selectedId=null;store.selectedIds=[];store.sceneSel=true;store.edit.on=false
+ store.editor={pickPlacePoint:()=>({x:0,y:0,z:0}),lastClient:{x:120,y:80},addAt(spot,spec,options){created.push({spot,spec,options})}}
+ const defs=allDefs(),catalog=shiftANodeCatalog(defs)
+ check('Primitivas solo contiene primitive',catalog.filter(x=>x.category==='Primitivas').every(x=>x.type==='primitive'))
+ for (const [type,category] of [['water','Ambiente'],['terrain','Ambiente'],['road','Herramientas de modelado'],['subtract','Herramientas de modelado'],['decal','Efectos'],['text','Visuales'],['sprite3d','Visuales']])
+  check(`${type} pertenece a ${category}`,getDef(type)?.category===category)
+ check('Shift+A conserva Vértice entre las herramientas',catalog.some(x=>x.type==='mesh'&&x.kind==='vertex'&&x.category==='Herramientas de modelado'))
+ check('Cubo y Plano no están duplicados en Shift+A',catalog.filter(x=>x.label==='Cubo').length===1 && catalog.filter(x=>x.label==='Plano').length===1)
+ app=createApp(AddModal);app.mount('#app')
+ openAddMenu({x:120,y:80});await nextTick()
+ const labels=()=>[...document.querySelectorAll('.am-root .am-item .am-label')].map(e=>e.textContent)
+ check('categorías Primitivas y Ambiente visibles',labels().includes('Primitivas') && labels().includes('Ambiente'),JSON.stringify(labels()))
+ check('categorías Visuales, Modelado y Efectos visibles',['Visuales','Herramientas de modelado','Efectos'].every(x=>labels().includes(x)),JSON.stringify(labels()))
+ const tree=addMenuTree(store.addModal.items)
+ check('buscar Océano devuelve Ambiente',searchAddNodes(tree,'océano')[0]?.group==='Ambiente')
+ check('buscar Carretera devuelve Modelado',searchAddNodes(tree,'carretera')[0]?.group==='Herramientas de modelado')
+ check('buscar Vértice devuelve Modelado',searchAddNodes(tree,'vértice')[0]?.group==='Herramientas de modelado')
+ const search=document.querySelector('.am-search input')
+ search.value='Cubo';search.dispatchEvent(new Event('input',{bubbles:true}));await nextTick()
+ check('búsqueda presenta un solo Cubo',labels().filter(s=>s==='Cubo').length===1)
+ document.querySelector('.am-root .am-item')?.click();await nextTick();await nextTick()
+ check('crear Cubo usa tipo primitive y punto anterior',created.length===1 && created[0].spec.type==='primitive' && created[0].spec.kind==='box' && created[0].spot.x===0)
+ check('sin errores GPU',renderer.getContext().getError()===renderer.getContext().NO_ERROR)
+ out.dataset.pass='true';out.textContent=JSON.stringify({pass:true,gl:renderer.getContext().getParameter(renderer.getContext().VERSION),checks},null,2)
+}catch(e){out.dataset.pass='false';out.textContent=JSON.stringify({pass:false,checks,error:String(e?.stack||e)},null,2)}
+finally{app?.unmount();renderer?.dispose();store.addModal=null}
+</script></body></html>

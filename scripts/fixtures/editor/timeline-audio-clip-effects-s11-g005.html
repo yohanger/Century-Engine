@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="es"><meta charset="utf-8"><title>QA S11 G005 · FX individuales del Timeline</title>
+<style>body{margin:0;background:#1b1d20;color:#ddd;font:12px sans-serif;padding:10px}#inspector{width:420px;height:120px}</style>
+<div id="inspector"></div><div id="clip-fx-inspector"></div><pre id="audio-clip-effects-result" data-stage="inicio"></pre>
+<script type="module">
+import { createApp, reactive, nextTick, h } from 'vue'
+import ParamForm from '/src/components/ParamForm.vue'
+import AudioMixerInspector from '/src/components/AudioMixerInspector.vue'
+import { store } from '/src/core/store.js'
+import { createProjectData } from '/src/core/project.js'
+import { newFx, normalizeAudio, resolveAudioGroup } from '/src/engine/runtime/audio/config.js'
+import { getAudio } from '/src/engine/runtime/audio/engine.js'
+import { AudioScene } from '/src/engine/runtime/audio/scene.js'
+import { Game } from '/src/engine/runtime/events/interpreter.js'
+import { timelineMethods } from '/src/engine/runtime/events/play-timeline.js'
+import { newTimeline, newTrack, newKey, normalizeTimeline } from '/src/core/timeline/model.js'
+import { TimelineEventPreview } from '/src/core/timeline/event-preview.js'
+const report=document.getElementById('audio-clip-effects-result')
+const checks=[], warnings=[]
+const check=(name,pass)=>{checks.push({name,pass:!!pass});if(!pass)throw Error(name)}
+const pause=ms=>new Promise(r=>setTimeout(r,ms))
+async function until(fn,label){for(let i=0;i<130;i++){if(fn())return;await pause(30)}throw Error('Tiempo excedido: '+label)}
+function wav(){
+  const frames=48000,buffer=new ArrayBuffer(44+frames*2),d=new DataView(buffer)
+  const w=(at,text)=>[...text].forEach((c,i)=>d.setUint8(at+i,c.charCodeAt(0)))
+  w(0,'RIFF');d.setUint32(4,buffer.byteLength-8,true);w(8,'WAVE');w(12,'fmt ');d.setUint32(16,16,true)
+  d.setUint16(20,1,true);d.setUint16(22,1,true);d.setUint32(24,48000,true);d.setUint32(28,96000,true)
+  d.setUint16(32,2,true);d.setUint16(34,16,true);w(36,'data');d.setUint32(40,frames*2,true)
+  for(let i=0;i<frames;i++)d.setInt16(44+2*i,Math.sin(i*2*Math.PI*220/48000)*15000,true)
+  return buffer
+}
+let app,fxApp,engine,scene,preview
+try {
+  report.dataset.stage='configuración'
+  const project=createProjectData('QA G004','empty')
+  project.audio=normalizeAudio({groups:[{id:'mix-g004',name:'Bus especial',parent:'music',volume:-6,fx:[{id:'f-g004',type:'lowpass',freq:850}]}]})
+  project.assets=[{id:'audio-g004',name:'prueba.wav',kind:'audio',ext:'wav'}]
+  store.project=project
+  const first=newKey('audio',0,{clip:'prueba.wav',group:'BUS ESPECIAL',duration:.45})
+  const orphan=newKey('audio',.5,{clip:'prueba.wav',group:'sin-bus'})
+  project.timelines=[newTimeline('QA G004',{duration:3,tracks:[newTrack('audio',{keys:[first,orphan]})]})]
+  check('ID del bus personalizado persistente',project.audio.groups.some(g=>g.id==='mix-g004'))
+  check('Bus hijo de Music',project.audio.groups.find(g=>g.id==='mix-g004').parent==='music')
+  check('FX existente conservado',project.audio.groups.find(g=>g.id==='mix-g004').fx[0].type==='lowpass')
+  check('Nombre heredado se resuelve por ID',resolveAudioGroup(project.audio,'BUS ESPECIAL').id==='mix-g004')
+  check('Referencia inválida detectable',resolveAudioGroup(project.audio,'sin-bus').missing)
+  check('Referencia inválida vuelve a SFX',resolveAudioGroup(project.audio,'sin-bus').id==='sfx')
+  check('Clave legacy no se reescribe',first.group==='BUS ESPECIAL')
+  check('Claves serializadas mantienen nombre e ID',normalizeTimeline(JSON.parse(JSON.stringify(project.timelines[0]))).tracks[0].keys[0].group===first.group)
+
+  const values=reactive({group:'sin-bus'})
+  app=createApp(ParamForm,{params:[{key:'group',label:'Grupo del mezclador',type:'audiogroup'}],values})
+  app.mount('#inspector');await nextTick()
+  const select=()=>document.querySelector('#inspector select')
+  check('Inspector expone el bus huérfano',Array.from(select().options).some(o=>o.value==='sin-bus'&&o.textContent.includes('ausente')))
+  check('Inspector no repara sin permiso',values.group==='sin-bus')
+  values.group='BUS ESPECIAL';await nextTick()
+  check('Inspector indica nombre antiguo',Array.from(select().options).some(o=>o.value==='BUS ESPECIAL'&&o.textContent.includes('antigua')))
+  check('Inspector ofrece bus canónico',Array.from(select().options).some(o=>o.value==='mix-g004'))
+  select().value='mix-g004';select().dispatchEvent(new Event('change',{bubbles:true}));await nextTick()
+  check('Cambio explícito usa ID canónico',values.group==='mix-g004')
+  check('No se borró el dato de Timeline al editar Inspector',first.group==='BUS ESPECIAL')
+
+  report.dataset.stage='motor audio WebAudio'
+  engine=getAudio()
+  engine.setLoader(async id=>id==='audio-g004'?{bytes:wav()}:null)
+  const host={project,assetData:async id=>id==='audio-g004'?{bytes:wav()}:null,storage:{get:()=>null,set:()=>{}}}
+  scene=new AudioScene({scene:{nodes:new Map()},host})
+  await scene.start({deferSources:true})
+  check('Web AudioContext real creado',!!engine.ctx)
+  check('Mixer del Player configurado',engine.nodes.has('mix-g004'))
+  check('Jerarquía Web Audio conectada',engine.nodes.get('mix-g004')?.parent==='music')
+  check('Cadena FX activa en el bus',engine.nodes.get('mix-g004')?.chain?.length===1)
+  const direct=await engine.playBuffer(await engine.ctx.decodeAudioData(wav()),{group:'mix-g004',mode:'ui'})
+  check('Voz WebAudio entra al bus personalizado',direct.opts.group==='mix-g004')
+  direct.stop()
+
+  report.dataset.stage='Player ordinario y avanzado'
+  const game=new Game({database:project.database,host:{audio:scene.script}})
+  const self={game,audio:scene,project,rt:{toast:msg=>warnings.push(msg)},_tlWarned:new Set(),timers:[]}
+  const tlhost=timelineMethods._tlHost.call(self)
+  tlhost.audio(newKey('audio',0,{clip:'prueba.wav',group:'BUS ESPECIAL',fx:[newFx('eq3',{id:'player-normal-fx'})]}))
+  await until(()=>[...engine.voices].some(v=>v.opts.group==='mix-g004'),'reproducción Player ordinaria')
+  check('Player normal envía nombre antiguo a bus correcto',[...engine.voices].some(v=>v.opts.group==='mix-g004'))
+  check('FX per-clip del Player ordinario',[...engine.voices].some(v=>v.clipEffects?.[0]?.params?.type==='eq3'))
+  scene.engine.stopAll();await pause(50)
+  await tlhost.audio(newKey('audio',0,{clip:'prueba.wav',group:'BUS ESPECIAL',offset:.1,duration:.4,fx:[newFx('highpass',{id:'player-advanced-fx'})]}))
+  check('Player avanzado envía voz al mismo bus',[...engine.voices].some(v=>v.opts.group==='mix-g004'))
+  check('FX per-clip del Player avanzado',[...engine.voices].some(v=>v.clipEffects?.[0]?.params?.type==='highpass'))
+  check('Player avanzado conserva temporizador',self.timers.length===1)
+  scene.engine.stopAll();await pause(50)
+  tlhost.audio(newKey('audio',0,{clip:'prueba.wav',group:'sin-bus'}))
+  await until(()=>[...engine.voices].some(v=>v.opts.group==='sfx'),'fallback del Player')
+  check('Player usa fallback SFX real',[...engine.voices].some(v=>v.opts.group==='sfx'))
+  check('Player muestra diagnóstico de referencia inválida',warnings.some(w=>w.includes('sin-bus')))
+  const voice=[...engine.voices].find(v=>v.opts.group==='sfx')
+  tlhost.audio(newKey('audio',0,{action:'stop',group:'sin-bus',clip:'prueba.wav'}))
+  check('Stop inválido no detiene SFX',voice.isPlaying)
+  scene.engine.stopAll()
+
+  report.dataset.stage='Preview Editor'
+  preview=new TimelineEventPreview({getProject:()=>project,onWarning:message=>warnings.push(message)})
+  const timeline=newTimeline('Preview G004',{duration:2,tracks:[newTrack('audio',{keys:[newKey('audio',0,{clip:'prueba.wav',group:'BUS ESPECIAL',fx:[newFx('lowpass',{id:'preview-fx'})]})]})]})
+  check('Preview inicia sesión única',preview.start(timeline,0))
+  await until(()=>[...preview.voices].some(v=>v.group==='mix-g004'),'Preview audio')
+  check('Preview aplica el grupo existente',[...preview.voices][0].instance.opts.group==='mix-g004')
+  check('Preview recibe FX de la clave',[...preview.voices][0].instance.clipEffects?.[0]?.params?.type==='lowpass')
+  check('Preview hereda configuración Mixer',engine.nodes.has('mix-g004'))
+  preview.pause();check('Preview pausa su voz',![...preview.voices][0].instance.isPlaying)
+  preview.resume();check('Preview reanuda su voz',[...preview.voices][0].instance.isPlaying)
+  preview.stop();check('Stop libera voces de Preview',preview.voices.size===0)
+  check('Datos de proyecto intactos',project.timelines[0].tracks[0].keys[0].group==='BUS ESPECIAL')
+
+  report.dataset.stage='G005 FX individuales y UI reutilizada'
+  const clipFX=reactive({list:[newFx('eq3',{id:'eq-clip',low:4}),newFx('highpass',{id:'hp-clip',freq:340})]})
+  const touch=()=>{store.temporalEditRevision++}
+  fxApp=createApp({render(){return h(AudioMixerInspector,{
+    fxOnly:true,clipId:'key-fx',clipFx:clipFX.list,
+    onFxAdd:type=>{clipFX.list=[...clipFX.list,newFx(type)];touch()},
+    onFxRemove:id=>{clipFX.list=clipFX.list.filter(f=>f.id!==id);touch()},
+    onFxMove:(id,delta)=>{const list=[...clipFX.list],i=list.findIndex(f=>f.id===id),j=i+delta;if(j>=0&&j<list.length){[list[i],list[j]]=[list[j],list[i]];clipFX.list=list;touch()}},
+    onFxUpdate:(id,patch)=>{clipFX.list=clipFX.list.map(f=>f.id===id?{...f,...patch}:f);touch()},
+    onFxPreset:(id,preset)=>{if(preset==='sala'){clipFX.list=clipFX.list.map(f=>f.id===id?{...f,mix:.3,time:1.6}:f);touch()}},
+  })}})
+  fxApp.mount('#clip-fx-inspector');await nextTick()
+  const clipBox=document.querySelector('#clip-fx-inspector')
+  check('Inspector FX por clave, sin nuevo Mixer',clipBox.textContent.includes('Efectos de este clip (2)'))
+  check('FX existentes disponibles en selector',Array.from(clipBox.querySelectorAll('select option')).some(o=>o.value==='echo'))
+  const head=clipBox.querySelector('.chain-head button.effect');head.click();await nextTick()
+  check('FX de clip desplegable',clipBox.querySelectorAll('.chain-body input[type="range"]').length>=1)
+  const on=clipBox.querySelector('.chain-head input[type="checkbox"]');on.checked=false;on.dispatchEvent(new Event('change',{bubbles:true}));await nextTick()
+  check('Bypass individual modifica solo FX de clip',clipFX.list[0].on===false && project.audio.groups.find(g=>g.id==='mix-g004').fx[0].on===true)
+  const add=clipBox.querySelector('select[aria-label="Añadir efecto"]');add.value='echo';add.dispatchEvent(new Event('change',{bubbles:true}));await nextTick()
+  check('Añadir FX conserva los otros efectos',clipFX.list.length===3 && clipFX.list[2].type==='echo')
+  check('Ningún bus nuevo al editar FX individuales',project.audio.groups.filter(g=>g.id==='mix-g004').length===1)
+  const webBuffer=await engine.ctx.decodeAudioData(wav())
+  // Registrar las conexiones efectivas de Web Audio; los nodos nativos no exponen .connections.
+  const nativeConnect=AudioNode.prototype.connect, edges=[]
+  let privateA,privateB
+  try {
+    AudioNode.prototype.connect=function(...args){
+      const result=nativeConnect.apply(this,args)
+      edges.push([this,args[0]])
+      return result
+    }
+    privateA=await engine.playBuffer(webBuffer,{group:'mix-g004',mode:'ui',fx:[newFx('eq3',{low:5})]})
+    privateB=await engine.playBuffer(webBuffer,{group:'mix-g004',mode:'ui',fx:[newFx('echo',{time:.05,feedback:.1})]})
+  } finally {
+    AudioNode.prototype.connect=nativeConnect
+  }
+  check('Dos voces tienen FX independientes',privateA.clipEffects[0].fx!==privateB.clipEffects[0].fx)
+  check('Cadena de voz anterior a fader',!!privateA.fxInput && !!privateA.clipEffects[0].fx.input && !!privateA.gain)
+  const busInput=engine.nodes.get('mix-g004').input
+  check('Ambas voces llegan al mismo bus existente',
+    edges.some(([from,to])=>from===privateA.gain && to===busInput) &&
+    edges.some(([from,to])=>from===privateB.gain && to===busInput))
+  check('Observación temporal de conexiones restaurada',AudioNode.prototype.connect===nativeConnect)
+  check('FX del bus continúan después del clip',engine.nodes.get('mix-g004').chain.length===1)
+  privateA.stop();privateB.stop()
+  check('Stop deja de reproducir ambas voces',!privateA.isPlaying && !privateB.isPlaying)
+  check('Proyecto conserva FX por clave al serializar',JSON.parse(JSON.stringify(normalizeTimeline(newTimeline('FX G005',{tracks:[newTrack('audio',{keys:[newKey('audio',0,{fx:clipFX.list})]})]})))).tracks[0].keys[0].fx.length===3)
+  report.dataset.pass='true';report.textContent=JSON.stringify({pass:true,checks,gl:!!document.createElement('canvas').getContext('webgl')},null,2)
+} catch(error) {
+  report.dataset.pass='false';report.dataset.stage='fallo'
+  report.textContent=JSON.stringify({pass:false,error:error?.stack||String(error),checks},null,2)
+} finally {
+  try{preview?.stop();scene?.stop();fxApp?.unmount();app?.unmount()}catch{}
+}
+</script></html>

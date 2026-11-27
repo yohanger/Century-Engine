@@ -1,0 +1,49 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>QA Filmmaker frame S01</title><style>html,body,iframe{margin:0;width:100%;height:100%;border:0}pre{position:fixed;inset:0;z-index:99;background:#111820;color:#f2f2f2;padding:20px;white-space:pre-wrap}</style></head><body>
+<iframe id="app" src="/filmmaker.html"></iframe><pre id="frame-result" data-pass="pending">Iniciando Nether Film Maker…</pre>
+<script type="module">
+const out=document.querySelector('#frame-result'), checks=[]
+const assert=(condition,label)=>{if(!condition)throw Error(label);checks.push(label)}
+const pause=(ms)=>new Promise(r=>setTimeout(r,ms))
+const finish=(pass,error='')=>{out.dataset.pass=String(pass);out.textContent=JSON.stringify({pass,checks,error})}
+try{
+  const iframe=document.querySelector('#app')
+  for(let i=0;i<120;i++){if(iframe.contentWindow?.__lf?.editor)break;await pause(150)}
+  const w=iframe.contentWindow, d=w.document, {editor,F}=w.__lf
+  assert(!!editor,'Aplicación real y WebGL inicializados')
+  const api=await import('/src/filmmaker/film.js')
+  const film=api.newFilm({name:'QA Encuadre',sceneId:'s1',sceneName:'Escena de prueba',projectName:'QA'})
+  F.session.film=film
+  await pause(450)
+  const stage=d.querySelector('[data-test="film-stage"]'), frame=d.querySelector('[data-test="film-frame"]')
+  assert(stage&&frame,'Monitor de encuadre montado')
+  const rect=()=>frame.getBoundingClientRect(), approx=(a,b)=>Math.abs(a-b)<2
+  assert(approx(rect().width/rect().height,16/9),'Formato inicial Full HD 16:9')
+  const persp=editor.vp.persp, oldFov=persp.fov, oldPos=persp.position.clone(), oldQuat=persp.quaternion.clone()
+  d.querySelector('[data-test="tab-film"]')?.click()
+  await pause(150)
+  const preset=d.querySelector('[data-test="frame-preset"]')
+  assert(!!preset,'Selector de resoluciones visible')
+  preset.value='vertical';preset.dispatchEvent(new w.Event('change',{bubbles:true}))
+  await pause(350)
+  assert(F.session.film.frame.width===1080&&F.session.film.frame.height===1920,'Formato vertical persistido en estado')
+  assert(approx(rect().width/rect().height,9/16),'Monitor vertical sin deformar')
+  assert(approx(persp.aspect,rect().width/rect().height),'Cámara adopta aspecto real')
+  assert(persp.position.distanceTo(oldPos)<0.0001,'Posición de cámara preservada')
+  assert(persp.quaternion.angleTo(oldQuat)<0.0001,'Rotación de cámara preservada')
+  assert(approx(persp.fov,oldFov),'FOV preservado')
+  const width=d.querySelector('[data-test="frame-width"]'), height=d.querySelector('[data-test="frame-height"]')
+  width.value='1024';width.dispatchEvent(new w.Event('change',{bubbles:true}))
+  height.value='768';height.dispatchEvent(new w.Event('change',{bubbles:true}))
+  await pause(220)
+  assert(F.session.film.frame.width===1024&&F.session.film.frame.height===768,'Resolución personalizada aplicada')
+  assert(approx(rect().width/rect().height,4/3),'Pillarbox dinámico al cambiar tamaño')
+  const packed=await api.packNfm(F.session.film,new Uint8Array([1,2,3]))
+  const restored=await api.unpackNfm(packed)
+  assert(restored.film.frame.width===1024&&restored.film.frame.height===768,'Round-trip .nfm con JSZip real')
+  const quality=d.querySelector('[data-test="quality"]')
+  if(quality){quality.value='0.5';quality.dispatchEvent(new w.Event('change',{bubbles:true}));await pause(80)}
+  assert(F.session.film.frame.width===1024,'Calidad de preview independiente')
+  assert(frame.contains(editor.vp.renderer.domElement),'Canvas original contenido en monitor')
+  finish(true)
+}catch(e){finish(false,e.stack||String(e))}
+</script></body></html>

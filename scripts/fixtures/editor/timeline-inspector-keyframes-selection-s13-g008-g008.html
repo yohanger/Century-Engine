@@ -1,0 +1,108 @@
+<!doctype html><html lang="es"><meta charset="utf-8"><title>G008 · Inspector selección y llaves</title>
+<style>html,body{margin:0;background:#171b20;color:#ebedf0;font:12px system-ui}.workspace{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr)}#timeline,#inspector{height:500px;overflow:hidden;border:1px solid #39414c}#lf-g008-inspector-result{display:none}</style>
+<div id="root"></div><pre id="lf-g008-inspector-result"></pre>
+<script>
+(()=>{const target=document.getElementById('lf-g008-inspector-result'),checks=[];let stage='inicio',done=false
+const finish=err=>{if(done)return;done=true;clearTimeout(watchdog);const pass=!err&&checks.length===20&&checks.every(c=>c.pass);target.dataset.pass=String(pass);target.dataset.checks=String(checks.length);target.dataset.stage=pass?'final:PASS':'final:FAIL';let gl=false;try{gl=!!document.createElement('canvas').getContext('webgl')}catch{}target.textContent=JSON.stringify({pass,stage,...(err?{error:err.stack||String(err)}:{}),checks,gl},null,2)}
+const check=(name,pass,actual)=>{checks.push({name,pass:!!pass,...(actual===undefined?{}:{actual})});stage=`${checks.length}: ${name}`;target.dataset.stage=stage;target.dataset.checks=String(checks.length)}
+const watchdog=setTimeout(()=>finish(new Error('Tiempo agotado: '+stage)),40000)
+window.addEventListener('error',e=>finish(e.error||new Error(e.message||'Error al cargar script')),true)
+window.addEventListener('unhandledrejection',e=>finish(e.reason||new Error('Promesa rechazada')))
+window.__lfG008={check,finish,progress:value=>{stage=value;target.dataset.stage=value}}
+})()
+</script>
+<script type="module">
+const {check,finish,progress}=window.__lfG008
+let app
+try{
+  await import('/src/styles.css')
+  const Vue=await import('vue'),{ref,provide,h,nextTick}=Vue
+  const {default:InspectorDock}=await import('/src/components/InspectorDock.vue')
+  const {default:TimelinePanel}=await import('/src/components/TimelinePanel.vue')
+  const {store,setEditor,resetHistory,selectObject,selectTemporal,undo,redo}=await import('/src/core/store.js')
+  const {timelinePlaybackKey}=await import('/src/core/timeline/playback-session.js')
+  const {createProjectData}=await import('/src/core/project.js')
+  const {makeObject}=await import('/src/engine/runtime/nodes/index.js')
+  const {newTimeline,normalizeTimeline}=await import('/src/core/timeline/model.js')
+  const settle=async()=>{await nextTick();await new Promise(r=>setTimeout(r,30));await nextTick()}
+  const doc=createProjectData('G008 Inspector','empty')
+  const light=makeObject('light','omni');light.id='light-a';light.name='Luz';light.color='#123456';light.light.energy=2
+  const another=makeObject('node3d');another.id='node-b';another.name='Nodo B'
+  doc.objects=[light,another]
+  const timeline=newTimeline('Escena',{id:'g008-timeline',duration:5})
+  doc.timelines=[timeline]
+  store.project=doc;store.selectedId=null;store.selectedIds=[];store.projSel=null;store.temporalSelection=null
+  store.sceneSel=false;store.terrainSel=false;store.locked=false;store.play.on=false;store.filmMode=false
+  store.timelineId=timeline.id;store.prefs.rightTab='object';store.prefs.bottomTab='timeline';store.prefs.bottomOpen=true
+  setEditor({snapshotTerrain:()=>doc.terrain,setSelection(){},setActivePiece(){},syncObject(){},syncAll(){},syncEnvironment(){},restoreEdit(){},afterUndo(){}})
+  resetHistory()
+  const playback={time:ref(1),playing:ref(false),previewEnabled:ref(false),resourceId:null,
+    refresh(){},pause(){},stop(){},eventsEdited(){},yieldToEditing(){return true}}
+  app=Vue.createApp({setup(){provide(timelinePlaybackKey,playback);return()=>h('div',{class:'workspace'},[h('div',{id:'timeline'},[h(TimelinePanel)]),h('div',{id:'inspector'},[h(InspectorDock)])])}})
+  app.mount('#root');await settle()
+  const root=()=>document.querySelector('#inspector .insp')
+  const lightRoot=()=>root()?.dataset.nodeType==='light'
+  const buttons=()=>[...document.querySelectorAll('#timeline .node-key-picker')]
+  const header=id=>document.querySelector(`#timeline .node-head[data-node-id="${id}"]`)
+  async function openPicker(id) {
+    if (!header(id)) {
+      const transfer=new DataTransfer()
+      transfer.setData('application/x-lf-node',JSON.stringify([id]))
+      document.querySelector('#timeline .main').dispatchEvent(new DragEvent('drop',{dataTransfer:transfer,bubbles:true,cancelable:true}))
+      await settle()
+    }
+    header(id)?.querySelector('.node-key-picker').click()
+  }
+  const keyFor=label=>store.menu?.items.find(item=>item.label===label)
+  async function insert(id,label) {
+    await openPicker(id)
+    keyFor(label).run()
+    store.menu=null
+    await settle()
+  }
+  const channel=prop=>store.project.timelines.find(t=>t.id==='g008-timeline')?.tracks.find(tr=>tr.prop===prop)
+  progress('Selecciones y cambio inmediato de Inspector')
+  check('InspectorDock original montado',!!document.querySelector('.idock')&&!!root())
+  selectObject(light.id);await settle()
+  check('Primer nodo muestra Inspector de Light',lightRoot())
+  store.projSel={kind:'timeline',id:timeline.id};selectTemporal('timeline',timeline.id);await settle()
+  check('Contexto Timeline conserva el Inspector de nodo',store.temporalSelection?.kind==='timeline'&&lightRoot())
+  selectObject(light.id);await settle()
+  check('Clic sobre mismo ID restaura Inspector de Light al primer intento',lightRoot()&&store.selectedId===light.id)
+  check('Se limpian contexto temporal y selección Assets',store.temporalSelection===null&&store.projSel===null)
+  store.projSel={kind:'cinematic',id:'otro-recurso'};await settle()
+  selectObject(light.id);await settle()
+  check('Cinematic previo deja paso al mismo nodo en primer clic',lightRoot()&&store.projSel===null)
+  store.projSel={kind:'material',id:'material-previo'};selectObject(another.id);await settle()
+  check('Otro recurso pasa a Node3D inmediatamente',root()?.dataset.nodeType==='node3d'&&store.selectedId===another.id)
+  selectTemporal('timeline',timeline.id,'resource');await settle()
+  selectObject(light.id);await settle()
+  check('Volver al primer nodo no necesita seleccionar nodo intermedio',lightRoot())
+  progress('Autoría de llaves desde controles reales')
+  await openPicker(light.id)
+  check('Light presenta Color en el selector',!!keyFor('Luz: color'))
+  check('Light presenta Intensidad en el selector',!!keyFor('Luz: intensidad'))
+  store.menu=null
+  store.timelineId=null;await settle()
+  check('Las llaves se ocultan al cerrar recurso',buttons().length===0)
+  store.timelineId=timeline.id;await settle()
+  await openPicker(light.id)
+  check('Reabrir Timeline recupera las propiedades compatibles',!!keyFor('Luz: intensidad')&&!!keyFor('Luz: color'))
+  const before=JSON.stringify(light)
+  await insert(light.id,'Luz: intensidad')
+  check('Clic crea pista con referencia ID y escena',channel('light.energy')?.node===light.id&&channel('light.energy')?.sceneId===doc.activeSceneId)
+  check('Clave usa cabezal compartido y valor autoral',channel('light.energy')?.keys[0]?.t===1&&channel('light.energy')?.keys[0]?.v===2)
+  const originalId=channel('light.energy').keys[0].id
+  await insert(light.id,'Luz: intensidad')
+  check('Segundo clic sobre misma marca no duplica clave',channel('light.energy').keys.length===1&&channel('light.energy').keys[0].id===originalId)
+  playback.time.value=2;await settle();await insert(light.id,'Luz: color')
+  check('Color genera su propia pista y valor tipado',channel('light.color')?.keys[0]?.v==='#123456'&&channel('light.color')?.keys[0]?.t===2)
+  check('Las claves no alteran nodos ni selección',JSON.stringify(light)===before&&store.selectedId===light.id&&store.temporalSelection===null)
+  check('Guardar/abrir por normalización mantiene identidades',normalizeTimeline(JSON.parse(JSON.stringify(store.project.timelines[0]))).tracks.length===2)
+  undo();await settle()
+  check('Undo retira color sin afectar energía',channel('light.color')===undefined&&!!channel('light.energy'))
+  redo();await settle()
+  check('Redo restaura color con la misma ID',channel('light.color')?.keys[0]?.v==='#123456')
+  finish()
+}catch(error){finish(error)}finally{try{app?.unmount()}catch{}}
+</script></html>

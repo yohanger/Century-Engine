@@ -1,0 +1,69 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Global Local — Electron G001</title></head>
+<body style="background:#171b21;color:#ddd"><pre id="transform-global-local-corr-g001-result">Cargando…</pre>
+<script type="module">
+import * as THREE from 'three'
+import { TransformControls } from 'three/addons/controls/TransformControls.js'
+import { gizmoMethods } from '/src/core/editor/gizmo.js'
+import { nodesMethods } from '/src/engine/runtime/events/play-nodes.js'
+import { store } from '/src/core/store.js'
+const output=document.getElementById('transform-global-local-corr-g001-result'),checks=[]
+const test=(name,passed,detail='')=>{checks.push({name,passed:!!passed,detail});if(!passed)throw Error(`${name}: ${detail}`)}
+const near=(a,b,eps=1e-5)=>a.distanceTo(b)<eps
+const V=(...n)=>new THREE.Vector3(...n)
+let renderer,tc
+try {
+ renderer=new THREE.WebGLRenderer({antialias:false});renderer.setSize(16,16)
+ const scene=new THREE.Scene(), camera=new THREE.PerspectiveCamera(60,1,.1,50)
+ camera.position.set(5,6,9);camera.lookAt(0,0,0);scene.add(camera)
+ test('WebGL2 Electron',renderer.capabilities.isWebGL2)
+ const parent=new THREE.Group();parent.position.set(8,0,3);parent.rotation.y=Math.PI/2;scene.add(parent)
+ const child=new THREE.Object3D();child.position.set(0,0,0);child.rotation.y=Math.PI/4;parent.add(child)
+ scene.updateMatrixWorld(true)
+ tc=new TransformControls(camera,renderer.domElement);scene.add(tc.getHelper());tc.setMode('translate');tc.attach(child)
+ test('TransformControls oficial adjunta el nodo real',tc.object===child)
+ const before=child.position.clone(),worldBefore=child.getWorldPosition(new THREE.Vector3())
+ tc.setSpace('world');test('espacio Global aplicado al addon',tc.space==='world')
+ tc.setSpace('local');test('espacio Local aplicado al addon',tc.space==='local')
+ test('alternar espacio no modifica posición local',near(child.position,before))
+ test('alternar espacio no modifica posición mundial',near(child.getWorldPosition(V()),worldBefore))
+ test('quaternion mundial del hijo incluye rotación del padre',Math.abs(child.getWorldQuaternion(new THREE.Quaternion()).y)>0.7)
+ store.project={id:'global-local-g001',objects:[],settings:{gridSize:1,rotSnap:15,scaleSnap:.25,moveSnapOn:true,rotateSnapOn:true}}
+ const basis=child.getWorldQuaternion(new THREE.Quaternion()),starting=child.position.clone()
+ function snap(space,raw,axis='X',shifted=false,mode='translate',angle=0){
+   const t={object:child,space,mode,axis,rotationAngle:angle}
+   const snapPose=()=>({position:child.position.clone(),quaternion:child.quaternion.clone(),scale:child.scale.clone()})
+   const receiver={_snapDrag:{control:t,shifted,anchorRaw:{position:starting.clone(),quaternion:child.quaternion.clone(),scale:child.scale.clone()},anchorOut:{position:starting.clone(),quaternion:child.quaternion.clone(),scale:child.scale.clone()},basis:basis.clone(),angleStart:0,angle:0,absolute:true},_snapPose:snapPose}
+   if(mode==='translate') child.position.copy(raw)
+   else child.quaternion.copy(raw)
+   gizmoMethods._applySnapDrag.call(receiver,t)
+ }
+ // Padre girado: X mundial corresponde al eje -Z local.
+ snap('world',V(0,0,-1.3))
+ test('Global X cuantiza en eje mundial bajo padre rotado',near(child.getWorldPosition(V()),V(7,0,3)))
+ child.position.copy(starting);scene.updateMatrixWorld(true)
+ snap('local',V(1.3,0,0))
+ const localDelta=child.getWorldPosition(V()).sub(worldBefore).applyQuaternion(basis.clone().invert())
+ test('Local X cuantiza sobre ejes propios',Math.abs(localDelta.x-1)<0.001 && Math.abs(localDelta.z)<0.001)
+ // El eje local X del hijo girado 45° no coincide con la X de su padre; el snap se realiza en la base mundial real.
+ child.position.copy(starting)
+ snap('world',V(0,0,-1.35),'X',true)
+ test('Shift suspende Snap',near(child.position,V(0,0,-1.35)))
+ child.position.copy(starting)
+ test('no se alteró Transform local original al cambiar modo',near(child.position,starting))
+ tc.setSpace('world');renderer.render(scene,camera)
+ test('Render sin error GL',renderer.getContext().getError()===renderer.getContext().NO_ERROR)
+ const obj={id:'n',name:'Nodo',type:'primitive'},node=new THREE.Object3D();node.position.set(2,0,0);parent.add(node);scene.updateMatrixWorld(true)
+ const host={project:{objects:[obj]},ed:{nodes:new Map([['n',node]])},phys:{syncNode(n){n.userData.physSync=true}},pos:V(),_tagLayerApi(){return {}},_animMethodsFor(){return {}}}
+ host._find=nodesMethods._find;host._nodeHandle=nodesMethods._nodeHandle
+ const handle=host._nodeHandle('n')
+ test('API lee posición local',handle.position[0]===2)
+ test('API lee posición mundial con padre rotado',Math.abs(handle.worldPosition[2]-1)<1e-5)
+ handle.position=[3,0,0]
+ test('API modifica local y sincroniza física',node.position.x===3 && node.userData.physSync===true)
+ test('API worldPosition continúa solo lectura',!Object.getOwnPropertyDescriptor(handle,'worldPosition').set)
+ test('tres controles oficiales no requieren gizmo duplicado',tc.mode==='translate')
+ test('se conserva el mismo hijo tras operaciones',parent.children.includes(child))
+ output.dataset.pass='true';output.textContent=JSON.stringify({pass:true,gl:renderer.getContext().getParameter(renderer.getContext().VERSION),checks},null,2)
+} catch(err){output.dataset.pass='false';output.textContent=JSON.stringify({pass:false,error:String(err?.stack||err),checks},null,2)}
+finally{tc?.dispose();renderer?.dispose()}
+</script></body></html>

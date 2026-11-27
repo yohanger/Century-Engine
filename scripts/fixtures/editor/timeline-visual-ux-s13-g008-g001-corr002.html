@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="es"><meta charset="utf-8"><title>QA S13-G008-G001 CORR-002 · Inspector y tema Timeline</title>
+<style>
+html,body{margin:0;background:#0d0d0d;color:#e2e2e2;font:12px system-ui}
+#timeline{height:430px;width:850px;overflow:hidden}
+#inspector{height:350px;width:370px;overflow:auto;container-type:inline-size}
+#lf-timeline-visual-ux-s13-g008-g001-corr002-result{display:none}
+</style>
+<div id="timeline"></div><div id="inspector"></div>
+<pre id="lf-timeline-visual-ux-s13-g008-g001-corr002-result"></pre>
+<script>
+(() => {
+  const el=document.getElementById('lf-timeline-visual-ux-s13-g008-g001-corr002-result')
+  const checks=[];let stage='bootstrap',finished=false
+  const publish=()=>{if(!finished){el.dataset.stage=stage;el.textContent=JSON.stringify({pass:null,stage,checks})}}
+  const progress=label=>{stage=label;publish()}
+  const check=(name,pass,actual)=>{checks.push({name,pass:!!pass,...(actual===undefined?{}:{actual})});progress(`${checks.length}: ${name}`);if(!pass)throw Error(`Falló: ${name}`)}
+  const finish=error=>{if(finished)return;finished=true;clearTimeout(timer)
+    const pass=!error&&checks.length===19&&checks.every(c=>c.pass)
+    el.dataset.pass=String(pass);el.dataset.stage=pass?'final:PASS':'final:FAIL';el.dataset.checks=String(checks.length)
+    let gl=false;try{gl=!!document.createElement('canvas').getContext('webgl')}catch{}
+    el.textContent=JSON.stringify({pass,stage,...(error?{error:error.stack||String(error)}:{}),checks,gl},null,2)
+  }
+  const timer=setTimeout(()=>finish(new Error(`Timeout: ${stage}`)),35000)
+  window.addEventListener('error',e=>{if(e.message||e.error||e.target?.tagName==='SCRIPT')finish(e.error||new Error(e.message||'Fallo de carga'))},true)
+  window.addEventListener('unhandledrejection',e=>finish(e.reason||new Error('Promesa rechazada')))
+  window.__lfCorr002Qa={check,finish,progress};publish()
+})()
+</script>
+<script type="module">
+const {check,finish,progress}=window.__lfCorr002Qa
+const apps=[]
+try {
+  progress('Cargar tema real y componentes Vue')
+  await import('/src/styles.css')
+  const {createApp,h,nextTick}=await import('vue')
+  const {default:Inspector}=await import('/src/components/TemporalResourceInspector.vue')
+  const {default:TimelinePanel}=await import('/src/components/TimelinePanel.vue')
+  const {createProjectData}=await import('/src/core/project.js')
+  const {store,setEditor,resetHistory,openTimelineEditor,selectTemporal}=await import('/src/core/store.js')
+  const {newTimeline,newTrack}=await import('/src/core/timeline/model.js')
+  const {createTimelinePlayback,timelinePlaybackKey}=await import('/src/core/timeline/playback-session.js')
+  const project=createProjectData('QA visual CORR-002','empty')
+  const track=newTrack('commands',{id:'corr002-track',keys:[]})
+  project.timelines=[newTimeline('Timeline QA',{id:'corr002-timeline',duration:12,tracks:[track,newTrack('audio',{id:'corr002-audio',keys:[]})]})]
+  store.project=project;store.locked=false;store.play.on=false
+  store.ui.mode='desktop';store.prefs.bottomTab='timeline'
+  setEditor({snapshotTerrain:()=>project.terrain})
+  const playback=createTimelinePlayback({getProject:()=>store.project,getEditor:()=>store.editor,getObjects:()=>project.objects,
+    getContext:()=>({project:store.project,sceneId:project.activeSceneId,editor:store.editor,timelineId:store.timelineId,playOn:false,locked:false,cinematic:false}),
+    requestFrame:()=>1,cancelFrame:()=>{}})
+  resetHistory();openTimelineEditor('corr002-timeline');store.temporalSelection=null
+  const mount=(component,target,props)=>{const app=createApp({render:()=>h(component,props)});app.provide(timelinePlaybackKey,playback);app.mount(target);apps.push(app)}
+  const tick=async()=>{await nextTick();await new Promise(resolve=>queueMicrotask(resolve))}
+  mount(TimelinePanel,'#timeline');mount(Inspector,'#inspector',{kind:'timeline',resourceId:'corr002-timeline'})
+  await tick()
+  const q=selector=>document.querySelector(selector)
+  const color=token=>{const el=document.createElement('div');el.style.background=`var(${token})`;document.body.appendChild(el);const result=getComputedStyle(el).backgroundColor;el.remove();return result}
+  const old=JSON.stringify(store.project.timelines)
+  progress('Inspector de recurso y flecha global')
+  check('Se montó el Inspector contextual original',!!q('#inspector .temporal-inspector'))
+  check('Se está mostrando el recurso Timeline, no una clave',q('#inspector .temporal-inspector')?.dataset.part==='resource')
+  const header=q('#inspector .sect > header'),css=header&&getComputedStyle(header)
+  check('Encabezado conserva Cinemática',header?.textContent.trim()==='Cinemática')
+  check('El encabezado reserva al menos 22px a la izquierda',parseFloat(css?.paddingLeft)>=22,css?.paddingLeft)
+  const arrow=header&&getComputedStyle(header,'::before')
+  check('La flecha compartida permanece a 8px',arrow?.left==='8px'&&arrow?.content!=='none',{left:arrow?.left,content:arrow?.content})
+  check('El título no invade el espacio de la flecha',parseFloat(css?.paddingLeft)>=parseFloat(arrow?.left)+parseFloat(arrow?.width)+5)
+  check('Sin párrafo documental en recurso Timeline',!q('#inspector .temporal-inspector')?.textContent.includes('Selecciona una pista o clave'))
+  const paramRows=[...document.querySelectorAll('#inspector .pf .row')]
+  const rowFor=label=>paramRows.find(row=>row.querySelector(':scope > label')?.textContent.trim()===label)
+  const numberFields=['Duración (s)','Barras de cine (%)']
+  const numberState=numberFields.map(label=>{
+    const input=rowFor(label)?.querySelector('.ctl .nf input[type="text"][inputmode="decimal"]')
+    return {label,present:!!input,editable:!!input&&!input.disabled,value:input?.value}
+  })
+  const boolFields=['En bucle','Bloquear jugador','Se puede omitir']
+  const boolState=boolFields.map(label=>{
+    const input=rowFor(label)?.querySelector('.ctl input[type="checkbox"]')
+    return {label,present:!!input,editable:!!input&&!input.disabled}
+  })
+  const nameInput=q('#inspector input[aria-label="Nombre del Timeline"]')
+  check('Nombre, duración y ajustes siguen disponibles',
+    !!nameInput&&!nameInput.disabled&&nameInput.value==='Timeline QA'&&
+    numberState.every(field=>field.editable&&field.value?.trim()!==''&&Number.isFinite(Number(field.value)))&&
+    boolState.every(field=>field.editable),
+    {nombre:nameInput?.value,numeros:numberState,booleanos:boolState})
+  check('Montaje de Inspector no altera el proyecto',old===JSON.stringify(store.project.timelines))
+  progress('Superficies del Timeline real')
+  const pane=q('#timeline .pinned-column')
+  check('Se monta el Timeline embebido existente',!!pane&&!!q('#timeline .timeline-edit-modes'))
+  check('Columna fija usa el token de superficie del Editor',getComputedStyle(pane).backgroundColor===color('--g-850'),getComputedStyle(pane).backgroundColor)
+  const heads=[...document.querySelectorAll('#timeline .pinned-row .head')]
+  check('Ambas pistas heredan la misma superficie no seleccionada',heads.length===2&&heads.every(head=>getComputedStyle(head).backgroundColor===color('--g-850')),heads.map(h=>getComputedStyle(h).backgroundColor))
+  const modes=q('#timeline .timeline-edit-modes')
+  check('Modos de edición utilizan la superficie del Editor',getComputedStyle(modes).backgroundColor===color('--g-850'))
+  check('Botón Añadir pista utiliza el token de control',getComputedStyle(q('#timeline .track-add')).backgroundColor===color('--g-800'))
+  check('El fondo de regla usa un token en lugar del gris heredado',getComputedStyle(q('#timeline .rulerrow')).backgroundColor===color('--g-850'))
+  check('Vista previa utiliza un control del Editor',getComputedStyle(q('#timeline .title-preview')).backgroundColor===color('--g-800'))
+  progress('Selección y compatibilidad del Inspector')
+  selectTemporal('timeline','corr002-timeline','track',track.id);await tick()
+  const selected=q('#timeline .pinned-row .head.on')
+  check('Seleccionar una pista distingue la cabecera con superficie elevada',!!selected&&getComputedStyle(selected).backgroundColor===color('--g-800'))
+  check('La pista seleccionada conserva borde/acento de selección',!!selected&&getComputedStyle(selected).boxShadow.includes('inset'))
+  check('Seleccionar una pista no altera tiempos ni crea recursos',old===JSON.stringify(store.project.timelines))
+  finish()
+} catch(error){finish(error)} finally {for(const app of apps)try{app.unmount()}catch{}}
+</script>
+</html>

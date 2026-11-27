@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Century Fluids — S05 Browser QA</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <main>
+    <p class="eyebrow">CENTURY FLUIDS / S05</p>
+    <h1>Interoperabilidad en navegador</h1>
+    <p class="intro">Prueba real del paquete ESM instalado desde el tarball de npm. No es el playground de agua.</p>
+    <section class="result" aria-live="polite" aria-atomic="true">
+      <p id="status" class="status" data-state="pending">PENDING</p>
+      <p id="detail">Cargando módulo y comparando el resultado con Node.js…</p>
+      <pre id="result" aria-label="Resultados numéricos"></pre>
+    </section>
+    <p class="hint">Para acreditar el QA, comparte el estado, los valores y la consola del navegador. Un PASS aquí no sustituye una revisión visual ni garantiza compatibilidad universal.</p>
+  </main>
+  <script type="module" src="/main.mjs"></script>
+</body>
+</html>

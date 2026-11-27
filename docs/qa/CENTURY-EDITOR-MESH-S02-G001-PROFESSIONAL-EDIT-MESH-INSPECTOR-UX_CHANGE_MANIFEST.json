@@ -1,0 +1,105 @@
+{
+  "source": "CENTURY_EDITOR_GIZMOS_S01_G001_CORR002_SOURCE_BASELINE.zip",
+  "source_sha256": "227f9998ff83db1aed8d5ab8d9e460fc3c05b46fe88a61837d07864268701e1b",
+  "baseline_files": 3907,
+  "deleted": [],
+  "manifest_self_excluded_from_hash": "docs/qa/CENTURY-EDITOR-MESH-S02-G001-PROFESSIONAL-EDIT-MESH-INSPECTOR-UX_CHANGE_MANIFEST.json",
+  "changes": [
+    {
+      "path": "docs/architecture/CENTURY-EDITOR-MESH-S02-G001-PROFESSIONAL-EDIT-MESH-INSPECTOR-UX_CONTRACT.md",
+      "status": "added",
+      "before": null,
+      "after": "824a43a0cfbb05109d7d343660065f81939f89e959bff21f96af3af4a0208317"
+    },
+    {
+      "path": "docs/architecture/CENTURY-EDITOR-MESH-S02-G001-PROFESSIONAL-EDIT-MESH-INSPECTOR-UX_IMPLEMENTATION.md",
+      "status": "added",
+      "before": null,
+      "after": "f0077caff1761c0932455f4cfbca12e9f80f7e8cacc19863cf9d710f2ea6d479"
+    },
+    {
+      "path": "docs/ledger/CE_EDITOR_MESH_S02_G001_INSPECTOR_UX_LEDGER.xlsx",
+      "status": "added",
+      "before": null,
+      "after": "4da5d6a27c663b69a556e0c01900b40583f85a54abeba4ff6849909ae77a462f"
+    },
+    {
+      "path": "docs/qa/CENTURY-EDITOR-MESH-S02-G001-PROFESSIONAL-EDIT-MESH-INSPECTOR-UX_BASELINE_REGRESSION.log",
+      "status": "added",
+      "before": null,
+      "after": "24a5e642992ae83746c447f96008291aed4fb4df0c02aeebab587f154549b60b"
+    },
+    {
+      "path": "docs/qa/CENTURY-EDITOR-MESH-S02-G001-PROFESSIONAL-EDIT-MESH-INSPECTOR-UX_BUILD.log",
+      "status": "added",
+      "before": null,
+      "after": "ad93033e7f39a0f04a1ed40edf91f741c64cfbf9fa5ed37ad17f38e46626cd7c"
+    },
+    {
+      "path": "docs/qa/CENTURY-EDITOR-MESH-S02-G001-PROFESSIONAL-EDIT-MESH-INSPECTOR-UX_ELECTRON.log",
+      "status": "added",
+      "before": null,
+      "after": "bc0a89f8b02085d5e80171662e2215d207cb915781ae569336c55677eef57ebc"
+    },
+    {
+      "path": "docs/qa/CENTURY-EDITOR-MESH-S02-G001-PROFESSIONAL-EDIT-MESH-INSPECTOR-UX_FOCAL.log",
+      "status": "added",
+      "before": null,
+      "after": "ee608978d5bdd6279bb83d445b6b1652f49bed5606d8f9007af4c79280024d0b"
+    },
+    {
+      "path": "docs/qa/CENTURY-EDITOR-MESH-S02-G001-PROFESSIONAL-EDIT-MESH-INSPECTOR-UX_QA.md",
+      "status": "added",
+      "before": null,
+      "after": "f154f6389b8ec074d5b334e18c8a5d1ab2fb1d77c649dc9bcf7e659f06c2bd46"
+    },
+    {
+      "path": "docs/qa/CENTURY-EDITOR-MESH-S02-G001-PROFESSIONAL-EDIT-MESH-INSPECTOR-UX_REGRESSION.log",
+      "status": "added",
+      "before": null,
+      "after": "e89ce247e772d21c7c12f472a5b0835a8786f7a94438baccc998f4e064ffa026"
+    },
+    {
+      "path": "docs/qa/CENTURY-EDITOR-MESH-S02-G001-PROFESSIONAL-EDIT-MESH-INSPECTOR-UX_SYNTAX.log",
+      "status": "added",
+      "before": null,
+      "after": "91e8e94a7da8ecba30461b92ffb4c645abe563e21eac7e2018323e96dded2914"
+    },
+    {
+      "path": "scripts/fixtures/mesh/edit-mesh-inspector-ux.html",
+      "status": "added",
+      "before": null,
+      "after": "26089629caf072174d77f311999022bcff5a8aa7aa890276ae4b2dbb122685a7"
+    },
+    {
+      "path": "scripts/qa-suites.json",
+      "status": "modified",
+      "before": "33ef78b73e475a7d865dbcc6315c84902fde62cb6bf0ddcfd587ba828297ecb4",
+      "after": "07d7a87443e5376a655c6287a2ea68869e74cdd19a2f4c0f3f60acbeb8f0334e"
+    },
+    {
+      "path": "scripts/test-edit-mesh-inspector-ux-electron.mjs",
+      "status": "added",
+      "before": null,
+      "after": "eb7fcd92b41856ffaffba6589b815368f681c826c3403b4e2b9429ea79184792"
+    },
+    {
+      "path": "scripts/test-edit-mesh-inspector-ux.mjs",
+      "status": "added",
+      "before": null,
+      "after": "36a5f3d436f60a30162819c6bbb3b2836ab9b4c061aa3cebad3bbeb98ccdb529"
+    },
+    {
+      "path": "src/components/InspectorDock.vue",
+      "status": "modified",
+      "before": "d56981cba54f85a723fac8cdcd1dc9b7dc200e3ae5ecb5fac44196e95136b221",
+      "after": "4ac60005b0f558f84b2496756cb77aa03382a7fcddfc71b8d08a0da6bee59217"
+    },
+    {
+      "path": "src/components/MeshPanel.vue",
+      "status": "modified",
+      "before": "d219b099afc17a249d0c891d455c50dbedcd86a33ddcac04c690aeb95d949028",
+      "after": "5255f24483bb27e91d390f4b1833750a1acc4abec3bb967f0c2d154a1146ebe1"
+    }
+  ]
+}

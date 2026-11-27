@@ -1,0 +1,24 @@
+flowchart TD
+  A["Carga de escena / reset\nInicializar semilla efectiva y estado"]
+  M{"Modo?"}
+  ED["Edit Mode\nEvaluacion estatica, no dt_weather"]
+  PL["PlayMode / Player\nConstruir dt_weather y pasos"]
+  F["World actualiza clima, fade y viento"]
+  CF["CloudField mantiene claves y forzado"]
+  R{"Recentrado con solapamiento?"}
+  NEAR["Remuestrear agua y vapor"]
+  FAR["Reconstruccion condicionada\nDeterminista, memoria acotada\nMecanismo por validar"]
+  CV["CloudVolume: paso fijo y publicacion"]
+  VIS["Sky e iluminacion / FX consumidores"]
+  SAVE["Save/Load: validar\nVolumen + transicion necesaria"]
+  STOP["Stop: restaurar estado editorial"]
+  A --> M
+  M -->|edicion| ED --> VIS
+  M -->|simulacion| PL --> F --> CF --> R
+  R -->|si| NEAR --> CV
+  R -->|no| FAR --> CV
+  CV --> VIS
+  CV --> SAVE
+  VIS -->|stop| STOP --> ED
+  classDef unresolved fill:#fffbeb,stroke:#d97706,color:#92400e
+  class FAR unresolved

@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="es">
+<meta charset="utf-8">
+<title>QA forma de onda S11-G003</title>
+<style>
+  body { margin:0; background:#181a1b; color:#eee; font:12px sans-serif; }
+  #timeline { height:234px; width:620px; }
+  #inspector { height:200px; width:330px; overflow:auto; }
+  #audio-waveform-result { display:none; }
+</style>
+<div id="timeline"></div><div id="inspector"></div><pre id="audio-waveform-result"></pre>
+<script type="module">
+import { createApp, h, nextTick } from 'vue'
+import TimelinePanel from '/src/components/TimelinePanel.vue'
+import TemporalResourceInspector from '/src/components/TemporalResourceInspector.vue'
+import { createProjectData } from '/src/core/project.js'
+import { putAsset, deleteAsset } from '/src/core/db.js'
+import { store, setEditor, resetHistory, openTimelineEditor } from '/src/core/store.js'
+import { newTimeline, newTrack, newKey } from '/src/core/timeline/model.js'
+import { createTimelinePlayback, timelinePlaybackKey } from '/src/core/timeline/playback-session.js'
+import { TimelineEventPreview } from '/src/core/timeline/event-preview.js'
+import { getAudio } from '/src/engine/runtime/audio/engine.js'
+import { requestTimelineAudioAnalysis } from '/src/core/timeline/audio-source-analysis.js'
+import { audioWaveformPath, audioWaveformPeak } from '/src/core/timeline/audio-waveform.js'
+
+const output = document.querySelector('#audio-waveform-result'), apps = [], checks = []
+const check = (name, pass) => { checks.push({ name, pass: !!pass }); if (!pass) throw new Error(name) }
+async function until(condition, label) {
+  for (let attempt = 0; attempt < 180; attempt++) {
+    if (condition()) return
+    await new Promise(resolve => setTimeout(resolve, 25))
+  }
+  throw new Error(label)
+}
+function wav(amplitude) {
+  const frames = 48000, bytes = new ArrayBuffer(44 + frames * 2), view = new DataView(bytes)
+  const text = (offset, value) => [...value].forEach((char, index) => view.setUint8(offset + index, char.charCodeAt(0)))
+  text(0, 'RIFF'); view.setUint32(4, bytes.byteLength - 8, true)
+  text(8, 'WAVE'); text(12, 'fmt '); view.setUint32(16, 16, true)
+  view.setUint16(20, 1, true); view.setUint16(22, 1, true); view.setUint32(24, 48000, true)
+  view.setUint32(28, 96000, true); view.setUint16(32, 2, true); view.setUint16(34, 16, true)
+  text(36, 'data'); view.setUint32(40, frames * 2, true)
+  for (let i = frames / 2; i < frames; i++) view.setInt16(44 + i * 2, i % 2 ? amplitude : -amplitude, true)
+  return bytes
+}
+
+const project = createProjectData('QA audio S11', 'empty')
+const good = { id:'a_g003_wav', name:'señal.wav', kind:'audio', ext:'wav', folder:'Assets' }
+const broken = { id:'a_g003_error', name:'roto.wav', kind:'audio', ext:'wav', folder:'Assets' }
+const quiet = { id:'a_g003_quiet', name:'señal-débil.mp3', kind:'audio', ext:'mp3', folder:'Assets' }
+const track = newTrack('audio', { keys: [
+  newKey('audio', 0, { clip: good.name, duration:.4 }),
+  newKey('audio', .7, { clip: good.id, duration:.4, offset:.5 }),
+  newKey('audio', 1.4, { clip: 'ausente.wav', duration:.4 }),
+  newKey('audio', 2.1, { clip: broken.id, duration:.4 }),
+  newKey('audio', 2.8, { clip: quiet.id, duration:2.8 }),
+] })
+const commands = newTrack('commands', { keys: [
+  newKey('commands', .12, { list:[{ code:'text', p:{text:'Orden activa'} }] }),
+] })
+project.assets = [good, broken, quiet]
+project.timelines = [newTimeline('QA audio', { duration:8, tracks:[track, commands] })]
+store.project = project
+store.locked = false
+setEditor({ snapshotTerrain:() => project.terrain })
+const timeline = store.project.timelines[0]
+const voices = [], warnings = []
+const fakeOutput = {
+  async ensure() {},
+  async play(id) {
+    if (id !== good.id) return null
+    const voice = { id, pauses:0, stops:0 }
+    voices.push(voice)
+    return { pause() { voice.pauses++ }, resume() {}, stop() { voice.stops++ } }
+  },
+}
+let clock = 0, frameId = 0
+const frames = new Map()
+const playback = createTimelinePlayback({
+  getProject:() => store.project, getEditor:() => store.editor, getObjects:() => store.project.objects,
+  getContext:() => ({ project:store.project, sceneId:store.project.activeSceneId, editor:store.editor,
+    timelineId:store.timelineId, playOn:false, locked:false, cinematic:false }),
+  now:() => clock,
+  requestFrame(callback) { frames.set(++frameId, callback); return frameId },
+  cancelFrame:handle => frames.delete(handle),
+  onWarning:message => warnings.push(message),
+  createEventPreview:options => new TimelineEventPreview({ ...options, audioEngine:() => fakeOutput }),
+})
+// Avanza el transporte original sin depender de la frecuencia de una ventana oculta.
+async function advanceTo(ms) {
+  while (clock < ms) {
+    if (frames.size !== 1) throw new Error('El transporte debe programar exactamente un fotograma')
+    const [handle, callback] = frames.entries().next().value
+    frames.delete(handle)
+    clock = Math.min(clock + 50, ms)
+    callback(clock)
+    await nextTick()
+    // Da paso a ensure() y play() de la salida simulada.
+    await Promise.resolve()
+  }
+}
+const mount = (component, selector, props) => {
+  const app = createApp({ render:() => h(component, props) })
+  app.provide(timelinePlaybackKey, playback)
+  app.mount(selector)
+  apps.push(app)
+}
+const clips = () => [...document.querySelectorAll('#timeline button.key.audio')]
+const waveform = index => clips()[index]?.querySelector('.timeline-waveform')
+const info = () => document.querySelector('#inspector .audio-source-analysis')
+async function pick(index) {
+  const clip = clips()[index]
+  clip.dispatchEvent(new PointerEvent('pointerdown', { bubbles:true, button:0, buttons:1, pointerId:3 }))
+  clip.dispatchEvent(new PointerEvent('pointerup', { bubbles:true, button:0, buttons:0, pointerId:3 }))
+  await nextTick()
+  return store.temporalSelection?.itemId
+}
+try {
+  await putAsset(project.id, good.id, good.name, wav(16384))
+  await putAsset(project.id, broken.id, broken.name, new Uint8Array([1,2,3]).buffer)
+  const response = await fetch('/scripts/fixtures/audio/timeline-waveform-quiet-s11-g003.mp3')
+  if (!response.ok) throw new Error('No se encontró el MP3 de QA')
+  await putAsset(project.id, quiet.id, quiet.name, await response.arrayBuffer())
+  resetHistory()
+  openTimelineEditor(timeline.id)
+  mount(TimelinePanel, '#timeline')
+  mount(TemporalResourceInspector, '#inspector', { kind:'timeline', resourceId:timeline.id })
+  await until(() => waveform(0)?.dataset.audioAnalysis === 'ready' && waveform(1)?.dataset.audioAnalysis === 'ready', 'Onda en ambos clips')
+  check('Nombre heredado e ID generan onda', waveform(0).querySelector('path') && waveform(1).querySelector('path'))
+  check('Tramos de la misma fuente dibujan silencio y señal distintos', waveform(0).querySelector('path').getAttribute('d') !== waveform(1).querySelector('path').getAttribute('d'))
+  check('La onda no captura el puntero', getComputedStyle(waveform(0)).pointerEvents === 'none')
+  const silentPath = waveform(0).querySelector('path')
+  check('El tramo en silencio conserva una línea plana', silentPath.getBBox().width > 0 && silentPath.getBBox().height === 0)
+  await until(() => waveform(4)?.dataset.audioAnalysis === 'ready', 'Decodificación del MP3 débil')
+  const quietPath = waveform(4).querySelector('path')
+  const shape = quietPath?.getAttribute('d') || ''
+  const levels = new Set([...shape.matchAll(/[ML][\d.]+ ([\d.]+)/g)].map(match => match[1]))
+  check('El MP3 débil dibuja picos y valles con altura visible', quietPath?.getBBox().height >= 20 && levels.size > 10)
+  await pick(4)
+  await until(() => info()?.dataset.audioAnalysis === 'ready', 'Mediciones del MP3 débil')
+  const peak = Number.parseFloat([...info().querySelectorAll('dd')].at(-2)?.textContent)
+  check('El pico en Inspector conserva el bajo nivel de la fuente', peak > -52 && peak < -35)
+  // La onda es virtualizada: el zoom/scroll cambia su número de columnas y la ventana PCM.
+  // Comprobar la señal real y la escala común, no la igualdad literal entre dos SVG diferentes.
+  let quietPcm = null
+  const releasePcm = requestTimelineAudioAnalysis(project, quiet.id, result => {
+    if (result.status === 'ready') quietPcm = result.data
+  }, true)
+  await until(() => !!quietPcm, 'Análisis PCM de referencia disponible')
+  releasePcm()
+  function measuredWaveform() {
+    const svg = waveform(4), clip = clips()[4], key = timeline.tracks[0].keys[4]
+    const path = svg?.querySelector('path')?.getAttribute('d') || ''
+    const columns = Number(svg?.dataset.waveformColumns)
+    const startPx = Number(svg?.dataset.waveformWindowStart)
+    const windowPx = Number.parseFloat(svg?.style.width)
+    const clipPx = Number.parseFloat(clip?.style.width)
+    const peak = audioWaveformPeak(quietPcm, key.duration, key.offset, key.pitch, key.loop)
+    const valid = path && Number.isFinite(columns) && columns > 0 &&
+      Number.isFinite(startPx) && Number.isFinite(windowPx) && windowPx > 0 && clipPx > 0
+    if (!valid) return { valid: false, path, columns, startPx, windowPx, clipPx, peak }
+    const timeStart = key.duration * startPx / clipPx
+    const timeEnd = key.duration * (startPx + windowPx) / clipPx
+    const expected = audioWaveformPath(quietPcm, key.duration, key.offset, key.pitch, key.loop, {
+      columns, startTime: timeStart, endTime: timeEnd, peak,
+    })
+    const wrongScale = audioWaveformPath(quietPcm, key.duration, key.offset, key.pitch, key.loop, {
+      columns, startTime: timeStart, endTime: timeEnd, peak: peak / 2,
+    })
+    return { valid: true, path, expected, wrongScale, peak, startPx, windowPx, clipPx, columns }
+  }
+  const beforeWave = measuredWaveform()
+  check('La ventana inicial corresponde al PCM analizado', beforeWave.valid && beforeWave.path === beforeWave.expected)
+  const scroller = document.querySelector('#timeline .scroll')
+  const width = waveform(4).getBoundingClientRect().width
+  document.querySelector('#timeline [aria-label="Acercar"]').click()
+  await nextTick()
+  scroller.scrollLeft = 72
+  scroller.dispatchEvent(new Event('scroll'))
+  await nextTick()
+  await until(() => !!waveform(4)?.querySelector('path') && Number.parseFloat(waveform(4).style.width) > 0, 'Waveform visible tras zoom/scroll')
+  const afterWave = measuredWaveform()
+  check('Zoom y scroll conservan la ventana visible', scroller.scrollLeft > 0 &&
+    waveform(4).getBoundingClientRect().width > width && afterWave.valid)
+  check('El contorno conserva su escala al ampliar y desplazar', afterWave.valid &&
+    afterWave.path === afterWave.expected && afterWave.peak === beforeWave.peak &&
+    afterWave.path !== afterWave.wrongScale)
+  scroller.scrollLeft = 0
+  document.querySelector('#timeline [aria-label="Alejar"]').click()
+  await nextTick()
+  await pick(0)
+  await until(() => info()?.dataset.audioAnalysis === 'ready', 'Inspector de audio')
+  check('Muestreo y duración decodificados', info().textContent.includes('48000 Hz') && info().textContent.includes('1.000 s'))
+  check('Pico −6.0 dBFS y RMS −9.0 dBFS de la fuente', info().textContent.includes('-6.0 dBFS') && info().textContent.includes('-9.0 dBFS'))
+  check('La inspección en frío no inicia audio en tiempo real', getAudio().ctx === null && voices.length === 0 && !playback.playing.value)
+  await pick(2)
+  check('Se informa archivo ausente', info()?.dataset.audioAnalysis === 'missing')
+  await pick(3)
+  await until(() => info()?.dataset.audioAnalysis === 'invalid', 'Audio corrupto')
+  check('Se informa error de decodificación', info().textContent.includes('no se pudo decodificar'))
+  await pick(1)
+  await putAsset(project.id, good.id, good.name, wav(8192))
+  await until(() => info()?.textContent.includes('-12.0 dBFS'), 'Revisión nueva del mismo archivo')
+  check('Reemplazar bytes bajo el mismo ID actualiza el análisis', info().dataset.audioAnalysis === 'ready')
+  check('Play del transporte original inicia', playback.toggle(timeline))
+  const firstSelection = await pick(0)
+  await advanceTo(200)
+  check('El comando publica el subtítulo durante Play', playback.caption.value === 'Orden activa')
+  check('La primera voz válida se inicia una sola vez', voices.length === 1 && voices[0].id === good.id)
+  const missingSelection = await pick(2)
+  await advanceTo(500)
+  const secondSelection = await pick(1)
+  await advanceTo(800)
+  const keys = timeline.tracks[0].keys
+  check('Cambiar de clip actualiza la selección durante Play', firstSelection === keys[0].id &&
+    missingSelection === keys[2].id && secondSelection === keys[1].id)
+  check('El cabezal avanza hasta 0.8 s y sigue en Play', playback.playing.value && Math.abs(playback.time.value - .8) < 1e-6)
+  check('La segunda voz válida se inicia sin repetir la primera', voices.length === 2 && voices[1].id === good.id)
+  check('Seleccionar conserva el transporte sin pausar voces', voices.every(voice => voice.pauses === 0))
+  check('La primera voz termina por duración y la segunda sigue activa', voices[0].stops === 1 && voices[1].stops === 0)
+  playback.stop()
+  check('Stop libera la voz activa y cancela el siguiente fotograma', voices.every(voice => voice.stops === 1) &&
+    !playback.active && !playback.playing.value && playback.time.value === 0 && frames.size === 0)
+  output.dataset.pass = 'true'
+  output.textContent = JSON.stringify({ pass:true, checks })
+} catch (error) {
+  output.dataset.pass = 'false'
+  output.textContent = JSON.stringify({ pass:false, checks, error:error.stack, observed:{
+    clockMs:clock, playhead:playback.time.value, playing:playback.playing.value, active:playback.active,
+    paused:playback.paused, caption:playback.caption.value, selectedKey:store.temporalSelection?.itemId,
+    pendingFrames:frames.size, voices, warnings,
+    quietStatus:waveform(4)?.dataset.audioAnalysis, quietHeight:waveform(4)?.querySelector('path')?.getBBox().height,
+  } })
+} finally {
+  playback.dispose()
+  for (const app of apps) app.unmount()
+  await deleteAsset(project.id, good.id)
+  await deleteAsset(project.id, broken.id)
+  await deleteAsset(project.id, quiet.id)
+}
+</script>
+</html>

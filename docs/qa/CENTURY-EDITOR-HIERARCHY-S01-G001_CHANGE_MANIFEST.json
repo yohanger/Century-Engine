@@ -1,0 +1,88 @@
+{
+  "base": "CENTURY_ENGINE_MATERIALS_S01_G001_SOURCE_BASELINE.zip",
+  "gate": "CENTURY-EDITOR-HIERARCHY-S01-G001-MOVE-TO-COLLECTION-GROUP",
+  "files": [
+    {
+      "path": "docs/architecture/CENTURY-EDITOR-HIERARCHY-S01-G001-MOVE-TO-COLLECTION-GROUP_CONTRACT.md",
+      "status": "added",
+      "sha256": "8523c609846031a6767fbc4d99f3ddb4533303ae630e99176a484d13278da175"
+    },
+    {
+      "path": "docs/architecture/CENTURY-EDITOR-HIERARCHY-S01-G001-MOVE-TO-COLLECTION-GROUP_IMPLEMENTATION.md",
+      "status": "added",
+      "sha256": "31b278e42447f7c20d6aadc45ed809f196102a6c69639b64251899deac388c7b"
+    },
+    {
+      "path": "docs/ledger/CE_EDITOR_HIERARCHY_S01_G001_LEDGER.xlsx",
+      "status": "added",
+      "sha256": "e1d854132e329f4708bc26ac8ff60c1202aa7de1e48a53674c0fcf236b5a68c2"
+    },
+    {
+      "path": "docs/qa/CENTURY-EDITOR-HIERARCHY-S01-G001_QA.md",
+      "status": "added",
+      "sha256": "8b8c078e30b37ea5104cdf56ee711b4fb314c35ce2367f4740b50e63ab84aedb"
+    },
+    {
+      "path": "docs/qa/CENTURY-EDITOR-HIERARCHY-S01-G001_build.log",
+      "status": "added",
+      "sha256": "ad93033e7f39a0f04a1ed40edf91f741c64cfbf9fa5ed37ad17f38e46626cd7c"
+    },
+    {
+      "path": "docs/qa/CENTURY-EDITOR-HIERARCHY-S01-G001_electron.log",
+      "status": "added",
+      "sha256": "b9400d8ca9f8ad57cfbdc0294f5c931c73c77d437767779372715972247d1c6c"
+    },
+    {
+      "path": "docs/qa/CENTURY-EDITOR-HIERARCHY-S01-G001_regression-base.log",
+      "status": "added",
+      "sha256": "8a15b70dc9bf11ac423742313c3244037330e84b7b4023aba05453455924d395"
+    },
+    {
+      "path": "docs/qa/CENTURY-EDITOR-HIERARCHY-S01-G001_regression.log",
+      "status": "added",
+      "sha256": "6ec15d460ccdec715372ffab256823c6d9a00833e9d0f683ae7383ff463c8359"
+    },
+    {
+      "path": "docs/qa/CENTURY-EDITOR-HIERARCHY-S01-G001_specific.log",
+      "status": "added",
+      "sha256": "6fd64cd0c3a8f88a276d3f2d5d83aaf3d6869ed33c4229f94cc2f7452955e39a"
+    },
+    {
+      "path": "scripts/fixtures/editor/move-to-collection-group.html",
+      "status": "added",
+      "sha256": "cfec46cf8272228880898134668b1ba6da8c4ea17e84276771bc15379b4286b8"
+    },
+    {
+      "path": "scripts/qa-suites.json",
+      "status": "modified",
+      "sha256": "148e8cffcc7c5a4a4e5a90f664fedf02254e2f02aae13dd2e693015993251159"
+    },
+    {
+      "path": "scripts/test-move-to-collection-group-electron.mjs",
+      "status": "added",
+      "sha256": "6cec9ed13e765d88f701de09b49db5184a1e8294d050dceb4cf912c426fbeec3"
+    },
+    {
+      "path": "scripts/test-move-to-collection-group.mjs",
+      "status": "added",
+      "sha256": "74af8ed3a305c30d6a3a6a1183f3dfcf01dd1407258ce4aea63b72a4a2a5a038"
+    },
+    {
+      "path": "src/components/MenuList.vue",
+      "status": "modified",
+      "sha256": "4e3df78b860a81559b8fc472b6692242be3ba4048cd952878f418e2d495f91c5"
+    },
+    {
+      "path": "src/core/commands.js",
+      "status": "modified",
+      "sha256": "54fa425de195122d7a401190f4316d647f50a15575d2ead58bc0aaf8911c1c27"
+    },
+    {
+      "path": "src/core/state/tree.js",
+      "status": "modified",
+      "sha256": "70993488955aa6455b8601cf2480a2b2310227642ae7c19155b6d8161d28b106"
+    }
+  ],
+  "manifest_self": "docs/qa/CENTURY-EDITOR-HIERARCHY-S01-G001_CHANGE_MANIFEST.json",
+  "deleted": []
+}

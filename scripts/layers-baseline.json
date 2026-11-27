@@ -1,0 +1,9 @@
+{
+  "_": "Excepciones toleradas por scripts/check-layers.mjs. Objetivo: vacío (fase F5). Quita una entrada cuando arregles el archivo.",
+  "vue": [],
+  "dom": [],
+  "layers": [],
+  "runtimeLeaks": [],
+  "runtimeLines": 28715,
+  "sizes": {}
+}

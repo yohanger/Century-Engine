@@ -1,0 +1,43 @@
+{
+  "braveChromium": "158.0.8127.42",
+  "gpu": "ANGLE (Intel, Mesa Intel(R) UHD Graphics 605 (GLK 3), OpenGL 4.6 (Core Profile) Mesa 25.0.7-0ubuntu0.24.04.2)",
+  "viewport": [
+    1280,
+    800
+  ],
+  "measurements": {
+    "peakSnapshotAirML": 46.4,
+    "foamOn": {
+      "frames": 57,
+      "elapsedMs": 4549.5,
+      "fps": 12.52884932410155,
+      "heap": {
+        "usedSize": 24701860,
+        "totalSize": 54497280,
+        "embedderHeapUsedSize": 2049792,
+        "backingStorageSize": 7926695
+      }
+    },
+    "foamOff": {
+      "frames": 70,
+      "elapsedMs": 4549.6,
+      "fps": 15.385967997186565,
+      "heap": {
+        "usedSize": 21332700,
+        "totalSize": 54759424,
+        "embedderHeapUsedSize": 5680680,
+        "backingStorageSize": 13719031
+      }
+    },
+    "waterCapturedKg": 0,
+    "waterAfterLiftKg": 2.66,
+    "waterAfterPourKg": 0
+  },
+  "screens": {
+    "espuma": 0.43,
+    "recogida": 3.3,
+    "vaso": 5.17,
+    "vertido": 8.6
+  },
+  "errors": []
+}

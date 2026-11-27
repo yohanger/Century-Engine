@@ -1,0 +1,94 @@
+{
+  "name": "levelforge",
+  "displayName": "Century",
+  "description": "Escribe los scripts de Century en VS Code: autocompletado y comprobación de game.* y node.*, nombres de tu proyecto y snippets.",
+  "version": "0.1.13",
+  "publisher": "levelforge",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Snippets",
+    "Other"
+  ],
+  "keywords": [
+    "century",
+    "game",
+    "scripting"
+  ],
+  "main": "./extension.js",
+  "activationEvents": [
+    "workspaceContains:project.lfproj",
+    "workspaceContains:.levelforge/api.d.ts",
+    "onCommand:levelforge.newScript"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "levelforge.newScript",
+        "title": "Nuevo script",
+        "category": "Century"
+      },
+      {
+        "command": "levelforge.prepare",
+        "title": "Preparar proyecto (API y jsconfig)",
+        "category": "Century"
+      },
+      {
+        "command": "levelforge.api",
+        "title": "Ver referencia de la API",
+        "category": "Century"
+      }
+    ],
+    "menus": {
+      "explorer/context": [
+        {
+          "command": "levelforge.newScript",
+          "when": "explorerResourceIsFolder && resourcePath =~ /Assets/",
+          "group": "navigation@5"
+        }
+      ]
+    },
+    "snippets": [
+      {
+        "language": "javascript",
+        "path": "./snippets/levelforge.json"
+      }
+    ],
+    "configuration": {
+      "title": "Century",
+      "properties": {
+        "levelforge.scriptsFolder": {
+          "type": "string",
+          "default": "Assets/Scripts",
+          "description": "Carpeta (dentro del proyecto) donde «Nuevo script» crea los archivos."
+        }
+      }
+    },
+    "typescriptServerPlugins": [
+      {
+        "name": "levelforge-node-owner-types",
+        "enableForWorkspaceTypeScriptVersions": true
+      }
+    ]
+  },
+  "scripts": {
+    "package": "node ../scripts/prepare-vscode-extension.mjs"
+  },
+  "files": [
+    "extension.js",
+    "lib",
+    "snippets",
+    "media",
+    "README.md",
+    "node_modules/levelforge-node-owner-types"
+  ],
+  "extensionKind": [
+    "ui"
+  ],
+  "dependencies": {
+    "levelforge-node-owner-types": "file:./lib/node-owner-types"
+  }
+}

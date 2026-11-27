@@ -1,0 +1,93 @@
+{
+  "gate": "CENTURY-EDITOR-SCENE-S01-G001-PROFESSIONAL-SCENE-INSPECTOR-UX",
+  "baseline": "CENTURY_EDITOR_MESH_S02_G001_CORR001_SOURCE_BASELINE.zip",
+  "baseline_files": 3932,
+  "deleted": [],
+  "changes": {
+    "docs/architecture/CENTURY-EDITOR-SCENE-S01-G001-PROFESSIONAL-SCENE-INSPECTOR-UX_CONTRACT.md": {
+      "status": "added",
+      "sha256": "eb40784aec6530bc43086f88b4f55807cbabdfd9ff809f240562e0438cf1a2e7"
+    },
+    "docs/architecture/CENTURY-EDITOR-SCENE-S01-G001-PROFESSIONAL-SCENE-INSPECTOR-UX_IMPLEMENTATION.md": {
+      "status": "added",
+      "sha256": "9c48c67708653a62d660bfcdd742db6f2b9cc0abc93adeef2ed79ceaf9d2894b"
+    },
+    "docs/ledger/CE_EDITOR_SCENE_S01_G001_LEDGER.xlsx": {
+      "status": "added",
+      "sha256": "24675278b1bbf0f5c58291ff30163ee6b9eebeb42de0dc04cea054c2b102a499"
+    },
+    "docs/qa/CENTURY-EDITOR-SCENE-S01-G001-PROFESSIONAL-SCENE-INSPECTOR-UX_BASELINE_REGRESSION.log": {
+      "status": "added",
+      "sha256": "cce483b14f4fdc5388ea870836c250c594c94ff78b98bf598f83e2117c2616b8"
+    },
+    "docs/qa/CENTURY-EDITOR-SCENE-S01-G001-PROFESSIONAL-SCENE-INSPECTOR-UX_BUILD.log": {
+      "status": "added",
+      "sha256": "ad93033e7f39a0f04a1ed40edf91f741c64cfbf9fa5ed37ad17f38e46626cd7c"
+    },
+    "docs/qa/CENTURY-EDITOR-SCENE-S01-G001-PROFESSIONAL-SCENE-INSPECTOR-UX_ELECTRON.log": {
+      "status": "added",
+      "sha256": "a507fbd07ae5b3322c670d8264354652b398b035efd4a9e8818781942c933f69"
+    },
+    "docs/qa/CENTURY-EDITOR-SCENE-S01-G001-PROFESSIONAL-SCENE-INSPECTOR-UX_FOCAL.log": {
+      "status": "added",
+      "sha256": "fffa35ba694a8c46ec123044e34fa59f163ef1499072df71d7d5ed9ee0627e2d"
+    },
+    "docs/qa/CENTURY-EDITOR-SCENE-S01-G001-PROFESSIONAL-SCENE-INSPECTOR-UX_QA.md": {
+      "status": "added",
+      "sha256": "445967ad032c24c61b8a404004df2b4185f73e7485826c78fd42e6340f00890f"
+    },
+    "docs/qa/CENTURY-EDITOR-SCENE-S01-G001-PROFESSIONAL-SCENE-INSPECTOR-UX_REGRESSION.log": {
+      "status": "added",
+      "sha256": "6b5480f31ff760786d333b80e373f33212ca23bb9894c686b4530f60d5590e46"
+    },
+    "docs/qa/CENTURY-EDITOR-SCENE-S01-G001-PROFESSIONAL-SCENE-INSPECTOR-UX_SYNTAX.log": {
+      "status": "added",
+      "sha256": "9399a9d874149e63bf939f8910d7b1d5e4e859aa6a281906231f91a0eb290304"
+    },
+    "scripts/fixtures/editor/scene-inspector-professional-ux.html": {
+      "status": "added",
+      "sha256": "7b2f0311c70c3220972312756bbc83aab82c9ddc6fcb730467afe791d05300c3"
+    },
+    "scripts/qa-suites.json": {
+      "status": "modified",
+      "sha256": "d659c3bf852d42b2ef513f79ccc15e7d082447258b3e0157d1a9c767c19017bc"
+    },
+    "scripts/test-inspector-scene-ux-cleanup-s13-g004.mjs": {
+      "status": "modified",
+      "sha256": "75252c75d3b726c6733d8413f1761989ef538fa1f72a977192aa45653645db26"
+    },
+    "scripts/test-scene-inspector-ownership-s02-g001.mjs": {
+      "status": "modified",
+      "sha256": "cbd22853080c1472db7b5c60b3fcfe3fda926fc5a348a318f1cca77ebc223e93"
+    },
+    "scripts/test-scene-inspector-professional-ux-electron.mjs": {
+      "status": "added",
+      "sha256": "8e5ee9f855908a21a1d652f9b0ba62b90a630a39eae0f73c7c9780f9765e407e"
+    },
+    "scripts/test-scene-inspector-professional-ux.mjs": {
+      "status": "added",
+      "sha256": "cabd45bb7712f7958912ef8cb086a0469a1acab85a50ba100a07b04ab1e8f7ce"
+    },
+    "src/components/Inspector.vue": {
+      "status": "modified",
+      "sha256": "b0701be341c01cf2ca1f006f01ee8f7479042bdfe9d8ee58b14281e61b3477f9"
+    },
+    "src/components/InspectorDock.vue": {
+      "status": "modified",
+      "sha256": "24a68aa143985f28bed872793e055ecc8686721ed9d3f99eb036958a496b534c"
+    },
+    "src/components/ScenePanel.vue": {
+      "status": "modified",
+      "sha256": "f5b800fcfd590e80f89316a347e4b719c448bd37f40ce5bac691a9450cdfc5bd"
+    },
+    "src/components/SceneStreaming.vue": {
+      "status": "modified",
+      "sha256": "c81fef6eb61758c4025adf68086741fa6aace3d0ed06df4b1a732a084ba00cce"
+    },
+    "src/components/scene-inspector-search.js": {
+      "status": "added",
+      "sha256": "4a428de38e8da14f2be5d47c8d608fc895c5649b93c8c8c76fec94c1f8a1d1c0"
+    }
+  },
+  "note": "El manifiesto no incluye su propio hash."
+}

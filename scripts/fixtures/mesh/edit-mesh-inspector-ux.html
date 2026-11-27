@@ -1,0 +1,47 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Edit Mesh Inspector</title><style>#app{width:340px;height:650px}#surface{width:480px;height:360px;position:relative}#edit-mesh-inspector-result{white-space:pre-wrap}</style></head><body><div id="app"></div><div id="surface"></div><pre id="edit-mesh-inspector-result">Cargando…</pre>
+<script type="module">
+import '/src/styles.css'
+import {createApp,nextTick} from 'vue'
+import * as THREE from 'three'
+import InspectorDock from '/src/components/InspectorDock.vue'
+import ColorInput from '/src/components/ColorInput.vue'
+import {createEditScenario,store} from './edit-session-integration-corr-g001.mjs'
+const out=document.getElementById('edit-mesh-inspector-result'),checks=[]
+const check=(name,pass)=>{checks.push({name,pass:!!pass});if(!pass)throw Error(name)}
+const tick=async()=>{await nextTick();await new Promise(r=>requestAnimationFrame(r));await nextTick();await new Promise(r=>requestAnimationFrame(r))}
+const q=s=>document.querySelector('#app '+s),sec=id=>q(`[data-fold-id="mesh-${id}"]`),head=id=>sec(id).querySelector('header')
+const visible=el=>!!el&&el.getClientRects().length>0
+let renderer,f,app
+try{
+ renderer=new THREE.WebGLRenderer({antialias:false});renderer.setSize(480,360);document.getElementById('surface').appendChild(renderer.domElement)
+ f=createEditScenario(renderer.domElement);const s=f.session
+ store.locked=false;store.projSel=null;store.sceneSel=false;store.prefs.inspFold={};store.prefs.rightTab='mesh'
+ f.ed.setEditMode=m=>s.setMode(m);f.ed.meshOp=(name,arg)=>s.op(name,arg)
+ renderer.render(f.scene,f.camera)
+ const mount=()=>{app=createApp(InspectorDock,{pane:'mesh'});app.component('ColorInput',ColorInput);app.mount('#app')}
+ mount();await tick()
+ check('WebGL y panel real',renderer.capabilities.isWebGL2&&!!q('[data-mesh-inspector]'))
+ check('Transformación abierta y UV cerrada',head('numeric').getAttribute('aria-expanded')==='true'&&head('uv').getAttribute('aria-expanded')==='false')
+ check('XYZ en fila a 340px',getComputedStyle(q('.axis-fields')).gridTemplateColumns.split(' ').length===3)
+ check('Estadísticas de geometría',q('.stats').textContent.includes(String(store.edit.count.v)))
+ head('uv').click();await tick();check('Plegado individual y preferencia',visible(sec('uv').querySelector('.uv-map'))&&store.prefs.inspFold['fold:pane:mesh:mesh-uv']===false)
+ app.unmount();mount();await tick();check('Plegado tras remontaje',head('uv').getAttribute('aria-expanded')==='true')
+ head('uv').dispatchEvent(new KeyboardEvent('keydown',{key:'Enter',bubbles:true}));await tick();check('Plegado por teclado',head('uv').getAttribute('aria-expanded')==='false')
+ const search=q('input[type="search"]');const find=async v=>{search.value=v;search.dispatchEvent(new Event('input',{bubbles:true}));await tick()}
+ await find('PROYECCION');check('Búsqueda abre UV por nombre de herramienta',visible(sec('uv').querySelector('.uv-map'))&&!visible(sec('numeric')))
+ check('Búsqueda no modifica preferencia',store.prefs.inspFold['fold:pane:mesh:mesh-uv']===true)
+ await find('no-existe');check('Sin resultados',q('.details-empty')?.textContent.includes('No se encontraron'))
+ await find('');check('Al limpiar búsqueda restaura plegado',!visible(sec('uv').querySelector('.uv-map'))&&visible(sec('numeric')))
+ q('[aria-label="Caras"]').click();await tick();check('Modo de caras por comando real',store.edit.mode==='face'&&q('[aria-label="Caras"]').getAttribute('aria-pressed')==='true')
+ s.sel.f.add(0);s.sel.v=new Set(s.poly.f[0]);s.refresh();s.startModal('inset');s.focusModalInspector();await tick()
+ check('Operación real activa',s.modal?.kind==='inset'&&visible(q('.modal-settings input')))
+ const params=sec('parameters');check('Parámetros contextuales visibles',head('parameters').getAttribute('aria-expanded')==='true'&&[...params.querySelectorAll('.row')].some(el=>el.textContent.includes('Inset: profund.')&&visible(el)))
+ check('Parámetros ajenos no ocupan espacio',[...params.querySelectorAll('.row')].filter(el=>el.textContent.includes('Bisel: perfil')).every(el=>!visible(el)))
+ q('.modal-actions button:last-child').click();await tick();check('Cancelar utiliza sesión existente',!s.modal&&!q('.modal-settings'))
+ check('Parámetros recuperan plegado',head('parameters').getAttribute('aria-expanded')==='false')
+ document.getElementById('app').style.width='225px';await tick();check('XYZ se adapta a ancho reducido',getComputedStyle(q('.axis-fields')).gridTemplateColumns.split(' ').length===1)
+ check('Sin desbordamiento del panel',q('[data-mesh-inspector]').scrollWidth<=q('[data-mesh-inspector]').clientWidth+1)
+ out.dataset.pass='true';out.textContent=JSON.stringify({pass:true,gl:'WebGL2',checks},null,2)
+}catch(error){out.dataset.pass='false';out.textContent=JSON.stringify({pass:false,checks,error:String(error.stack||error)},null,2)}
+finally{app?.unmount();f?.close();renderer?.dispose()}
+</script></body></html>

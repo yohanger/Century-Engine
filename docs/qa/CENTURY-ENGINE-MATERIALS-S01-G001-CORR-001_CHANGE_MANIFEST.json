@@ -1,0 +1,100 @@
+{
+  "baseline": "CENTURY_EDITOR_HIERARCHY_S01_G001_SOURCE_BASELINE.zip",
+  "baseline_sha256": "bc760a993a5faca51b9ac63d933b87393a1a91761330a6ff69332e1bec02177a",
+  "changed": [
+    {
+      "path": "docs/architecture/CENTURY-ENGINE-MATERIALS-S01-G001-CORR-001-PROFESSIONAL-MATERIAL-INSPECTOR-UX_CONTRACT.md",
+      "sha256": "84f0349dfa325b2e38a2084d11b699b58a9cb0a59845480db652fd922f1054f2"
+    },
+    {
+      "path": "docs/architecture/CENTURY-ENGINE-MATERIALS-S01-G001-CORR-001-PROFESSIONAL-MATERIAL-INSPECTOR-UX_IMPLEMENTATION.md",
+      "sha256": "e7e83ba0845beed3faaa0c1d62928410a1359df04d8fce6dd4a344f811a93e40"
+    },
+    {
+      "path": "docs/ledger/CE_ENGINE_MATERIALS_S01_G001_CORR001_LEDGER.xlsx",
+      "sha256": "3c4962587001207f965da5da1e2d91405e29c83ad9de7e5dcee8cf0206a2cefd"
+    },
+    {
+      "path": "docs/qa/CENTURY-ENGINE-MATERIALS-S01-G001-CORR-001_BUILD.log",
+      "sha256": "ad93033e7f39a0f04a1ed40edf91f741c64cfbf9fa5ed37ad17f38e46626cd7c"
+    },
+    {
+      "path": "docs/qa/CENTURY-ENGINE-MATERIALS-S01-G001-CORR-001_ELECTRON.log",
+      "sha256": "b90de927d31f7a1c52673383778a6f128d9c73fced40f1a0fc61e065a0e30b55"
+    },
+    {
+      "path": "docs/qa/CENTURY-ENGINE-MATERIALS-S01-G001-CORR-001_NODE.log",
+      "sha256": "d34d85338b9071945bb515fbfb43609fe1291de589ae24ac492ce532b17264bf"
+    },
+    {
+      "path": "docs/qa/CENTURY-ENGINE-MATERIALS-S01-G001-CORR-001_PRIMITIVES.log",
+      "sha256": "1284cdc175ce24029830d78704613f811899624bd35ed6095e56f0d8fda239cd"
+    },
+    {
+      "path": "docs/qa/CENTURY-ENGINE-MATERIALS-S01-G001-CORR-001_PRIMITIVES_BASELINE.log",
+      "sha256": "6f4cc3dc4d501f56aa2e556e52622e40d22723ba1444551499a21bd32e758810"
+    },
+    {
+      "path": "docs/qa/CENTURY-ENGINE-MATERIALS-S01-G001-CORR-001_QA.md",
+      "sha256": "552f66b606533f011786d6cd853575ff11dfcbd85dc9261afcb759aab565f5c2"
+    },
+    {
+      "path": "docs/qa/CENTURY-ENGINE-MATERIALS-S01-G001-CORR-001_REGRESSION.log",
+      "sha256": "697db5d2e12aa9d88fbf0235dd02511a68e32a281b10f2f164d6711a80c0d2bb"
+    },
+    {
+      "path": "docs/qa/CENTURY-ENGINE-MATERIALS-S01-G001-CORR-001_REGRESSION_BASELINE.log",
+      "sha256": "9466fbaafa9f2bde54f797b10685ea1333948d938a9e766b8f6ba7f87a000ff5"
+    },
+    {
+      "path": "scripts/fixtures/editor/model-material-inspector-ux.html",
+      "sha256": "cf72bdab78d23a4eff1a1e6f8b3747008e2b3aa8a65de056be27758150da8ee9"
+    },
+    {
+      "path": "scripts/qa-suites.json",
+      "sha256": "e9a6716a467e00903e7f3b62daf722fa68a49d82225a581ffa3d3b962ad4c035"
+    },
+    {
+      "path": "scripts/test-model-material-inspector-ux-electron.mjs",
+      "sha256": "a1604934c290e1c1e73e04092815c31e1080f10f43b1c12b28699af7464418f8"
+    },
+    {
+      "path": "scripts/test-model-material-inspector-ux.mjs",
+      "sha256": "ff0cfe08cb182a262b11df73456f5724c2e30e7410c05d2384622d6c730d874f"
+    },
+    {
+      "path": "src/components/MaterialSection.vue",
+      "sha256": "ff0291322f69a6ca4f796ddd80662d5d0c5f144acc1f7c34a0938c76f814e6fa"
+    },
+    {
+      "path": "src/components/ModelMaterialSection.vue",
+      "sha256": "3272d7b227afe8d4dacc0f25ccffb5440d2264634663eed091efb9da9f10bf33"
+    },
+    {
+      "path": "src/engine/runtime/nodes/model.js",
+      "sha256": "af45c20701ff532bfacd63829f62ad84986d16f2bcdf110662b9bee56ac9d14e"
+    },
+    {
+      "path": "src/engine/runtime/render/model-material.js",
+      "sha256": "9d919674c5a1c992366b2d2ff5d83f539c4098316425bc3e26e6234d44428f7d"
+    }
+  ],
+  "added": [
+    "docs/architecture/CENTURY-ENGINE-MATERIALS-S01-G001-CORR-001-PROFESSIONAL-MATERIAL-INSPECTOR-UX_CONTRACT.md",
+    "docs/architecture/CENTURY-ENGINE-MATERIALS-S01-G001-CORR-001-PROFESSIONAL-MATERIAL-INSPECTOR-UX_IMPLEMENTATION.md",
+    "docs/ledger/CE_ENGINE_MATERIALS_S01_G001_CORR001_LEDGER.xlsx",
+    "docs/qa/CENTURY-ENGINE-MATERIALS-S01-G001-CORR-001_BUILD.log",
+    "docs/qa/CENTURY-ENGINE-MATERIALS-S01-G001-CORR-001_ELECTRON.log",
+    "docs/qa/CENTURY-ENGINE-MATERIALS-S01-G001-CORR-001_NODE.log",
+    "docs/qa/CENTURY-ENGINE-MATERIALS-S01-G001-CORR-001_PRIMITIVES.log",
+    "docs/qa/CENTURY-ENGINE-MATERIALS-S01-G001-CORR-001_PRIMITIVES_BASELINE.log",
+    "docs/qa/CENTURY-ENGINE-MATERIALS-S01-G001-CORR-001_QA.md",
+    "docs/qa/CENTURY-ENGINE-MATERIALS-S01-G001-CORR-001_REGRESSION.log",
+    "docs/qa/CENTURY-ENGINE-MATERIALS-S01-G001-CORR-001_REGRESSION_BASELINE.log",
+    "scripts/fixtures/editor/model-material-inspector-ux.html",
+    "scripts/test-model-material-inspector-ux-electron.mjs",
+    "scripts/test-model-material-inspector-ux.mjs"
+  ],
+  "removed": [],
+  "manifest": "docs/qa/CENTURY-ENGINE-MATERIALS-S01-G001-CORR-001_CHANGE_MANIFEST.json"
+}

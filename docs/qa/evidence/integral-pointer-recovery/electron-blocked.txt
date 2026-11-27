@@ -1,0 +1,98 @@
+
+> century@0.26.13 test:suite
+> node scripts/qa-suite.mjs integral-pointer-recovery-electron
+
+TAP version 13
+# Subtest: ECG-E01: OrbitControls real, navegación continua y liberación en Electron
+not ok 1 - ECG-E01: OrbitControls real, navegación continua y liberación en Electron
+  ---
+  duration_ms: 2.135389
+  type: 'test'
+  location: '/tmp/pointer/scripts/test-editor-camera-continuous-grab-electron-g001.mjs:4:1'
+  failureType: 'testCodeFailure'
+  error: 'Falta Vite; ejecutar npm ci antes del QA'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    verifyWebGL (file:///tmp/pointer/scripts/qa-electron-webgl-runner.mjs:50:10)
+    TestContext.<anonymous> (file:///tmp/pointer/scripts/test-editor-camera-continuous-grab-electron-g001.mjs:5:22)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.start (node:internal/test_runner/test:944:17)
+    startSubtestAfterBootstrap (node:internal/test_runner/harness:296:17)
+  ...
+# Subtest: CG-E01: Cursor virtual y TransformControls reales sobre Electron/WebGL
+not ok 2 - CG-E01: Cursor virtual y TransformControls reales sobre Electron/WebGL
+  ---
+  duration_ms: 2.456493
+  type: 'test'
+  location: '/tmp/pointer/scripts/test-editor-continuous-grab-electron-corr-g001.mjs:4:1'
+  failureType: 'testCodeFailure'
+  error: 'Falta Vite; ejecutar npm ci antes del QA'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    verifyWebGL (file:///tmp/pointer/scripts/qa-electron-webgl-runner.mjs:50:10)
+    TestContext.<anonymous> (file:///tmp/pointer/scripts/test-editor-continuous-grab-electron-corr-g001.mjs:5:22)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.start (node:internal/test_runner/test:944:17)
+    startSubtestAfterBootstrap (node:internal/test_runner/harness:296:17)
+  ...
+# Subtest: Solicitud pendiente, cursor convencional y nueva captura nativa
+not ok 3 - Solicitud pendiente, cursor convencional y nueva captura nativa
+  ---
+  duration_ms: 2.086705
+  type: 'test'
+  location: '/tmp/pointer/scripts/test-integral-pointer-recovery-electron.mjs:3:1'
+  failureType: 'testCodeFailure'
+  error: 'Falta Vite; ejecutar npm ci antes del QA'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    verifyWebGL (file:///tmp/pointer/scripts/qa-electron-webgl-runner.mjs:50:10)
+    TestContext.<anonymous> (file:///tmp/pointer/scripts/test-integral-pointer-recovery-electron.mjs:4:9)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.start (node:internal/test_runner/test:944:17)
+    startSubtestAfterBootstrap (node:internal/test_runner/harness:296:17)
+  ...
+# Subtest: Vuelo editorial con selección y teclado y ratón nativos
+not ok 4 - Vuelo editorial con selección y teclado y ratón nativos
+  ---
+  duration_ms: 2.102669
+  type: 'test'
+  location: '/tmp/pointer/scripts/test-selection-independent-fly-navigation-electron.mjs:3:1'
+  failureType: 'testCodeFailure'
+  error: 'Falta Vite; ejecutar npm ci antes del QA'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    verifyWebGL (file:///tmp/pointer/scripts/qa-electron-webgl-runner.mjs:50:10)
+    TestContext.<anonymous> (file:///tmp/pointer/scripts/test-selection-independent-fly-navigation-electron.mjs:4:9)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.start (node:internal/test_runner/test:944:17)
+    startSubtestAfterBootstrap (node:internal/test_runner/harness:296:17)
+  ...
+1..4
+# tests 4
+# suites 0
+# pass 0
+# fail 4
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 110.274905

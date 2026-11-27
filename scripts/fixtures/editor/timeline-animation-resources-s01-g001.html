@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="es"><meta charset="utf-8"><title>QA recursos de Timeline y Animación</title>
+<main id="assets" style="width:680px;height:240px"></main>
+<main id="timeline"></main><main id="animation"></main>
+<main id="player" style="width:320px;height:240px"></main>
+<pre id="temporal-result"></pre>
+<script type="module">
+import { createApp, nextTick } from 'vue'
+import ProjectPanel from '/src/components/ProjectPanel.vue'
+import TimelinePanel from '/src/components/TimelinePanel.vue'
+import AnimationPanel from '/src/components/AnimationPanel.vue'
+import { store, openTimelineEditor, openAnimationEditor, resetHistory, undo, redo } from '/src/core/store.js'
+import { createProjectData, splitProject } from '/src/core/project.js'
+import { buildLfproj, parseLfproj } from '/src/core/lfproj.js'
+import { sampleTimeline, newTrack, newKey } from '/src/core/timeline/model.js'
+import { sampleClip } from '/src/engine/runtime/anim/model.js'
+
+import { makeObject } from '/src/engine/runtime/nodes/index.js'
+import { Terrain } from '/src/engine/runtime/geometry/terrain.js'
+import { openGame } from '/src/engine/runtime/package/game.js'
+import { writePackage } from '/src/engine/runtime/package/format.js'
+import { createStorage } from '/src/runtime-app/storage.js'
+
+const out = document.querySelector('#temporal-result')
+const checks = []
+const check = (name, pass) => {
+  checks.push({ name, pass: !!pass })
+  if (!pass) throw Error(name)
+}
+const apps = []
+let exported
+const mount = (component, id) => { const app = createApp(component); apps.push(app); app.mount(id) }
+const click = (selector, type = 'click') => document.querySelector(selector).dispatchEvent(new MouseEvent(type, { bubbles: true, cancelable: true }))
+const tile = name => [...document.querySelectorAll('#assets .tile')].find(el => el.querySelector('.lbl')?.textContent.trim() === name)
+const open = async name => { tile(name).dispatchEvent(new MouseEvent('dblclick', { bubbles: true })); await nextTick() }
+const create = async label => {
+  click('#assets [aria-label="Crear"]')
+  store.menu.items.find(it => it.label === label).run()
+  await nextTick()
+}
+try {
+  const p = createProjectData('QA existente', 'empty')
+  p.timelines = [sampleTimeline('Entrada QA'), sampleTimeline('Salida QA')]
+  p.animations = [sampleClip('Abrir QA'), sampleClip('Cerrar QA')]
+  const { meta, scene } = splitProject(p, p.terrain)
+  const old = await buildLfproj({ meta, scenes: new Map([[p.activeSceneId, scene]]), files: new Map() })
+  const loaded = await parseLfproj(await old.blob.arrayBuffer())
+  store.project = { ...p, ...loaded.meta }
+  store.locked = false
+  store.projFolder = 'Assets'
+  store.editor = { snapshotTerrain: () => p.terrain, syncAll() {}, syncEnvironment() {}, setSelection() {}, afterUndo() {} }
+  resetHistory()
+  mount(ProjectPanel, '#assets')
+  mount(TimelinePanel, '#timeline')
+  mount(AnimationPanel, '#animation')
+  await nextTick()
+  check('Ambos paneles piden un recurso explícito', document.querySelector('#timeline .empty') && document.querySelector('#animation .empty'))
+  check('Los cuatro recursos existentes aparecen en Assets', ['Entrada QA', 'Salida QA', 'Abrir QA', 'Cerrar QA'].every(tile))
+  await open('Entrada QA')
+  check('Primera cinemática por ID', store.timelineId === p.timelines[0].id && document.querySelector('#timeline .nm')?.value === 'Entrada QA')
+  await open('Salida QA')
+  check('Segunda cinemática por ID', store.timelineId === p.timelines[1].id && document.querySelector('#timeline .nm')?.value === 'Salida QA')
+  await open('Abrir QA')
+  check('Primer clip por ID', store.animId === p.animations[0].id && document.querySelector('#animation .nm')?.value === 'Abrir QA')
+  await open('Cerrar QA')
+  check('Segundo clip por ID', store.animId === p.animations[1].id && document.querySelector('#animation .nm')?.value === 'Cerrar QA')
+  for (const selector of ['#timeline', '#animation']) {
+    const field = document.querySelector(selector + ' input[type="number"]')
+    field.value = '12'
+    field.dispatchEvent(new Event('change', { bubbles: true }))
+  }
+  check('Se editan solamente los recursos abiertos', store.project.timelines[0].duration === p.timelines[0].duration && store.project.animations[0].duration === p.animations[0].duration && store.project.timelines[1].duration === 12 && store.project.animations[1].duration === 12)
+  for (const name of ['Entrada QA', 'Abrir QA']) {
+    tile(name).dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, cancelable: true }))
+    await store.menu.items.find(it => it.label === 'Duplicar').run()
+    await nextTick()
+  }
+  check('Assets duplica ambos recursos con IDs nuevos', store.project.timelines[2].id !== p.timelines[0].id && store.project.animations[2].id !== p.animations[0].id)
+  check('Duplicar conserva el recurso abierto', store.timelineId === p.timelines[1].id && store.animId === p.animations[1].id)
+  check('Duplicados conservan pistas y eventos con identidades independientes', store.project.timelines[2].tracks[0].id !== p.timelines[0].tracks[0].id && store.project.animations[2].events[0].id !== p.animations[0].events[0].id)
+  undo()
+  check('Deshacer retira el clip duplicado', store.project.animations.length === 2)
+  redo()
+  check('Rehacer restaura el clip duplicado', store.project.animations.length === 3)
+  const edited = splitProject(store.project, p.terrain)
+  const saved = await buildLfproj({ meta: edited.meta, scenes: new Map([[p.activeSceneId, edited.scene]]), files: new Map() })
+  const reopened = await parseLfproj(await saved.blob.arrayBuffer())
+  check('La reapertura conserva ambos recursos modificados y los duplicados', reopened.meta.animations[1].duration === 12 && reopened.meta.timelines[1].duration === 12 && reopened.meta.timelines.length === 3 && reopened.meta.animations.length === 3)
+  openTimelineEditor('ausente')
+  openAnimationEditor('ausente')
+  await nextTick()
+  check('Un ID inválido no abre un recurso por defecto', !store.timelineId && !store.animId && document.querySelector('#timeline .empty') && document.querySelector('#animation .empty'))
+  check('Animación no ofrece el importador de captura', !document.querySelector('#animation [data-test="cap-open"]'))
+  store.project = createProjectData('QA nuevo')
+  store.projFolder = 'Assets'
+  resetHistory()
+  await nextTick()
+  await create('Cinemática')
+  await create('Clip de animación')
+  check('Un proyecto nuevo crea los recursos desde Assets sin abrirlos', store.project.timelines.length === 1 && store.project.animations.length === 1 && !store.timelineId && !store.animId)
+  check('Los recursos nuevos aparecen en Assets', tile('Cinemática') && tile('Animación'))
+  const target = makeObject('node3d', undefined, { id: 'qa-target', name: 'Objetivo QA' })
+  const archivedScene = reopened.scenes.get(p.activeSceneId)
+  archivedScene.objects.push(target)
+  const terrain = new Terrain(p.terrain.size, p.terrain.segments, p.terrain.layers)
+  archivedScene.terrain = terrain.serialize()
+  terrain.dispose()
+  const playerTimeline = reopened.meta.timelines[1]
+  const track = newTrack('node', { node: target.id, byId: true, prop: 'position' })
+  track.keys.push(newKey('node', 0, { v: [0, 0, 0] }), newKey('node', 1, { v: [3, 0, 0] }))
+  playerTimeline.tracks = [track]
+  const bytes = await writePackage({ data: reopened.meta, scenes: [{ id: p.activeSceneId, name: 'QA', data: archivedScene }], files: reopened.files })
+  exported = await openGame({ container: document.querySelector('#player'), bytes, storage: createStorage() })
+  const errors = []
+  const logError = console.error
+  try {
+    console.error = (...args) => { errors.push(args.map(String).join(' ')); logError(...args) }
+    await exported.start()
+  } finally { console.error = logError }
+  if (!exported.player.on) throw new Error(errors.join(' | ') || 'El Player no quedó activo')
+  check('El Player exportado inicia con Jolt', exported.player.on && exported.player.Jolt)
+  const node = exported.graph.nodes.get(target.id)
+  const run = await exported.player.timelinePlay(playerTimeline.id, { from: playerTimeline.duration })
+  check('El Player reproduce la cinemática por ID', !run.stopped && node.position.x === 3)
+  const playerClip = reopened.meta.animations[1]
+  const anim = exported.player.animationPlay(target.id, playerClip.name, { from: playerClip.duration })
+  exported.player._animTick(0)
+  await anim.done
+  check('El Player reproduce el clip por nombre', anim.clip === playerClip.name && anim.duration === playerClip.duration && !anim.playing)
+  out.dataset.pass = 'true'
+  out.textContent = JSON.stringify({ pass: true, checks })
+} catch (error) {
+  out.dataset.pass = 'false'
+  out.textContent = JSON.stringify({ pass: false, checks, error: error.stack })
+} finally {
+  exported?.dispose()
+  for (const app of apps) app.unmount()
+}
+</script></html>

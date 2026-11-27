@@ -1,0 +1,1 @@
+export { computeTriangHor } from 'trianghor'

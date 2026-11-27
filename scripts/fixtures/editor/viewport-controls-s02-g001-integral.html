@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><title>Century · Viewport S02 · QA Electron</title></head>
+<body><pre id="viewport-controls-s02-result">Ejecutando...</pre><div id="app"></div><div id="canvasHost" style="width:480px;height:320px;position:relative"><canvas id="testCanvas" width="480" height="320" style="width:480px;height:320px"></canvas></div>
+<script type="module">
+import { createApp, nextTick } from 'vue'
+import * as THREE from 'three'
+import '/src/styles.css'
+import ViewBar from '/src/components/ViewBar.vue'
+import { store } from '/src/core/store.js'
+import { gizmoMethods } from '/src/core/editor/gizmo.js'
+
+const out=document.querySelector('#viewport-controls-s02-result')
+const checks=[]
+const check=(name,pass,detail='')=>{checks.push({name,pass:!!pass,detail});if(!pass)throw new Error(`${name}: ${detail}`)}
+const tick=async()=>{await nextTick();await new Promise(requestAnimationFrame);await nextTick()}
+let app,ed
+const oldPlay=store.play.on,oldGizmo=store.gizmo,oldSize=store.prefs.gizmoSize
+try {
+  store.play.on=false;store.gizmo='translate';store.prefs.gizmoSize=1
+  app=createApp(ViewBar);app.mount('#app');await tick()
+  const view=document.querySelector('.vb')
+  check('Barra montada',!!view)
+  check('Sin pestañas falsas',!view.querySelector('[role="tab"], [role="tablist"], .vt') && ![...view.querySelectorAll('button')].some(b=>['Escena','Juego'].includes(b.textContent.trim())))
+  check('Herramientas de Escena accesibles',view.getAttribute('role')==='toolbar' && view.getAttribute('aria-label').includes('edición'))
+  check('Vista de edición conserva controles',view.querySelectorAll('.grp').length>=3 && [...view.querySelectorAll('button')].some(b=>b.getAttribute('aria-label')==='Encuadrar todo'))
+  check('Alternancia de dispositivo presente',!!view.querySelector('[aria-label^="Navegación:"]'))
+  store.play.on=true;await tick()
+  check('Juego toma el mismo viewport',document.querySelector('.vb')===view && view.getAttribute('aria-label').includes('juego'))
+  check('Controles de Juego intactos',!!view.querySelector('select[aria-label="Relación de aspecto"]') && !!view.querySelector('input[type="range"][aria-label="Escala"]'))
+  check('Sin acciones de Escena en Juego',!view.querySelector('[aria-label="Encuadrar todo"]'))
+  store.play.on=false;await tick()
+  check('Retorno a edición sin cambiar modo',view.getAttribute('aria-label').includes('edición') && !!view.querySelector('[aria-label="Encuadrar todo"]'))
+
+  const camera=new THREE.PerspectiveCamera(60,1.5,0.1,500)
+  camera.position.set(4,4,7);camera.lookAt(0,0,0);camera.updateMatrixWorld(true)
+  const canvas=document.querySelector('#testCanvas')
+  let renders=0
+  ed=Object.assign({dom:canvas,vp:{camera,overlay:new THREE.Scene(),controls:{enabled:true},onCamera:()=>()=>{},requestRender(){renders++}}},gizmoMethods)
+  ed._buildGizmo()
+  check('Tres controles Three.js nativos',ed._tcs().length===3 && ed._tcs().every(t=>typeof t.getHelper==='function'))
+  check('Modos distintos',ed.tcScl.mode==='scale' && ed.tc.mode==='translate' && ed.tcRot.mode==='rotate')
+  check('Tres helpers integrados',ed.vp.overlay.children.length===3)
+  const center=[]
+  ed.tcScl.getHelper().traverse(item=>{if(item.name==='XYZ')center.push(item)})
+  check('Asa central XYZ en escala',center.length>0,`XYZ encontrados=${center.length}`)
+  check('Anillo libre oculto y pantalla conservada',ed.tcRot.showXYZE===false && ed.tcRot.showE===true)
+  check('Tamaños objeto definidos',Math.abs(ed.tcScl.size-0.5)<1e-6 && Math.abs(ed.tc.size-0.85)<1e-6 && Math.abs(ed.tcRot.size-0.95)<1e-6)
+  const node=new THREE.Object3D(),visual=new THREE.Object3D();node.add(visual);node.updateMatrixWorld(true)
+  ed.vp.overlay.add(node)
+  ed.tcScl.attach(visual);ed.tc.attach(node);ed.tcRot.attach(node)
+  check('Escala independiente sobre visual',ed.tcScl.object===visual && ed.tc.object===node && ed.tcRot.object===node)
+  store.gizmo='universal';ed._sizeObjectGizmos()
+  check('Universal: cubos, flechas, anillos',Math.abs(ed.tcScl.size-0.5)<1e-6 && Math.abs(ed.tc.size-0.85)<1e-6 && Math.abs(ed.tcRot.size-0.95)<1e-6)
+  store.prefs.gizmoSize=2;ed._sizeObjectGizmos()
+  check('Preferencia escala los tres',Math.abs(ed.tcScl.size-1)<1e-6 && Math.abs(ed.tc.size-1.7)<1e-6 && Math.abs(ed.tcRot.size-1.9)<1e-6)
+  ed.tc.setSpace('local');ed.tcRot.setSpace('local');ed.tcScl.setSpace('local')
+  check('Local disponible',ed._tcs().every(t=>t.space==='local'))
+  ed.tc.setSpace('world');ed.tcRot.setSpace('world')
+  check('Global disponible sin cambiar escala local',ed.tc.space==='world' && ed.tcRot.space==='world' && ed.tcScl.space==='local')
+  const ends=(t,layer,axis)=>{
+    const group=t._gizmo[layer][t.mode]
+    const ranked=group.children.filter(h=>h.name===axis && h.geometry).map(h=>{
+      h.geometry.computeBoundingBox()
+      const b=h.geometry.boundingBox,k=axis.toLowerCase()
+      return {h,center:(b.min[k]+b.max[k])/2}
+    }).sort((a,b)=>a.center-b.center)
+    return {negative:ranked[0].h,positive:ranked.at(-1).h,line:layer==='gizmo'?ranked[1].h:null,count:ranked.length}
+  }
+  const face=(x,y,z)=>{
+    camera.position.set(x,y,z);camera.lookAt(0,0,0);camera.updateMatrixWorld(true)
+    for(const t of [ed.tc,ed.tcScl]) t.getHelper().updateMatrixWorld(true)
+  }
+  const sideOk=(t,sign)=>['X','Y','Z'].every(axis=>{
+    const giz=ends(t,'gizmo',axis),pick=ends(t,'picker',axis)
+    return giz.count===3 && pick.count===2 &&
+      giz.positive.visible===(sign===1) && giz.negative.visible===(sign===-1) &&
+      pick.positive.layers.mask===(sign===1?1:0) && pick.negative.layers.mask===(sign===-1?1:0) &&
+      Math.sign(giz.line.scale[axis.toLowerCase()])===sign
+  })
+  face(6,6,8)
+  check('Tres asas orientadas hacia cámara delante',sideOk(ed.tc,1)&&sideOk(ed.tcScl,1))
+  face(-6,-6,-8)
+  check('Tres asas orientadas hacia cámara detrás',sideOk(ed.tc,-1)&&sideOk(ed.tcScl,-1))
+  check('Sin asa opuesta seleccionable (capas Raycaster)', ['X','Y','Z'].every(axis=>{
+    const pick=ends(ed.tc,'picker',axis)
+    return pick.positive.layers.mask===0 && pick.negative.layers.mask===1
+  }))
+  const hidden=ends(ed.tc,'picker','X').positive
+  const ray=new THREE.Raycaster(new THREE.Vector3(2,0,0),new THREE.Vector3(-1,0,0))
+  check('Raycaster ignora extremo oculto',ray.intersectObject(hidden,true).length===0)
+  face(6,6,8)
+  node.rotation.y=Math.PI;node.updateMatrixWorld(true);ed.tc.setSpace('local');ed.tcScl.setSpace('local')
+  face(6,6,8)
+  check('Local sigue orientación del objeto', ['X','Z'].every(axis=>ends(ed.tc,'picker',axis).negative.layers.mask===1 && ends(ed.tcScl,'picker',axis).negative.layers.mask===1))
+  ed.tc.setSpace('world');face(6,6,8)
+  check('Global mantiene ejes del mundo', ['X','Z'].every(axis=>ends(ed.tc,'picker',axis).positive.layers.mask===1))
+  check('Escala conserva ejes locales', ['X','Z'].every(axis=>ends(ed.tcScl,'picker',axis).negative.layers.mask===1))
+  node.rotation.y=0;node.updateMatrixWorld(true)
+  face(-6,-6,-8)
+  face(0.02,6,8)
+  check('Histéresis evita oscilación en ejes de canto',ends(ed.tc,'picker','X').negative.layers.mask===1)
+  face(6,6,8)
+  check('Cambio posterior vuelve a extremo visible',sideOk(ed.tc,1)&&sideOk(ed.tcScl,1))
+  check('Transformaciones mantienen eventos',ed._tcs().every(t=>typeof t.addEventListener==='function' && typeof t.setTranslationSnap==='function' && typeof t.setScaleSnap==='function'))
+  out.dataset.pass='true';out.textContent=JSON.stringify({pass:true,gl:'Interfaz Vue y TransformControls Three.js en Electron, sin GPU',checks},null,2)
+} catch(error) {
+  out.dataset.pass='false';out.textContent=JSON.stringify({pass:false,checks,error:String(error?.stack||error)},null,2)
+} finally {
+  ed?._snapPointerCleanup?.();ed?._continuousGrab?.dispose?.()
+  for(const t of ed?._tcs?.()||[]) t.dispose?.()
+  app?.unmount();store.play.on=oldPlay;store.gizmo=oldGizmo;store.prefs.gizmoSize=oldSize
+}
+</script></body></html>

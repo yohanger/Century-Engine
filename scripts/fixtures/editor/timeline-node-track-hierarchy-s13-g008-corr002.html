@@ -1,0 +1,93 @@
+<!doctype html><html lang="es"><meta charset="utf-8"><title>S13-G008-CORR-002 · Jerarquía de nodos y pistas</title>
+<style>html,body{margin:0;background:#171b20;color:#e7e8ea;font:12px system-ui}#root{height:630px}#result{display:none}.workspace{height:590px;display:grid;grid-template-columns:220px minmax(440px,1fr) 270px;gap:8px}#tree,#timeline,#inspector{min-width:0;min-height:0;overflow:hidden;border:1px solid #4b4e50}#timeline{height:555px}</style>
+<div id="root"></div><pre id="result"></pre>
+<script>
+(()=>{const target=document.getElementById('result'),checks=[];let stage='inicio',done=false
+const finish=err=>{if(done)return;done=true;clearTimeout(watchdog);const pass=!err&&checks.length===24&&checks.every(c=>c.pass);target.dataset.pass=String(pass);target.dataset.checks=String(checks.length);target.dataset.stage=pass?'final:PASS':'final:FAIL';let gl=false;try{gl=!!document.createElement('canvas').getContext('webgl')}catch{}target.textContent=JSON.stringify({pass,stage,...(err?{error:err.stack||String(err)}:{}),checks,gl},null,2)}
+const check=(name,pass,actual)=>{checks.push({name,pass:!!pass,...(actual===undefined?{}:{actual})});stage=`${checks.length}: ${name}`;target.dataset.stage=stage;target.dataset.checks=String(checks.length);if(!pass)throw new Error('Falló '+name)}
+const watchdog=setTimeout(()=>finish(new Error('Tiempo agotado: '+stage)),45000)
+window.addEventListener('error',e=>finish(e.error||new Error(e.message||'Error de script')),true)
+window.addEventListener('unhandledrejection',e=>finish(e.reason||new Error('Promesa rechazada')))
+window.__lfNH={check,finish,progress:value=>{stage=value;target.dataset.stage=value}}
+})()
+</script>
+<script type="module">
+const {check,finish,progress}=window.__lfNH
+let app
+try{
+ await import('/src/styles.css')
+ const Vue=await import('vue'),{ref,provide,h,nextTick}=Vue
+ const {default:SceneTree}=await import('/src/components/SceneTree.vue')
+ const {default:TimelinePanel}=await import('/src/components/TimelinePanel.vue')
+ const {default:InspectorDock}=await import('/src/components/InspectorDock.vue')
+ const {store,resetHistory,setEditor,selectObject,undo,redo}=await import('/src/core/store.js')
+ const {timelinePlaybackKey}=await import('/src/core/timeline/playback-session.js')
+ const {createProjectData}=await import('/src/core/project.js')
+ const {makeObject}=await import('/src/engine/runtime/nodes/index.js')
+ const {newTimeline,addTimelineCameraBinding,ensureTimelineNodePropertyTrack,normalizeTimeline}=await import('/src/core/timeline/model.js')
+ const settle=async()=>{await nextTick();await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));await nextTick()}
+ const doc=createProjectData('QA NH','empty')
+ const cam=makeObject('camera','camera');cam.id='camera-a';cam.name='Cámara QA'
+ const other=makeObject('camera','camera');other.id='camera-b';other.name='Segunda cámara'
+ const node=makeObject('node3d','node3d');node.id='node-a';node.name='Nodo QA'
+ doc.objects=[cam,other,node];const tl=newTimeline('QA',{id:'nh-timeline',duration:7});doc.timelines=[tl]
+ store.project=doc;store.locked=false;store.play.on=false;store.filmMode=false;store.selectedId=null;store.selectedIds=[];store.projSel=null;store.temporalSelection=null
+ store.prefs.rightTab='object';store.prefs.rightOpen=true;store.prefs.bottomTab='timeline';store.prefs.bottomOpen=true;store.timelineId=tl.id
+ setEditor({snapshotTerrain:()=>doc.terrain,restoreTerrain(){},syncAll(){},syncEnvironment(){},setSelection(){},setActivePiece(){},syncObject(){},restoreEdit(){},afterUndo(){}})
+ resetHistory()
+ const playback={time:ref(1),playing:ref(false),previewEnabled:ref(false),resourceId:null,caption:ref(''),dialog:ref(null),
+   pause(){},stop(){},refresh(){},seek(v){this.time.value=v},toggle(){},eventsEdited(){},yieldToEditing(){return true}}
+ app=Vue.createApp({setup(){provide(timelinePlaybackKey,playback);return()=>h('div',{class:'workspace'},[
+   h('div',{id:'tree'},h(SceneTree)),h('div',{id:'timeline'},h(TimelinePanel)),h('div',{id:'inspector'},h(InspectorDock))])}})
+ app.mount('#root');await settle()
+ const headers=()=>[...document.querySelectorAll('#timeline .pinned-row .node-head')]
+ const properties=()=>[...document.querySelectorAll('#timeline .pinned-row .node-property-head')]
+ const lanes=()=>[...document.querySelectorAll('#timeline .trow')]
+ const cameraRows=()=>headers().filter(head=>head.textContent.includes('Cámara QA'))
+ const tracks=()=>store.project.timelines[0].tracks
+ const drag=nodeId=>{const dt=new DataTransfer();dt.setData('application/x-lf-node',JSON.stringify([nodeId]));const target=document.querySelector('#timeline .main');target.dispatchEvent(new DragEvent('dragover',{dataTransfer:dt,bubbles:true,cancelable:true,clientX:420,clientY:380}));target.dispatchEvent(new DragEvent('drop',{dataTransfer:dt,bubbles:true,cancelable:true,clientX:420,clientY:380}));}
+ const openPicker=id=>document.querySelector(`#timeline .node-head[data-node-id="${id}"] .node-key-picker`).click()
+ const choose=label=>{const action=store.menu.items.find(i=>i.label===label);action.run();store.menu=null}
+ const click=el=>{if(!el)throw new Error('No existe botón');el.click()}
+ progress('DnD de Camera3D y creación de filas derivadas')
+ check('Timeline y Jerarquía reales están montados',!!document.querySelector('#timeline .main')&&!!document.querySelector('#tree [role="tree"]'))
+ drag(cam.id);await settle();openPicker(cam.id);choose('Añadir toma de cámara');await settle()
+ check('DnD Camera3D y elección de toma crean pista real',tracks().length===1&&tracks()[0].kind==='camera')
+ check('Aparece un encabezado de Camera3D',cameraRows().length===1)
+ check('Toma es una única pista hija',properties().length===1&&properties()[0].textContent.includes('Toma de cámara'))
+ check('Cabecera y carriles usan exactamente dos filas',lanes().length===2)
+ selectObject(cam.id);await settle()
+ openPicker(cam.id)
+ check('La llave del encabezado ofrece Posición y el Inspector conserva el nodo',store.menu.items.some(i=>i.label==='Posición')&&!document.querySelector('#inspector .property-key'))
+ choose('Posición');await settle()
+ check('Llave crea propiedad sin duplicar nodo',tracks().length===2&&cameraRows().length===1&&properties().length===2)
+ check('La propiedad hija se denomina Posición',properties().some(row=>row.textContent.includes('Posición')))
+ check('Ambas pistas tienen la misma identidad de cámara',tracks().find(t=>t.kind==='node')?.node===cam.id&&tracks().find(t=>t.kind==='camera')?.keys[0]?.node===cam.id)
+ check('Filas y carriles siguen alineados',lanes().length===3)
+ const prior=tracks().map(t=>t.id)
+ drag(cam.id);await settle()
+ check('Repetir DnD no duplica pistas',tracks().length===2&&tracks().every(t=>prior.includes(t.id)))
+ store.project.objects[0].name='Cámara QA Renombrada';await settle()
+ check('Renombrar nodo cambia encabezado sin mutar ID pista',cameraRows().length===1&&tracks()[0].id===prior[0])
+ const toggle=document.querySelector('#timeline .node-row-toggle');click(toggle);await settle()
+ check('Contraer oculta solo las dos pistas hijas',properties().length===0&&tracks().length===2&&lanes().length===1)
+ click(document.querySelector('#timeline .node-row-toggle'));await settle()
+ check('Expandir recupera las pistas e indicadores',properties().length===2&&lanes().length===3)
+ click(document.querySelector('#timeline .node-row-name'));await settle()
+ check('Clic en nodo recupera su Inspector al primer intento',store.selectedId===cam.id&&store.temporalSelection===null)
+ const count=tracks().length
+ ensureTimelineNodePropertyTrack(store.project.timelines[0],store.project.objects[0],'rotation',doc.activeSceneId,store.project.objects);await settle()
+ check('Una segunda propiedad sigue bajo el mismo nodo',cameraRows().length===1&&properties().length===3)
+ check('Nueva propiedad no altera la pista de toma original',tracks().length===count+1&&tracks()[0].id===prior[0])
+ addTimelineCameraBinding(store.project.timelines[0],store.project.objects[1],3,{sceneId:doc.activeSceneId,trackId:tracks()[0].id});await settle()
+ check('Pista multi-cámara permanece global sin replicar valores',tracks().length===3&&tracks()[0].keys.length===2)
+ check('Propiedades de Camera3D original mantienen su encabezado',cameraRows().length===1&&properties().length===2)
+ check('Toma global no aparece dentro del nodo',properties().every(row=>!row.textContent.includes('Toma de cámara')))
+ const before=JSON.stringify(store.project.timelines[0])
+ check('Normalización conserva tres pistas reales y claves',normalizeTimeline(JSON.parse(before)).tracks.length===3)
+ check('Los encabezados no persisten en JSON',!before.includes('collapsedNodes')&&!before.includes('node-row'))
+ check('El Inspector de nodo continúa disponible',!!document.querySelector('#inspector .insp'))
+ check('La escena y sus cámaras reales no fueron duplicadas',store.project.objects.length===3)
+ finish()
+}catch(error){finish(error)}finally{try{app?.unmount()}catch{}}
+</script></html>

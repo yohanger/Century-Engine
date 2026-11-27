@@ -1,0 +1,84 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Century Audio Mixer S02 — Electron QA</title><style>
+body{margin:0;background:#171b22;color:#ddd;font:12px sans-serif}
+main{display:flex;height:480px;gap:12px} #mixer{width:650px;flex:1;min-width:0} #inspector{width:310px;min-width:0;overflow:auto;container-type:inline-size}
+</style></head><body><pre id="audio-mixer-inspector-s02-result">Cargando…</pre><div id="app"></div>
+<script type="module">
+import * as THREE from 'three'
+import {createApp,h,nextTick} from 'vue'
+import {store,selectAudioInspector} from '/src/core/store.js'
+import {normalizeAudio} from '/src/engine/runtime/audio/config.js'
+import AudioMixer from '/src/components/AudioMixer.vue'
+import Inspector from '/src/components/Inspector.vue'
+import '/src/styles.css'
+const out=document.getElementById('audio-mixer-inspector-s02-result'),checks=[]
+function check(name,pass,details=''){checks.push({name,pass:!!pass,details});if(!pass)throw Error(`${name}: ${details}`)}
+let renderer,app
+const flush=async()=>{await nextTick();await new Promise(resolve=>requestAnimationFrame(resolve));await nextTick()}
+try{
+ renderer=new THREE.WebGLRenderer({antialias:false});renderer.setSize(12,12);renderer.render(new THREE.Scene(),new THREE.PerspectiveCamera(60,1,.1,20))
+ check('GPU WebGL2 Electron',renderer.capabilities.isWebGL2)
+ store.project={id:'s02',activeSceneId:'scene',name:'QA Audio',objects:[],scenes:[{id:'scene',name:'Escena 1'}],audio:normalizeAudio({}),scripts:[],assets:[],prefabs:[],profiles:[],materials:[],gameManagers:[],liquids:[],vfx:[],meshes:[],terrain:{enabled:false},uis:[],models:[],animations:[]}
+ store.projSel=null;store.selectedId=null;store.selectedIds=[];store.sceneSel=false;store.audioInspector=null;store.prefs.rightTab='object'
+ app=createApp({render:()=>h('main',{},[h('section',{id:'mixer'},[h(AudioMixer)]),h('aside',{id:'inspector'},[h(Inspector)])])})
+ app.mount('#app');await flush()
+ check('Master seleccionado por defecto',store.audioInspector?.groupId==='master')
+ check('canal Master sigue en Mixer',!![...document.querySelectorAll('#mixer .nm2')].find(el=>el.textContent==='Master'))
+ check('sin Inspector interno en Mixer',!document.querySelector('#mixer aside.insp'))
+ check('Inspector general muestra propiedades Master',!!document.querySelector('#inspector .audio-props[data-group-id="master"]'))
+ check('dos columnas en Mixer',getComputedStyle(document.querySelector('#mixer .mixer')).gridTemplateColumns.split(' ').length===2)
+ const music=[...document.querySelectorAll('#mixer .tree li')].find(el=>el.textContent.includes('Música'))
+ music.click();await flush()
+ check('clic en Música actualiza selección única',store.audioInspector?.groupId==='music')
+ check('Inspector general muestra Música',document.querySelector('#inspector .audio-props')?.dataset.groupId==='music')
+ const volume=document.querySelector('#inspector .audio-props .field input[type="range"]')
+ volume.value='-12';volume.dispatchEvent(new Event('input',{bubbles:true}));await flush()
+ check('volumen cambia en project.audio, misma fuente que fader',store.project.audio.groups.find(g=>g.id==='music').volume===-12)
+ const fxSelect=document.querySelector('#inspector select[aria-label="Añadir efecto"]')
+ check('añadir efectos solo desde Inspector',!!fxSelect&&!document.querySelector('#mixer select.add'))
+ fxSelect.value='echo';fxSelect.dispatchEvent(new Event('change',{bubbles:true}));await flush()
+ const group=store.project.audio.groups.find(g=>g.id==='music')
+ check('efecto Eco real creado',group.fx.some(f=>f.type==='echo'))
+ check('Master/Grupo nunca se sustituye por vista de efecto',document.querySelector('#inspector .hname b')?.textContent==='Música' && !!document.querySelector('#inspector .audio-props .sect .field input[type="text"]'))
+ check('Eco se abre dentro de la cadena',!!document.querySelector('#inspector .chain[data-effect-id] .chain-body'))
+ check('efecto se refleja en tira del Mixer',!![...document.querySelectorAll('#mixer .slot span')].find(e=>e.textContent==='Eco'))
+ const echo=group.fx.find(f=>f.type==='echo')
+ const echoRow=document.querySelector(`#inspector .chain[data-effect-id="${echo.id}"]`)
+ check('cabecera de efecto tiene aria-expanded y no usa segunda pantalla',echoRow.querySelector('button.effect')?.getAttribute('aria-expanded')==='true' && !document.querySelector('#inspector .back'))
+ const firstParameter=echoRow.querySelector('.param input[type="range"]')
+ firstParameter.value='0.7';firstParameter.dispatchEvent(new Event('input',{bubbles:true}));await flush()
+ check('Inspector edita parámetros en project.audio',echo.time===0.7)
+ echoRow.querySelector('button.effect').click();await flush()
+ check('colapsar Eco conserva las propiedades de Música',!echoRow.querySelector('.chain-body') && !!document.querySelector('#inspector input[type="text"]'))
+ const echoSlot=[...document.querySelectorAll('#mixer .slot')].find(el=>el.textContent.includes('Eco'))
+ echoSlot?.click();await flush()
+ check('seleccionar Eco de nuevo desde Mixer lo expande',!!echoRow.querySelector('.chain-body'))
+ echoRow.querySelector('button.effect').click();await flush()
+ echoRow.querySelector('button.effect').click();await flush()
+ check('reabrir Eco recupera sus valores',echoRow.querySelector('.chain-body output')?.textContent.includes('0.70'))
+ const fxSelect2=document.querySelector('#inspector select[aria-label="Añadir efecto"]')
+ fxSelect2.value='reverb';fxSelect2.dispatchEvent(new Event('change',{bubbles:true}));await flush()
+ const reverb=group.fx.find(f=>f.type==='reverb')
+ check('Reverb añadida sin cambiar grupo',!!reverb && store.audioInspector?.groupId==='music')
+ const revRow=document.querySelector(`#inspector .chain[data-effect-id="${reverb.id}"]`)
+ check('Reverb se expande automáticamente',!!revRow?.querySelector('.chain-body'))
+ check('Eco permanece expandido al abrir Reverb',!!echoRow.querySelector('.chain-body'))
+ check('dos efectos abiertos simultáneamente',[...document.querySelectorAll('#inspector .chain-body')].length===2)
+ const preset=[...revRow.querySelectorAll('.presets button')].find(b=>b.textContent==='Cueva')
+ check('presets Reverb están dentro de su bloque',!!preset)
+ preset?.click();await flush()
+ check('preset modifica solo Reverb',Math.abs(reverb.time-4)<0.001 && echo.time===0.7)
+ const orderBefore=group.fx.map(f=>f.id)
+ revRow.querySelector('[aria-label="Subir efecto"]').click();await flush()
+ check('reordenar FX altera cadena real',group.fx[0].id===reverb.id && group.fx[1].id===echo.id)
+ check('reordenar conserva bloques expandidos',!!revRow.querySelector('.chain-body') && !!echoRow.querySelector('.chain-body'))
+ const checkbox=revRow.querySelector('input[type="checkbox"]')
+ checkbox.checked=false;checkbox.dispatchEvent(new Event('change',{bubbles:true}));await flush()
+ check('activar/desactivar afecta solo Reverb',reverb.on===false && echo.on===true)
+ revRow.querySelector('[aria-label="Eliminar efecto"]').click();await flush()
+ check('eliminar FX preserva grupo y otros efectos',group.fx.length===1 && group.fx[0].id===echo.id && !!document.querySelector('#inspector .audio-props'))
+ check('Eco restante mantiene valores y expansión',echo.time===0.7 && !!echoRow.querySelector('.chain-body'))
+ check('AudioMixer sigue sin Inspector duplicado',!document.querySelector('#mixer aside.insp'))
+ check('Renderer sin error GL',renderer.getContext().getError()===renderer.getContext().NO_ERROR)
+ out.dataset.pass='true';out.textContent=JSON.stringify({pass:true,gl:renderer.getContext().getParameter(renderer.getContext().VERSION),checks},null,2)
+}catch(e){out.dataset.pass='false';out.textContent=JSON.stringify({pass:false,checks,error:String(e?.stack||e)},null,2)}finally{app?.unmount();renderer?.dispose()}
+</script></body></html>

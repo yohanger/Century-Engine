@@ -1,0 +1,37 @@
+{
+  "gate": "CENTURY-TRIANGHOR-INTEGRATION-S01-G001-CORR-001-NPM-LOCKFILE-AND-CLEAN-INSTALL",
+  "source_baseline": "CENTURY-TRIANGHOR-INTEGRATION-S01-G001-INTEGRAL-INDEPENDENT-LIBRARY-REPLACEMENT_SOURCE_BASELINE.zip",
+  "source_baseline_file_count": 3181,
+  "current_file_count": 3194,
+  "added": [
+    "docs/architecture/CENTURY-TRIANGHOR-INTEGRATION-S01-G001-CORR-001-NPM-LOCKFILE-AND-CLEAN-INSTALL_IMPLEMENTATION.md",
+    "docs/qa/CENTURY-TRIANGHOR-INTEGRATION-S01-G001-CORR-001-NPM-LOCKFILE-AND-CLEAN-INSTALL_CHANGE_MANIFEST.json",
+    "docs/qa/CENTURY-TRIANGHOR-INTEGRATION-S01-G001-CORR-001-NPM-LOCKFILE-AND-CLEAN-INSTALL_EVIDENCE.md",
+    "docs/qa/CENTURY-TRIANGHOR-INTEGRATION-S01-G001-CORR-001-NPM-LOCKFILE-AND-CLEAN-INSTALL_SOURCE_MANIFEST.json",
+    "docs/qa/evidence/CENTURY-TRIANGHOR-INTEGRATION-S01-G001-CORR-001-NPM-LOCKFILE-AND-CLEAN-INSTALL/baseline-npm-ci.log",
+    "docs/qa/evidence/CENTURY-TRIANGHOR-INTEGRATION-S01-G001-CORR-001-NPM-LOCKFILE-AND-CLEAN-INSTALL/baseline-smoke.txt",
+    "docs/qa/evidence/CENTURY-TRIANGHOR-INTEGRATION-S01-G001-CORR-001-NPM-LOCKFILE-AND-CLEAN-INSTALL/qa-integration.txt",
+    "docs/qa/evidence/CENTURY-TRIANGHOR-INTEGRATION-S01-G001-CORR-001-NPM-LOCKFILE-AND-CLEAN-INSTALL/qa-lock.txt",
+    "docs/qa/evidence/CENTURY-TRIANGHOR-INTEGRATION-S01-G001-CORR-001-NPM-LOCKFILE-AND-CLEAN-INSTALL/qa-smoke.txt",
+    "docs/qa/evidence/CENTURY-TRIANGHOR-INTEGRATION-S01-G001-CORR-001-NPM-LOCKFILE-AND-CLEAN-INSTALL/work-npm-ci-dry.log",
+    "docs/qa/evidence/CENTURY-TRIANGHOR-INTEGRATION-S01-G001-CORR-001-NPM-LOCKFILE-AND-CLEAN-INSTALL/work-npm-ci-full-offline.log",
+    "docs/qa/evidence/CENTURY-TRIANGHOR-INTEGRATION-S01-G001-CORR-001-NPM-LOCKFILE-AND-CLEAN-INSTALL/work-npm-lock.log",
+    "scripts/test-century-trianghor-npm-lock.mjs"
+  ],
+  "modified": [
+    "docs/qa/LevelForge_DB_Ledger.xlsx",
+    "package-lock.json",
+    "scripts/qa-suites.json",
+    "scripts/test-century-trianghor-independent-integration.mjs"
+  ],
+  "deleted": [],
+  "dependency": "trianghor@0.0.1 (file:vendor/trianghor)",
+  "changes_in_other_dependencies": false,
+  "lockfile_test": "npm ci --dry-run PASS",
+  "local_install_fixture": "npm ci real PASS",
+  "full_npm_ci": "NOT VERIFIED (ENOTCACHED; no npm registry access)",
+  "node_tests": "16/16 lock+integration; 59/59 regression",
+  "smoke": "29/30 baseline and correction (historical TOOL-08)",
+  "build_electron_player": "NOT VERIFIED",
+  "git_operations": false
+}

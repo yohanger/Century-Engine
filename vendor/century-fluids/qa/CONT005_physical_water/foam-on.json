@@ -1,0 +1,21 @@
+{
+  "mode": "on",
+  "node": "v26.13.1",
+  "cpu": "Intel(R) Pentium(R) Silver N5030 CPU @ 1.10GHz",
+  "physicsMs": {
+    "n": 540,
+    "p50": 9.784890000000814,
+    "p95": 15.31273499999952
+  },
+  "surfaceMs": {
+    "n": 45,
+    "p50": 81.78328399999918,
+    "p95": 137.4810180000004
+  },
+  "maxRssKiB": 150968,
+  "maximumAirM3": 0.00016683208822923742,
+  "entrainedM3": 0.0001769371603368943,
+  "releasedM3": 0.00007941726533503406,
+  "limits": 270,
+  "maximumPenetrationMeters": 5.9674487573602164e-15
+}

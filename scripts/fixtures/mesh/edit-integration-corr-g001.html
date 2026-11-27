@@ -1,0 +1,67 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>EditSession integration QA</title><style>body{margin:0;background:#181b20;color:#ddd;font:12px sans-serif}#surface{position:relative;width:480px;height:360px}pre{margin:0;font-size:10px}</style></head><body><div id="surface"></div><pre id="mesh-edit-integration-corr-g001-result">Verificando sesión y captura…</pre>
+<script type="module">
+import * as THREE from 'three'
+import {OrbitControls} from 'three/addons/controls/OrbitControls.js'
+import {navMethods} from '/src/engine/runtime/render/viewport-nav.js'
+import {createEditScenario,EditSession,paintInputMethods,store,undo,redo,meshDataOf} from './edit-session-integration-corr-g001.mjs'
+const out=document.getElementById('mesh-edit-integration-corr-g001-result'),checks=[],captures=[],errors=[],events=[]
+const check=(name,pass)=>{checks.push({name,pass:!!pass});if(!pass)throw Error(name)}
+const data=s=>{const {rev,...value}=s.poly.toJSON();return JSON.stringify(value)}
+let renderer,f,controls
+window.addEventListener('error',e=>errors.push(String(e.error?.stack||e.message)))
+try{
+ renderer=new THREE.WebGLRenderer({antialias:false});renderer.setSize(480,360);const canvas=renderer.domElement;canvas.id='mesh-integration-canvas';document.getElementById('surface').appendChild(canvas)
+ canvas.addEventListener('pointerdown',e=>events.push({type:e.type,pointerId:e.pointerId,buttons:e.buttons,trusted:e.isTrusted}),true)
+ const capture=canvas.setPointerCapture.bind(canvas)
+ canvas.setPointerCapture=id=>{const row={pointerId:id,event:events.at(-1),stack:new Error().stack};captures.push(row);try{capture(id);row.ok=true}catch(error){row.ok=false;row.error=String(error.stack||error);throw error}}
+ f=createEditScenario(canvas,{linked:true});const s=f.session
+ renderer.render(f.scene,f.camera);check('WebGL2 real',renderer.capabilities.isWebGL2)
+ check('Constructor EditSession real',s instanceof EditSession&&store.edit.on)
+ check('Seis métodos de pintura originales conectados',Object.entries(paintInputMethods).every(([n,fn])=>EditSession.prototype[n]===fn))
+ check('Overlay de la sesión montado',!!s.svg.parentElement)
+ check('Sin gizmo propio de TransformControls',!s.tc&&!s.proxy)
+ const initial=data(s),settings=JSON.stringify(store.project.settings),uv=JSON.stringify(s.poly.uv),material=f.body.material
+ s.lastClient={x:240,y:180};s.startModal('grab');check('G evalúa Snap desde módulo real',s.modal?.kind==='grab')
+ s.modalKey({key:'x',shiftKey:false});s.modalMove({clientX:280,clientY:180,shiftKey:false});const snapped=s.poly.v[0][0]
+ check('Mover con ratón cambia geometría',Math.abs(snapped+1)>1e-8)
+ s.setSnapShiftHeld(true);s.modalMove({clientX:280,clientY:180,shiftKey:true});check('Shift no provoca salto',Math.abs(s.poly.v[0][0]-snapped)<1e-8)
+ check('Snap persistente conservado',JSON.stringify(store.project.settings)===settings)
+ s.modalCancel();check('Cancelar restaura geometría y atributos',data(s)===initial)
+ check('Cancelar no registra Undo',!store.canUndo)
+ s.startModal('rotate');check('R evalúa Snap real',s.modal?.kind==='rotate');s.modalCancel()
+ s.startModal('scale');check('S evalúa Snap real',s.modal?.kind==='scale');s.modalCancel()
+ s.startModal('grab');s.modalKey({key:'x',shiftKey:false});s.modalKey({key:'1',shiftKey:false});s.modalConfirm();const saved=JSON.stringify(meshDataOf(store.project.objects[0],store.project.meshes))
+ check('Confirmar guarda una transacción',store.canUndo&&f.syncs.includes('linked'))
+ undo();check('Undo vuelve al inicio',!store.canUndo);redo();check('Redo recupera datos confirmados',JSON.stringify(meshDataOf(store.project.objects[0],store.project.meshes))===saved)
+ s.paintEnable();check('Pintura reutiliza configuración existente',store.edit.paint.active&&s.paintConfig().layers.length===2)
+ store.edit.paint.layer=1;store.edit.paint.radius=10;store.edit.paint.strength=1
+ const beforePaint=data(s),paintEvent={button:0,clientX:240,clientY:180,preventDefault(){},stopImmediatePropagation(){}}
+ s._onDown(paintEvent);check('Ruta de entrada inicia y aplica pintura',!!s.paintStroke?.changed)
+ s.onKey({key:'Escape'});check('Escape restaura pesos',s.paintStroke===null&&data(s)===beforePaint)
+ s._onDown(paintEvent);s._onUp({button:0});check('Soltar confirma pesos en recurso compartido',s.poly.weights.some(w=>w[1]>0)&&meshDataOf(store.project.objects[0],store.project.meshes).weights.some(w=>w[1]>0))
+ check('UV y material preservados',JSON.stringify(s.poly.uv)===uv&&f.body.material===material)
+ const project=JSON.parse(JSON.stringify(store.project));check('Serialización conserva recurso único',project.meshes.length===1&&project.objects.every(o=>o.props.meshRef==='shared'))
+ s.dispose();f.ed.edit=null;check('Salida restaura estado y controles',!store.edit.on&&!f.node.userData.liveEdit&&f.vp.controls.enabled)
+ const next=f.open();check('Reentrada construye sesión nueva',next!==s&&store.edit.on)
+ store.edit.paint.active=false
+ controls=new OrbitControls(f.camera,canvas);controls.mouseButtons={LEFT:-1,MIDDLE:THREE.MOUSE.ROTATE,RIGHT:-1};controls.target.set(0,0,0);controls.update()
+ Object.assign(f.vp,navMethods,{dom:canvas,controls,playing:false,_flying:false,_keys:new Set(),_flyLook:1,_flySpeed:5,nav:'mouse',_padState:{}});Object.defineProperty(f.vp,'isFlying',{configurable:true,get(){return this._flying}});f.vp._bindFly()
+ window.__lfNativePointerSteps=[
+  {type:'mouseMoved',selector:'#mesh-integration-canvas',button:'none',x:.5,y:.5},
+  {type:'mousePressed',selector:'#mesh-integration-canvas',button:'right',buttons:2,x:.5,y:.5},
+  {type:'mouseMoved',selector:'#mesh-integration-canvas',button:'none',buttons:2,x:.6,y:.55},
+  {type:'mouseReleased',selector:'#mesh-integration-canvas',button:'right',x:.6,y:.55},
+  {type:'mousePressed',selector:'#mesh-integration-canvas',button:'middle',buttons:4,x:.5,y:.5},
+  {type:'mouseMoved',selector:'#mesh-integration-canvas',button:'none',buttons:4,x:.55,y:.6},
+  {type:'mouseReleased',selector:'#mesh-integration-canvas',button:'middle',x:.55,y:.6},
+ ]
+ const started=Date.now();while(!window.__lfNativePointerDone&&Date.now()-started<15000)await new Promise(r=>setTimeout(r,50))
+ check('Entrada nativa Electron completada',window.__lfNativePointerDone===true)
+ check('Capturas observadas con punteros nativos',captures.length>=2&&captures.every(c=>c.event?.trusted&&c.pointerId===c.event.pointerId))
+ check('No fallan capturas de esta secuencia',captures.every(c=>c.ok)&&errors.length===0)
+ f.close();check('Salir después de navegar libera sesión',!store.edit.on)
+ renderer.render(f.scene,f.camera);check('Sin errores WebGL',renderer.getContext().getError()===renderer.getContext().NO_ERROR)
+ out.dataset.pass='true';out.textContent=JSON.stringify({pass:true,checks,gl:renderer.getContext().getParameter(renderer.getContext().VERSION),pointerDiagnostic:{captures,events,errors,scope:'Secuencia nativa acotada; no prueba reparación del InvalidStateError histórico'}},null,2)
+}catch(error){out.dataset.pass='false';out.textContent=JSON.stringify({pass:false,checks,error:String(error.stack||error),pointerDiagnostic:{captures,events,errors}},null,2)}
+finally{try{f?.close()}catch{}controls?.dispose();renderer?.dispose()}
+</script></body></html>

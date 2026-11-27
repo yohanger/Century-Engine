@@ -1,0 +1,620 @@
+{
+  "schema": "century-radiance-source-manifest/v1",
+  "package": "@century/radiance",
+  "version": "0.0.1-s00",
+  "gate": "CENTURY-RADIANCE-S00-G001-UNREAL-INSPIRED-LIGHTING-FOUNDATION",
+  "generatedAt": "2026-11-27T17:36:16.172Z",
+  "exclusions": [
+    "node_modules",
+    ".git",
+    "ledger/SOURCE-MANIFEST.json"
+  ],
+  "fileCount": 121,
+  "files": [
+    {
+      "path": "build/playground/assets/playground-CARbtOXS.css",
+      "bytes": 1727,
+      "sha256": "e2ff19c80eb7d4ef9ea501b347393b379f4a1994ed9631d5d5801fb4322f11ca"
+    },
+    {
+      "path": "build/playground/assets/playground-Dj5RZqRm.js",
+      "bytes": 542956,
+      "sha256": "945d516b248c6f8ae28857a9d16efc2fdc1d53203b070fc4ad9f75a711b0865d"
+    },
+    {
+      "path": "build/playground/assets/RadianceWorker-B2wtAJbD.js",
+      "bytes": 1964,
+      "sha256": "de3535425f0362e3619aa4964ccf95c25abb36f8a1d71eefe9c7a2a5cb2a3339"
+    },
+    {
+      "path": "build/playground/assets/WebGL2Backend--yF6t1r4.js",
+      "bytes": 11743,
+      "sha256": "d47fd9d6c2302ce151a684d3a855f3883f343414b197f9992e92d6f03def65f7"
+    },
+    {
+      "path": "build/playground/assets/webglQa-CHEF_Ps9.js",
+      "bytes": 2533,
+      "sha256": "6ffb1815d7f6f832a1cfe47594f78b95a22d5ab0918b3c4fc740d2a8a4a2be29"
+    },
+    {
+      "path": "build/playground/examples/playground/index.html",
+      "bytes": 1458,
+      "sha256": "f6d5deb7cb81a51e6fe104d2f4bdce84e26def915023e6bdad848e18b4162f21"
+    },
+    {
+      "path": "build/playground/tests/browser/index.html",
+      "bytes": 397,
+      "sha256": "f81cfae459c6a650431635bafcff14154864726b54b0d918b54347d8daf3fa79"
+    },
+    {
+      "path": "CHANGE-MANIFEST.md",
+      "bytes": 1031,
+      "sha256": "babff980503123b696b0953c0c25283085c59bbad88d677435e71f2105043ae5"
+    },
+    {
+      "path": "dist/api/CenturyRadiance.d.ts",
+      "bytes": 1317,
+      "sha256": "15ffe585a4e408de5f82f98b1c521bbc57f6d05cdf5dd22c0aefb65b72547383"
+    },
+    {
+      "path": "dist/api/CenturyRadiance.d.ts.map",
+      "bytes": 1160,
+      "sha256": "202bbaa32b57c766af78334c1c295e941265b97a05005bd9d3d8ecb66365cf9e"
+    },
+    {
+      "path": "dist/api/CenturyRadiance.js",
+      "bytes": 5215,
+      "sha256": "daff162b95327bc710dcbddc929f36845918def67c9e7b2b9800d40f17727110"
+    },
+    {
+      "path": "dist/api/CenturyRadiance.js.map",
+      "bytes": 4771,
+      "sha256": "24f88bd6802c191e58aad0f0b2904639834e17e494ac772544a499471f1d60cf"
+    },
+    {
+      "path": "dist/api/RadianceDiagnostics.d.ts",
+      "bytes": 1379,
+      "sha256": "66e606923ecbbe8383652c7797662e17a56afd42823bb79be46e836ab7269d5b"
+    },
+    {
+      "path": "dist/api/RadianceDiagnostics.d.ts.map",
+      "bytes": 1428,
+      "sha256": "2c36784e37f477aaa571a0e08b7f1b122702c615e884cec4ff359a460c72fa41"
+    },
+    {
+      "path": "dist/api/RadianceDiagnostics.js",
+      "bytes": 58,
+      "sha256": "452e78787106695d888913bf22757cdf0a1015d80afb3156c3a145bf25920848"
+    },
+    {
+      "path": "dist/api/RadianceDiagnostics.js.map",
+      "bytes": 137,
+      "sha256": "116fdd465c03bae15e69a9e939aa2e101c47d9736c8884d19ed3e994ad2a8f45"
+    },
+    {
+      "path": "dist/api/RadianceOptions.d.ts",
+      "bytes": 895,
+      "sha256": "ca01e49a7f104a866618fa27408d3dddd94163001975cf1f376b2280da9a2b90"
+    },
+    {
+      "path": "dist/api/RadianceOptions.d.ts.map",
+      "bytes": 943,
+      "sha256": "7450ae3004ac73adc7ca594b72178f4159b6a0c3336d5df60794f96f0e7ab78e"
+    },
+    {
+      "path": "dist/api/RadianceOptions.js",
+      "bytes": 54,
+      "sha256": "7e48c13fc6b74480a1a304fd5415fb93e14e2ee18878970d846f8409abb0d3ce"
+    },
+    {
+      "path": "dist/api/RadianceOptions.js.map",
+      "bytes": 129,
+      "sha256": "c2d9a284fb0dd53341ca5fd81e6ecc5e958dcc4d65e81f3a24e7bc21d3d291ba"
+    },
+    {
+      "path": "dist/core/RadianceCapabilities.d.ts",
+      "bytes": 673,
+      "sha256": "b95c8cbc9165e5574c947316fa4524b7f95a9e6e7aabfeff7dbe63e68e875032"
+    },
+    {
+      "path": "dist/core/RadianceCapabilities.d.ts.map",
+      "bytes": 733,
+      "sha256": "224f8c12d48d43f24554e2a5549e4f809e394ab939deff90a66f715005a96136"
+    },
+    {
+      "path": "dist/core/RadianceCapabilities.js",
+      "bytes": 59,
+      "sha256": "667678bc97ebf9e43a3c84198a87d8c60b186f5975086269cc8a5faecedaa6bc"
+    },
+    {
+      "path": "dist/core/RadianceCapabilities.js.map",
+      "bytes": 140,
+      "sha256": "d532a4983d264659154d83b5189724c038f3a6fe8083eff732fac8a56b66129a"
+    },
+    {
+      "path": "dist/core/RadianceError.d.ts",
+      "bytes": 544,
+      "sha256": "37cffdc9cf0d3702ee433929add191ad10bff6ed40c95b2aebca6b5fbdceb699"
+    },
+    {
+      "path": "dist/core/RadianceError.d.ts.map",
+      "bytes": 501,
+      "sha256": "438220a7dbb0ea5306b0d8c8c51ded13a793632bc32fb0427ab434cad372c8f2"
+    },
+    {
+      "path": "dist/core/RadianceError.js",
+      "bytes": 523,
+      "sha256": "97b1ed2f7c5586267cb6850431e16b8df36031251bd60f3368339c3eb911b49e"
+    },
+    {
+      "path": "dist/core/RadianceError.js.map",
+      "bytes": 637,
+      "sha256": "f8cd1821348695057c6a9d8ff4a77a54f4f860c771b9e4025d9c9435cd5a6c71"
+    },
+    {
+      "path": "dist/core/RadianceLifecycle.d.ts",
+      "bytes": 149,
+      "sha256": "115aee3104ed5bd581ff6dbf297cc1c112b41cbb41d9e0c0517abf452e93410c"
+    },
+    {
+      "path": "dist/core/RadianceLifecycle.d.ts.map",
+      "bytes": 213,
+      "sha256": "fa8543021db8580c575f1b9d1ec00ed9e2c14d202d33088f47272852dac966b5"
+    },
+    {
+      "path": "dist/core/RadianceLifecycle.js",
+      "bytes": 56,
+      "sha256": "8b15bd6b074a0b8c71effcbf7b21d85710af437bbabc8c53e670f87a1bbb7f74"
+    },
+    {
+      "path": "dist/core/RadianceLifecycle.js.map",
+      "bytes": 134,
+      "sha256": "ecb38a2d8fa4e7e9a3aa2263f0d5b86c6dd15cf5c543ab4f12fbcf36b7f1672b"
+    },
+    {
+      "path": "dist/graphics/RadianceBackend.d.ts",
+      "bytes": 452,
+      "sha256": "4d24d68ccc413e2f79fdf28655cbc509eb4e235cd61b9cb79f830de47635355a"
+    },
+    {
+      "path": "dist/graphics/RadianceBackend.d.ts.map",
+      "bytes": 473,
+      "sha256": "463d55ebe6860b0d6da3347863c857527c244a25f028f5c8b8f2222aae98dc52"
+    },
+    {
+      "path": "dist/graphics/RadianceBackend.js",
+      "bytes": 54,
+      "sha256": "fe87b342bb7768e52a36c1462f219488a45ed13f1e186a074bc3dca2cdb0a6c2"
+    },
+    {
+      "path": "dist/graphics/RadianceBackend.js.map",
+      "bytes": 134,
+      "sha256": "7b3c69bd4b8dfefff4bdab3f81bd5d0bd3d4174963ed2693630ee3f5da8c78d0"
+    },
+    {
+      "path": "dist/graphics/webgl2/WebGL2Backend.d.ts",
+      "bytes": 699,
+      "sha256": "564adcff9537a21a935f4378e96989ba91ff0b2bbadcdf157e826d4ca482ffeb"
+    },
+    {
+      "path": "dist/graphics/webgl2/WebGL2Backend.d.ts.map",
+      "bytes": 631,
+      "sha256": "87e72739ef869337166b934f4878771b930f22dce166fbe778d5aa8a6c9b782e"
+    },
+    {
+      "path": "dist/graphics/webgl2/WebGL2Backend.js",
+      "bytes": 2135,
+      "sha256": "61dceadf74d344da057f1d8536d7e62ab743325fee3d920c33fb1dafb72147a2"
+    },
+    {
+      "path": "dist/graphics/webgl2/WebGL2Backend.js.map",
+      "bytes": 2005,
+      "sha256": "161da7e396e0b25a38ae7bbb5e4d4b709b33198448b1da9559309af9b5688903"
+    },
+    {
+      "path": "dist/graphics/webgl2/WebGL2Capabilities.d.ts",
+      "bytes": 327,
+      "sha256": "b95414852838f2799235c9022907ed22b3efeeaf2ab377d43e31d49a1dca92d5"
+    },
+    {
+      "path": "dist/graphics/webgl2/WebGL2Capabilities.d.ts.map",
+      "bytes": 336,
+      "sha256": "62ccbd27155b89c5fa63a508f8a03ad0b0ecbf45a18fca56c0cf821ab7330bbd"
+    },
+    {
+      "path": "dist/graphics/webgl2/WebGL2Capabilities.js",
+      "bytes": 1291,
+      "sha256": "5bebe1b25dc812e95789ab3850f714ae4e9896920567be03cb0f6dba1e93c35b"
+    },
+    {
+      "path": "dist/graphics/webgl2/WebGL2Capabilities.js.map",
+      "bytes": 1328,
+      "sha256": "6bb7fc8eae347ff614167f924144f9f47acccd1181eca9cb0183c7d089e4aa47"
+    },
+    {
+      "path": "dist/graphics/webgl2/WebGL2Resources.d.ts",
+      "bytes": 938,
+      "sha256": "19e53514ea7059b63b097cb3e7e31b3f136fc7d523f77bf66b54f658ef7ed2b3"
+    },
+    {
+      "path": "dist/graphics/webgl2/WebGL2Resources.d.ts.map",
+      "bytes": 940,
+      "sha256": "f2828b529660185cd0b5ef82f0467b5dd390c0a09792843ef7278e055a6235f8"
+    },
+    {
+      "path": "dist/graphics/webgl2/WebGL2Resources.js",
+      "bytes": 4642,
+      "sha256": "52698fdccdaeb64c1946390a9b5e737aa421114e5671c550b43ae33eba112d6c"
+    },
+    {
+      "path": "dist/graphics/webgl2/WebGL2Resources.js.map",
+      "bytes": 4854,
+      "sha256": "2cc2e01d63823629e7a55b8091814d468aeb76028dcfe3366c4ade2c7efb5804"
+    },
+    {
+      "path": "dist/index.d.ts",
+      "bytes": 800,
+      "sha256": "fb9b82e3aa90e502c22c80f2fa5f4a8a5c02ad5941c76dcce980d4b99c4fb785"
+    },
+    {
+      "path": "dist/index.d.ts.map",
+      "bytes": 583,
+      "sha256": "57aa54fab72c4b25e7f3190f617423f3f1516a79a36351ef5da762da09d08fd0"
+    },
+    {
+      "path": "dist/index.js",
+      "bytes": 309,
+      "sha256": "13ab983d60b68453b096c162a4d216a3bd202fd68b52b86b3632f43b2d4d9779"
+    },
+    {
+      "path": "dist/index.js.map",
+      "bytes": 284,
+      "sha256": "5262694c95e8e5ad30404ed54960052b498fd698d8978f0db1603c4c55b2ee03"
+    },
+    {
+      "path": "dist/workers/RadianceNodeWorker.d.ts",
+      "bytes": 59,
+      "sha256": "a7b930f1afb3d5e3f21e430e91dc42df29668eab59c959ecfe91488f168af47c"
+    },
+    {
+      "path": "dist/workers/RadianceNodeWorker.d.ts.map",
+      "bytes": 141,
+      "sha256": "329ee5b06c4ca2df129723b42b02582ec0c0eb08813990bcfd1246c4869cbb69"
+    },
+    {
+      "path": "dist/workers/RadianceNodeWorker.js",
+      "bytes": 489,
+      "sha256": "9d11c21e33ae5ad055f2a92a12f73007484129f6714120db08af649edb4d7837"
+    },
+    {
+      "path": "dist/workers/RadianceNodeWorker.js.map",
+      "bytes": 642,
+      "sha256": "83d9cad70411de43fc0a4b042d48ac420c7021428d24ae8f76163ab19a666bc6"
+    },
+    {
+      "path": "dist/workers/RadianceWorker.d.ts",
+      "bytes": 55,
+      "sha256": "4a9cb54e7ba8f2f6fba486051c0d9603cadb7b25cb646d9088b1ecc80200e7a4"
+    },
+    {
+      "path": "dist/workers/RadianceWorker.d.ts.map",
+      "bytes": 133,
+      "sha256": "409f953857d929a440abc0300e52a2ae7d6e55fa7c2d0b10ac64727038d0a4a0"
+    },
+    {
+      "path": "dist/workers/RadianceWorker.js",
+      "bytes": 365,
+      "sha256": "778b244b9e6387180bc93dfad77a76e23938d2e63eb47eb14c6fbbe505f8371f"
+    },
+    {
+      "path": "dist/workers/RadianceWorker.js.map",
+      "bytes": 523,
+      "sha256": "c7f1c29cc074460c01761de493b48ff7f2dc6f532367cf128a0f4e7c901a65ad"
+    },
+    {
+      "path": "dist/workers/RadianceWorkerClient.d.ts",
+      "bytes": 854,
+      "sha256": "ce2cc0f2acdd022fbf51134dbc6b6117a369289164dd97515eb20d07daeae7bb"
+    },
+    {
+      "path": "dist/workers/RadianceWorkerClient.d.ts.map",
+      "bytes": 819,
+      "sha256": "c9e95b0e6686ff3dd581992d5ab056ce5b0d4b72de0036300d5aa3c8feb97de1"
+    },
+    {
+      "path": "dist/workers/RadianceWorkerClient.js",
+      "bytes": 5125,
+      "sha256": "4ce50f4740efde8f8328b18db388a8046d6e53d6032fe431cbe17fd73710a30d"
+    },
+    {
+      "path": "dist/workers/RadianceWorkerClient.js.map",
+      "bytes": 4935,
+      "sha256": "e5c49d8573d9f43140380b5e5dd1eed42c8bf86d3e53e0fb45c83544285876d8"
+    },
+    {
+      "path": "dist/workers/RadianceWorkerHost.d.ts",
+      "bytes": 486,
+      "sha256": "f722bfb3fe4a6c0c595c41688fb31c81d54cdbc777dbec01d713e3cb5513df8f"
+    },
+    {
+      "path": "dist/workers/RadianceWorkerHost.d.ts.map",
+      "bytes": 532,
+      "sha256": "897d1897f6a7b45b1291d3c521a6bf4f7fe3bb0e68b81038b19b5feec5b086b6"
+    },
+    {
+      "path": "dist/workers/RadianceWorkerHost.js",
+      "bytes": 2239,
+      "sha256": "dd9ba1840eff324c9c138feb4c139cd1df19d04ffc7fbe8bc913f1e4662d836d"
+    },
+    {
+      "path": "dist/workers/RadianceWorkerHost.js.map",
+      "bytes": 2280,
+      "sha256": "bdbdb898a791afda9c3c4eb0cd1910795d41b4201060e266a70f0bb473644f29"
+    },
+    {
+      "path": "dist/workers/RadianceWorkerProcessor.d.ts",
+      "bytes": 415,
+      "sha256": "2d2b088c2cc0b6f55beaa51da0eafb0c1d240c86ae199c956d53f45c38b7c0ed"
+    },
+    {
+      "path": "dist/workers/RadianceWorkerProcessor.d.ts.map",
+      "bytes": 492,
+      "sha256": "8001b72f3423407c21369f7ad8167d075f46678ef33424df43d9cebd5df69b8f"
+    },
+    {
+      "path": "dist/workers/RadianceWorkerProcessor.js",
+      "bytes": 1335,
+      "sha256": "a8d523497b6c233e0b03b23fbf4fc9ab436689a3bac4b457f40426e085a0627e"
+    },
+    {
+      "path": "dist/workers/RadianceWorkerProcessor.js.map",
+      "bytes": 1652,
+      "sha256": "f346bc15a0bc032a4c737d6cd6eb918ddb2f193723a0d4576005ee8acc6ebe1c"
+    },
+    {
+      "path": "dist/workers/RadianceWorkerProtocol.d.ts",
+      "bytes": 1305,
+      "sha256": "cba8891114ca6ee5b7daf4016061c1873233b985720c4390b0e41dfacf2471bf"
+    },
+    {
+      "path": "dist/workers/RadianceWorkerProtocol.d.ts.map",
+      "bytes": 1416,
+      "sha256": "e1ba631fa9368bdf2f32c37b597b25e720155f7b2a42e56af3498d5ab5a02605"
+    },
+    {
+      "path": "dist/workers/RadianceWorkerProtocol.js",
+      "bytes": 61,
+      "sha256": "e86a2007b564bdbedf5cf8c12dfbe617dceb0c088ae9f58c3db5983b82b7eddf"
+    },
+    {
+      "path": "dist/workers/RadianceWorkerProtocol.js.map",
+      "bytes": 147,
+      "sha256": "f20a2127dc6692e43edffedb1591b572b59b9ec29bd47e4fc792a84276d8f841"
+    },
+    {
+      "path": "docs/architecture/ArchitectureBible.md",
+      "bytes": 5127,
+      "sha256": "4940aabba0113ad923bc21e0635b0f22210fb17d69cc5a80d32e72e6664db994"
+    },
+    {
+      "path": "docs/architecture/AuthorityMatrix.md",
+      "bytes": 1357,
+      "sha256": "73454a09291fa8c4722afa051837e13b363bf2234cc2bcc61a86c0d39b9ab571"
+    },
+    {
+      "path": "docs/architecture/UnrealEngine41Reference.md",
+      "bytes": 3057,
+      "sha256": "4203699104aceaa384a17826430704b9e6e244c3555d40cb34eb1cc5a55e0e5a"
+    },
+    {
+      "path": "docs/contracts/CR-CA-017-TYPESCRIPT-NATIVE-ARCHITECTURAL-REFOUNDATION.md",
+      "bytes": 3930,
+      "sha256": "f64b10776cbcc0c9e79a15e3df4a33c64010ab513383b625f15cbec7f2122329"
+    },
+    {
+      "path": "docs/contracts/CR-PA-001-CENTURY-RADIANCE-GENERATION-II.md",
+      "bytes": 1002,
+      "sha256": "1884f772cc3e305eec51eded9be0718790d3da139ccb8b4c48c32d632a4dc3a5"
+    },
+    {
+      "path": "docs/gates/CENTURY-RADIANCE-S00-G001-UNREAL-INSPIRED-LIGHTING-FOUNDATION.md",
+      "bytes": 2069,
+      "sha256": "a34c9f64fecf06fe5ad09030ed088176c4972855667370f6cae2afffcbac390c"
+    },
+    {
+      "path": "docs/Roadmap.md",
+      "bytes": 1208,
+      "sha256": "499570475de219201157db83f2cde2abe5449340da65cf8a84f7859472760916"
+    },
+    {
+      "path": "examples/playground/index.html",
+      "bytes": 1296,
+      "sha256": "fca44d365236b9438dcc258e87c28f7f9e4ed7b2f65f6e169f82d403e208269f"
+    },
+    {
+      "path": "examples/playground/main.ts",
+      "bytes": 5516,
+      "sha256": "18e8179d983b2d570ac8dd845a7190293b2a00f9026fc3fde6612881ee88c82f"
+    },
+    {
+      "path": "examples/playground/style.css",
+      "bytes": 2069,
+      "sha256": "efd22bed0014ebe1a7c06d16a428e3b4438b3837b71270612c394501535eb11d"
+    },
+    {
+      "path": "package-lock.json",
+      "bytes": 39489,
+      "sha256": "e5ef22439fd9f9f43067c38a2998112512334ab04bf21b55288e8103e8a165cb"
+    },
+    {
+      "path": "package.json",
+      "bytes": 1467,
+      "sha256": "1f1987f14fd3d57907a6240e283ad90f2ab4d02661f22ca5abc85f5f0a5ee9ca"
+    },
+    {
+      "path": "README.md",
+      "bytes": 2702,
+      "sha256": "37d4e78aa5a7fd0094ec9b0945d68cbdf569af0a2484357be5a8828faed9ddfa"
+    },
+    {
+      "path": "src/api/CenturyRadiance.ts",
+      "bytes": 5487,
+      "sha256": "e260dd8061772fdcb8186645c9039c0e452759e7ada2a4f73b64516695738520"
+    },
+    {
+      "path": "src/api/RadianceDiagnostics.ts",
+      "bytes": 1258,
+      "sha256": "2a7313f512b850a41b44c61076f28bfd9724039fdee8d054b0d3643d74f8ade3"
+    },
+    {
+      "path": "src/api/RadianceOptions.ts",
+      "bytes": 828,
+      "sha256": "404dbde29bff3c59d2e2ae0a8a737ea2d747ad40cabcafa214109c921bd44ca9"
+    },
+    {
+      "path": "src/core/RadianceCapabilities.ts",
+      "bytes": 593,
+      "sha256": "75fa6316f66f2f85e88a1f3fe7b0d597ecbfe7a10b1c084a345f38d336278664"
+    },
+    {
+      "path": "src/core/RadianceError.ts",
+      "bytes": 794,
+      "sha256": "cd4c370ee748cfdfc560bc01ffc779101f2786491d8b7acbae0b7ec2eb63d70d"
+    },
+    {
+      "path": "src/core/RadianceLifecycle.ts",
+      "bytes": 114,
+      "sha256": "a4b19122a374bfaa35fdfdeb8f75f75c99154ad92953364902bb4244c23ceb82"
+    },
+    {
+      "path": "src/graphics/RadianceBackend.ts",
+      "bytes": 394,
+      "sha256": "6a824eff57fa57989ba16873ddecf25655783b0a3a54dbc6d6263d00eaefb460"
+    },
+    {
+      "path": "src/graphics/webgl2/WebGL2Backend.ts",
+      "bytes": 2270,
+      "sha256": "dc1a2a0d72b40adf7cdc32ee8f3ea1dd4e7c4db94ad88bcb1449d4bcb3f40d5f"
+    },
+    {
+      "path": "src/graphics/webgl2/WebGL2Capabilities.ts",
+      "bytes": 1403,
+      "sha256": "479a25478133f587126dd56b7f41688cc8c8b826a1bc338ecb93a1912299e439"
+    },
+    {
+      "path": "src/graphics/webgl2/WebGL2Resources.ts",
+      "bytes": 4934,
+      "sha256": "9145e29f83b2e8803c9357494c203c16dfe788b06bb32c913a87562119eebf02"
+    },
+    {
+      "path": "src/index.ts",
+      "bytes": 781,
+      "sha256": "aea4db5def35e07f671316d5d598f116186dca6bb431a4c95890dc8942843ae3"
+    },
+    {
+      "path": "src/workers/RadianceNodeWorker.ts",
+      "bytes": 532,
+      "sha256": "4f78f3b51bcdb4d85dcdc7bda3eea55294231c3bc072f25672341b661777aee9"
+    },
+    {
+      "path": "src/workers/RadianceWorker.ts",
+      "bytes": 628,
+      "sha256": "47a3aa1ca2eb61ba34808fc452517cd5f07c0b56f6a597899aa590581e3dc9fe"
+    },
+    {
+      "path": "src/workers/RadianceWorkerClient.ts",
+      "bytes": 5432,
+      "sha256": "cd2a903fedb1d5cda6d6c4911585707da366e41752bfc4cd3d63460e178fe1c8"
+    },
+    {
+      "path": "src/workers/RadianceWorkerHost.ts",
+      "bytes": 2216,
+      "sha256": "c8764c306fae408a15c7446847705c8d3e57d4d53efb5a2ea72be215a6284e6c"
+    },
+    {
+      "path": "src/workers/RadianceWorkerProcessor.ts",
+      "bytes": 1660,
+      "sha256": "24cc9c5330178338028a891e198cbb77a0b7df0cdca69b3ef6325e186b772c5e"
+    },
+    {
+      "path": "src/workers/RadianceWorkerProtocol.ts",
+      "bytes": 1196,
+      "sha256": "c600d96726b6ad7eb429dbb981d5a8c86db8253e81b8031467c05c55e3824b60"
+    },
+    {
+      "path": "tests/browser/index.html",
+      "bytes": 282,
+      "sha256": "0654885479828c74ce0f360b06c658bdf8c82b9a130605608a6fcf2ce2c922f8"
+    },
+    {
+      "path": "tests/browser/STATUS.md",
+      "bytes": 647,
+      "sha256": "993ada4585d021ccb1ac8a1f122b4e9c0bfbbd341be9b8974132f8a02c874be8"
+    },
+    {
+      "path": "tests/browser/WebGL2.browser.ts",
+      "bytes": 3801,
+      "sha256": "0daebf285f8c7820ad0691bec98a6bcd6a407bb571eb04136116f853509f0eb6"
+    },
+    {
+      "path": "tests/Lifecycle.test.mjs",
+      "bytes": 3283,
+      "sha256": "fe643fee6be64ee3df467117b31aacf77c599c5e0d0a8f4978ffefc373ea21aa"
+    },
+    {
+      "path": "tests/WebGL2.test.mjs",
+      "bytes": 3121,
+      "sha256": "a1f516ebb8af9d93a87912b50da332b3d15542086b9c36582d41f68e87f1d8e3"
+    },
+    {
+      "path": "tests/Workers.test.mjs",
+      "bytes": 2430,
+      "sha256": "2c200df3e9808c893c6efd5166634ded9cbb90a8c36ad8aede5b2667abed0af9"
+    },
+    {
+      "path": "THIRD_PARTY_NOTICES.md",
+      "bytes": 813,
+      "sha256": "54891a587896ec549dfa4df4fb5c8981b0fc563058552d79e6d9075036fddeba"
+    },
+    {
+      "path": "tools/CheckBoundaries.mjs",
+      "bytes": 1688,
+      "sha256": "875083ef111a114d090a2766bbdfcd5b4355db59a9be68a8bb6b140075218c82"
+    },
+    {
+      "path": "tools/Clean.mjs",
+      "bytes": 178,
+      "sha256": "9b115d377f80dc0edb716f399778b235fce907e4d07aca97e3f24a3fc54ed823"
+    },
+    {
+      "path": "tools/CreateManifest.mjs",
+      "bytes": 1708,
+      "sha256": "77616e71af54a1e912458cd037d21e7a0b083833fd86ce760d6d48da9efc17d6"
+    },
+    {
+      "path": "tools/RunWebGL2QA.mjs",
+      "bytes": 3468,
+      "sha256": "5152e0950ab69ddf81c115b813734d8251a397a493a064c047fb1042fb5d76d1"
+    },
+    {
+      "path": "tools/VerifyManifest.mjs",
+      "bytes": 941,
+      "sha256": "98359ab8b7a5811d6c8b789d6d72b025d187931f31e936da26a35a02dedd4a43"
+    },
+    {
+      "path": "tsconfig.browser.json",
+      "bytes": 274,
+      "sha256": "84e7290eb1a8890c6c0050ca0f98d36acd811de0641dd6ddd13651b6d25b2293"
+    },
+    {
+      "path": "tsconfig.json",
+      "bytes": 671,
+      "sha256": "6dde23d64561932fc7db9c20cd221fb9bd8d081d2b4315b0a6f156e6300a219d"
+    },
+    {
+      "path": "vite.config.mjs",
+      "bytes": 503,
+      "sha256": "ed20b33b6369aef6da4a62690c8fe4b167fdb4f7fcf71ff3d68d94035291aa13"
+    }
+  ]
+}

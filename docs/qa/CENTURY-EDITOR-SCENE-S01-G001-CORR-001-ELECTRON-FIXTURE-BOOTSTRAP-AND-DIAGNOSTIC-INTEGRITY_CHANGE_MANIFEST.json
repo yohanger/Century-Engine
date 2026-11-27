@@ -1,0 +1,65 @@
+{
+  "gate": "CENTURY-EDITOR-SCENE-S01-G001-CORR-001-ELECTRON-FIXTURE-BOOTSTRAP-AND-DIAGNOSTIC-INTEGRITY",
+  "baseline": "CENTURY_EDITOR_SCENE_S01_G001_SOURCE_BASELINE.zip",
+  "baselineFiles": 3947,
+  "removed": [],
+  "files": [
+    {
+      "path": "docs/architecture/CENTURY-EDITOR-SCENE-S01-G001-CORR-001-ELECTRON-FIXTURE-BOOTSTRAP-AND-DIAGNOSTIC-INTEGRITY_CONTRACT.md",
+      "sha256": "7dfac618c7abc0aefcd8cc16fe3bae82269339975cd054d4ac8c0a54097da405"
+    },
+    {
+      "path": "docs/architecture/CENTURY-EDITOR-SCENE-S01-G001-CORR-001-ELECTRON-FIXTURE-BOOTSTRAP-AND-DIAGNOSTIC-INTEGRITY_IMPLEMENTATION.md",
+      "sha256": "eb04e672d6362b5c85f798287a07df4d141b8e7e234f530487b39e0807f7ba8c"
+    },
+    {
+      "path": "docs/ledger/CE_EDITOR_SCENE_S01_G001_CORR001_LEDGER.xlsx",
+      "sha256": "0b9e1ecfc87275c4e56e3516aef9fc18972621df4a06fa76d7e21deae25a43af"
+    },
+    {
+      "path": "docs/qa/CENTURY-EDITOR-SCENE-S01-G001-CORR-001-ELECTRON-FIXTURE-BOOTSTRAP-AND-DIAGNOSTIC-INTEGRITY_BASELINE_REGRESSION.log",
+      "sha256": "5605cf7b24adc30c4efde0b85ffd912b847b937fa3d90dcfe39abbb86bd26d9e"
+    },
+    {
+      "path": "docs/qa/CENTURY-EDITOR-SCENE-S01-G001-CORR-001-ELECTRON-FIXTURE-BOOTSTRAP-AND-DIAGNOSTIC-INTEGRITY_ELECTRON.log",
+      "sha256": "5305840aad17ca6973eb52da79d2e483f02068635df5a4a454dea82d1bd60892"
+    },
+    {
+      "path": "docs/qa/CENTURY-EDITOR-SCENE-S01-G001-CORR-001-ELECTRON-FIXTURE-BOOTSTRAP-AND-DIAGNOSTIC-INTEGRITY_FOCAL.log",
+      "sha256": "c603f59a171d2a7774262f424427e1d526b7162b79c61e75e5bd5aa759e52063"
+    },
+    {
+      "path": "docs/qa/CENTURY-EDITOR-SCENE-S01-G001-CORR-001-ELECTRON-FIXTURE-BOOTSTRAP-AND-DIAGNOSTIC-INTEGRITY_QA.md",
+      "sha256": "8431c1c7978284082488b16c63dcafe4213f3f5636241747c257ed5e75514a40"
+    },
+    {
+      "path": "docs/qa/CENTURY-EDITOR-SCENE-S01-G001-CORR-001-ELECTRON-FIXTURE-BOOTSTRAP-AND-DIAGNOSTIC-INTEGRITY_REGRESSION.log",
+      "sha256": "6929f4d5d532578b61fd5ce687342d2e5fea41429f06eff37bcba517178b01b7"
+    },
+    {
+      "path": "docs/qa/CENTURY-EDITOR-SCENE-S01-G001-CORR-001-ELECTRON-FIXTURE-BOOTSTRAP-AND-DIAGNOSTIC-INTEGRITY_SYNTAX.log",
+      "sha256": "13da6b92c1164d531f99c31c08dbe99fc5427f70fd4e68ed3e31187187dc4d5f"
+    },
+    {
+      "path": "scripts/fixtures/editor/scene-inspector-professional-ux.html",
+      "sha256": "4279de3759bd8cf136201a306274d508ef000a4c16993b339f9ae218a839a889"
+    },
+    {
+      "path": "scripts/qa-electron-webgl-runner.mjs",
+      "sha256": "259ff0f55b59199f8bc758e0cdf1dd71b6f6795fb8979a61f25b0a14fe9b5ec3"
+    },
+    {
+      "path": "scripts/qa-electron-webgl.cjs",
+      "sha256": "7c79bc7f8e74485427cf1fd15077ee5413ca0d035fe2f5f2b17f7fbcbf484dc3"
+    },
+    {
+      "path": "scripts/qa-suites.json",
+      "sha256": "04b119a62a0b9004f85816a7c510cf4b12c2b2d9ef70522905017a2711d81c08"
+    },
+    {
+      "path": "scripts/test-scene-fixture-diagnostics.mjs",
+      "sha256": "41a361740501b0f0b9d9e2fc939924295f0d2279b19387d422af2c4faa7af1d1"
+    }
+  ],
+  "manifest": "docs/qa/CENTURY-EDITOR-SCENE-S01-G001-CORR-001-ELECTRON-FIXTURE-BOOTSTRAP-AND-DIAGNOSTIC-INTEGRITY_CHANGE_MANIFEST.json"
+}

@@ -1,0 +1,93 @@
+{
+  "gate": "CENTURY-EDITOR-INSPECTOR-S01-G001-PROFESSIONAL-NODE-INSPECTOR-UX",
+  "baseline": "CENTURY_EDITOR_SCENE_S01_G001_CORR001_SOURCE_BASELINE.zip",
+  "baseline_sha256": "d8204a44d6169e040f90a48a885c67da3a096cfda0fbf4a5dc18beac1b6d1675",
+  "modified": [
+    {
+      "path": "scripts/qa-suites.json",
+      "before": "04b119a62a0b9004f85816a7c510cf4b12c2b2d9ef70522905017a2711d81c08",
+      "after": "de6b63d0b2161dd6edc41829861ea6289e7838d447fa204eff3ede53e90d158e"
+    },
+    {
+      "path": "scripts/test-model-material-inspector-ux.mjs",
+      "before": "ff0cfe08cb182a262b11df73456f5724c2e30e7410c05d2384622d6c730d874f",
+      "after": "c263ee85dec71596a68b5f0a0e492ecf3d9aea814cdfbeb1d35cd870c0590739"
+    },
+    {
+      "path": "src/components/Inspector.vue",
+      "before": "b0701be341c01cf2ca1f006f01ee8f7479042bdfe9d8ee58b14281e61b3477f9",
+      "after": "24ed6b353a8728989f821e0fc08e71e62d038babece2cabf903702152e24bf73"
+    },
+    {
+      "path": "src/components/MaterialSection.vue",
+      "before": "ff0291322f69a6ca4f796ddd80662d5d0c5f144acc1f7c34a0938c76f814e6fa",
+      "after": "11d7d5d6c49cb343ab5f44a2bd6ba374d30e4760a139f02565843ece0c18a657"
+    },
+    {
+      "path": "src/components/MeshPanel.vue",
+      "before": "5255f24483bb27e91d390f4b1833750a1acc4abec3bb967f0c2d154a1146ebe1",
+      "after": "c61643c21c27ea33282f55044b47357408d5c4230a90a2d06dbbba3d5ccc8452"
+    },
+    {
+      "path": "src/styles.css",
+      "before": "43f84ca161302c6690ed20dd17dd10f9dea44be5dd3a5e1dc26d5e287c8559b1",
+      "after": "59afafd551b981656bf47c37f81dfa4a32172131a5d8dbc92b8ce9842f60db77"
+    }
+  ],
+  "added": [
+    {
+      "path": "docs/architecture/CENTURY-EDITOR-INSPECTOR-S01-G001-PROFESSIONAL-NODE-INSPECTOR-UX_CONTRACT.md",
+      "sha256": "ec3eb02c9195765e5a2169d8b86a56b18ad5323cc760f3067387bea7a9bafd70"
+    },
+    {
+      "path": "docs/architecture/CENTURY-EDITOR-INSPECTOR-S01-G001-PROFESSIONAL-NODE-INSPECTOR-UX_IMPLEMENTATION.md",
+      "sha256": "348788c7d7a7e95ef0ade5c6648be88f9e3721a2bb593e905a81f3dca116c13c"
+    },
+    {
+      "path": "docs/ledger/CE_EDITOR_INSPECTOR_S01_G001_LEDGER.xlsx",
+      "sha256": "7c83c5147979294a6584f3988deb4eedaa9665dc21f249730adc50734cabc6d1"
+    },
+    {
+      "path": "docs/qa/CENTURY-EDITOR-INSPECTOR-S01-G001-PROFESSIONAL-NODE-INSPECTOR-UX_BASELINE_REGRESSION.log",
+      "sha256": "e92ce3a70fd36d25e3d99250c8d84f59f13058d34f9c5b474eed14b6a5f0461b"
+    },
+    {
+      "path": "docs/qa/CENTURY-EDITOR-INSPECTOR-S01-G001-PROFESSIONAL-NODE-INSPECTOR-UX_BUILD.log",
+      "sha256": "ad93033e7f39a0f04a1ed40edf91f741c64cfbf9fa5ed37ad17f38e46626cd7c"
+    },
+    {
+      "path": "docs/qa/CENTURY-EDITOR-INSPECTOR-S01-G001-PROFESSIONAL-NODE-INSPECTOR-UX_ELECTRON.log",
+      "sha256": "666c12323091edc884958c34f39b3347f827e27964d461c84ed71525c2e833b5"
+    },
+    {
+      "path": "docs/qa/CENTURY-EDITOR-INSPECTOR-S01-G001-PROFESSIONAL-NODE-INSPECTOR-UX_FOCAL.log",
+      "sha256": "91abf207f2e945a7a6439274105d84541cea4e764c772d8f7d1f183ecbb43bc6"
+    },
+    {
+      "path": "docs/qa/CENTURY-EDITOR-INSPECTOR-S01-G001-PROFESSIONAL-NODE-INSPECTOR-UX_QA.md",
+      "sha256": "fe7dacd14289efb54c261f9f2ba8fc5c6d6995bd44b3ce1362beda7ca2f26482"
+    },
+    {
+      "path": "docs/qa/CENTURY-EDITOR-INSPECTOR-S01-G001-PROFESSIONAL-NODE-INSPECTOR-UX_REGRESSION.log",
+      "sha256": "3219debdc818e55f7ca3f65482063cc5f0452b245b4fe9ee284b5c7b48568720"
+    },
+    {
+      "path": "docs/qa/CENTURY-EDITOR-INSPECTOR-S01-G001-PROFESSIONAL-NODE-INSPECTOR-UX_SYNTAX.log",
+      "sha256": "eb13b923d5eb4c7e314ceeba18e8c5ba2fb0cc82ee2d748eafd2d3f558e63e3d"
+    },
+    {
+      "path": "scripts/fixtures/editor/node-inspector-professional-ux.html",
+      "sha256": "86fc760b355e368000a5a7fd8511c6bd7ad0bbff67dd3ea80aa735b6304d246d"
+    },
+    {
+      "path": "scripts/test-node-inspector-professional-ux-electron.mjs",
+      "sha256": "e7ef5e8583a92e65d6ffbe2f7f2c1334178a56bcddbd0776f43b0ee7d5226561"
+    },
+    {
+      "path": "scripts/test-node-inspector-professional-ux.mjs",
+      "sha256": "ad22eb11a7d297dd0685dca9f16c222d67d954a1e9b9ab811bb858b3bc7f65dc"
+    }
+  ],
+  "deleted": [],
+  "manifest": "docs/qa/CENTURY-EDITOR-INSPECTOR-S01-G001-PROFESSIONAL-NODE-INSPECTOR-UX_DIFF.json"
+}

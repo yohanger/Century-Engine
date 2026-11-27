@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="es"><meta charset="utf-8"><title>QA S11 G006 · Persistencia y Player exportado</title>
+<style>body{margin:0;background:#191a1d;color:#ddd;font:12px sans-serif;padding:10px}#player{width:480px;height:270px}</style>
+<div id="player"></div><pre id="timeline-audio-integration-result" data-stage="inicio"></pre>
+<script type="module">
+import { createProjectData, splitProject } from '/src/core/project.js'
+import { buildLfproj, parseLfproj } from '/src/core/lfproj.js'
+import { validateBuildSources } from '/src/core/buildList.js'
+import { newTimeline, newTrack, newKey } from '/src/core/timeline/model.js'
+import { normalizeAudio, newFx, resolveAudioClip } from '/src/engine/runtime/audio/config.js'
+import { Terrain } from '/src/engine/runtime/geometry/terrain.js'
+import { writePackage, readPackage } from '/src/engine/runtime/package/format.js'
+import { openGame } from '/src/engine/runtime/package/game.js'
+import { getAudio } from '/src/engine/runtime/audio/engine.js'
+import { createStorage } from '/src/runtime-app/storage.js'
+const out=document.getElementById('timeline-audio-integration-result')
+const checks=[]
+const check=(name,pass)=>{checks.push({name,pass:!!pass});if(!pass)throw Error(name)}
+const wait=ms=>new Promise(r=>setTimeout(r,ms))
+async function until(fn,label){for(let i=0;i<150;i++){if(fn())return;await wait(40)}throw Error('Tiempo excedido: '+label)}
+function wav(){
+ const frames=48000,buffer=new ArrayBuffer(44+frames*2),d=new DataView(buffer)
+ const w=(p,s)=>[...s].forEach((v,i)=>d.setUint8(p+i,v.charCodeAt(0)))
+ w(0,'RIFF');d.setUint32(4,buffer.byteLength-8,true);w(8,'WAVE');w(12,'fmt ')
+ d.setUint32(16,16,true);d.setUint16(20,1,true);d.setUint16(22,1,true)
+ d.setUint32(24,48000,true);d.setUint32(28,96000,true);d.setUint16(32,2,true);d.setUint16(34,16,true)
+ w(36,'data');d.setUint32(40,frames*2,true)
+ for(let i=0;i<frames;i++)d.setInt16(44+i*2,Math.sin(i*Math.PI*2*220/48000)*12000,true)
+ return new Uint8Array(buffer)
+}
+let exported,terrain
+try {
+ out.dataset.stage='proyecto y guardado real'
+ const p=createProjectData('QA G006','empty'), audioId='audio-g006'
+ p.assets=[{id:audioId,name:'G006.wav',ext:'wav',kind:'audio',folder:'Assets/Audio'}]
+ p.audio=normalizeAudio({groups:[{id:'bus-g006',name:'Cine',parent:'music',fx:[newFx('lowpass',{id:'bus-lowpass',freq:1200})]}]})
+ const normal=newKey('audio',0,{id:'normal-g006',clip:'G006.wav',group:'bus-g006',fx:[newFx('eq3',{id:'clip-eq-g006'})]})
+ const advanced=newKey('audio',.4,{id:'advance-g006',clip:audioId,group:'bus-g006',offset:.15,duration:.4,fx:[newFx('echo',{id:'clip-echo-g006',time:.05,feedback:.1})]})
+ const tl=newTimeline('Timeline G006',{id:'timeline-g006',duration:3,tracks:[newTrack('audio',{id:'track-g006',keys:[normal,advanced]})]})
+ p.timelines=[tl]
+ const srcFiles=new Map([[audioId,wav()]])
+ terrain=new Terrain(p.terrain.size,p.terrain.segments,p.terrain.layers)
+ const {meta,scene}=splitProject(p,terrain.serialize());terrain.dispose();terrain=null
+ const scenes=new Map([[p.activeSceneId,scene]])
+ const before=JSON.stringify(meta.timelines)
+ check('Modelo contiene FX individuales y bus ID',normal.group==='bus-g006'&&normal.fx[0].type==='eq3')
+ const saved=await buildLfproj({meta,scenes,files:srcFiles})
+ check('Guardado .lfproj sin recursos faltantes',saved.missing.length===0)
+ const reopened=await parseLfproj(await saved.blob.arrayBuffer())
+ check('Reapertura conserva Timeline y clave por ID',reopened.meta.timelines[0].id===tl.id && reopened.meta.timelines[0].tracks[0].keys[0].id===normal.id)
+ check('Reapertura conserva los dos FX individuales',reopened.meta.timelines[0].tracks[0].keys[0].fx[0].id==='clip-eq-g006' && reopened.meta.timelines[0].tracks[0].keys[1].fx[0].id==='clip-echo-g006')
+ check('Bus del Mixer persiste',reopened.meta.audio.groups.some(g=>g.id==='bus-g006'&&g.fx[0].id==='bus-lowpass'))
+ check('Reapertura conserva binario de audio',reopened.files.get(audioId)?.byteLength===srcFiles.get(audioId).byteLength)
+ check('Nombres e IDs existentes compatibles',resolveAudioClip(reopened.meta,'g006')===audioId && resolveAudioClip(reopened.meta,audioId)===audioId)
+ check('Los datos serializados no sufren mutación',JSON.stringify(meta.timelines)===before)
+ out.dataset.stage='preflight y paquete Runtime'
+ const contents=[{id:p.activeSceneId,name:'QA',data:reopened.scenes.get(p.activeSceneId)}]
+ check('Preflight acepta recursos completos',validateBuildSources(reopened.meta,contents,reopened.files)===undefined)
+ const absentFiles=new Map(reopened.files);absentFiles.delete(audioId)
+ let rejected=false
+ try{validateBuildSources(reopened.meta,contents,absentFiles)}catch(e){rejected=e.message.includes('falta el archivo de audio')&&e.message.includes('G006.wav')}
+ check('Preflight impide exportar audio sin binario',rejected)
+ const pkgBytes=await writePackage({data:reopened.meta,scenes:contents,files:reopened.files})
+ const pkg=await readPackage(pkgBytes)
+ check('Package conserva Timeline y FX',pkg.game.timelines[0].tracks[0].keys[0].fx[0].type==='eq3')
+ check('Package conserva bus y sus FX',pkg.game.audio.groups.some(g=>g.id==='bus-g006'&&g.fx[0].id==='bus-lowpass'))
+ check('Package incluye el binario original',!!(await pkg.file(audioId))?.byteLength)
+ check('Package contiene escena inicial',!!await pkg.scene(p.activeSceneId))
+ out.dataset.stage='Player exportado real'
+ exported=await openGame({container:document.getElementById('player'),bytes:pkgBytes,storage:createStorage()})
+ check('Host Player resuelve audio sin IndexedDB',!!(await exported.host.assetData(audioId))?.bytes?.byteLength)
+ await exported.start()
+ check('Player real arrancó',exported.player.on===true)
+ check('Mixer y bus listos en AudioEngine',getAudio().nodes.has('bus-g006'))
+ check('FX del bus activos',getAudio().nodes.get('bus-g006').chain[0].type==='lowpass')
+ exported.player.timelinePlay(tl.id)
+ await until(()=>[...getAudio().voices].some(v=>v.opts.group==='bus-g006'&&v.clipEffects?.[0]?.params?.type==='eq3'),'Audio ordinario Player')
+ check('Player ordinario reprodujo FX individual',true)
+ const run=exported.player.tls.find(r=>r.tl.id===tl.id)
+ run.update(.5)
+ await until(()=>[...getAudio().voices].some(v=>v.opts.group==='bus-g006'&&v.clipEffects?.[0]?.params?.type==='echo'),'Audio avanzado Player')
+ check('Player avanzado reprodujo FX individual',true)
+ check('Player conserva audio de bus sin contaminar FX privados',getAudio().nodes.get('bus-g006').chain.length===1)
+ exported.player.timelineStop(tl.id);getAudio().stopAll()
+ check('Stop global limpia las voces',getAudio().voices.size===0)
+ out.dataset.pass='true'
+ out.textContent=JSON.stringify({pass:true,checks,gl:!!document.createElement('canvas').getContext('webgl')},null,2)
+}catch(error){out.dataset.pass='false';out.dataset.stage='fallo';out.textContent=JSON.stringify({pass:false,error:error?.stack||String(error),checks},null,2)}
+finally{try{exported?.dispose();terrain?.dispose()}catch{}}
+</script></html>

@@ -1,0 +1,25 @@
+flowchart TD
+  W["World / Weather\nAutoridad: clima, director, fases, viento"]
+  C["CloudField\nDistribucion, claves, residentes, consultas"]
+  V["CloudVolume\nCondensado, vapor y dos estados"]
+  B["Cloudfield Bake\nPrimitivas -> fuentes + mapa"]
+  G["Viewport + SKY_FRAG\nTextura RG8, composicion y luz"]
+  E["Edit Mode\nEstado editorial estatico"]
+  P["PlayMode / Runtime\nReloj meteorologico"]
+  Q["Lluvia / Rayos / Tornado / Luz\nConsumidores del mismo World"]
+  P -->|dt autorizado| W
+  E -->|configuracion, sin avance| W
+  W -->|forzado| C
+  C --> B
+  B --> V
+  V -->|densidad interpolable| G
+  B -->|mapa de cobertura| G
+  C --> Q
+  W --> Q
+  W -->|frame| G
+  classDef owner fill:#eef2ff,stroke:#4f46e5,color:#1e1b4b
+  classDef sim fill:#effaf5,stroke:#15803d,color:#14532d
+  classDef viewer fill:#f1f5f9,stroke:#64748b,color:#1e293b
+  class W owner
+  class C,V,B sim
+  class G,E,P,Q viewer

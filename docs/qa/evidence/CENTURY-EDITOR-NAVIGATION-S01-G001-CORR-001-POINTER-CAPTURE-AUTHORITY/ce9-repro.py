@@ -1,0 +1,8 @@
+from playwright.sync_api import sync_playwright
+from pathlib import Path
+vue='/opt/pyvenv/lib/python3.13/site-packages/trame_client/module/vue3-www/vue.global.js'
+with sync_playwright() as p:
+ b=p.chromium.launch(executable_path='/usr/bin/chromium',headless=True,args=['--no-sandbox'])
+ pg=b.new_page(); pg.set_content('<canvas id="c" width="300" height="200" tabindex="0"></canvas>');pg.evaluate('''() => { const c=document.querySelector('canvas');window.out=[];c.addEventListener('pointerdown',e=>{try{c.setPointerCapture(e.pointerId);out.push('first capture')}catch(e){out.push(e.name)};c.requestPointerLock().catch(e=>out.push(e.name))});c.addEventListener('pointerdown',e=>{try{c.setPointerCapture(e.pointerId);out.push('second capture')}catch(e){out.push('second '+e.name)}});document.addEventListener('pointerlockchange',()=>out.push('lock '+!!document.pointerLockElement)) }''');pg.mouse.click(50,50,button='right');pg.wait_for_timeout(100);print('pointer',pg.evaluate('out'))
+ pg.close(); pg=b.new_page(); pg.set_content('<div id="app"></div>');pg.add_script_tag(path=vue);pg.on('pageerror',lambda e: print('PAGE ERROR',str(e)));pg.evaluate('''() => {const {createApp,h,Teleport,ref,nextTick}=Vue;window.mode=ref(false);window.count=ref(0);const app=createApp({render(){return h('div',[h(Teleport,{to:mode.value?'#b':'#a',defer:true},[h('span',{id:'payload'},String(count.value))]),h('div',{id:mode.value?'b':'a',key:mode.value?'b':'a'})])}});app.mount('#app')}''');pg.evaluate('''async()=>{mode.value=true;await Vue.nextTick();count.value++;await Vue.nextTick()}''');print('dynamic teleport',pg.evaluate('({parent:document.getElementById("payload")?.parentElement?.id,html:document.querySelector("#app").innerHTML})'))
+ pg.close(); b.close()

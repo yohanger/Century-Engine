@@ -1,0 +1,173 @@
+{
+  "name": "century",
+  "version": "0.26.13",
+  "private": true,
+  "type": "module",
+  "description": "Motor de juegos 3D y editor de niveles (Electron, Vue 3, Three.js): terreno, mallas editables, eventos, scripts y exportación del juego",
+  "scripts": {
+    "dev": "vite",
+    "electron": "node scripts/electron-start.mjs",
+    "electron:dev": "node scripts/electron-dev.mjs",
+    "start": "node scripts/electron-start.mjs",
+    "filmmaker": "node scripts/electron-start.mjs --filmmaker",
+    "filmmaker:dev": "node scripts/electron-dev.mjs --filmmaker",
+    "build": "vite build && vite build --mode runtime",
+    "preview": "vite preview",
+    "dist:linux": "npm run build && npm run dist:linux:package",
+    "dist:win": "npm run build && npm run dist:win:package",
+    "dist:filmmaker": "npm run build && npm run dist:prepare && electron-builder --linux AppImage -c electron-builder.filmmaker.json --publish never",
+    "filmmaker:apk": "cd filmmaker-mobile && npm install && npm run apk",
+    "dist:linux:package": "npm run vscode:prepare && npm run dist:prepare && npm run vcs:prepare && node scripts/verify-editor-distribution.mjs preflight && electron-builder --linux AppImage deb --x64 --publish never && node scripts/verify-editor-distribution.mjs linux",
+    "dist:win:package": "npm run vscode:prepare && npm run dist:prepare && npm run vcs:prepare && node scripts/verify-editor-distribution.mjs preflight && electron-builder --win nsis portable --x64 --publish never && node scripts/verify-editor-distribution.mjs win",
+    "dist:verify": "node scripts/verify-editor-distribution.mjs source",
+    "dist:prepare": "node scripts/prepare-editor-distribution.mjs",
+    "vscode:prepare": "node scripts/prepare-vscode-extension.mjs",
+    "vcs:prepare": "node scripts/prepare-vcs-git.mjs",
+    "icons:distribution": "node scripts/make-icon.mjs --distribution",
+    "docs:build": "node scripts/gen-docs.mjs && node scripts/gen-docs-web.mjs",
+    "docs:check": "node scripts/gen-docs.mjs --check && node scripts/gen-docs-web.mjs --check && node --test scripts/test-docs-web-g001.mjs",
+    "test": "node scripts/qa-suite.mjs smoke",
+    "test:suite": "node scripts/qa-suite.mjs",
+    "test:distribution": "node --test scripts/test-editor-distribution-g001.mjs",
+    "test:runtime-jolt-wasm": "node --test scripts/test-runtime-jolt-wasm-real-corr-g001.mjs",
+    "test:vscode-extension": "node --test scripts/test-vscode-extension-integration-s03-g001.mjs",
+    "vcs:test": "node scripts/qa-suite.mjs vcs"
+  },
+  "dependencies": {
+    "@capacitor/core": "^8.5.3",
+    "@capacitor/filesystem": "^8.1.5",
+    "@capacitor/share": "^8.0.3",
+    "@codemirror/autocomplete": "6.20.3",
+    "@codemirror/commands": "6.11.1",
+    "@codemirror/lang-cpp": "^6.0.3",
+    "@codemirror/lang-css": "6.3.1",
+    "@codemirror/lang-html": "6.4.9",
+    "@codemirror/lang-javascript": "6.2.4",
+    "@codemirror/search": "6.7.2",
+    "@codemirror/state": "6.7.6",
+    "@codemirror/view": "6.43.14",
+    "@fontsource/ibm-plex-sans": "^5.3.0",
+    "@mediapipe/hands": "^0.4.1675469240",
+    "@mediapipe/pose": "^0.5.1675469404",
+    "@replit/codemirror-indentation-markers": "6.5.3",
+    "@replit/codemirror-minimap": "0.5.2",
+    "@vue/reactivity": "^3.5.13",
+    "codemirror": "6.0.2",
+    "jolt-physics": "^1.1.0",
+    "jszip": "^3.10.1",
+    "marked": "12.0.2",
+    "prettier": "3.6.2",
+    "semver": "7.8.6",
+    "smol-toml": "1.9.1",
+    "three": "0.186.1",
+    "three-mesh-bvh": "^0.8.3",
+    "vue": "^3.5.13",
+    "trianghor": "file:vendor/trianghor"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.2.1",
+    "@vscode/vsce": "4.1.0",
+    "electron": "^44.5.1",
+    "electron-builder": "^25.1.8",
+    "vite": "^6.0.7",
+    "typescript": "^5.8.3"
+  },
+  "main": "electron/main.cjs",
+  "author": "Century",
+  "build": {
+    "appId": "com.levelforge.editor",
+    "productName": "Century",
+    "executableName": "century",
+    "directories": {
+      "output": "release",
+      "buildResources": "build"
+    },
+    "files": [
+      "dist/**/*",
+      "dist-runtime/**/*",
+      "electron/**/*",
+      "package.json"
+    ],
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "category": "Development",
+      "icon": "build/icons",
+      "synopsis": "Editor 3D y motor de juegos Century",
+      "maintainer": "Century",
+      "extraResources": [
+        {
+          "from": "vendor/git/linux-x64",
+          "to": "git/linux-x64",
+          "filter": [
+            "**/*"
+          ]
+        },
+        {
+          "from": "vendor/git/licenses",
+          "to": "git/licenses",
+          "filter": [
+            "**/*"
+          ]
+        },
+        {
+          "from": "vendor/vscode-extension",
+          "to": "vscode-extension",
+          "filter": [
+            "*.vsix",
+            "manifest.json"
+          ]
+        }
+      ]
+    },
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ],
+      "icon": "build/icon.ico",
+      "extraResources": [
+        {
+          "from": "vendor/git/win-x64",
+          "to": "git/win-x64",
+          "filter": [
+            "**/*"
+          ]
+        },
+        {
+          "from": "vendor/git/licenses",
+          "to": "git/licenses",
+          "filter": [
+            "**/*"
+          ]
+        },
+        {
+          "from": "vendor/vscode-extension",
+          "to": "vscode-extension",
+          "filter": [
+            "*.vsix",
+            "manifest.json"
+          ]
+        }
+      ]
+    },
+    "asar": true,
+    "appImage": {
+      "artifactName": "Century-${version}-linux-x86_64.${ext}"
+    },
+    "deb": {
+      "artifactName": "Century-${version}-linux-x86_64.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "artifactName": "Century-Setup-${version}-win-x64.${ext}"
+    },
+    "portable": {
+      "artifactName": "Century-Portable-${version}-win-x64.${ext}"
+    }
+  }
+}

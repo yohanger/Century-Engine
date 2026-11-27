@@ -1,0 +1,7 @@
+# Variación temporal del ajuste PSX
+
+Gate ratificado: `CENTURY-RENDER-PSX-S01-G001-TEMPORAL-VERTEX-JITTER-AND-SCRIPT-API`.
+
+`psxContinuous` es una propiedad interna del render del proyecto, booleana, desactivada por defecto. Su control editorial es «Temblor continuo». Se preserva al cambiar método o aspecto; restaurar ajustes del motor restaura su valor por defecto. Solo actúa con PSX y ajuste de vértices mayor que cero. Viewport avanza una fase compartida por fotograma, no por pasada; el shader existente desplaza la cuadrícula de cuantización. Fase cero reproduce el cálculo anterior. No hay modificación de geometría, físicas, materiales por frame ni nuevo pipeline. Se conserva el alcance original de materiales compatibles con vertex snap, sin extenderlo a modelos importados. La interpolación affine y la resolución interna permanecen independientes. Se solicita render editorial mientras el efecto está activo y el documento es visible.
+
+El API público conserva `psx`, `psxHeight`, `psxSnap`, `psxAffine` en GraphicsSettings. `psxContinuous` se excluye de `settings` y de los parches de script y preferencias gráficas del juego; se preserva la elección editorial al cambiar presets desde scripts. El índice abierto de GraphicsSettings conserva compatibilidad con los demás ajustes; no promete aceptar propiedades internas. El backend WebGPU con PSX mantiene su fallback a WebGL. QA integrado, rendimiento hardware y VSIX pendientes.

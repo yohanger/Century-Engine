@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="es"><meta charset="utf-8"><title>Century S13-G011 · Espaciado del Inspector</title>
+<style>
+  html,body { margin:0; background:#151a20; color:#e6ebef; font:12px system-ui; }
+  #app { height:610px; width:350px; }
+  #inspector-node-spacing-s13-g011-g001-result { display:none; }
+</style>
+<div id="app"></div><pre id="inspector-node-spacing-s13-g011-g001-result"></pre>
+<script>
+(() => {
+  const out=document.getElementById('inspector-node-spacing-s13-g011-g001-result')
+  const checks=[];let stage='bootstrap',finished=false
+  function report(){if(finished)return;out.dataset.stage=stage;out.textContent=JSON.stringify({pass:null,stage,checks})}
+  function progress(value){stage=value;report()}
+  function check(name,pass,actual){checks.push({name,pass:!!pass,...actual===undefined?{}:{actual}});progress(`${checks.length}: ${name}`);if(!pass)throw Error(`Falló: ${name}`)}
+  function finish(error){if(finished)return;finished=true;clearTimeout(watchdog)
+    const pass=!error&&checks.length===25&&checks.every(c=>c.pass)
+    out.dataset.pass=String(pass);out.dataset.checks=String(checks.length);out.dataset.stage=pass?'final:PASS':'final:FAIL'
+    out.textContent=JSON.stringify({pass,stage,...error?{error:String(error.stack||error)}:{},checks,gl:!!document.createElement('canvas').getContext('webgl')},null,2)
+  }
+  const watchdog=setTimeout(()=>finish(new Error(`Watchdog: ${stage}`)),35000)
+  window.addEventListener('error',e=>{if(e.message||e.error)finish(e.error||new Error(e.message))})
+  window.addEventListener('unhandledrejection',e=>finish(e.reason||new Error('Promesa rechazada')))
+  window.__lfSpacingQa={check,finish,progress};report()
+})()
+</script>
+<script type="module">
+const {check,finish,progress}=window.__lfSpacingQa
+let app,renderer
+try {
+  progress('Montaje del InspectorDock y CollisionShape3D reales')
+  const [{createApp,nextTick},{default:InspectorDock},{store,setEditor,resetHistory},{createProjectData},{makeObject},THREE]=await Promise.all([
+    import('vue'),import('/src/components/InspectorDock.vue'),import('/src/core/store.js'),
+    import('/src/core/project.js'),import('/src/engine/runtime/nodes/index.js'),import('three')
+  ])
+  await import('/src/styles.css')
+  renderer=new THREE.WebGLRenderer({antialias:false});renderer.setSize(8,8)
+  renderer.render(new THREE.Scene(),new THREE.PerspectiveCamera())
+  check('WebGL real disponible',!!renderer.getContext())
+  const box=makeObject('collisionshape3d','box',{id:'spacing-box',name:'Colisión de QA'})
+  box.id='spacing-box';box.name='Colisión de QA'
+  const project=createProjectData('Inspector Spacing QA','empty')
+  project.id='qa-node-spacing-s13-g011';project.objects=[box]
+  store.project=project;store.selectedId=box.id;store.selectedIds=[box.id];store.projSel=null
+  store.temporalSelection=null;store.audioInspector=null;store.sceneSel=false
+  store.prefs.rightTab='object';store.prefs.inspFold={}
+  setEditor({syncObject(){},snapshotTerrain:()=>project.terrain});resetHistory()
+  app=createApp(InspectorDock);app.mount('#app')
+  const flush=async()=>{await nextTick();await new Promise(r=>requestAnimationFrame(r));await nextTick();await new Promise(r=>requestAnimationFrame(r))}
+  await flush()
+  const root=()=>document.querySelector('#app .scroll .insp[data-node-type="collisionshape3d"]')
+  const head=()=>root()?.querySelector(':scope > .node-head')
+  const field=()=>[...root()?.querySelectorAll('.node-properties .field')||[]]
+    .find(row => row.querySelector('label')?.textContent === 'DontDestroyOnLoad')
+  const sect=()=>root()?.querySelector(':scope > [data-fold-id="collision-shape"]')
+  const body=()=>sect()?.querySelector(':scope > .body')
+  const rows=()=>[...body()?.querySelectorAll(':scope > .field')||[]]
+  const px=(element,attr)=>parseFloat(getComputedStyle(element)[attr])
+  check('InspectorDock real y nodo seleccionado',!!root()&&!!head())
+  check('Ficha con padding superior de 6px',px(head(),'paddingTop')===6)
+  check('Ficha con padding horizontal de 7px',px(head(),'paddingLeft')===7)
+  check('Ficha con padding inferior de 6px',px(head(),'paddingBottom')===6)
+  check('Ficha con separación interna de 4px',px(head().querySelector('.hcol'),'gap')===4)
+  check('Fila DontDestroyOnLoad presente',!!field()&&field().querySelector('label')?.textContent==='DontDestroyOnLoad')
+  check('Con 350px la fila de persistencia tiene dos columnas',getComputedStyle(field()).gridTemplateColumns.split(' ').length===2)
+  check('DontDestroyOnLoad permanece en una línea',field().querySelector('label').getBoundingClientRect().height<=19)
+  check('Checkbox de persistencia sigue editable',!!field().querySelector('input[type="checkbox"]'))
+  check('CollisionShape3D original está montado',!!sect()&&!!body())
+  check('Encabezado de sección con altura >=28px',sect().querySelector('header').getBoundingClientRect().height>=28)
+  check('Cuerpo con padding vertical >=8px',px(body(),'paddingTop')>=8)
+  check('Cuerpo con padding horizontal >=12px',px(body(),'paddingLeft')>=12)
+  check('Controles Forma, Autoajuste y Tamaño presentes',rows().some(r=>r.textContent.includes('Forma'))&&rows().some(r=>r.textContent.includes('Autoajuste a geometría'))&&rows().some(r=>r.textContent.includes('Tamaño (m)')))
+  check('Todas las filas directas tienen altura mínima de 25px',rows().every(r=>r.getBoundingClientRect().height>=25))
+  check('Separación entre filas adyacentes >=4px',rows().every(row =>
+    !row.previousElementSibling?.matches('.field') || px(row,'marginTop')>=4))
+  check('Campo X/Y/Z conserva sus tres entradas',body().querySelectorAll('.v3 .nf input').length===3)
+  const original=JSON.stringify(project.objects)
+  sect().querySelector('header').click();await flush()
+  check('Plegado de sección funciona con espaciado nuevo',sect().classList.contains('closed'))
+  check('Plegar no cambia datos de proyecto',JSON.stringify(project.objects)===original)
+  sect().querySelector('header').click();await flush()
+  check('Reabrir devuelve los controles originales',!sect().classList.contains('closed')&&body().querySelectorAll('.v3 .nf input').length===3)
+  progress('Inspector reducido a 245px')
+  document.getElementById('app').style.width='245px';await flush()
+  const columns=getComputedStyle(rows()[0]).gridTemplateColumns.split(' ')
+  check('La propiedad cambia a una columna con 245px',columns.length===1,{columns})
+  check('Padding del cuerpo se reduce a 10px sin solape',px(body(),'paddingLeft')===10)
+  document.getElementById('app').style.width='350px';await flush()
+  check('Al restaurar 350px recupera dos columnas',getComputedStyle(rows()[0]).gridTemplateColumns.split(' ').length===2)
+  check('WebGL termina sin errores',renderer.getContext().getError()===renderer.getContext().NO_ERROR)
+  finish()
+} catch(error){finish(error)}finally{try{app?.unmount()}catch{}try{renderer?.dispose()}catch{}}
+</script>
+</html>

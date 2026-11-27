@@ -1,0 +1,216 @@
+{
+  "id": "s16-g004-qa",
+  "name": "QA locomoción CharacterBody3D + Input Map",
+  "objects": [
+    {
+      "id": "floor",
+      "name": "Suelo",
+      "type": "staticbody3d",
+      "parentId": null,
+      "position": [
+        0,
+        -0.5,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "props": {
+        "friction": 0.5,
+        "restitution": 0
+      }
+    },
+    {
+      "id": "floor-shape",
+      "name": "SueloCollision",
+      "type": "collisionshape3d",
+      "parentId": "floor",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "props": {
+        "shape": {
+          "type": "BoxShape3D",
+          "size": [
+            12,
+            1,
+            12
+          ]
+        },
+        "disabled": false
+      }
+    },
+    {
+      "id": "a",
+      "name": "Personaje A",
+      "type": "characterbody3d",
+      "parentId": null,
+      "position": [
+        -2,
+        0.1,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "props": {
+        "velocity": [
+          0,
+          0,
+          0
+        ],
+        "maxSlopeAngle": 50,
+        "stepHeight": 0.35,
+        "floorSnap": 0.5,
+        "gravity": 9.81,
+        "mass": 80
+      },
+      "scriptIds": [
+        "locomotion-a"
+      ]
+    },
+    {
+      "id": "a-shape",
+      "name": "Capsula A",
+      "type": "collisionshape3d",
+      "parentId": "a",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "props": {
+        "shape": {
+          "type": "CapsuleShape3D",
+          "radius": 0.5,
+          "height": 2
+        },
+        "disabled": false
+      }
+    },
+    {
+      "id": "b",
+      "name": "Personaje B",
+      "type": "characterbody3d",
+      "parentId": null,
+      "position": [
+        2,
+        0.1,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "props": {
+        "velocity": [
+          0,
+          0,
+          0
+        ],
+        "maxSlopeAngle": 50,
+        "stepHeight": 0.35,
+        "floorSnap": 0.5,
+        "gravity": 9.81,
+        "mass": 80
+      },
+      "scriptIds": [
+        "locomotion-b"
+      ]
+    },
+    {
+      "id": "b-shape",
+      "name": "Capsula B",
+      "type": "collisionshape3d",
+      "parentId": "b",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "props": {
+        "shape": {
+          "type": "CapsuleShape3D",
+          "radius": 0.5,
+          "height": 2
+        },
+        "disabled": false
+      }
+    }
+  ],
+  "scripts": [
+    {
+      "id": "locomotion-a",
+      "name": "Locomoción A",
+      "execution": "node",
+      "code": "// CharacterBody3D FPS: consume los parámetros existentes de Database ▸ Jugador.\n// Jolt integra la física; este script solo escribe la velocidad deseada.\nlet jumpPending = false\nlet jumpAge = 0\nlet timeOffGround = Infinity\n\nfunction _ready() {\n  jumpPending = false\n  jumpAge = 0\n  timeOffGround = Infinity\n}\n\nfunction _process(_delta) {\n  if (game.input.justPressed('jump')) { jumpPending = true; jumpAge = 0 }\n}\n\nfunction _physics_process(delta) {\n  const player = game.player\n  // El mismo recurso puede estar en otro Prefab: solo mueve al jugador designado.\n  if (!player?.node || player.node.id !== node.id) return\n  const level = game.level || {}\n  const blocked = !player.control || player.mode !== 'free'\n  const { x, y } = blocked ? { x: 0, y: 0 } : game.input.vector('move_left', 'move_right', 'move_back', 'move_forward')\n  const ground = player.ground || (node.onFloor ? 'stable' : 'air')\n  const speedScale = level.speedScale ?? 1\n  const speed = (level.canRun !== false && game.input.pressed('run') ? player.run : player.walk) * speedScale\n  const yaw = node.rotation[1] * Math.PI / 180\n  const sin = Math.sin(yaw), cos = Math.cos(yaw)\n  const targetX = (cos * x - sin * y) * speed\n  const targetZ = (-sin * x - cos * y) * speed\n  const velocity = node.velocity\n  const differenceX = targetX - velocity[0], differenceZ = targetZ - velocity[2]\n  const distance = Math.hypot(differenceX, differenceZ)\n  const current = Math.hypot(velocity[0], velocity[2])\n  const target = Math.hypot(targetX, targetZ)\n  const accelerating = target >= current\n  let rate = ground === 'air' ? (accelerating ? player.airAccel : player.airDecel)\n    : ground === 'steep' ? (accelerating ? player.slideAccel : player.slideDecel)\n    : (accelerating ? player.groundAccel : player.groundDecel)\n  if (accelerating && ground === 'stable' && current > 0.1 && target > 0.1) {\n    const alignment = (velocity[0] * targetX + velocity[2] * targetZ) / (current * target)\n    rate *= 1 + (player.turnBoost - 1) * Math.acos(Math.max(-1, Math.min(1, alignment))) / Math.PI\n  }\n  const change = Math.min(distance, rate * Math.max(0, delta))\n  const ratio = distance > 0 ? change / distance : 0\n  const nextX = velocity[0] + differenceX * ratio\n  const nextZ = velocity[2] + differenceZ * ratio\n\n  const canJumpFromGround = ground === 'stable' || (ground === 'steep' && player.jumpOnSteep)\n  timeOffGround = canJumpFromGround ? 0 : timeOffGround + delta\n  if (jumpPending) jumpAge += delta\n  if (jumpAge > player.jumpBuffer || blocked) jumpPending = false\n  const gravity = player.jumpAuto ? 2 * player.jumpHeight / (player.jumpTime ** 2) : player.gravity\n  const jumpSpeed = player.jumpAuto ? gravity * player.jumpTime : player.jump\n  const jumping = jumpPending && level.canJump !== false && (canJumpFromGround || timeOffGround <= player.coyote)\n  const nextY = jumping ? jumpSpeed : velocity[1]\n  if (jumping) jumpPending = false\n  node.velocity = [nextX, nextY, nextZ]\n}\n"
+    },
+    {
+      "id": "locomotion-b",
+      "name": "Locomoción B",
+      "execution": "node",
+      "code": "// CharacterBody3D FPS: consume los parámetros existentes de Database ▸ Jugador.\n// Jolt integra la física; este script solo escribe la velocidad deseada.\nlet jumpPending = false\nlet jumpAge = 0\nlet timeOffGround = Infinity\n\nfunction _ready() {\n  jumpPending = false\n  jumpAge = 0\n  timeOffGround = Infinity\n}\n\nfunction _process(_delta) {\n  if (game.input.justPressed('jump')) { jumpPending = true; jumpAge = 0 }\n}\n\nfunction _physics_process(delta) {\n  const player = game.player\n  // El mismo recurso puede estar en otro Prefab: solo mueve al jugador designado.\n  if (!player?.node || player.node.id !== node.id) return\n  const level = game.level || {}\n  const blocked = !player.control || player.mode !== 'free'\n  const { x, y } = blocked ? { x: 0, y: 0 } : game.input.vector('move_left', 'move_right', 'move_back', 'move_forward')\n  const ground = player.ground || (node.onFloor ? 'stable' : 'air')\n  const speedScale = level.speedScale ?? 1\n  const speed = (level.canRun !== false && game.input.pressed('run') ? player.run : player.walk) * speedScale\n  const yaw = node.rotation[1] * Math.PI / 180\n  const sin = Math.sin(yaw), cos = Math.cos(yaw)\n  const targetX = (cos * x - sin * y) * speed\n  const targetZ = (-sin * x - cos * y) * speed\n  const velocity = node.velocity\n  const differenceX = targetX - velocity[0], differenceZ = targetZ - velocity[2]\n  const distance = Math.hypot(differenceX, differenceZ)\n  const current = Math.hypot(velocity[0], velocity[2])\n  const target = Math.hypot(targetX, targetZ)\n  const accelerating = target >= current\n  let rate = ground === 'air' ? (accelerating ? player.airAccel : player.airDecel)\n    : ground === 'steep' ? (accelerating ? player.slideAccel : player.slideDecel)\n    : (accelerating ? player.groundAccel : player.groundDecel)\n  if (accelerating && ground === 'stable' && current > 0.1 && target > 0.1) {\n    const alignment = (velocity[0] * targetX + velocity[2] * targetZ) / (current * target)\n    rate *= 1 + (player.turnBoost - 1) * Math.acos(Math.max(-1, Math.min(1, alignment))) / Math.PI\n  }\n  const change = Math.min(distance, rate * Math.max(0, delta))\n  const ratio = distance > 0 ? change / distance : 0\n  const nextX = velocity[0] + differenceX * ratio\n  const nextZ = velocity[2] + differenceZ * ratio\n\n  const canJumpFromGround = ground === 'stable' || (ground === 'steep' && player.jumpOnSteep)\n  timeOffGround = canJumpFromGround ? 0 : timeOffGround + delta\n  if (jumpPending) jumpAge += delta\n  if (jumpAge > player.jumpBuffer || blocked) jumpPending = false\n  const gravity = player.jumpAuto ? 2 * player.jumpHeight / (player.jumpTime ** 2) : player.gravity\n  const jumpSpeed = player.jumpAuto ? gravity * player.jumpTime : player.jump\n  const jumping = jumpPending && level.canJump !== false && (canJumpFromGround || timeOffGround <= player.coyote)\n  const nextY = jumping ? jumpSpeed : velocity[1]\n  if (jumping) jumpPending = false\n  node.velocity = [nextX, nextY, nextZ]\n}\n"
+    }
+  ],
+  "inputMap": {
+    "actions": []
+  }
+}

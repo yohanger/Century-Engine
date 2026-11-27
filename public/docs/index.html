@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f6f7f9">
+  <title>Century — Documentación</title>
+  <meta name="description" content="Documentación oficial de Century: manual, nodos, scripting, API, comandos, sistemas y tutoriales.">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Ir al contenido</a>
+<div class="app">
+  <header class="topbar">
+    <button class="mobile-menu" id="toggleNav" aria-label="Abrir navegación" aria-controls="sidebar" aria-expanded="false">☰</button>
+    <a class="brand" href="#/inicio" aria-label="Documentación Century — Inicio"><span class="brand-mark" aria-hidden="true">CE</span><span class="brand-name">Century <strong>Docs</strong></span></a>
+    <span class="version">v0.26.13 <span class="version-type">· Referencia de desarrollo</span></span>
+    <div class="top-spacer"></div>
+    <button id="openSearch" class="search-prompt" aria-label="Buscar en la documentación"><span aria-hidden="true">⌕</span><span>Buscar documentación</span><kbd>Ctrl K</kbd></button>
+    <button id="themeButton" class="icon-button" aria-label="Cambiar tema" title="Cambiar tema">◐</button>
+  </header>
+  <div class="layout">
+    <aside class="sidebar" id="sidebar" aria-label="Índice de documentación">
+      <div class="sidebar-header">DOCUMENTACIÓN <button class="sidebar-close" id="closeNav" aria-label="Cerrar navegación">×</button></div>
+      <nav id="nav" aria-label="Capítulos"></nav>
+      <div class="sidebar-footer">Century <span>·</span> Manual y referencia</div>
+    </aside>
+    <main id="main" class="main" tabindex="-1">
+      <div class="crumbs" id="crumbs" aria-label="Ruta de navegación"></div>
+      <article class="article" id="article" aria-live="polite"><h1>Century</h1><p>Cargando documentación…</p></article>
+      <div id="pageFoot" class="page-foot"></div>
+    </main>
+    <aside class="rightbar" aria-label="Contenido de esta página"><div class="right-heading">EN ESTA PÁGINA</div><nav id="toc"></nav></aside>
+  </div>
+  <div class="scrim" id="scrim" hidden></div>
+</div>
+<div class="search-overlay" id="searchOverlay" hidden>
+  <div class="search-dialog" role="dialog" aria-modal="true" aria-labelledby="searchTitle">
+    <div class="search-box"><span aria-hidden="true">⌕</span><label id="searchTitle" class="sr-only" for="searchInput">Buscar en documentación</label><input id="searchInput" type="search" placeholder="Buscar nodos, métodos, comandos…" autocomplete="off"><button id="closeSearch" aria-label="Cerrar búsqueda"><kbd>Esc</kbd></button></div>
+    <div class="search-meta" id="searchMeta">Escribe para buscar en toda la documentación.</div>
+    <div class="search-results" id="searchResults" role="listbox" aria-label="Resultados"></div>
+    <div class="search-help">↑ ↓ para navegar · Intro para abrir · Esc para cerrar</div>
+  </div>
+</div>
+<script src="content.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

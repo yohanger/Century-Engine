@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="es"><meta charset="utf-8"><title>QA S13-G008-G004 · Audio puntos FIFO</title>
+<style>html,body{margin:0;background:#161b20;color:#e4e9ee;font:12px sans-serif}#inspector{width:365px;height:530px;overflow:auto;padding:6px}#lf-timeline-audio-point-lifo-s13-g008-g004-result{display:none}</style>
+<div id="inspector"></div>
+<pre id="lf-timeline-audio-point-lifo-s13-g008-g004-result"></pre>
+<script>
+(() => {
+  const el=document.getElementById('lf-timeline-audio-point-lifo-s13-g008-g004-result')
+  const checks=[];let stage='bootstrap',finished=false
+  function check(name,passed,actual){checks.push({name,pass:!!passed,...(actual===undefined?{}:{actual})});stage=`${checks.length}: ${name}`;el.dataset.stage=stage;el.dataset.checks=String(checks.length);el.textContent=JSON.stringify({pass:null,stage,checks})}
+  function progress(label){stage=label;el.dataset.stage=stage}
+  function finish(error){if(finished)return;finished=true;clearTimeout(timer)
+    const pass=!error&&checks.length===25&&checks.every(c=>c.pass)
+    el.dataset.pass=String(pass);el.dataset.checks=String(checks.length);el.dataset.stage=pass?'final:PASS':'final:FAIL'
+    let gl=false;try{gl=!!document.createElement('canvas').getContext('webgl')}catch{}
+    el.textContent=JSON.stringify({pass,stage,...(error?{error:error.stack||String(error)}:{}),checks,gl},null,2)
+  }
+  const timer=setTimeout(()=>finish(new Error(`Watchdog en ${stage}`)),35000)
+  window.addEventListener('error',event=>{if(event.message||event.error||event.target?.tagName==='SCRIPT')finish(event.error||new Error(event.message||'Error de importación'))},true)
+  window.addEventListener('unhandledrejection',event=>finish(event.reason||new Error('Promesa rechazada')))
+  window.__lfLifoQa={check,finish,progress}
+})()
+</script>
+<script type="module">
+const {check,finish,progress}=window.__lfLifoQa
+let app
+const settle=async()=>{await nextTick();await new Promise(resolve=>setTimeout(resolve,0))}
+let nextTick
+try {
+  progress('Montar Inspector real sobre proyecto con puntos legados')
+  await import('/src/styles.css')
+  const Vue=await import('vue');nextTick=Vue.nextTick
+  const {default:Inspector}=await import('/src/components/TemporalResourceInspector.vue')
+  const {createProjectData}=await import('/src/core/project.js')
+  const {store,setEditor,resetHistory,openTimelineEditor,selectTemporal,undo,redo,commit}=await import('/src/core/store.js')
+  const {newTimeline,newTrack,newKey,editTimelineAudioVolumePoint,normalizeTimeline}=await import('/src/core/timeline/model.js')
+  const {volumeAutomationVisualOrder,volumeAutomationAt}=await import('/src/engine/runtime/audio/automation.js')
+  const project=createProjectData('QA puntos FIFO','empty')
+  const initial=[{id:'p1',t:1,value:.2},{id:'p2',t:3,value:.6},{id:'p3',t:5,value:.8}]
+  const key=newKey('audio',1,{id:'lifo-key',clip:'test.wav',duration:8,volume:.9,fadeIn:.3,fadeOut:.2,volumeAutomation:initial})
+  const track=newTrack('audio',{id:'lifo-track',keys:[key]})
+  const timeline=newTimeline('QA FIFO',{id:'lifo-timeline',duration:12,tracks:[track]})
+  project.timelines=[timeline]
+  store.project=project;store.locked=false;store.play.on=false
+  setEditor({snapshotTerrain:()=>project.terrain,syncAll(){},syncEnvironment(){},setSelection(){},restoreEdit(){},afterUndo(){}})
+  resetHistory();openTimelineEditor(timeline.id);selectTemporal('timeline',timeline.id,'key',track.id,key.id)
+  const before=JSON.stringify(store.project.timelines)
+  app=Vue.createApp({render:()=>Vue.h(Inspector,{kind:'timeline',resourceId:timeline.id})})
+  app.mount('#inspector');await settle()
+  const current=()=>store.project.timelines[0].tracks[0].keys.find(k=>k.id===key.id)
+  const root=()=>document.querySelector('#inspector .inspector-audio-volume')
+  const rows=()=>[...root().querySelectorAll('.volume-point-row')]
+  const ids=()=>rows().map(row=>row.querySelector('.volume-point-delete')?.getAttribute('aria-label')?.replace('Eliminar punto ','')||'')
+  const names=()=>rows().map(row=>row.querySelector('.volume-point-name')?.textContent?.trim())
+  const sorted=()=>current().volumeAutomation.map(p=>p.id)
+  const action=(name,data)=>editTimelineAudioVolumePoint(store.project.timelines[0],track.id,key.id,name,data)
+  const click=async el=>{el.click();await settle()}
+  const persisted=()=>normalizeTimeline(JSON.parse(JSON.stringify(store.project.timelines[0]))).tracks[0].keys[0].volumeAutomation
+  progress('Compatibilidad de lectura e Inspector')
+  check('Inspector real montado',!!root())
+  check('Tres puntos heredados se muestran en orden FIFO de creación',JSON.stringify(ids())===JSON.stringify(['p1','p2','p3']),ids())
+  check('Las etiquetas antiguas siguen asociadas al mismo punto',JSON.stringify(names())===JSON.stringify(['Punto-1','Punto-2','Punto-3']),names())
+  check('Montar Inspector no migra ni modifica los datos',before===JSON.stringify(store.project.timelines))
+  check('La curva de audio sigue en orden cronológico',JSON.stringify(sorted())===JSON.stringify(['p1','p2','p3']))
+  check('Se usa la misma lista del modelo, no una copia persistida',volumeAutomationVisualOrder(current().volumeAutomation)[0].id==='p1'&&!current().volumeAutomation.some(p=>Object.hasOwn(p,'createdOrder')))
+  progress('Alta mediante el control real del Inspector')
+  const add=[...root().querySelectorAll('button')].find(b=>b.textContent.includes('Añadir punto'))
+  await click(add)
+  const nuevo=current().volumeAutomation.find(p=>!initial.some(old=>old.id===p.id))
+  check('El nuevo punto recibe ordinal 4 persistente',nuevo?.createdOrder===4,nuevo)
+  check('El punto recién creado aparece al final del Inspector',ids().at(-1)===nuevo?.id,ids())
+  check('Los antiguos obtienen ordinal solo tras alta explícita',JSON.stringify(current().volumeAutomation.filter(p=>p.id!=='').filter(p=>p.id!==nuevo?.id).map(p=>p.createdOrder))===JSON.stringify([1,2,3]))
+  check('El orden cronológico de datos se conserva',current().volumeAutomation.every((p,i,a)=>i===0||a[i-1].t<=p.t))
+  // En el modelo el nuevo punto está antes de p3 (t=4); en FIFO queda después.
+  if(JSON.stringify(ids())!==JSON.stringify(['p1','p2','p3',nuevo?.id])) throw new Error('FIFO y orden temporal no son independientes')
+  check('El alta preserva los nombres e IDs antiguos',initial.every(p=>current().volumeAutomation.some(q=>q.id===p.id&&!q.name)))
+  const beforeUndo=ids()
+  undo();await settle()
+  check('Undo restaura tres puntos sin ordinal',current().volumeAutomation.length===3&&current().volumeAutomation.every(p=>!Object.hasOwn(p,'createdOrder')))
+  check('Undo restaura la lista visual antigua',JSON.stringify(ids())===JSON.stringify(['p1','p2','p3']),ids())
+  redo();await settle()
+  check('Redo recupera la misma lista y ordinales',JSON.stringify(ids())===JSON.stringify(beforeUndo)&&current().volumeAutomation.find(p=>p.id===nuevo.id)?.createdOrder===4,ids())
+  progress('Mover puntos sin cambiar orden visual')
+  const beforeMove=ids(),beforeCurve=volumeAutomationAt(current().volumeAutomation,2)
+  check('Mover un punto antiguo al final cambia su tiempo',action('move',{id:'p1',t:7,value:.2}))
+  commit('QA mover punto');await settle()
+  check('Mover un punto no altera el orden visual',JSON.stringify(ids())===JSON.stringify(beforeMove),ids())
+  check('El arreglo interno sigue ordenado temporalmente',current().volumeAutomation.every((p,i,a)=>i===0||a[i-1].t<=p.t))
+  check('La curva responde al cambio temporal sin usar FIFO',Math.abs(volumeAutomationAt(current().volumeAutomation,2)-beforeCurve)>.01)
+  check('Normalizar y reabrir conserva el FIFO',JSON.stringify(volumeAutomationVisualOrder(persisted()).map(p=>p.id))===JSON.stringify(beforeMove))
+  progress('Renombrado, borrado y persistencia')
+  const rowP2=rows().find(row=>row.querySelector('.volume-point-delete')?.getAttribute('aria-label')==='Eliminar punto p2')
+  await click(rowP2.querySelector('.volume-point-toggle'))
+  const nameField=rowP2.querySelector('input[maxlength="48"]')
+  nameField.value='Capa ambiente';nameField.dispatchEvent(new Event('change',{bubbles:true}));await settle()
+  check('Renombrar conserva el orden de los puntos',JSON.stringify(ids())===JSON.stringify(beforeMove))
+  check('Renombrado persiste asociado a ID original',current().volumeAutomation.find(p=>p.id==='p2')?.name==='Capa ambiente')
+  const rowP3=rows().find(row=>row.querySelector('.volume-point-delete')?.getAttribute('aria-label')==='Eliminar punto p3')
+  await click(rowP3.querySelector('.volume-point-delete'))
+  check('Eliminar punto quita solo su ID',!current().volumeAutomation.some(p=>p.id==='p3')&&current().volumeAutomation.length===3)
+  check('La vista FIFO mantiene el orden relativo restante',JSON.stringify(ids())===JSON.stringify(beforeMove.filter(id=>id!=='p3')),ids())
+  check('Persistencia conserva nombres y ordinales válidos',persisted().find(p=>p.id==='p2')?.name==='Capa ambiente'&&persisted().every(p=>Number.isSafeInteger(p.createdOrder)))
+  check('Ninguna pista nueva ni archivo de audio alterado',store.project.timelines[0].tracks.length===1&&current().clip==='test.wav'&&current().fadeIn===.3&&current().fadeOut===.2)
+  finish()
+} catch(error){finish(error)}
+finally { try{app?.unmount()}catch{} }
+</script>
+</html>

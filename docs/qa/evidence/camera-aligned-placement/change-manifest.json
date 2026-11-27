@@ -1,0 +1,40 @@
+{
+  "baseline": "CENTURY_DOCUMENTATION_API_S01_G001_BIBLE_SOURCE_BASELINE.zip",
+  "sha256": "888ee9782f342d888d66f23a157ad584da77d023725c98a85babe47a06117ba3",
+  "modified": [
+    "docs/biblia/00-indice.md",
+    "docs/biblia/06-modelado.md",
+    "docs/web-src/mesh-edit.md",
+    "docs/web-src/scene-tree.md",
+    "public/docs/content.js",
+    "scripts/qa-suites.json",
+    "scripts/test-mesh-linked-instance-g001.mjs",
+    "scripts/test-mesh-workflow-integration-qa-g001.mjs",
+    "scripts/test-node-signals-editor-s06-g004.mjs",
+    "scripts/test-scene-clipboard-g001.mjs",
+    "scripts/test-trimesh-reference-integrity.mjs",
+    "src/core/editor/placement.js",
+    "src/core/state/objects.js"
+  ],
+  "added": [
+    "docs/architecture/CENTURY-EDITOR-PLACEMENT-S01-G001-CAMERA-ALIGNED-DUPLICATION-AND-PASTE_CONTRACT.md",
+    "docs/ledger/CE_EDITOR_PLACEMENT_S01_G001_LEDGER.xlsx",
+    "docs/qa/CENTURY-EDITOR-PLACEMENT-S01-G001-CAMERA-ALIGNED-DUPLICATION-AND-PASTE_QA.md",
+    "docs/qa/evidence/camera-aligned-placement/change-manifest.json",
+    "docs/qa/evidence/camera-aligned-placement/placement-after.log",
+    "docs/qa/evidence/camera-aligned-placement/placement-before.log",
+    "docs/qa/evidence/camera-aligned-placement/placement-build.log",
+    "docs/qa/evidence/camera-aligned-placement/placement-docs-build.log",
+    "docs/qa/evidence/camera-aligned-placement/placement-docs-check.log",
+    "docs/qa/evidence/camera-aligned-placement/placement-electron.log",
+    "docs/qa/evidence/camera-aligned-placement/placement-suite.log",
+    "scripts/fixtures/editor/camera-aligned-placement.html",
+    "scripts/test-camera-aligned-placement-electron.mjs",
+    "scripts/test-camera-aligned-placement.mjs"
+  ],
+  "removed": [],
+  "production_modified": [
+    "src/core/editor/placement.js",
+    "src/core/state/objects.js"
+  ]
+}

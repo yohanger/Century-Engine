@@ -1,0 +1,51 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Mover a grupo</title></head><body><pre id="move-to-collection-group-result">Cargando…</pre><div id="app"></div>
+<script type="module">
+import '/src/styles.css'
+import { createApp, nextTick, markRaw } from 'vue'
+import ContextMenu from '/src/components/ContextMenu.vue'
+import { nodeMenu } from '/src/core/commands.js'
+import { store, worldMatrix, getObject, resetHistory, undo, redo, configureHistory, cancelPendingAutosave } from '/src/core/store.js'
+const out = document.getElementById('move-to-collection-group-result'), checks = []
+const check = (name, pass, detail = '') => { checks.push({name,pass:!!pass,detail}); if (!pass) throw Error(`${name}: ${detail}`) }
+const tick = async () => { await nextTick(); await new Promise(resolve=>requestAnimationFrame(resolve)); await nextTick() }
+const node=(id,type,parentId=null,position=[0,0,0],rotation=[0,0,0],name=id)=>({id,type,kind:'box',name,parentId,position,rotation,scale:[1,1,1],props:{},open:false,visible:true})
+let app
+try {
+  store.locked=false;store.play.on=false;store.gameView.on=false;store.edit.on=false;store.filmMode=false
+  const objects=[node('source','group',null,[2,0,5],[0,30,0]),node('a','primitive','source',[1,2,3]),node('b','primitive',null,[6,1,0]),node('target','node3d',null,[5,0,-3],[0,45,0],'Decoración'),node('locked','group')]
+  objects.at(-1).locked=true
+  for(let i=0;i<14;i++)objects.push(node(`group${i}`,'group',null,[i,0,0]))
+  store.project={id:'test',activeSceneId:'scene',objects,scenes:[{id:'scene',name:'Escena'}],environment:{},terrain:{},materials:[],scripts:[]}
+  const sync=[]
+  store.editor=markRaw({snapshotTerrain:()=>({layers:[],foliage:[]}),syncObject:id=>sync.push(id),syncAll(){},syncEnvironment(){},setSelection(){}})
+  configureHistory({save(){},hasDisk:()=>false,markPending(){}})
+  store.selectedIds=['a','b'];store.selectedId='b';resetHistory()
+  const before=['a','b'].map(id=>worldMatrix(id).elements.slice())
+  app=createApp({components:{ContextMenu},setup:()=>({store}),template:'<ContextMenu v-if="store.menu"/>'});app.mount('#app')
+  store.menu={x:innerWidth-15,y:innerHeight-20,items:nodeMenu('b')};await tick()
+  const row=[...document.querySelectorAll('.menu > .item')].find(el=>el.querySelector('.lbl')?.textContent==='Mover a grupo')
+  check('Opción contextual disponible',row && row.getAttribute('aria-disabled')==='false')
+  row.dispatchEvent(new MouseEvent('mouseenter'));await tick()
+  const sub=document.querySelector('.searchable-menu'), search=sub?.querySelector('input')
+  check('Submenú lateral y buscador visibles',!!sub&&!!search)
+  const rect=sub.getBoundingClientRect();check('Submenú dentro de viewport',rect.left>=0&&rect.right<=innerWidth&&rect.top>=0&&rect.bottom<=innerHeight)
+  const entries=[...sub.querySelectorAll(':scope > .item')]
+  check('Todos los destinos disponibles; bloqueados excluidos',entries.length===16,entries.length)
+  const header=sub.querySelector('.menu-search')
+  const fullRows=entries.filter(el=>el.getBoundingClientRect().top>=header.getBoundingClientRect().bottom-1&&el.getBoundingClientRect().bottom<=rect.bottom+1)
+  check('Máximo diez filas completas',fullRows.length<=10&&fullRows.length>0,fullRows.length)
+  check('Lista desplazable',sub.scrollHeight>sub.clientHeight)
+  sub.scrollTop=sub.scrollHeight;await tick()
+  check('Buscador permanece visible',header.getBoundingClientRect().top>=rect.top-1&&header.getBoundingClientRect().bottom<rect.bottom)
+  search.click();search.focus();search.value='decoracion';search.dispatchEvent(new Event('input',{bubbles:true}));await tick()
+  check('Búsqueda sin acentos y scroll reiniciado',sub.querySelectorAll(':scope > .item').length===1&&sub.scrollTop===0)
+  search.dispatchEvent(new KeyboardEvent('keydown',{key:'Enter',bubbles:true,cancelable:true}));await tick()
+  check('Movimiento múltiple y cierre del menú',store.menu===null&&getObject('a').parentId==='target'&&getObject('b').parentId==='target')
+  check('Matrices mundiales conservadas con rotación', ['a','b'].every((id,j)=>worldMatrix(id).elements.every((v,i)=>Math.abs(v-before[j][i])<1e-5)))
+  check('Selección conservada y padre expandido',store.selectedIds.join(',')==='a,b'&&getObject('target').open)
+  undo();check('Un Undo restaura ambos nodos',getObject('a').parentId==='source'&&getObject('b').parentId===null&&!store.canUndo)
+  redo();check('Un Redo restaura ambos nodos',getObject('a').parentId==='target'&&getObject('b').parentId==='target'&&!store.canRedo)
+  out.dataset.pass='true';out.textContent=JSON.stringify({pass:true,gl:'Interfaz Vue y matrices Three.js',checks},null,2)
+}catch(error){out.dataset.pass='false';out.textContent=JSON.stringify({pass:false,checks,error:String(error.stack||error)},null,2)}
+finally{cancelPendingAutosave();app?.unmount();store.menu=null}
+</script></body></html>

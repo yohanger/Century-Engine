@@ -1,0 +1,108 @@
+{
+  "gate": "CENTURY-EDITOR-UX-S04-G001-CORR-001-NATIVE-UNDO-CONTEXT-INTEGRITY",
+  "baseline": "CENTURY_EDITOR_UX_S04_G001_SOURCE_BASELINE.zip",
+  "changed_or_added": [
+    {
+      "path": "docs/architecture/CENTURY-EDITOR-UX-S04-G001-CORR-001-NATIVE-UNDO-CONTEXT-INTEGRITY_IMPLEMENTATION.md",
+      "kind": "added",
+      "sha256": "2461e6b8e7a5bd7ba6e45c8a469608fa533504b3442405e4bf2198cc610033cb"
+    },
+    {
+      "path": "docs/ledger/CE_EDITOR_UX_S04_G001_CORR001_LEDGER.xlsx",
+      "kind": "added",
+      "sha256": "d88b0acbe9a01b2b68fa4fe50d6f956c0ab80173c0d30720b2503bc7a5310342"
+    },
+    {
+      "path": "docs/qa/CENTURY-EDITOR-UX-S04-G001-CORR-001-NATIVE-UNDO-CONTEXT-INTEGRITY_QA.md",
+      "kind": "added",
+      "sha256": "2540b39199f9418a779ac9e44c0ab5ccabe6a71ae70c1ac16ba9606c619fc9b6"
+    },
+    {
+      "path": "docs/qa/evidence/CENTURY-EDITOR-UX-S04-G001-CORR-001-NATIVE-UNDO-CONTEXT-INTEGRITY/baseline-verification.json",
+      "kind": "added",
+      "sha256": "7ff3bd99dc42ddaf601c0a94e75f74a0ed522b199864a99cef5201d7b3a05514"
+    },
+    {
+      "path": "docs/qa/evidence/CENTURY-EDITOR-UX-S04-G001-CORR-001-NATIVE-UNDO-CONTEXT-INTEGRITY/build-blocked.log",
+      "kind": "added",
+      "sha256": "ad93033e7f39a0f04a1ed40edf91f741c64cfbf9fa5ed37ad17f38e46626cd7c"
+    },
+    {
+      "path": "docs/qa/evidence/CENTURY-EDITOR-UX-S04-G001-CORR-001-NATIVE-UNDO-CONTEXT-INTEGRITY/electron-blocked.log",
+      "kind": "added",
+      "sha256": "57ad325fad4ee36ed76abe70d16a73910c6d89620baa99a67f26a8c37689ac8c"
+    },
+    {
+      "path": "docs/qa/evidence/CENTURY-EDITOR-UX-S04-G001-CORR-001-NATIVE-UNDO-CONTEXT-INTEGRITY/focal-after.log",
+      "kind": "added",
+      "sha256": "c75de21f8592e366e9cf7423c951b50e1a0f51e12e43da7017ca2189e075f2f0"
+    },
+    {
+      "path": "docs/qa/evidence/CENTURY-EDITOR-UX-S04-G001-CORR-001-NATIVE-UNDO-CONTEXT-INTEGRITY/numeric-regression.log",
+      "kind": "added",
+      "sha256": "602cc3dfa81f23b4e573571e528c7c9c9de4594cfc6425b01f7c51288cce0075"
+    },
+    {
+      "path": "docs/qa/evidence/CENTURY-EDITOR-UX-S04-G001-CORR-001-NATIVE-UNDO-CONTEXT-INTEGRITY/real-record-before.log",
+      "kind": "added",
+      "sha256": "6884dc14c6b2a84b2a43e374ee6cfe4cc7bb544cb671ffa0a35cb239981fb4b5"
+    },
+    {
+      "path": "docs/qa/evidence/CENTURY-EDITOR-UX-S04-G001-CORR-001-NATIVE-UNDO-CONTEXT-INTEGRITY/reg-after.log",
+      "kind": "added",
+      "sha256": "e6a983c2b84d5700e257a7a9a0929918905088a42ed4c7b9110afe35228c22b0"
+    },
+    {
+      "path": "docs/qa/evidence/CENTURY-EDITOR-UX-S04-G001-CORR-001-NATIVE-UNDO-CONTEXT-INTEGRITY/reg-before.log",
+      "kind": "added",
+      "sha256": "a9a1d28aa3254b542f391067ee05add031bb3ed352dc0a718832efef3dcead23"
+    },
+    {
+      "path": "docs/qa/evidence/CENTURY-EDITOR-UX-S04-G001-CORR-001-NATIVE-UNDO-CONTEXT-INTEGRITY/regression-command.txt",
+      "kind": "added",
+      "sha256": "3632960aa7b79048b779c8f6ea9c1b37bc0e8991a22b7b290fd79fd4ac946374"
+    },
+    {
+      "path": "docs/qa/evidence/CENTURY-EDITOR-UX-S04-G001-CORR-001-NATIVE-UNDO-CONTEXT-INTEGRITY/syntax.log",
+      "kind": "added",
+      "sha256": "b2d34cef33148f30f0ce98ac097afe51fdb69637463e24dd00e2d2f855d87d14"
+    },
+    {
+      "path": "docs/qa/evidence/CENTURY-EDITOR-UX-S04-G001-CORR-001-NATIVE-UNDO-CONTEXT-INTEGRITY/toml-blocked.log",
+      "kind": "added",
+      "sha256": "3ada11ca2c179a8d9312e7c1be06b42fbee5e5fc7551370be935a4a32cd1bee5"
+    },
+    {
+      "path": "docs/qa/evidence/CENTURY-EDITOR-UX-S04-G001-CORR-001-NATIVE-UNDO-CONTEXT-INTEGRITY/user-local-qa.md",
+      "kind": "added",
+      "sha256": "cbaf35b3761ee9aac3fb169e104d4ffbd2f683a34fd78f7f9237d9a5d9b3917d"
+    },
+    {
+      "path": "scripts/fixtures/editor/undo-context-and-mouse-sensitivity.html",
+      "kind": "modified",
+      "sha256": "f563c3e288825c1d65e221752304cb36b0424ccc9c17463eb481622c242e0b6a"
+    },
+    {
+      "path": "scripts/test-undo-context-and-mouse-sensitivity-electron.mjs",
+      "kind": "modified",
+      "sha256": "dc46920c30acea0919f148db4fdc84b1cf07e4c994a0fc6c07f455d1c2c1b088"
+    },
+    {
+      "path": "scripts/test-undo-context-and-mouse-sensitivity.mjs",
+      "kind": "modified",
+      "sha256": "fbc43b6dc5797f2fff7ac09183eeb767ea6d46d78ef9154b7ce2810074d51871"
+    },
+    {
+      "path": "src/core/editor/meshedit.js",
+      "kind": "modified",
+      "sha256": "a68df08055fba20442e011cd0de535e78744ce2dbb4d3d317289a9b51fe91617"
+    },
+    {
+      "path": "src/engine/runtime/numeric-integrity.js",
+      "kind": "modified",
+      "sha256": "15ef2387119c3d61248e0d8d4fe65e824ec998981eab859272c93c1ca53d0887"
+    }
+  ],
+  "deleted": [],
+  "manifest_self": "docs/qa/evidence/CENTURY-EDITOR-UX-S04-G001-CORR-001-NATIVE-UNDO-CONTEXT-INTEGRITY/change-manifest.json"
+}

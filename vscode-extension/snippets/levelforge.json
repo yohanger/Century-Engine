@@ -1,0 +1,18 @@
+{
+  "Función de script": { "prefix": "lf-define", "body": ["game.define('${1:nombre}', async (${2}) => {", "\t$0", "})"], "description": "Registra una función que el comando «Llamar función de script» puede invocar" },
+  "Cada fotograma": { "prefix": "lf-update", "body": ["game.on('update', (dt) => {", "\t$0", "})"], "description": "Se ejecuta cada fotograma con dt en segundos" },
+  "Al empezar": { "prefix": "lf-start", "body": ["game.on('start', async () => {", "\t$0", "})"], "description": "Al empezar el juego" },
+  "Escena cargada": { "prefix": "lf-scene", "body": ["game.on('scene', async () => {", "\t$0", "})"], "description": "Cada vez que se carga una escena" },
+  "Decir": { "prefix": "lf-say", "body": ["await game.say('${1:Hola}', '${2:Ana}')"], "description": "Mensaje con nombre de quien habla" },
+  "Elegir": { "prefix": "lf-choose", "body": ["const ${1:opcion} = await game.choose(['${2:Sí}', '${3:No}'])"], "description": "Menú de opciones" },
+  "Esperar": { "prefix": "lf-wait", "body": ["await game.wait(${1:1})"], "description": "Espera segundos" },
+  "Interruptor": { "prefix": "lf-switch", "body": ["game.setSwitch('${1:Interruptor}', ${2:true})"], "description": "Activa o desactiva un interruptor" },
+  "Variable": { "prefix": "lf-var", "body": ["game.variable('${1:Variable}')"], "description": "Lee una variable por nombre" },
+  "Nodo": { "prefix": "lf-node", "body": ["const ${1:obj} = game.node('${2:Nombre}')"], "description": "Objeto de la escena por nombre" },
+  "Llevar al view model": { "prefix": "lf-vm-attach", "body": ["game.viewModel.attach(${1:event}, { slot: '${2:right}' })"], "description": "Lleva un evento u objeto a un slot del view model (mano, ojos…)" },
+  "Sacar del view model": { "prefix": "lf-vm-release", "body": ["game.viewModel.release(${1:event})"], "description": "Suelta lo que está en el view model" },
+  "Velocidad del jugador": { "prefix": "lf-walk", "body": ["game.player.walk = ${1:6}"], "description": "Cambia la velocidad al caminar" },
+  "Declarar señal de nodo": { "prefix": "lf-node-signal", "body": ["node.define_signal('${1:activado}')"], "description": "Script de Nodo: declara una señal propia con nombre literal" },
+  "Emitir señal de nodo": { "prefix": "lf-node-emit", "body": ["node.emit_signal('${1:activado}')"], "description": "Script de Nodo: emite una señal propia declarada" },
+  "Publicar método receptor": { "prefix": "lf-node-expose", "body": ["node.expose('${1:alActivar}', (${2}) => {", "\t$0", "})"], "description": "Script de Nodo: publica un método para conexiones de Signals" }
+}

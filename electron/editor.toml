@@ -1,0 +1,76 @@
+# Configuración global de Century. El usuario edita la copia en su perfil.
+
+[interface]
+font = "Selawik"          # Fuente instalada o incluida (Selawik, IBM Plex Sans, JetBrains Mono)
+scale = 1.0              # 1.0 = 100%. De 0.75 a 1.5
+font_size = 12           # Tamaño base en px
+radius = 4               # Redondeo base de controles en px
+control_height = 24      # Alto base de controles en px
+color_scheme = "dark"    # dark | light; también controla el Hub y controles nativos
+
+[colors]
+background = "#11141b"
+input_background = "#0d1015"
+panel = "#171a21"
+surface = "#1d2128"
+hover = "#2f353f"
+elevated = "#404853"
+border = "#34373d"
+subtle_border = "#242932"
+text = "#f5f6f7"
+secondary_text = "#bfc4cc"
+muted_text = "#a6aab0"
+accent = "#0068c3"
+accent_hover = "#77beef"
+accent_background = "#233d53"
+selection = "#003d5e"
+frame = "#1f242b"
+titlebar = "#0e1116"
+
+# Preferencias funcionales del editor. En Electron este archivo es la fuente de
+# verdad; la ventana Preferencias escribe aquí y los cambios se aplican en vivo.
+[navigation]
+device = "mouse"         # mouse | trackpad
+orbit_selection = true
+
+[camera]
+fov = 90                 # FOV horizontal del editor, de 40 a 120 grados
+
+[mouse]
+sensitivity = 1.0        # Multiplicador general de navegación editorial
+orbit = 1.0
+pan = 1.0
+zoom = 1.0
+invert_zoom = false
+
+[trackpad]
+orbit = 1.0
+pan = 1.0
+zoom = 1.0
+invert = false
+invert_y = false
+zoom_to_cursor = true
+
+[flight]
+speed = 14.0
+sprint = 3.0
+look = 1.0
+
+[gizmos]
+size = 1.0
+orientation = true
+visible = true
+
+[selection]
+style = "box"            # box | outline | none
+color = "#ffb547"
+width = 1.5
+strength = 3.0
+
+[behavior]
+tooltips = false
+add_as_child = false
+terrain_crop_warning = true
+disk_delay = 3           # segundos antes de escribir project.lfproj
+inspector_label_width = 112
+

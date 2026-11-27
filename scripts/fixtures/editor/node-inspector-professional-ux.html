@@ -1,0 +1,74 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Inspector de nodos</title><style>#app{width:340px;height:650px}pre{white-space:pre-wrap}</style></head><body><div id="app"></div><pre id="node-inspector-professional-result">Cargando…</pre>
+<script>
+(() => {
+  const out = document.getElementById('node-inspector-professional-result')
+  const checks = []
+  let stage = 'bootstrap', finished = false
+  const progress = next => {
+    if (finished) return
+    stage = next
+    out.dataset.stage = stage
+    out.dataset.checks = String(checks.length)
+    out.textContent = JSON.stringify({stage, checks}, null, 2)
+  }
+  const finish = (pass, error) => {
+    if (finished && (!error || out.dataset.pass === 'false')) return
+    finished = true
+    out.dataset.pass = String(pass)
+    out.textContent = JSON.stringify({pass, stage, checks, ...(error ? {error:String(error.stack || error)} : {gl:'Inspector Vue / DOM'})}, null, 2)
+  }
+  const fail = error => finish(false, error || 'Error sin detalle')
+  window.addEventListener('error', event => {
+    if (event.error || event.message) fail(event.error || `${event.message} (${event.filename}:${event.lineno}:${event.colno})`)
+    else if (event.target?.tagName === 'SCRIPT') fail(`No se pudo cargar el script: ${event.target.src || '(inline)'}`)
+  }, true)
+  window.addEventListener('unhandledrejection', event => fail(event.reason))
+  window.__nodeInspectorQA = {checks, progress, finish, fail}
+  progress('bootstrap')
+})()
+</script>
+<script type="module">
+const {checks, progress, finish, fail} = window.__nodeInspectorQA
+const check = (name, pass) => { checks.push({name,pass:!!pass}); progress(`check:${checks.length}:${name}`); if (!pass) throw Error(name) }
+let nextTick, app, cancelPendingAutosave
+const tick=async()=>{await nextTick();await new Promise(r=>requestAnimationFrame(r));await nextTick();await new Promise(r=>requestAnimationFrame(r));await nextTick()}
+const q=s=>document.querySelector('#app '+s), all=s=>[...document.querySelectorAll('#app '+s)]
+try {
+ progress('import:styles'); await import('/src/styles.css')
+ progress('import:vue'); const vue=await import('vue'); const {createApp,markRaw}=vue; nextTick=vue.nextTick
+ progress('import:InspectorDock'); const {default:InspectorDock}=await import('/src/components/InspectorDock.vue')
+ progress('import:ColorInput'); const {default:ColorInput}=await import('/src/components/ColorInput.vue')
+ progress('import:ContextMenu'); const {default:ContextMenu}=await import('/src/components/ContextMenu.vue')
+ progress('import:store'); const api=await import('/src/core/store.js'); const {store, resetHistory, configureHistory, undo, redo}=api; cancelPendingAutosave=api.cancelPendingAutosave
+ progress('import:project'); const {createProjectData}=await import('/src/core/project.js')
+ progress('import:nodes'); const {makeObject}=await import('/src/engine/runtime/nodes/index.js')
+ progress('project'); store.project=createProjectData('QA Inspector');
+ store.project.objects=[makeObject('primitive','box',{id:'cube',name:'Cubo'}),makeObject('primitive','box',{id:'cube2',name:'Cubo 2'}),makeObject('node3d','node3d',{id:'parent',name:'Padre'})];
+ store.project.scripts=[{id:'qa-script',name:'qa.js',folder:'Assets/Scripts',execution:'node',code:''}];
+ store.selectedId='cube';store.selectedIds=['cube'];store.sceneSel=false;store.projSel=null;store.edit.on=false;store.paint.on=false;store.prefs.inspFold={};store.prefs.rightTab='object';store.locked=false;store.play.on=false;
+ store.editor=markRaw({snapshotTerrain:()=>({layers:[],foliage:[]}),syncObject(){},syncAll(){},syncEnvironment(){},setSelection(){}})
+ configureHistory({save(){},hasDisk:()=>false,markPending(){}});resetHistory()
+ progress('mount'); app=createApp({components:{InspectorDock,ContextMenu},setup:()=>({store}),template:'<InspectorDock pane="object"/><ContextMenu v-if="store.menu"/>'});app.config.errorHandler=error=>{fail(error);throw error};app.component('ColorInput',ColorInput);app.mount('#app');await tick()
+ const node=id=>store.project.objects.find(o=>o.id===id)
+ const palette=['rgb(239, 141, 141)','rgb(145, 203, 150)','rgb(145, 182, 241)'];const colored=(labels)=>labels.length===9&&labels.every((el,i)=>getComputedStyle(el).color===palette[i%3]);
+ check('Identidad editable sin icono genérico',!!q('[data-testid=inspector-node-head] .name')&&!q('.actor-icon'))
+ check('Estado, bloqueo, grupos y capas siguen accesibles',!!q('.act')&&!!q('.node-lock input')&&!!q('[data-testid=insp-groups]')&&!!q('[data-testid=insp-layer]'))
+ check('Posición, rotación y tamaño XYZ coloreados',colored(all('[data-fold-id=transform] .v3 .lbl')))
+ const x=q('[data-fold-id=transform] .v3 input');x.focus();x.value='2.5';x.dispatchEvent(new Event('input',{bubbles:true}));x.blur();await tick();check('Transformación X usa valor y commit existentes',node('cube').position[0]===2.5&&node('cube').position[1]===0&&node('cube').position[2]===0)
+ undo();await tick();check('Undo transformación',node('cube').position[0]===0)
+ redo();await tick();check('Redo transformación',node('cube').position[0]===2.5)
+ check('Material local esférico sin tarjeta redundante',!!q('[data-testid=node-material-heading] .mr-sphere')&&!q('.mr-resource')&&!q('.mr-actions'))
+ q('[data-testid=node-material-menu]').click();await tick();check('Menú nativo conserva acciones',store.menu?.items.some(i=>i.label==='Guardar como recurso…')&&store.menu.items.some(i=>i.label==='Hacer local')&&!store.menu.items.some(i=>i.label==='Restaurar original'))
+ store.menu=null;await tick();
+ const script=q('.node-script-add select');check('Un selector de script sin botón duplicado',!!script&&!q('[data-fold-id=scripts] button.wide'))
+ script.value='qa-script';script.dispatchEvent(new Event('change',{bubbles:true}));await tick();check('Asociación de script real',node('cube').scriptIds.includes('qa-script'))
+ const section=q('[data-fold-id=transform]');section.querySelector('header').click();await tick();check('Plegado nativo persistente',section.classList.contains('closed')&&store.prefs.inspFold['fold:node:primitive:transform']===true)
+ section.querySelector('header').click();await tick();
+ store.selectedId='parent';store.selectedIds=['parent'];await tick();check('Node3D comparte paleta',colored(all('[data-fold-id=transform] .v3 .lbl')))
+ store.selectedId='cube';store.selectedIds=['cube','cube2'];await tick();check('Multiselección comparte paleta',colored(all('[data-fold-id=multi-transform] .multi-axis span')))
+ store.selectedId='cube';store.selectedIds=['cube'];await tick();document.getElementById('app').style.width='240px';await tick();check('Inspector estrecho sin desbordar',q('.insp').scrollWidth<=q('.insp').clientWidth+1)
+ check('Campos XYZ estrechos conservados',all('[data-fold-id=transform] .v3 input').every(el=>el.getBoundingClientRect().width>15)&&all('[data-fold-id=transform] .v3 input').length===9)
+ const pass=checks.length === 15 && checks.every(c=>c.pass);finish(pass,pass?undefined:Error('Comprobaciones incompletas'))
+} catch(error){fail(error)}
+finally{try{cancelPendingAutosave?.();app?.unmount()}catch(error){fail(error)}}
+</script></body></html>

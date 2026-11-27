@@ -1,0 +1,12 @@
+{
+  "id": "vfx_cafe", "name": "Vapor de cafe.vfx", "folder": "Assets/Efectos", "schemaVersion": 1,
+  "emission": { "mode": "continuous", "rate": 12, "burstCount": 8, "duration": 0, "loop": true, "capacity": 64 },
+  "birth": { "shape": "sphere", "box": [1, 1, 1], "radius": 0.14, "lifetime": [1.5, 3] },
+  "movement": { "speed": 0.4, "spread": 0.2, "acceleration": [0, 0.1, 0], "space": "local" },
+  "appearance": { "textureId": "tex_humo", "color": "#ffffff", "size": 0.2, "opacity": 0.4, "rotation": 0, "blend": "alpha" },
+  "evolution": {
+    "size": [{ "t": 0, "value": 0.5 }, { "t": 1, "value": 1.5 }],
+    "opacity": [{ "t": 0, "value": 0 }, { "t": 0.2, "value": 0.8 }, { "t": 1, "value": 0 }],
+    "color": [{ "t": 0, "color": "#ffffff" }, { "t": 1, "color": "#888888" }]
+  }
+}

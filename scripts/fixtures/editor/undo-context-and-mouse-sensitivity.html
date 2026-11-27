@@ -1,0 +1,108 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Contexto editorial y preferencias</title><style>#viewport{width:640px;height:360px;position:relative}pre{white-space:pre-wrap}</style></head><body><div id="viewport"></div><div id="app"></div><pre id="undo-context-result">Cargando…</pre>
+<script>window.__lfNativeKeyReady = new Promise(resolve => {window.__lfNativeKeyResolve=resolve})</script>
+<script type="module">
+const out=document.getElementById('undo-context-result'),checks=[],nativeDiagnostics=[]
+const stage=name=>{out.dataset.stage=name;out.textContent=JSON.stringify({stage:name,checks})}
+const record=(name,passed)=>{checks.push({name,passed:!!passed});out.dataset.checks=String(checks.length);return !!passed}
+const check=(name,passed)=>{if(!record(name,passed))throw Error(name)}
+let finished=false
+const finish=error=>{if(finished)return;finished=true;out.dataset.pass=String(!error);out.textContent=JSON.stringify({pass:!error,checks,nativeDiagnostics,stage:out.dataset.stage,...(error?{error:String(error.stack||error)}:{gl:'Editor Three.js / Vue / teclado nativo'})},null,2);window.__lfNativeKeyResolve()}
+window.addEventListener('error',e=>{if(e.error)finish(e.error)},true)
+window.addEventListener('unhandledrejection',e=>finish(e.reason))
+let app,editor,S
+try {
+ stage('imports');await import('/src/styles.css');document.documentElement.classList.add('lf-editor')
+ const {createApp,nextTick}=await import('vue')
+ const {Editor}=await import('/src/core/editor.js')
+ const {EditSession}=await import('/src/core/mesh/session.js')
+ const {meshDataOf}=await import('/src/engine/runtime/mesh/shared-mesh.js')
+ const {registerTools}=await import('/src/core/tools.js');registerTools({mesh:{EditSession}})
+ const {default:PreferencesModal}=await import('/src/components/PreferencesModal.vue')
+ const {default:ColorInput}=await import('/src/components/ColorInput.vue')
+ S=await import('/src/core/store.js');const {store}=S
+ const {splitProject}=await import('/src/core/project.js')
+ const {makeObject}=await import('/src/engine/runtime/nodes/index.js')
+ const {Terrain}=await import('/src/engine/runtime/geometry/terrain.js')
+ const db=await import('/src/core/db.js')
+ const frame=async()=>{await nextTick();await new Promise(r=>requestAnimationFrame(r));await nextTick()}
+ stage('project');const p=S.createProjectData('Contexto QA','empty-project',{renderer:'compat'});p.id='qa-undo-context'
+ p.objects=[makeObject('primitive','box',{id:'cube',name:'Cubo'}),makeObject('node3d','node3d',{id:'other',name:'Otro'})]
+ const terrain=new Terrain(32,8,p.terrain.layers);terrain.enabled=false;const serialized=terrain.serialize();terrain.dispose()
+ const {meta,scene}=splitProject(p,serialized);await db.saveScene(p.id,p.activeSceneId,scene);await db.saveProject(meta);await db.confirmProject(p.id)
+ editor=new Editor(document.querySelector('#viewport'));S.setEditor(editor);store.ready=true;check('Abre proyecto real',await S.openProject(p.id));await frame()
+ S.cancelPendingAutosave();store.edit.globalShortcuts=true;editor.pointer.inside=true
+ S.selectObject('cube');S.resetHistory();editor.enterEdit();await frame();const session=editor.edit
+ check('Conversión real genera historial y sesión',!!session&&store.edit.on&&store.canUndo)
+ const start=session.poly.v[0][0];session.poly.v[0][0]=start+1;session.dirty=true;check('Primer cambio geométrico',session.commit('Mover vértice'))
+ session.poly.v[0][0]=start+2;session.dirty=true;check('Segundo cambio geométrico',session.commit('Mover vértice'))
+ session.setMode('edge');check('Modo Local activo',editor.toggleMeshLocalView()&&store.edit.localView);await frame()
+ const camera=editor.vp.camera.position.clone();const canvas=editor.dom;canvas.tabIndex=0;canvas.id='qa-viewport-canvas';canvas.focus()
+ const sameContext=()=>editor.edit===session&&store.edit.on&&store.edit.localView&&session.mode==='edge'&&store.selectedId==='cube'&&editor.vp.camera.position.distanceTo(camera)<.0001
+ const near=(a,b)=>Math.abs(a-b)<.00001
+ const steps=[{key:'z',code:'KeyZ',keyCode:90,modifiers:2,focus:'#qa-viewport-canvas'},{key:'z',code:'KeyZ',keyCode:90,modifiers:2},{key:'z',code:'KeyZ',keyCode:90,modifiers:2},{key:'Z',code:'KeyZ',keyCode:90,modifiers:10},{key:'y',code:'KeyY',keyCode:89,modifiers:2}]
+ const expectations=[['Ctrl+Z conserva contexto',()=>near(session.poly.v[0][0],start+1)],['Ctrl+Z repetido conserva modo, cámara y malla',()=>near(session.poly.v[0][0],start)],['Conversión incompatible no expulsa ni consume historial',()=>near(session.poly.v[0][0],start)&&store.canUndo&&store.canRedo],['Ctrl+Shift+Z rehace dentro de la misma sesión',()=>near(session.poly.v[0][0],start+1)],['Ctrl+Y rehace dentro de la misma sesión',()=>near(session.poly.v[0][0],start+2)]]
+ const nativeEvents=[]
+ const captureKey=event=>nativeEvents.push(event)
+ window.addEventListener('keydown',captureKey,true)
+ let knownToasts=new Set(store.toasts.map(t=>t.id))
+ window.__lfNativeKeySteps=steps
+ window.__lfNativeKeyAfter=async index=>{
+  try {
+   await frame()
+   const step=steps[index], event=nativeEvents.at(-1), expectedVertex=start+[1,0,0,1,2][index]
+   const active=store.project.objects.find(o=>o.id==='cube')
+   const persisted=meshDataOf(active,store.project.meshes)?.v?.[0]
+   const notifications=store.toasts.filter(t=>!knownToasts.has(t.id)).map(({id,msg,kind})=>({id,msg,kind}))
+   knownToasts=new Set(store.toasts.map(t=>t.id))
+   const errors=notifications.filter(t=>t.kind==='error')
+   const details={index,expectedVertex,vertex:session.poly.v[0]?.[0],persistedVertex:persisted,
+    sameSession:editor.edit===session,editOn:store.edit.on,localView:store.edit.localView,
+    mode:session.mode,storeMode:store.edit.mode,selectedId:store.selectedId,selectedIds:[...store.selectedIds],
+    camera:editor.vp.camera.position.toArray(),expectedCamera:camera.toArray(),canUndo:store.canUndo,canRedo:store.canRedo,
+    activeElement:document.activeElement?.tagName,locked:store.locked,modal:store.modal,palette:store.palette,
+    keyEvents:nativeEvents.map(e=>({key:e.key,code:e.code,ctrl:e.ctrlKey,shift:e.shiftKey,trusted:e.isTrusted,prevented:e.defaultPrevented,target:e.target?.tagName})),notifications}
+   nativeDiagnostics.push(details)
+   const prefix=expectations[index][0]
+   const conditions=[
+    ['evento nativo y modificadores',nativeEvents.length===1&&event?.isTrusted&&event.code===step.code&&event.key.toLowerCase()===step.key.toLowerCase()&&event.ctrlKey&&!event.metaKey&&!event.altKey&&event.shiftKey===!!(step.modifiers&8)],
+    ['atajo consumido',event?.defaultPrevented===true],
+    ['identidad de sesión',details.sameSession],['Edit Mesh',details.editOn],['Modo Local',details.localView],
+    ['modo aristas',details.mode==='edge'&&details.storeMode==='edge'],['selección',details.selectedId==='cube'&&details.selectedIds.length===1&&details.selectedIds[0]==='cube'],
+    ['cámara',editor.vp.camera.position.distanceTo(camera)<.0001],
+    ['vértice en sesión',near(details.vertex,expectedVertex)],['vértice persistente',near(persisted,expectedVertex)],
+    ['notificaciones',index===2?errors.length===1&&/incompatible/.test(errors[0].msg):errors.length===0],
+   ]
+   nativeEvents.length=0
+   const results=conditions.map(([name,passed])=>record(`${prefix}: ${name}`,passed))
+   const original=record(prefix,sameContext()&&expectations[index][1]())
+   if(!original||results.some(passed=>!passed))throw Error(`${prefix}: ${checks.filter(c=>!c.passed).map(c=>c.name).join('; ')}`)
+   return {ok:true}
+  } catch(e) {finish(e);return {ok:false,error:String(e.stack||e),checks,nativeDiagnostics}}
+ }
+
+ stage('native-undo');window.__lfNativeKeyResolve()
+ await new Promise(resolve=>{const timer=setInterval(()=>{if(window.__lfNativeKeyDone||finished){clearInterval(timer);resolve()}},25)})
+ window.removeEventListener('keydown',captureKey,true)
+ if(finished)throw Error('Teclado incompleto')
+ stage('history-scene-graph');editor.exitEditMode();check('Salida explícita no agrega historial',!store.edit.on)
+ const {signature}=await import('/src/engine/runtime/nodes/three-helpers.js')
+ const currentCube=()=>store.project.objects.find(o=>o.id==='cube'),visualCube=()=>editor.nodes.get('cube')
+ const refresh=editor.refreshMaterials,observed=[]
+ editor.refreshMaterials=function(...args){const obj=currentCube(),node=visualCube();observed.push({type:obj.type,match:node?.userData.sig===signature(obj),meshBody:!!node?.userData.meshBody});return refresh.apply(this,args)}
+ try {
+  S.undo();S.undo();S.undo();await frame();check('Undo de conversión en Object Mode',currentCube().type==='primitive'&&!editor.edit)
+  check('Undo reconstruye la primitiva antes de actualizar materiales',visualCube().userData.sig===signature(currentCube())&&!visualCube().userData.meshBody)
+  check('Observadores de Undo reciben un SceneGraph coherente',observed.some(o=>o.type==='primitive')&&observed.every(o=>o.match));observed.length=0
+  S.redo();await frame();check('Redo de conversión no reabre Edit Mesh',currentCube().type==='mesh'&&!editor.edit)
+  check('Redo reconstruye la malla con geometría antes de actualizar materiales',visualCube().userData.sig===signature(currentCube())&&!!visualCube().userData.meshBody?.geometry)
+  check('Observadores de Redo reciben un SceneGraph coherente',observed.some(o=>o.type==='mesh'&&o.meshBody)&&observed.every(o=>o.match&&(o.type!=='mesh'||o.meshBody)))
+ }finally{editor.refreshMaterials=refresh}
+ stage('preferences');Object.assign(store.prefs,{mouseSensitivity:1,mouseOrbit:1,mousePan:1,mouseZoom:1,flyLook:1});store.modal='prefs';app=createApp(PreferencesModal);app.config.errorHandler=e=>finish(e);app.component('ColorInput',ColorInput);app.mount('#app');await frame()
+ const q=selector=>document.querySelector(selector),search=q('input[aria-label="Buscar preferencias"]'),type=async text=>{search.value=text;search.dispatchEvent(new Event('input',{bubbles:true}));await frame()}
+ check('Configuración nativa con categorías',q('.prefs-nav')?.children.length===5)
+ check('Velocidad general disponible',!!q('[data-pref="mouseSensitivity"]'))
+ const range=q('[data-pref="mouseSensitivity"] input[type=range]');range.value='.5';range.dispatchEvent(new Event('input',{bubbles:true}));await frame();check('Sensibilidad inmediata en OrbitControls y vuelo',near(editor.vp.controls.rotateSpeed,.5)&&near(editor.vp.controls.panSpeed,.5)&&near(editor.vp.controls.zoomSpeed,.5)&&near(editor.vp._flyLook,.5))
+ check('Indicador de modificación',q('[data-pref="mouseSensitivity"]').classList.contains('modified'));await type('camara');check('Búsqueda global sin acentos',!!q('[data-pref="editorFov"]')&&!q('[data-pref="mouseSensitivity"]'));await type('velocidad general');check('Busca campo específico',!!q('[data-pref="mouseSensitivity"]')&&!q('[data-pref="mousePan"]'));q('[data-pref="mouseSensitivity"] .reset-one').click();await frame();check('Restablecer individual aplica valor original',store.prefs.mouseSensitivity===1&&near(editor.vp.controls.rotateSpeed,1));await type('');const header=q('[data-pref-section="mouse"] .section-head');header.click();await frame();check('Sección plegable',!q('[data-pref="mouseSensitivity"]'));header.click();await frame()
+ const aw=q('.aw');aw.style.width='340px';await frame();check('Ancho estrecho conserva acceso sin overflow',q('.prefs-content').scrollWidth<=q('.prefs-content').clientWidth+1&&!!q('[data-pref="mouseSensitivity"] input[type=range]'));check('Preferencias editoriales no modifican geometría',!editor.edit&&store.project.objects.find(o=>o.id==='cube').type==='mesh');S.cancelPendingAutosave();finish()
+}catch(e){finish(e)}finally{S?.cancelPendingAutosave?.();app?.unmount()}
+</script></body></html>

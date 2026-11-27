@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="es"><meta charset="utf-8"><title>QA Timeline Jerarquía DnD S04-G001</title>
+<style>
+  body { margin:0; background:#15171a; color:#dedede; font:12px sans-serif; }
+  .workspace { display:grid; grid-template-columns: 240px minmax(350px,1fr) 260px; gap:8px; height:610px; }
+  #tree, #timeline, #inspector { border:1px solid #4a4a4a; min-width:0; min-height:0; }
+  #inspector { container-type:inline-size; }
+  #timeline { height:550px; }
+  #timeline-result { position:absolute; visibility:hidden; }
+</style>
+<div class="workspace"><div id="tree"></div><div id="timeline"></div><div id="inspector"></div></div>
+<div id="menus"></div><pre id="timeline-result"></pre>
+<script type="module">
+import { createApp, h, nextTick } from 'vue'
+import SceneTree from '/src/components/SceneTree.vue'
+import TimelinePanel from '/src/components/TimelinePanel.vue'
+import InspectorDock from '/src/components/InspectorDock.vue'
+import ContextMenu from '/src/components/ContextMenu.vue'
+import { store, openTimelineEditor, resetHistory, undo, redo } from '/src/core/store.js'
+import { createProjectData } from '/src/core/project.js'
+import { makeObject } from '/src/engine/runtime/nodes/index.js'
+import { newTimeline } from '/src/core/timeline/model.js'
+
+const out=document.querySelector('#timeline-result'), apps=[], checks=[]
+function check(name, pass) { checks.push({name,pass:!!pass});if (!pass) throw new Error(name) }
+const tick=async()=>{ await nextTick(); await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))) }
+const mount=(component,id)=>{ const app=createApp(component); app.mount(id); apps.push(app) }
+const drag=(from, to, data=null)=>{
+  const dt=new DataTransfer()
+  if (data===null) from.dispatchEvent(new DragEvent('dragstart',{bubbles:true,cancelable:true,dataTransfer:dt}))
+  else dt.setData('application/x-lf-node',JSON.stringify(data))
+  to.dispatchEvent(new DragEvent('dragover',{bubbles:true,cancelable:true,dataTransfer:dt,clientX:320,clientY:390}))
+  to.dispatchEvent(new DragEvent('drop',{bubbles:true,cancelable:true,dataTransfer:dt,clientX:320,clientY:390}))
+  from?.dispatchEvent(new DragEvent('dragend',{bubbles:true,cancelable:true,dataTransfer:dt}))
+  return dt
+}
+const menuItem=(name)=>[...document.querySelectorAll('#menus [role="menuitem"]')].find(el=>el.querySelector('.lbl')?.textContent.trim()===name)
+const click=(el)=>el?.dispatchEvent(new MouseEvent('click',{bubbles:true,cancelable:true}))
+const tracks=()=>store.project.timelines[0].tracks
+const selection=()=>document.querySelector('#inspector .temporal-inspector')?.dataset.part
+try {
+  const p=createProjectData('QA Jerarquía Timeline','empty')
+  p.objects=[makeObject('node3d','node3d',{id:'qa-door',name:'Puerta',parentId:null,open:true,position:[1,2,3]})]
+  p.timelines=[newTimeline('QA Cinemática',{id:'qa-timeline',duration:8})]
+  store.project=p;store.locked=false
+  store.prefs.rightTab='object'; store.prefs.rightOpen=true
+  store.editor={ snapshotTerrain:()=>p.terrain, restoreTerrain(){},syncAll(){},syncEnvironment(){},setSelection(){},afterUndo(){} }
+  resetHistory()
+  mount(SceneTree,'#tree'); mount(TimelinePanel,'#timeline');mount(InspectorDock,'#inspector')
+  mount({render:()=>store.menu?h(ContextMenu):null},'#menus')
+  openTimelineEditor('qa-timeline'); await tick()
+  const treeNode=document.querySelector('#tree [role="treeitem"][data-id="qa-door"]')
+  const target=document.querySelector('#timeline .main')
+  check('Jerarquía muestra nodo real',!!treeNode)
+  check('Timeline abierto por ID',store.timelineId==='qa-timeline')
+  check('Superficie de drop presente',!!target)
+  const dt=drag(treeNode,target);await tick()
+  check('Payload exportado por Jerarquía',JSON.parse(dt.getData('application/x-lf-node'))[0]==='qa-door')
+  check('Selector de propiedades abierto',!!menuItem('Posición')&&!!menuItem('Rotación (°)')&&!!menuItem('Escala')&&!!menuItem('Visible'))
+  click(menuItem('Posición'));await tick()
+  check('Pista creada',tracks().length===1)
+  check('Referencia por ID',tracks()[0].node==='qa-door'&&tracks()[0].byId===true)
+  check('Propiedad posición',tracks()[0].prop==='position')
+  check('Inspector reconoce pista',selection()==='track')
+  check('Selector del Inspector resuelve nombre desde ID',!![...document.querySelectorAll('#inspector select option')].find(o=>o.value==='qa-door'&&o.textContent==='Puerta'))
+  check('Vista de pista renderizada',!!document.querySelector('#timeline .trow .head'))
+  const committedId=tracks()[0].id
+  drag(treeNode,target);await tick();click(menuItem('Posición'));await tick()
+  check('Drop duplicado no añade pista',tracks().length===1)
+  check('Se mantiene selección de pista existente',store.temporalSelection?.trackId===committedId)
+  store.project.objects[0].name='Puerta Renombrada';await tick()
+  check('Renombrar nodo no altera ID de pista',tracks()[0].node==='qa-door')
+  check('Inspector muestra nombre actual',!![...document.querySelectorAll('#inspector select option')].find(o=>o.value==='qa-door'&&o.textContent==='Puerta Renombrada'))
+  undo();await tick()
+  check('Undo elimina la pista creada',tracks().length===0)
+  redo();await tick()
+  check('Redo restaura pista referenciada por ID',tracks().length===1&&tracks()[0].node==='qa-door')
+  // Verificar que el ID de destino define el objeto, incluso si su nombre cambia.
+  drag(treeNode,target,['qa-door','otro']);await tick()
+  check('Drop múltiple no abre un menú nuevo',!menuItem('Posición'))
+  check('Drop múltiple no altera pistas',tracks().length===1)
+  document.querySelector('#inspector').style.width='260px'; await tick()
+  const inspector=document.querySelector('#inspector .temporal-inspector')
+  check('Inspector estrecho sin overflow horizontal',!!inspector&&inspector.scrollWidth<=inspector.clientWidth+2)
+  check('Timeline estrecho mantiene superficie de drop',!!document.querySelector('#timeline .main'))
+  out.dataset.pass='true';out.textContent=JSON.stringify({pass:true,checks})
+} catch(error) { out.dataset.pass='false';out.textContent=JSON.stringify({pass:false,checks,error:error.stack}) }
+finally {for (const app of apps) app.unmount()}
+</script></html>

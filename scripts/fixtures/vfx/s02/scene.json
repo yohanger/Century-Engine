@@ -1,0 +1,8 @@
+{
+  "id": "scene-vfx-a",
+  "objects": [
+    { "id": "vfx-a", "name": "Emisor A", "type": "vfx", "kind": "vfx", "parentId": "cup", "props": { "vfxId": "fx-smoke", "enabled": true, "seed": 101 }, "position": [0, 1, 0], "rotation": [0, 0, 0], "scale": [1, 1, 1] },
+    { "id": "vfx-b", "name": "Emisor B", "type": "vfx", "kind": "vfx", "parentId": null, "props": { "vfxId": "fx-smoke", "enabled": true, "seed": 202 }, "position": [2, 1, 0], "rotation": [0, 0, 0], "scale": [1, 1, 1] },
+    { "id": "cup", "name": "Taza", "type": "node3d", "parentId": null, "position": [0, 0, 0], "rotation": [0, 0, 0], "scale": [1, 1, 1] }
+  ]
+}

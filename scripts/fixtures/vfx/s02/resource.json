@@ -1,0 +1,81 @@
+{
+  "id": "fx-smoke",
+  "name": "Smoke.vfx",
+  "folder": "Assets",
+  "schemaVersion": 1,
+  "emission": {
+    "mode": "continuous",
+    "rate": 12,
+    "burstCount": 12,
+    "duration": 0,
+    "loop": true,
+    "capacity": 64
+  },
+  "birth": {
+    "shape": "point",
+    "box": [
+      1,
+      1,
+      1
+    ],
+    "radius": 0.25,
+    "lifetime": [
+      1.5,
+      3
+    ]
+  },
+  "movement": {
+    "speed": 0.3,
+    "spread": 0.12,
+    "acceleration": [
+      0,
+      0,
+      0
+    ],
+    "space": "local"
+  },
+  "appearance": {
+    "textureId": "tex-demo",
+    "color": "#ffffff",
+    "size": 0.15,
+    "opacity": 0.6,
+    "rotation": 0,
+    "blend": "alpha"
+  },
+  "evolution": {
+    "size": [
+      {
+        "t": 0,
+        "value": 0.5
+      },
+      {
+        "t": 1,
+        "value": 1.5
+      }
+    ],
+    "opacity": [
+      {
+        "t": 0,
+        "value": 0
+      },
+      {
+        "t": 0.2,
+        "value": 1
+      },
+      {
+        "t": 1,
+        "value": 0
+      }
+    ],
+    "color": [
+      {
+        "t": 0,
+        "color": "#ffffff"
+      },
+      {
+        "t": 1,
+        "color": "#ffffff"
+      }
+    ]
+  }
+}

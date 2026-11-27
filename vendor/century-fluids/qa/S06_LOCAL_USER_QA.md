@@ -1,0 +1,3 @@
+# S06 — QA local de Jolt WASM y aprobación (19-11-2026)
+
+El usuario ejecutó `python3 qa/verify_s06.py --project . --jolt` tras `npm ci` e instalación aislada de Jolt. Evidencia textual completa: `qa/S06_LOCAL_USER_WASM_QA.log`. Resultado: 80/80 pruebas Node PASS, consumidores JS/TS y Vite preparación PASS, benchmarks S02–S04 ejecutados, y 3/3 pruebas reales JoltPhysics.js 1.1.0 WASM PASS (`S06_JOLT_WASM_QA_PASS`). Mediciones: impulso de flotación 0.08175 N·s, ΔVy 0.011294197291135788 m/s, momento angular de contacto 0.345285 N·m·s y 12 ciclos de creación/step/destrucción. Convergencia tanque S04 sigue `iteration_limit`. El usuario declaró **«Aprobado S06»**. Se registra aprobación y cierre documental de S06; esto no acredita automáticamente WASM tras los cambios de S07.

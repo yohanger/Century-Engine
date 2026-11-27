@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="es">
+<meta charset="utf-8">
+<title>Century · nubes WebGL</title>
+<style>
+body{margin:0;padding:8px;background:#111821;color:#ebeff8;font:13px system-ui}
+#stage{position:absolute;left:-10000px;width:292px;height:184px}
+#samples{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:6px}
+figure{margin:0;background:#202939;border:1px solid #364359}
+canvas{display:block;width:100%;height:auto}
+figcaption{padding:4px 7px}
+#cloud-light-result{display:none}
+</style>
+<strong>Century · horizonte e iluminación WebGL</strong>
+<div id="stage"></div><section id="samples"></section><pre id="cloud-light-result"></pre>
+<script type="module">
+import * as THREE from 'three'
+import { World } from '/src/engine/runtime/world/world.js'
+import { Viewport } from '/src/engine/runtime/render/viewport.js'
+import { presetOf } from '/src/engine/runtime/render/config.js'
+
+const out = document.getElementById('cloud-light-result'), checks = [], errors = []
+const check = (name, pass, details) => {
+  checks.push({ name, pass: !!pass, details })
+  if (!pass) throw Error(name)
+}
+let vp
+try {
+  vp = new Viewport(document.getElementById('stage'))
+  vp.renderer.debug.onShaderError = (gl, program, vs, fs) => {
+    errors.push([gl.getProgramInfoLog(program), gl.getShaderInfoLog(vs), gl.getShaderInfoLog(fs)].join('\n'))
+  }
+  vp.renderer.setPixelRatio(1)
+  vp.setRender({ ...presetOf('realista'), autoExposure: false })
+  vp.grid.visible = false
+  const camera = vp.persp
+  camera.position.set(0, 5, 0)
+  vp.camera = camera
+  const env = {
+    skyMode: 'physical', skyTop: '#568bce', skyHorizon: '#b2cce5', ground: '#252f25', ambient: 0.58, ambientColor: '#b8cde5',
+    lightingMode: 'cycle', time: { hour: 0, latitude: 40, season: 'summer' },
+    weather: { on: true, cloudModel: 'classic', cloudSeed: 73, preset: 'clear', lightning: false },
+  }
+  const world = new World().configure(env)
+  vp.setEnvironment(env)
+  vp.windWorld = world
+  const ground = new THREE.Mesh(new THREE.PlaneGeometry(4000, 4000), new THREE.MeshStandardMaterial({ color: '#353f3b', roughness: 0.5, metalness: 0.25 }))
+  ground.rotation.x = -Math.PI / 2
+  vp.scene.add(ground)
+  const light = new THREE.DirectionalLight()
+  vp.scene.add(light)
+  const u = vp.skyMat.uniforms
+  const set = (hour, weather, yaw = 0) => {
+    world.setHour(hour)
+    world.setWeather(weather, 1)
+    vp.setWorld(world.frame())
+    const f = world.frame()
+    light.position.set(...f.keyDir).multiplyScalar(100)
+    light.color.setRGB(...f.keyColor)
+    light.intensity = 3 * f.keyMul
+    const dir = f.night > 0.5 ? f.moonDir : f.sunDir
+    const aim = new THREE.Vector3(dir[0], Math.min(dir[1], 0.32), dir[2]).normalize()
+    aim.applyAxisAngle(camera.up, yaw)
+    camera.lookAt(camera.position.clone().addScaledVector(aim, 100))
+    camera.updateMatrixWorld()
+    vp.sky.position.copy(camera.position)
+    u.uCamY.value = camera.position.y
+    u.uCamXZ.value.set(camera.position.x, camera.position.z)
+    clearTimeout(vp._bakeT)
+    vp._bakeEnv()
+    return f
+  }
+  const capture = (label = '') => {
+    // Esta fixture llama al composer directamente; Viewport.draw publica este presupuesto en el juego.
+    u.uCloudSteps.value = vp.look.profile === 'alto' ? 56 : vp.look.profile === 'medio' ? 36 : 24
+    vp.look.render(0)
+    const gl = vp.renderer.getContext(), { width, height } = vp.renderer.domElement
+    const pixels = new Uint8Array(width * height * 4)
+    gl.readPixels(0, 0, width, height, gl.RGBA, gl.UNSIGNED_BYTE, pixels)
+    if (label) {
+      const canvas = document.createElement('canvas')
+      canvas.width = width
+      canvas.height = height
+      const ctx = canvas.getContext('2d'), data = ctx.createImageData(width, height)
+      for (let y = 0; y < height; y++) data.data.set(pixels.subarray((height - 1 - y) * width * 4, (height - y) * width * 4), y * width * 4)
+      ctx.putImageData(data, 0, 0)
+      const figure = document.createElement('figure'), caption = document.createElement('figcaption')
+      caption.textContent = label
+      figure.append(canvas, caption)
+      document.querySelector('#samples').append(figure)
+    }
+    return pixels
+  }
+  const luma = (pixels) => {
+    let sum = 0
+    for (let i = 0; i < pixels.length; i += 4) sum += pixels[i] + pixels[i + 1] + pixels[i + 2]
+    return sum / (pixels.length * 0.75)
+  }
+  const delta = (a, b) => {
+    let sum = 0
+    for (let i = 0; i < a.length; i += 4) sum += Math.abs(a[i] - b[i]) + Math.abs(a[i + 1] - b[i + 1]) + Math.abs(a[i + 2] - b[i + 2])
+    return sum / (a.length * 0.75)
+  }
+  set(11, 'partly', 1.08)
+  const day = capture('Día · parcialmente nublado')
+  set(0, 'clear')
+  const night = capture('Medianoche · despejado')
+  check('la noche física es más oscura que el día', luma(night) < luma(day) * 0.55, { day: luma(day), night: luma(night) })
+  const moon = set(0, 'cloudy')
+  const cloudyMoonLight = moon.moonMul
+  const cloudyNight = capture('Medianoche · nublado')
+  check('luna por encima de la cubierta, y luz atenuada al nivel de la cámara', moon.moonVis > 0 && moon.moonMul > 0 && moon.moonMul < moon.moonCloudMul)
+  const moonVis = u.uMoonVis.value, moonColor = u.uMoonColor.value.clone()
+  u.uMoonVis.value = 0
+  const lit = capture()
+  u.uMoonColor.value.setRGB(0, 0, 0)
+  const unlit = capture()
+  u.uMoonColor.value.copy(moonColor)
+  u.uMoonVis.value = moonVis
+  check('la luz lunar ilumina el volumen incluso con el disco retirado', delta(lit, unlit) > 0.1, { pixelDelta: delta(lit, unlit) })
+  const rainyNight = set(0, 'rain')
+  const rainyImage = capture('Medianoche · lluvia')
+  const { width, height } = vp.renderer.domElement
+  const floorLight = (pixels) => luma(pixels.subarray(0, width * Math.floor(height * 0.13) * 4))
+  const groundLight = [night, cloudyNight, rainyImage].map(floorLight)
+  check('el reflejo del suelo se atenúa con nubes y lluvia', groundLight[0] > groundLight[1] && groundLight[1] > groundLight[2], groundLight)
+  const fog = vp._fogState
+  check('la lluvia tiene bruma baja y reduce la luz lunar directa', fog.physical && fog.weatherHaze
+    && fog.sunDir.every((axis, i) => axis === rainyNight.moonDir[i]) && rainyNight.moonMul < cloudyMoonLight,
+    { physical: fog.physical, rainy: rainyNight.moonMul, cloudy: cloudyMoonLight })
+  set(7, 'cloudy')
+  capture('Mañana · haces entre nubes')
+  check('el pase de haces usa el cielo con nubes', vp.look.atmoPass?.shaftMat.uniforms.uCloudShaftMask.value === true && vp.look.atmoPass.state.shaft > 0,
+    { shaft: vp.look.atmoPass?.state.shaft, received: vp._fogState.sunIntensity })
+  world.configure({ ...env, weather: { ...env.weather, cloudModel: 'cells' } })
+  const cells = set(11, 'cloudy', 0.75)
+  capture('Día · nubes por celdas')
+  check('el volumen usa el condensado del campo por celdas', cells.clouds.cells && u.uCCells.value === 1
+    && u.uCVolume.value?.isData3DTexture && u.uCVolume.value.image.data === cells.clouds.map.volume.data)
+  check('reflejo ambiental hecho con el mismo cielo', vp.scene.environment === vp._envRT.texture)
+
+  // LF-CLOUD-STORM-S00-G001: el mismo fixture WebGL de nubes, sin otro renderer.
+  const approaching = { ...env, weather: { ...env.weather, cloudModel: 'classic', preset: 'partly', lightning: true,
+    lightningModel: 'physical', maxStrikes: 0, director: false } }
+  world.configure(approaching)
+  world.setObserver(0, 5, 0)
+  world.setWeather('storm', 1, 20)
+  world.update(10, { clock: false })
+  const arrival = world.frame()
+  vp.setWorld(arrival)
+  check('frente de tormenta conectado a World durante la aproximación', u.uStormFront.value.w > 0.5
+    && u.uStormFront.value.z > 0.45 && u.uStormFront.value.z < 0.55, { front: u.uStormFront.value.toArray() })
+  camera.lookAt(0, 1250, 2800)
+  camera.updateMatrixWorld()
+  vp.sky.position.copy(camera.position)
+  u.uCamY.value = camera.position.y
+  u.uCamXZ.value.set(camera.position.x, camera.position.z)
+  capture('Transición · tormenta acercándose')
+  world.setWeather('storm', 1, 0)
+  world.strike(950, 0)
+  const lightningFrame = world.frame()
+  vp.setWorld(lightningFrame)
+  check('la nube recibe la fuente real de LightningFX', u.uLightningEnergy.value > 0.001
+    && Math.abs(u.uLightningCloud.value.x - lightningFrame.strike.cloud[0]) < 0.001
+    && Math.abs(u.uLightningCloud.value.z - lightningFrame.strike.cloud[2]) < 0.001,
+    { id: lightningFrame.strike.id, source: u.uLightningCloud.value.toArray() })
+  camera.lookAt(...lightningFrame.strike.cloud)
+  camera.updateMatrixWorld()
+  vp.sky.position.copy(camera.position)
+  u.uFlash.value = 0 // A/B exclusivamente del scattering volumétrico
+  const lightOn = capture('Descarga · nube iluminada desde dentro')
+  const flashIntensity = u.uLightningEnergy.value
+  u.uLightningEnergy.value = 0
+  const lightOff = capture('Misma nube · sin iluminación interna')
+  const flashDelta = delta(lightOn, lightOff)
+  u.uLightningEnergy.value = flashIntensity
+  check('la descarga cambia los píxeles del mismo volumen sin crear planos', flashDelta > 0.015,
+    { pixelDelta: flashDelta })
+  world.update(1, { clock: false })
+  vp.setWorld(world.frame())
+  check('el brillo termina al terminar la corriente', u.uLightningEnergy.value === 0)
+
+  vp.setWorld(null)
+  vp.setEnvironment({
+    ...env, lightingMode: 'manual', skyMode: 'gradient', skyTop: '#426b9a', skyHorizon: '#7b9fbd',
+    sunElevation: 32, cloudsOn: true, cloudsCoverage: 1, cloudsDensity: 1.4, cloudsType: 0.5,
+    cloudsAltitude: 900, cloudsThickness: 1000, cloudsErosion: 0.35,
+  })
+  ground.visible = false
+  const aimAtHorizon = (height, elevation, fov = 2) => {
+    camera.position.y = height
+    camera.lookAt(0, height + elevation * 100, -100)
+    camera.updateMatrixWorld()
+    vp.sky.position.copy(camera.position)
+    u.uCamY.value = height
+    camera.fov = fov
+    camera.updateProjectionMatrix()
+  }
+  const cloudEffect = () => {
+    const withClouds = capture()
+    u.uClouds.value = 0
+    const withoutClouds = capture()
+    u.uClouds.value = 1
+    return delta(withClouds, withoutClouds)
+  }
+  aimAtHorizon(5, 0)
+  const tangent = cloudEffect()
+  check('la capa horizontal queda fuera del alcance de 28 km con radio terrestre', u.uCCells.value === 0 && tangent < 0.02, { pixelDelta: tangent })
+  aimAtHorizon(5, 0.12)
+  const upward = cloudEffect()
+  check('la capa clásica es visible al mirar hacia su altura', upward > 0.3, { pixelDelta: upward })
+  aimAtHorizon(5, -0.08)
+  const under = cloudEffect()
+  check('el horizonte oculta la capa cuando el rayo entra en el suelo', under < 0.02, { pixelDelta: under })
+  aimAtHorizon(2300, -0.005)
+  const above = cloudEffect()
+  check('desde arriba la capa se despega de una mirada casi tangente', above < 0.02, { pixelDelta: above })
+  aimAtHorizon(2300, -0.30)
+  const lookingDown = cloudEffect()
+  check('desde arriba se ve el volumen al bajar la mirada', lookingDown > 0.3, { pixelDelta: lookingDown })
+
+  u.uCovg.value = 0.50
+  aimAtHorizon(5, 0.12, 62)
+  capture('A ras de suelo · nubes vistas desde abajo')
+  aimAtHorizon(6000, -0.75, 84)
+  const aerialClouds = capture('Vista aérea · nubes sobre el horizonte curvo')
+  u.uClouds.value = 0
+  const aerialGround = capture('Vista aérea · contorno del planeta')
+  const samples = document.querySelector('#samples')
+  samples.prepend(...Array.from(samples.children).slice(-3))
+  const rgbAt = (pixels, x, y) => luma(pixels.subarray(4 * (y * width + x), 4 * (y * width + x + 1)))
+  const mid = width >> 1
+  // Buscar el horizonte real: el radio terrestre ya no coloca el arco a una fila fija.
+  let row=0,center=0,left=0,right=0,best=-Infinity
+  for(let y=0;y<height;y++) {
+    const c=rgbAt(aerialGround,mid,y),l=rgbAt(aerialGround,Math.round(width*.05),y),r=rgbAt(aerialGround,Math.round(width*.95),y)
+    const contrast=Math.min(l-c,r-c)
+    if(contrast>best){best=contrast;row=y;center=c;left=l;right=r}
+  }
+  check('a gran altura, el arco del planeta sobresale entre sus extremos', left - center > 8 && right - center > 8,
+    { center, left, right })
+  const aerialDelta = delta(aerialClouds, aerialGround)
+  check('el volumen nuboso dibuja un primer plano sobre el planeta', aerialDelta > 0.5, { pixelDelta: aerialDelta })
+
+  check('sin errores de compilación GLSL', errors.length === 0, errors)
+  const gl = vp.renderer.getContext()
+  check('WebGL2 sin errores GPU', vp.renderer.capabilities.isWebGL2 && gl.getError() === gl.NO_ERROR)
+  out.dataset.pass = 'true'
+  out.textContent = JSON.stringify({ pass: true, gl: gl.getParameter(gl.VERSION), checks })
+} catch (error) {
+  out.dataset.pass = 'false'
+  out.textContent = JSON.stringify({ pass: false, error: String(error.stack || error), errors, checks })
+} finally {
+  vp?.dispose()
+}
+</script>
+</html>

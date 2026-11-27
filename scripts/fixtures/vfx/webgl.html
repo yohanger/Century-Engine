@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="es">
+<head><meta charset="UTF-8"><title>LF-VFX-S02-G001 · QA WebGL</title></head>
+<body>
+  <pre id="vfx-result">Prueba WebGL en ejecución...</pre>
+  <script type="module">
+    import * as THREE from 'three'
+    import { newVfxResource, validateVfxResource } from '/src/engine/runtime/vfx/resource.js'
+    import { VfxSimulation } from '/src/engine/runtime/vfx/simulation.js'
+    import { VfxBillboardRenderer } from '/src/engine/runtime/vfx/render.js'
+
+    const output = document.getElementById('vfx-result')
+    const checks = []
+    const check = (label, condition, data = '') => {
+      checks.push({ label, pass: !!condition, data })
+      if (!condition) throw new Error(`${label}: ${data}`)
+    }
+    const pixel = (renderer) => {
+      const bytes = new Uint8Array(4)
+      renderer.getContext().readPixels(48, 48, 1, 1, renderer.getContext().RGBA, renderer.getContext().UNSIGNED_BYTE, bytes)
+      return [...bytes]
+    }
+    const resource = (blend = 'alpha', textureId = '') => {
+      const r = newVfxResource('webgl-effect', 'Render.vfx')
+      return validateVfxResource({ ...r,
+        emission: { mode: 'burst', rate: 0, burstCount: 1, duration: 0, loop: false, capacity: 4 },
+        birth: { ...r.birth, lifetime: [5, 5] },
+        movement: { ...r.movement, speed: 0, spread: 0 },
+        appearance: { ...r.appearance, size: 1.5, opacity: 1, blend, textureId },
+        evolution: { ...r.evolution, opacity: [{ t: 0, value: 1 }, { t: 1, value: 1 }], size: [{ t: 0, value: 1 }, { t: 1, value: 1 }] },
+      })
+    }
+    try {
+      const renderer = new THREE.WebGLRenderer({ antialias: false, alpha: false, preserveDrawingBuffer: true })
+      renderer.setSize(96, 96)
+      renderer.setPixelRatio(1)
+      renderer.setClearColor(0x000000, 1)
+      renderer.toneMapping = THREE.NoToneMapping
+      renderer.outputColorSpace = THREE.SRGBColorSpace
+      const scene = new THREE.Scene()
+      const perspective = new THREE.PerspectiveCamera(60, 1, 0.1, 100)
+      perspective.position.set(0, 0, 3); perspective.lookAt(0, 0, 0)
+      const orthographic = new THREE.OrthographicCamera(-1.5, 1.5, 1.5, -1.5, 0.1, 100)
+      orthographic.position.set(0, 0, 3); orthographic.lookAt(0, 0, 0)
+      const sim = new VfxSimulation(resource(), { seed: 7 })
+      sim.step()
+      const view = new VfxBillboardRenderer(sim)
+      scene.add(view.mesh)
+      for (const camera of [perspective, orthographic]) {
+        view.sync(camera)
+        renderer.render(scene, camera)
+        const rgba = pixel(renderer)
+        check(`billboard visible / ${camera.type}`, rgba[0] > 60 && rgba[1] > 60 && rgba[2] > 60, rgba)
+        check('un draw call para el emisor', renderer.info.render.calls === 1, renderer.info.render.calls)
+      }
+      check('ruta sin textura compilada sin sampler', !view.material.defines.VFX_HAS_MAP)
+      renderer.setClearColor(0xffffff, 1)
+      renderer.render(scene, perspective)
+      const corner = new Uint8Array(4)
+      renderer.getContext().readPixels(3, 3, 1, 1, renderer.getContext().RGBA, renderer.getContext().UNSIGNED_BYTE, corner)
+      check('quad sin textura no dibuja rectángulo opaco negro', corner[0] > 220 && corner[1] > 220 && corner[2] > 220, [...corner])
+      renderer.setClearColor(0x000000, 1)
+      const wall = new THREE.Mesh(new THREE.PlaneGeometry(4, 4), new THREE.MeshBasicMaterial({ color: 0xff0000 }))
+      wall.position.z = 1
+      scene.add(wall)
+      renderer.render(scene, perspective)
+      const occluded = pixel(renderer)
+      check('prueba de profundidad con objeto delante', occluded[0] > 160 && occluded[1] < 30 && occluded[2] < 30, occluded)
+      scene.remove(wall); wall.geometry.dispose(); wall.material.dispose()
+      check('alpha sin escritura de profundidad', view.material.transparent && view.material.depthTest && !view.material.depthWrite)
+      check('instancing real', view.geometry.isInstancedBufferGeometry && view.geometry.instanceCount === 1)
+      view.dispose()
+      check('liberación elimina malla', !view.mesh.parent)
+
+      let missing = false
+      try { new VfxBillboardRenderer(new VfxSimulation(resource('alpha', 'texture-01'))) }
+      catch (error) { missing = /textura ausente/.test(error.message) }
+      check('textura referenciada sin cargar genera diagnóstico', missing)
+      const sharedTexture = new THREE.DataTexture(new Uint8Array([0, 255, 0, 255]), 1, 1, THREE.RGBAFormat)
+      sharedTexture.colorSpace = THREE.SRGBColorSpace
+      sharedTexture.needsUpdate = true
+      let disposedShared = 0
+      sharedTexture.addEventListener('dispose', () => disposedShared++)
+      const textured = new VfxSimulation(resource('alpha', 'texture-01'))
+      textured.step()
+      const textView = new VfxBillboardRenderer(textured, { texture: sharedTexture })
+      scene.add(textView.mesh)
+      textView.sync(perspective)
+      renderer.render(scene, perspective)
+      const green = pixel(renderer)
+      check('textura real sobre quad', green[1] > 80 && green[0] < 40 && green[2] < 40, green)
+      textView.dispose()
+      check('textura compartida no se libera con emisor', disposedShared === 0)
+      sharedTexture.dispose()
+
+      const additiveSim = new VfxSimulation(resource('additive'))
+      additiveSim.step()
+      const additive = new VfxBillboardRenderer(additiveSim)
+      scene.add(additive.mesh)
+      additive.sync(perspective)
+      renderer.render(scene, perspective)
+      const addPixel = pixel(renderer)
+      check('mezcla aditiva produce píxeles visibles', additive.material.blending === THREE.AdditiveBlending && addPixel[0] > 60, addPixel)
+      additive.dispose()
+      renderer.dispose()
+      output.dataset.pass = 'true'
+      output.textContent = JSON.stringify({ pass: true, gl: renderer.getContext().getParameter(renderer.getContext().VERSION), checks }, null, 2)
+    } catch (error) {
+      output.dataset.pass = 'false'
+      output.textContent = JSON.stringify({ pass: false, checks, error: error.stack || String(error) }, null, 2)
+    }
+  </script>
+</body>
+</html>

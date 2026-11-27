@@ -1,0 +1,57 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Vertex Workflow G001 Electron</title></head>
+<body style="background:#171b22;color:#ddd;font:13px sans-serif"><pre id="vertex-workflow-corr-g001-result">Cargando…</pre><div id="mesh-panel" style="width:350px;height:540px;overflow:auto"></div>
+<script type="module">
+import * as THREE from 'three'
+import {createApp,nextTick} from 'vue'
+import MeshPanel from '/src/components/MeshPanel.vue'
+import {EditSession} from '/src/core/mesh/session.js'
+import {make} from '/src/engine/runtime/mesh/generators.js'
+import {Sel} from '/src/core/mesh/sel.js'
+import {store} from '/src/core/store.js'
+import '/src/styles.css'
+const out=document.getElementById('vertex-workflow-corr-g001-result'),checks=[]
+function check(name,pass,detail=''){checks.push({name,pass:!!pass,detail});if(!pass)throw Error(name+': '+detail)}
+let app,renderer
+try{
+ renderer=new THREE.WebGLRenderer({antialias:false});renderer.setSize(700,500)
+ check('WebGL2 embebido de Electron',renderer.capabilities.isWebGL2)
+ const scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(60,700/500,.1,100)
+ camera.position.set(5,6,9);camera.lookAt(0,0,0);camera.updateMatrixWorld()
+ const parent=new THREE.Group();parent.position.set(2,0,-3);parent.rotation.y=Math.PI/4;scene.add(parent)
+ const visual=new THREE.Group();parent.add(visual);scene.updateMatrixWorld(true)
+ store.space='local';store.project={id:'vertex-fixture',objects:[{id:'v',name:'Vértice',type:'mesh',kind:'vertex',props:{mesh:{}},position:[0,0,0],rotation:[0,0,0],scale:[1,1,1]}],settings:{moveSnapOn:true,gridSize:1},meshes:[],assets:[],materials:[],environment:{},terrain:{},profiles:[]}
+ store.edit.id='v';store.edit.on=true;store.edit.mode='vertex';store.edit.vertexDraw=true;store.edit.vertexPlane='XZ';store.edit.count={v:1,e:0,f:0,sv:1,se:0,sf:0}
+ const session=Object.create(EditSession.prototype)
+ session.poly=make('vertex');session.sel=new Sel();session.sel.v.add(0);session.mode='vertex';session.visual=visual;session.vp={camera,isNavigating:false,requestRender(){}};session.dom=renderer.domElement;session.rc=new THREE.Raycaster();session.modal=null;session.paintStroke=null;session._shiftSnapHeld=false
+ const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.BufferAttribute(new Float32Array(18),3))
+ session.preview=new THREE.LineSegments(geo,new THREE.LineBasicMaterial({color:'gold'}));visual.add(session.preview)
+ session.run=(label,fn)=>{session._commits=(session._commits||0)+1;const result=fn(session.poly,session.sel,session.mode);return result||true}
+ store.editor={edit:session}
+ app=createApp(MeshPanel);app.mount('#mesh-panel');await nextTick()
+ check('MeshPanel existe en Vue',!!document.querySelector('[data-testid="mesh-vertex-draw"]'))
+ check('selector de planos XZ/XY/YZ visible', [...document.querySelectorAll('[aria-label="Plano para colocar vértices"] button')].map(x=>x.textContent.trim()).join(',')==='XZ,XY,YZ')
+ check('plano XZ seleccionado por defecto',store.edit.vertexPlane==='XZ')
+ const xy=[...document.querySelectorAll('[aria-label="Plano para colocar vértices"] button')].find(x=>x.textContent.trim()==='XY')
+ xy.click();await nextTick();check('Vue cambia a XY sin modificar la malla',store.edit.vertexPlane==='XY'&&session.poly.v.length===1)
+ store.space='world';session._ray=()=>new THREE.Ray(new THREE.Vector3(4,3,9),new THREE.Vector3(0,0,-1))
+ const selected=session._vertexPlacement(0,0)
+ check('Three intersecta el plano vertical XY',!!selected)
+ check('proyección XY preserva profundidad del vértice activo',Math.abs(selected.local.clone().applyMatrix4(visual.matrixWorld).z+3)<1e-6)
+ check('selección conserva vértice inicial',session.sel.v.has(0))
+ session._previewVertexFromScreen(0,0)
+ check('previsualización dibujada con overlay existente',session.preview.visible&&geo.getAttribute('position').count===6)
+ check('previsualizar no crea caras ni aristas',session.poly.v.length===1&&session.poly.we.length===0&&session.poly.f.length===0)
+ const before=session._commits||0;session._placeVertexFromScreen(0,0)
+ check('confirmación crea vértice y arista reales',session.poly.v.length===2&&session.poly.we.length===1&&session.poly.f.length===0)
+ check('una confirmación equivale a un historial',session._commits===before+1)
+ check('preview se oculta tras confirmar',!session.preview.visible)
+ const xz=[...document.querySelectorAll('[aria-label="Plano para colocar vértices"] button')].find(x=>x.textContent.trim()==='XZ')
+ xz.click();await nextTick();check('cambio de plano mantiene la topología',store.edit.vertexPlane==='XZ'&&session.poly.v.length===2)
+ store.space='local';session._ray=()=>new THREE.Ray(new THREE.Vector3(4,10,3),new THREE.Vector3(0,-1,0))
+ const local=session._vertexPlacement(0,0)
+ check('plano local XZ funciona bajo padre rotado',local!==null&&Math.abs(local.local.y-session.poly.v[1][1])<1e-6)
+ session._hideVertexPreview();scene.updateMatrixWorld(true);renderer.render(scene,camera)
+ check('WebGL sin errores después del trazado',renderer.getContext().getError()===renderer.getContext().NO_ERROR)
+ out.dataset.pass='true';out.textContent=JSON.stringify({pass:true,gl:renderer.getContext().getParameter(renderer.getContext().VERSION),checks},null,2)
+}catch(e){out.dataset.pass='false';out.textContent=JSON.stringify({pass:false,error:String(e?.stack||e),checks},null,2)}finally{app?.unmount();renderer?.dispose()}
+</script></body></html>

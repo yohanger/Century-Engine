@@ -1,0 +1,35 @@
+flowchart TB
+  subgraph AUTHOR[Autoría existente — autoridad única]
+    M[Mesh / MeshRef / SceneGraph]
+    A[Assets / modelos / texturas]
+    C[project.render y opciones explícitas]
+  end
+  subgraph PREP[Editor / Build — previsto, no implementado]
+    P[ResourcePreparation — rol FUTURO]
+    D[(Derivados versionados — formato PENDIENTE)]
+  end
+  subgraph PLAY[Editor Play y NGM Runtime — sistemas reales]
+    O[OptimizationOrchestrator — rol PROPUESTO]
+    L[LodManager + lodgeo + terrain LOD]
+    V[Frustum / distancia / Foliage]
+    B[StaticBatcher opt-in]
+    T[LookPipeline / upscale / AO]
+    S[PerfMonitor / Stats]
+  end
+  M -.datos para derivar.-> P
+  A -.datos para derivar.-> P
+  P -.preparación futura.-> D
+  D -.selección futura.-> L
+  C --> L
+  C --> T
+  O -.solicita presupuestos.-> L
+  O -.solicita políticas.-> V
+  O -.solicita elegibilidad.-> B
+  O -.propuesta futura limitada.-> T
+  L --> V
+  L --> B
+  S -.telemetría, no autoridad.-> O
+  L --> R[Three.js renderer existente]
+  V --> R
+  B --> R
+  T --> R

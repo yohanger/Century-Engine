@@ -1,0 +1,80 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Century S06 CORR-001 · CodeMirror y geometría</title></head><body>
+<pre id="script-jsdoc-corr001-result">Ejecutando…</pre><div id="script-jsdoc-corr001-qa"></div>
+<script type="module">
+import { createApp, nextTick } from 'vue'
+import { EditorState } from '@codemirror/state'
+import { EditorView } from '@codemirror/view'
+import '/src/styles.css'
+import ScriptEditor from '/src/components/ScriptEditor.vue'
+import { typedSource, CONTEXTS } from '/src/core/editor/jsintel.js'
+import { store } from '/src/core/store.js'
+import { createProjectData } from '/src/core/project.js'
+import { floatDockPanel } from '/src/core/editor/docking.js'
+const output=document.querySelector('#script-jsdoc-corr001-result'),checks=[]
+const check=(name,pass,detail='')=>{ checks.push({name,pass:!!pass,detail});if(!pass)throw new Error(name+': '+detail) }
+const tick=async()=>{await nextTick();await new Promise(requestAnimationFrame);await nextTick()}
+const before={project:store.project,modal:store.modal,id:store.scriptEditId,mode:store.ui.mode,layout:store.prefs.dockLayout}
+const first='\nconst objetivo = game.node("Puerta");\nobjetivo.'
+const second='function start() {\n  game.log("Segundo");\n}'
+let app
+try {
+  store.ui.mode='desktop'
+  store.project=createProjectData('S06 CORR-001')
+  store.project.scripts=[{id:'script-a',folder:'Assets',name:'Uno.js',code:first,execution:'global'},
+    {id:'script-b',folder:'Assets',name:'Dos.js',code:second,execution:'node'}]
+  store.modal='script';store.scriptEditId='script-a'
+  store.prefs.dockLayout=floatDockPanel(store.prefs.dockLayout,'scriptEditor',{x:25,y:45,w:660,h:460})
+  app=createApp(ScriptEditor);app.mount('#script-jsdoc-corr001-qa');await tick()
+  const frame=document.querySelector('.floating-editor-window')
+  const cm=document.querySelector('.cm-editor')
+  const view=EditorView.findFromDOM(cm)
+  check('CORR-E01 Script Editor y CodeMirror reales montados',!!frame && !!cm && !!view)
+  check('CORR-E02 contenido original coincide con script activo',view.state.doc.toString()===first)
+  // El contrato CORR-002 sustituye el autocierre del inputHandler por entrada DOM normal.
+  // El texto escrito tiene que existir exactamente una vez en CodeMirror.
+  view.dispatch({selection:{anchor:0}})
+  async function type(character) {
+    view.focus()
+    const accepted=document.execCommand('insertText',false,character)
+    if(!accepted) throw new Error('Chromium no aceptó la pulsación de '+JSON.stringify(character))
+    await tick()
+  }
+  for(const c of ['/', '*', '*', '/']) await type(c)
+  const edited=view.state.doc.toString()
+  check('CORR-E03 escritura secuencial genera un comentario vacío cerrado',edited==='/**/'+first,JSON.stringify(edited.slice(0,18)))
+  check('CORR-E04 código posterior permanece intacto en CodeMirror y store',edited.slice(4)===first && store.project.scripts[0].code===edited)
+  check('CORR-E05 código posterior continúa visible',document.querySelector('.cm-content')?.textContent.includes('objetivo.'))
+  const complete=(doc)=>typedSource({roots:CONTEXTS.script})({state:EditorState.create({doc}),pos:doc.length,explicit:true})?.options?.map(o=>o.label)||[]
+  check('CORR-E06 IntelliSense funciona después de /**/',complete(edited).length>15,JSON.stringify(complete(edited).slice(0,5)))
+  view.dispatch({changes:{from:0,to:4,insert:''}});await tick()
+  check('CORR-E07 borrar el comentario restaura código idéntico',view.state.doc.toString()===first && store.project.scripts[0].code===first)
+  // Verificar el estado de la ventana mientras cambia el documento.
+  const normalRect=frame.getBoundingClientRect()
+  frame.querySelector('[aria-label="Maximize window"]')?.click();await tick()
+  check('CORR-E08 ventana maximizada',frame.classList.contains('maximized'))
+  const maximizedRect=frame.getBoundingClientRect()
+  const rowB=[...document.querySelectorAll('.se-file')].find(el=>el.textContent.includes('Dos.js'))
+  rowB?.click();await tick()
+  check('CORR-E09 cambiar recurso actualiza el documento',store.scriptEditId==='script-b' && view.state.doc.toString()===second)
+  check('CORR-E10 no se desmontan ni CodeMirror ni el marco',document.querySelector('.cm-editor')===cm && document.querySelector('.floating-editor-window')===frame)
+  check('CORR-E11 se conserva maximizado y geometría',frame.classList.contains('maximized') &&
+    Math.abs(frame.getBoundingClientRect().width-maximizedRect.width)<1 && Math.abs(frame.getBoundingClientRect().height-maximizedRect.height)<1)
+  check('CORR-E12 cambiar script no modifica dimensiones del Editor',frame.getBoundingClientRect().top===maximizedRect.top)
+  view.dispatch({changes:{from:view.state.doc.length,insert:'\n// Cambio local'}});await tick()
+  check('CORR-E13 cambio de documento va al script correcto',store.project.scripts[1].code.endsWith('// Cambio local') && store.project.scripts[0].code===first)
+  const rowA=[...document.querySelectorAll('.se-file')].find(el=>el.textContent.includes('Uno.js'))
+  rowA?.click();await tick()
+  check('CORR-E14 cambio de vuelta recupera texto anterior',view.state.doc.toString()===first)
+  rowB?.click();await tick()
+  check('CORR-E15 cambios sin guardar sobreviven navegación',view.state.doc.toString()===second+'\n// Cambio local')
+  frame.querySelector('[aria-label="Restore window"]')?.click();await tick()
+  const restored=frame.getBoundingClientRect()
+  check('CORR-E16 restaurar recupera geometría flotante',!frame.classList.contains('maximized') &&
+    Math.abs(restored.width-normalRect.width)<2 && Math.abs(restored.height-normalRect.height)<2,
+    `restaurada=${restored.width}x${restored.height}; antes=${normalRect.width}x${normalRect.height}`)
+  check('CORR-E17 mantiene único editor durante el ciclo',document.querySelectorAll('.edwin.se .cm-editor').length===1)
+  check('CORR-E18 sigue sin introducir un viewport 3D en CodeMirror',![...document.querySelectorAll('.edwin.se canvas')].some(x=>!x.closest('.cm-editor')))
+  output.dataset.pass='true';output.textContent=JSON.stringify({pass:true,gl:'DOM CodeMirror en Electron, sin GPU ni QA visual manual',checks},null,2)
+} catch(e) {output.dataset.pass='false';output.textContent=JSON.stringify({pass:false,checks,error:String(e?.stack||e)},null,2)}
+finally {app?.unmount();store.project=before.project;store.modal=before.modal;store.scriptEditId=before.id;store.ui.mode=before.mode;store.prefs.dockLayout=before.layout}
+</script></body></html>

@@ -1,0 +1,7 @@
+# Inspector profesional de materiales importados
+
+Gate ratificado y autorizado por el usuario: `CENTURY-ENGINE-MATERIALS-S01-G001-CORR-001-PROFESSIONAL-MATERIAL-INSPECTOR-UX`. Baseline acumulativo de Jerarquía: 3875 archivos cotejados sin diferencias con la copia anterior. El Gate de materiales fue aprobado por el usuario; Jerarquía no tiene aprobación explícita. Cambios externos no verificables.
+
+- Extender MaterialSection únicamente para slots de modelo: encabezado único plegable, esfera representativa con color y textura Albedo de Assets si disponible, estado conciso, menú contextual nativo de acciones, selector de recurso y campos directos PBR; sección Texturas abierta y propiedades avanzadas plegadas. No crear contextos de render ni otro gestor de recursos; miniatura editorial aproximada, no un render PBR.
+- Leer el original sin mutarlo; la primera modificación crea una sustitución local por slot mediante updateObject. Conservar mapas importados no modificados cuando el override nace del original; el valor vacío explícito de un mapa lo retira. Los recursos asignados mantienen su autoridad compartida. Restaurar original elimina la sustitución. No migrar overrides existentes ni modificar otros inspectores.
+- Reusar ResourceDropSlot, NumberField, ColorInput, ContextMenu, assetUrl y commit. Sin dependencias nuevas, cambios de importación, migraciones obligatorias ni cambios ajenos. QA focal, regresiones, compilación y Electron diferenciados.

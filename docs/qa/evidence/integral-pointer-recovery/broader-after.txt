@@ -1,0 +1,1009 @@
+TAP version 13
+# Subtest: Dirección +X
+ok 1 - Dirección +X
+  ---
+  duration_ms: 1.053689
+  type: 'test'
+  ...
+# Subtest: Dirección -X
+ok 2 - Dirección -X
+  ---
+  duration_ms: 0.168374
+  type: 'test'
+  ...
+# Subtest: Dirección +Z
+ok 3 - Dirección +Z
+  ---
+  duration_ms: 0.13241
+  type: 'test'
+  ...
+# Subtest: Dirección -Z
+ok 4 - Dirección -Z
+  ---
+  duration_ms: 0.08009
+  type: 'test'
+  ...
+# Subtest: Dirección diagonal
+ok 5 - Dirección diagonal
+  ---
+  duration_ms: 0.125599
+  type: 'test'
+  ...
+# Subtest: Dirección vertical
+ok 6 - Dirección vertical
+  ---
+  duration_ms: 0.067512
+  type: 'test'
+  ...
+# Subtest: Vista vertical conserva rumbo mediante eje derecho
+ok 7 - Vista vertical conserva rumbo mediante eje derecho
+  ---
+  duration_ms: 0.147402
+  type: 'test'
+  ...
+# Subtest: Pegado central cercano, sin alterar rayo del cursor
+ok 8 - Pegado central cercano, sin alterar rayo del cursor
+  ---
+  duration_ms: 0.769981
+  type: 'test'
+  ...
+# Subtest: Pegado lejano y espacio libre aplican el límite horizontal
+ok 9 - Pegado lejano y espacio libre aplican el límite horizontal
+  ---
+  duration_ms: 0.662028
+  type: 'test'
+  ...
+# Subtest: El destino cambia al moverse de habitación e inclinar la cámara
+ok 10 - El destino cambia al moverse de habitación e inclinar la cámara
+  ---
+  duration_ms: 0.410579
+  type: 'test'
+  ...
+# Subtest: Duplicación consecutiva desplaza 2 m, no modifica rotación ni escala
+ok 11 - Duplicación consecutiva desplaza 2 m, no modifica rotación ni escala
+  ---
+  duration_ms: 2.658968
+  type: 'test'
+  ...
+# Subtest: Raíces múltiples y padre-hijo reciben una traslación común, hijo conserva posición local
+ok 12 - Raíces múltiples y padre-hijo reciben una traslación común, hijo conserva posición local
+  ---
+  duration_ms: 1.937331
+  type: 'test'
+  ...
+# Subtest: Padre rotado y escalado: inversa lineal conserva 2 m globales
+ok 13 - Padre rotado y escalado: inversa lineal conserva 2 m globales
+  ---
+  duration_ms: 0.7832
+  type: 'test'
+  ...
+# Subtest: Padre singular rechaza sin insertar ni confirmar
+ok 14 - Padre singular rechaza sin insertar ni confirmar
+  ---
+  duration_ms: 1.038175
+  type: 'test'
+  ...
+# Subtest: Alt+D comparte solo geometría y conserva el desplazamiento cardinal
+ok 15 - Alt+D comparte solo geometría y conserva el desplazamiento cardinal
+  ---
+  duration_ms: 1.14773
+  type: 'test'
+  ...
+# Subtest: cierre programático retira el destino y espera a que Vue devuelva el contenido
+ok 16 - cierre programático retira el destino y espera a que Vue devuelva el contenido
+  ---
+  duration_ms: 5.020438
+  type: 'test'
+  ...
+# Subtest: cierre nativo permitido solicita devolución exactamente una vez antes del cierre
+ok 17 - cierre nativo permitido solicita devolución exactamente una vez antes del cierre
+  ---
+  duration_ms: 2.517515
+  type: 'test'
+  ...
+# Subtest: un veto de cierre mantiene la ventana y el destino
+ok 18 - un veto de cierre mantiene la ventana y el destino
+  ---
+  duration_ms: 1.212789
+  type: 'test'
+  ...
+# Subtest: resolver el target tras el parche mantiene identidad física y evita callbacks tras desmontar
+ok 19 - resolver el target tras el parche mantiene identidad física y evita callbacks tras desmontar
+  ---
+  duration_ms: 0.984925
+  type: 'test'
+  ...
+# Subtest: los paneles de edición dedicados se registran una sola vez en el docking
+ok 20 - los paneles de edición dedicados se registran una sola vez en el docking
+  ---
+  duration_ms: 1.324857
+  type: 'test'
+  ...
+# Subtest: se conserva la disposición inicial y las vistas obligatorias
+ok 21 - se conserva la disposición inicial y las vistas obligatorias
+  ---
+  duration_ms: 1.028591
+  type: 'test'
+  ...
+# Subtest: los editores de recursos pueden acoplarse también en el centro
+ok 22 - los editores de recursos pueden acoplarse también en el centro
+  ---
+  duration_ms: 1.183354
+  type: 'test'
+  ...
+# Subtest: un panel nunca se duplica al moverlo desde una ventana externa al docking
+ok 23 - un panel nunca se duplica al moverlo desde una ventana externa al docking
+  ---
+  duration_ms: 1.063193
+  type: 'test'
+  ...
+# Subtest: la normalización preserva paneles nuevos y restaura vistas centrales
+ok 24 - la normalización preserva paneles nuevos y restaura vistas centrales
+  ---
+  duration_ms: 0.55714
+  type: 'test'
+  ...
+# Subtest: los umbrales separan el clic y materializan la ventana en cualquier dirección
+ok 25 - los umbrales separan el clic y materializan la ventana en cualquier dirección
+  ---
+  duration_ms: 0.129595
+  type: 'test'
+  ...
+# Subtest: la ventana conserva el punto de agarre y admite coordenadas de otros monitores
+ok 26 - la ventana conserva el punto de agarre y admite coordenadas de otros monitores
+  ---
+  duration_ms: 0.173271
+  type: 'test'
+  ...
+# Subtest: las solicitudes de posición nativa validan sus parámetros
+ok 27 - las solicitudes de posición nativa validan sus parámetros
+  ---
+  duration_ms: 0.139821
+  type: 'test'
+  ...
+# Subtest: los paneles generales se trasladan a Electron, sin abrir otra copia del editor
+ok 28 - los paneles generales se trasladan a Electron, sin abrir otra copia del editor
+  ---
+  duration_ms: 0.64291
+  type: 'test'
+  ...
+# Subtest: las herramientas de recursos reutilizan sus ventanas sin apertura nativa automática
+ok 29 - las herramientas de recursos reutilizan sus ventanas sin apertura nativa automática
+  ---
+  duration_ms: 0.970303
+  type: 'test'
+  ...
+# Subtest: las zonas de soltado no necesitan un botón de desacoplamiento
+ok 30 - las zonas de soltado no necesitan un botón de desacoplamiento
+  ---
+  duration_ms: 0.266933
+  type: 'test'
+  ...
+# Subtest: Electron autoriza únicamente ventanas de herramientas controladas
+ok 31 - Electron autoriza únicamente ventanas de herramientas controladas
+  ---
+  duration_ms: 0.430349
+  type: 'test'
+  ...
+# Subtest: el desplazamiento crea la ventana y al soltar no la reacopla al panel que queda debajo
+ok 32 - el desplazamiento crea la ventana y al soltar no la reacopla al panel que queda debajo
+  ---
+  duration_ms: 13.370897
+  type: 'test'
+  ...
+# Subtest: SC-01 · Ctrl+C crea instantánea sin modificar escena ni Undo
+ok 33 - SC-01 · Ctrl+C crea instantánea sin modificar escena ni Undo
+  ---
+  duration_ms: 4.374565
+  type: 'test'
+  ...
+# Subtest: SC-02 · Ctrl+V crea nuevos IDs, misma geometría pero objetos independientes
+ok 34 - SC-02 · Ctrl+V crea nuevos IDs, misma geometría pero objetos independientes
+  ---
+  duration_ms: 1.781205
+  type: 'test'
+  ...
+# Subtest: SC-03 · pegar varias raíces conserva offsets mundiales
+ok 35 - SC-03 · pegar varias raíces conserva offsets mundiales
+  ---
+  duration_ms: 1.458178
+  type: 'test'
+  ...
+# Subtest: SC-04 · subárbol conserva jerarquía y transformaciones locales de hijos
+ok 36 - SC-04 · subárbol conserva jerarquía y transformaciones locales de hijos
+  ---
+  duration_ms: 0.776521
+  type: 'test'
+  ...
+# Subtest: SC-05 · los padres externos existentes se conservan con posición local correcta
+ok 37 - SC-05 · los padres externos existentes se conservan con posición local correcta
+  ---
+  duration_ms: 1.026838
+  type: 'test'
+  ...
+# Subtest: SC-06 · padres externos eliminados no dejan IDs huérfanos
+ok 38 - SC-06 · padres externos eliminados no dejan IDs huérfanos
+  ---
+  duration_ms: 1.027435
+  type: 'test'
+  ...
+# Subtest: SC-07 · un padre dentro de prefab no absorbe la copia
+ok 39 - SC-07 · un padre dentro de prefab no absorbe la copia
+  ---
+  duration_ms: 1.080439
+  type: 'test'
+  ...
+# Subtest: SC-08 · decal dirigido a nodo copiado reescribe la referencia interna
+ok 40 - SC-08 · decal dirigido a nodo copiado reescribe la referencia interna
+  ---
+  duration_ms: 1.172607
+  type: 'test'
+  ...
+# Subtest: SC-09 · materiales/modelos/assets preservan IDs como recursos, sin crear datos enlazados de malla
+ok 41 - SC-09 · materiales/modelos/assets preservan IDs como recursos, sin crear datos enlazados de malla
+  ---
+  duration_ms: 2.604816
+  type: 'test'
+  ...
+# Subtest: SC-10 · clipboard es una instantánea y no sigue posteriores cambios en el origen
+ok 42 - SC-10 · clipboard es una instantánea y no sigue posteriores cambios en el origen
+  ---
+  duration_ms: 1.484698
+  type: 'test'
+  ...
+# Subtest: SC-11 · pegar repetidamente genera distintos IDs y nombre único
+ok 43 - SC-11 · pegar repetidamente genera distintos IDs y nombre único
+  ---
+  duration_ms: 1.031715
+  type: 'test'
+  ...
+# Subtest: SC-12 · no permite pegar en otro proyecto (referencias a recursos)
+ok 44 - SC-12 · no permite pegar en otro proyecto (referencias a recursos)
+  ---
+  duration_ms: 0.871884
+  type: 'test'
+  ...
+# Subtest: SC-13 · bloquea operaciones en Play/Film/Edit Mesh
+ok 45 - SC-13 · bloquea operaciones en Play/Film/Edit Mesh
+  ---
+  duration_ms: 0.787557
+  type: 'test'
+  ...
+# Subtest: SC-14 · sin selección Copy no sobrescribe el clipboard previo
+ok 46 - SC-14 · sin selección Copy no sobrescribe el clipboard previo
+  ---
+  duration_ms: 0.867558
+  type: 'test'
+  ...
+# Subtest: SC-15 · Ctrl+C/V están conectados y respetan campos editables
+ok 47 - SC-15 · Ctrl+C/V están conectados y respetan campos editables
+  ---
+  duration_ms: 0.345591
+  type: 'test'
+  ...
+# Subtest: SC-16 · Ctrl+D sigue duplicando y Edit Mesh conserva Shift+D
+ok 48 - SC-16 · Ctrl+D sigue duplicando y Edit Mesh conserva Shift+D
+  ---
+  duration_ms: 0.277188
+  type: 'test'
+  ...
+# Subtest: SC-17 · menús y paleta comparten el mismo Copy/Paste, sin ramas paralelas
+ok 49 - SC-17 · menús y paleta comparten el mismo Copy/Paste, sin ramas paralelas
+  ---
+  duration_ms: 0.155835
+  type: 'test'
+  ...
+# Subtest: SC-18 · colocar frente a la cámara no depende del FOV ni cursor ni seleccionados
+ok 50 - SC-18 · colocar frente a la cámara no depende del FOV ni cursor ni seleccionados
+  ---
+  duration_ms: 0.129555
+  type: 'test'
+  ...
+# Subtest: SC-19 · pegar rechaza coordenadas inválidas y vuelve al centro original
+ok 51 - SC-19 · pegar rechaza coordenadas inválidas y vuelve al centro original
+  ---
+  duration_ms: 0.99493
+  type: 'test'
+  ...
+# Subtest: SC-20 · selección final contiene solo raíces nuevas y una única confirmación
+ok 52 - SC-20 · selección final contiene solo raíces nuevas y una única confirmación
+  ---
+  duration_ms: 0.912015
+  type: 'test'
+  ...
+# Subtest: SC-21 · en reproducción el portapapeles no modifica la escena
+ok 53 - SC-21 · en reproducción el portapapeles no modifica la escena
+  ---
+  duration_ms: 0.863001
+  type: 'test'
+  ...
+# Subtest: SC-22 · placement usa dirección cardinal y rayo central
+ok 54 - SC-22 · placement usa dirección cardinal y rayo central
+  ---
+  duration_ms: 0.127993
+  type: 'test'
+  ...
+# Subtest: SC-23 · pegar un StaticBody3D con TriMesh redirige el origen a la malla copiada
+ok 55 - SC-23 · pegar un StaticBody3D con TriMesh redirige el origen a la malla copiada
+  ---
+  duration_ms: 1.15424
+  type: 'test'
+  ...
+# Subtest: SC-24 · si falta el origen TriMesh al pegar se rechaza sin insertar parcialmente la copia
+ok 56 - SC-24 · si falta el origen TriMesh al pegar se rechaza sin insertar parcialmente la copia
+  ---
+  duration_ms: 1.244586
+  type: 'test'
+  ...
+# Subtest: SC-25 · pegar sin cambio de base conserva exactamente rotación y escala locales
+ok 57 - SC-25 · pegar sin cambio de base conserva exactamente rotación y escala locales
+  ---
+  duration_ms: 1.104655
+  type: 'test'
+  ...
+# Subtest: el destino de un Teleport se recupera después de reconstruir un grupo
+ok 58 - el destino de un Teleport se recupera después de reconstruir un grupo
+  ---
+  duration_ms: 0.785133
+  type: 'test'
+  ...
+# Subtest: la recuperación redimensiona y dibuja sin reinstanciar renderer ni sesión Play
+ok 59 - la recuperación redimensiona y dibuja sin reinstanciar renderer ni sesión Play
+  ---
+  duration_ms: 0.874168
+  type: 'test'
+  ...
+# Subtest: no dibujar sobre targets desmontados, de tamaño nulo ni ajenos
+ok 60 - no dibujar sobre targets desmontados, de tamaño nulo ni ajenos
+  ---
+  duration_ms: 0.141354
+  type: 'test'
+  ...
+# Subtest: los destinos del docking siguen resolviendo tras foco, flotación y división
+ok 61 - los destinos del docking siguen resolviendo tras foco, flotación y división
+  ---
+  duration_ms: 0.957874
+  type: 'test'
+  ...
+# Subtest: el canvas conserva fallback montado y espera al DOM para resolver targets
+ok 62 - el canvas conserva fallback montado y espera al DOM para resolver targets
+  ---
+  duration_ms: 0.598272
+  type: 'test'
+  ...
+# Subtest: nuevas vistas se añaden al docking en el centro, sin crear instancias repetidas
+ok 63 - nuevas vistas se añaden al docking en el centro, sin crear instancias repetidas
+  ---
+  duration_ms: 2.26248
+  type: 'test'
+  ...
+# Subtest: migración conservadora de un layout guardado sin panel central
+ok 64 - migración conservadora de un layout guardado sin panel central
+  ---
+  duration_ms: 0.865805
+  type: 'test'
+  ...
+# Subtest: la vista de juego se puede dividir del editor, cambiar el tamaño y recuperar pestañas
+ok 65 - la vista de juego se puede dividir del editor, cambiar el tamaño y recuperar pestañas
+  ---
+  duration_ms: 1.536617
+  type: 'test'
+  ...
+# Subtest: escena y juego son flotantes y restaurables sin perder la otra vista
+ok 66 - escena y juego son flotantes y restaurables sin perder la otra vista
+  ---
+  duration_ms: 0.715659
+  type: 'test'
+  ...
+# Subtest: las vistas obligatorias no se ocultan y los paneles auxiliares pueden acoplarse al centro
+ok 67 - las vistas obligatorias no se ocultan y los paneles auxiliares pueden acoplarse al centro
+  ---
+  duration_ms: 0.307794
+  type: 'test'
+  ...
+# Subtest: la superficie de observación se enlaza a la escena, no a una segunda sesión PlayMode
+ok 68 - la superficie de observación se enlaza a la escena, no a una segunda sesión PlayMode
+  ---
+  duration_ms: 0.919616
+  type: 'test'
+  ...
+# Subtest: el observador runtime conserva calidad editorial, fluidez e inspección por selección
+ok 69 - el observador runtime conserva calidad editorial, fluidez e inspección por selección
+  ---
+  duration_ms: 0.467064
+  type: 'test'
+  ...
+# Subtest: el observador reutiliza la navegación completa del viewport editorial durante Play
+ok 70 - el observador reutiliza la navegación completa del viewport editorial durante Play
+  ---
+  duration_ms: 0.359853
+  type: 'test'
+  ...
+# Subtest: Loop Cut inicia sobre la cara visible bajo el cursor (no sobre una cara oculta)
+ok 71 - Loop Cut inicia sobre la cara visible bajo el cursor (no sobre una cara oculta)
+  ---
+  duration_ms: 2.357754
+  type: 'test'
+  ...
+# Subtest: Loop Cut no inventa anillos para triángulos y caras inexistentes
+ok 72 - Loop Cut no inventa anillos para triángulos y caras inexistentes
+  ---
+  duration_ms: 0.565292
+  type: 'test'
+  ...
+# Subtest: Loop Cut respeta perspectiva y ortográfica mediante proyección de vértices
+ok 73 - Loop Cut respeta perspectiva y ortográfica mediante proyección de vértices
+  ---
+  duration_ms: 1.980505
+  type: 'test'
+  ...
+# Subtest: cambio de punto de mira puede elegir otra dirección sin alterar el anillo topológico
+ok 74 - cambio de punto de mira puede elegir otra dirección sin alterar el anillo topológico
+  ---
+  duration_ms: 0.571551
+  type: 'test'
+  ...
+# Subtest: vista Edit durante Play libera la captura, conserva el juego y permite observar sin foco
+ok 75 - vista Edit durante Play libera la captura, conserva el juego y permite observar sin foco
+  ---
+  duration_ms: 17.788308
+  type: 'test'
+  ...
+# Subtest: los controles Play Mode y Edit Mode reutilizan setGameView fuera de Runtime
+ok 76 - los controles Play Mode y Edit Mode reutilizan setGameView fuera de Runtime
+  ---
+  duration_ms: 2.113626
+  type: 'test'
+  ...
+# Subtest: Play editorial sigue simulando sin foco y no entrega sus teclas al jugador
+not ok 77 - Play editorial sigue simulando sin foco y no entrega sus teclas al jugador
+  ---
+  duration_ms: 1.355453
+  type: 'test'
+  location: '/tmp/pointer/scripts/test-viewport-docking-and-camera-loopcut-s02-g001.mjs:147:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    The input did not match the regular expression /this\.state\.focus \|\| \(!!this\.session && !this\.ui\.modalOpen\)/. Input:
+    
+    '// Entrada del jugador: ratón capturado, teclas, interacción y modo de control\n' +
+      "import { doc } from '../platform.js'\n" +
+      "import { physicsStep } from '../templates/gameParams.js'\n" +
+      "import { refreshCameraFov } from '../render/camera-fov.js'\n" +
+      '\n' +
+      'export const controlsMethods = {\n' +
+      '  // =================== entrada ===================\n' +
+      '  /** Captura el ratón (el jugador solo tiene el control con el ratón capturado). Si se deniega, se avisa en vez de fallar en silencio. */\n' +
+      '  _lock() {\n' +
+      '    const fail = (err) => {\n' +
+      '      if (doc.pointerLockElement === this.dom || !this.on) return\n' +
+      "      console.warn('No se pudo capturar el ratón', err)\n" +
+      '      // sin gesto del usuario (p. ej. tras cargar) es normal: el aviso del visor pide hacer clic. Denegado de verdad: se dice\n' +
+      '      if (err && /NotAllowed|NotSupported|denied|permission/i.test(`${err.name} ${err.message}`) && !this._lockWarned) {\n' +
+      '        this._lockWarned = true\n' +
+      "        this.rt.toast('No se pudo capturar el ratón: haz clic en la vista del juego. Si sigue sin responder, el sistema bloquea la captura del puntero.', 'error', 6000)\n" +
+      '      }\n' +
+      '    }\n' +
+      '    try { const r = this.dom.requestPointerLock(); r?.catch?.(fail) } catch (e) { fail(e) }\n' +
+      '  },\n' +
+      '  /** URLs de las imágenes del proyecto, para `asset("nombre.png")` dentro de las interfaces. */\n' +
+      '  async _loadAssetUrls() {\n' +
+      '    this.assetUrls = new Map()\n' +
+      '    this.assetUrlsById = new Map()\n' +
+      '    for (const a of this.project.assets || []) {\n' +
+      "      if (a.kind !== 'texture' && a.kind !== 'font') continue\n" +
+      '      try { const u = await this.rt.assetUrl(a.id); if (u) { this.assetUrls.set(a.name.toLowerCase(), u); this.assetUrlsById.set(a.id, u) } } catch { /* sin imagen */ }\n' +
+      '    }\n' +
+      '  },\n' +
+      '\n' +
+      '  /** Una interfaz modal abierta libera el ratón (y pausa el juego); al cerrarse se vuelve a capturar. */\n' +
+      '  _modalChanged() {\n' +
+      '    if (!this.on) return\n' +
+      '    this.keys.clear(); this.input?.clear()\n' +
+      '    if (this.ui.modalOpen) { if (doc.pointerLockElement === this.dom) doc.exitPointerLock() } else this._lock()\n' +
+      '  },\n' +
+      '\n' +
+      '  _pick(i) {\n' +
+      '    const c = this.state.choices\n' +
+      '    if (!c || !(i >= 0 && i < c.options.length)) return\n' +
+      '    c.index = i\n' +
+      '    this._press(true)\n' +
+      '  },\n' +
+      '\n' +
+      '  _lockChanged() { this.state.focus = doc.pointerLockElement === this.dom; if (this.state.focus) this.state.started = true; this._lockAt = performance.now(); this.vp.requestRender() },\n' +
+      '\n' +
+      '  /** Modo del jugador: lo marca el evento en curso (opción «Jugador durante el evento») o game.control. */\n' +
+      '  _playerMode() {\n' +
+      "    if (this.main) return this.main.mode || 'locked'\n" +
+      "    if (!this.control) return this.lookControl === false ? 'frozen' : 'locked'\n" +
+      "    return 'free'\n" +
+      '  },\n' +
+      '\n' +
+      '  _look(e) {\n' +
+      '    if (!this.on || doc.pointerLockElement !== this.dom) return\n' +
+      '    if (performance.now() - (this._lockAt || 0) < 150) return // el salto inicial del puntero al capturarlo no debe girar la cámara\n' +
+      "    if (this.paused || ['frozen', 'face'].includes(this._playerMode())) return\n" +
+      '    this.input?.movePointer(e.movementX || 0, e.movementY || 0)\n' +
+      '    this.player.look(e)\n' +
+      '  },\n' +
+      '\n' +
+      '  _mouse(e) {\n' +
+      '    e.preventDefault()\n' +
+      '    if (this.ui.modalOpen) return\n' +
+      '    if (doc.pointerLockElement !== this.dom) { if (e.button === 0 && !this.paused) this._lock(); return }\n' +
+      "    const code = 'Mouse' + e.button\n" +
+      '    this.input?.set(code, 1)\n' +
+      "    if (this.input?.bound('interact', code)) this._press()\n" +
+      '  },\n' +
+      '\n' +
+      '  _key(e, down) {\n' +
+      '    const t = e.target\n' +
+      "    if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT' || t.isContentEditable)) return\n" +
+      '    if (e.ctrlKey || e.metaKey || e.altKey) return\n' +
+      '    // En el Editor F3 pertenece al panel Stats, no al Input Map de PlayMode.\n' +
+      "    if (!this.runtime && e.code === 'F3') return\n" +
+      '    if (down) this.keys.add(e.code); else this.keys.delete(e.code)\n' +
+      '    if (this.state.focus || !down) this.input?.set(e.code, down ? 1 : 0)\n' +
+      '    e.stopPropagation()\n' +
+      "    if (['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Tab'].includes(e.code)) e.preventDefault()\n" +
+      '    if (!down || e.repeat) return\n' +
+      "    if (e.code === 'F5') { e.preventDefault(); if (!this.runtime) this.stop(); return }\n" +
+      "    if (this.ui.modalOpen) { if (e.code === 'Escape') this.ui.close(); return } // con una interfaz modal abierta, Esc la cierra y el juego no recibe teclas\n" +
+      "    if (e.code === 'Escape' && !this.state.focus) { if (!this.runtime) this.stop(); return }\n" +
+      '    if (!this.state.focus) return\n' +
+      "    if (e.code === 'Backspace' && !this.state.choices && this.tls?.length && this.timelineSkip()) return\n" +
+      '    const ch = this.state.choices\n' +
+      '    if (ch) {\n' +
+      '      const inp = this.input\n' +
+      "      if (inp.bound('ui_up', e.code)) ch.index = (ch.index + ch.options.length - 1) % ch.options.length\n" +
+      "      else if (inp.bound('ui_down', e.code)) ch.index = (ch.index + 1) % ch.options.length\n" +
+      "      else if (/^(Digit|Numpad)[1-9]$/.test(e.code)) { const n = +e.code.slice(-1) - 1; if (n < ch.options.length) { ch.index = n; this._press() } } else if (inp.bound('ui_cancel', e.code)) { if (ch.cancel >= 0) { ch.index = Math.min(ch.cancel, ch.options.length - 1); this._press() } }\n" +
+      '    }\n' +
+      "    if (this.input.bound('interact', e.code)) this._press()\n" +
+      '  },\n' +
+      '\n' +
+      '  /** Botón de acción: avanza el texto, confirma una opción o activa el evento que se tiene delante. */\n' +
+      '  _press(fromUi = false) {\n' +
+      '    if (this.ui.modalOpen && !fromUi) return\n' +
+      '    const pl = this.state\n' +
+      '    if (pl.dialog) {\n' +
+      '      const d = pl.dialog\n' +
+      '      if (d.waitInput) { d.waitInput = false; return }\n' +
+      '      if (!d.done) { d.shown = d.text.length; d.done = true; return }\n' +
+      '      if (d.age < 0.12) return\n' +
+      '      pl.dialog = null\n' +
+      '      this._endDialog(d)\n' +
+      '      return\n' +
+      '    }\n' +
+      '    if (pl.choices) { const c = pl.choices; pl.choices = null; c.resolve(c.index); return }\n' +
+      '    if (this.main || !this.control) return\n' +
+      '    if (this._reconcilePages() === false) return\n' +
+      '    if (this.gameplayCand) {\n' +
+      '      const candidate = this._gpCandidate?.()\n' +
+      '      const current = candidate?.item?.obj.id === this.gameplayCand.obj.id ? this.gameplayCand : null\n' +
+      '      this.gameplayCand = null\n' +
+      '      if (current) void this._gpPickup(current.obj.id)\n' +
+      '      return\n' +
+      '    }\n' +
+      "    if (!this._canAction(this.cand)) { this.cand = null; this.state.prompt = ''; this.state.interactionIndicator = null; return }\n" +
+      '    this._startMain(this.cand)\n' +
+      '  },\n' +
+      '\n' +
+      '  // =================== bucle ===================\n' +
+      '  frame(dt) {\n' +
+      '    if (!this.on) return false\n' +
+      '    const cam = this.cam, c = this.vp.container\n' +
+      '    this._shakeRestore(cam) // los sistemas del juego leen la pose sin desplazamiento visual\n' +
+      '    const aspect = Math.max(1, c.clientWidth) / Math.max(1, c.clientHeight)\n' +
+      '    if (Math.abs(cam.aspect - aspect) > 1e-4) { cam.aspect = aspect; refreshCameraFov(cam) }\n' +
+      '    this._inputFrame(dt)\n' +
+      '    if (this.game) this.ui.sync(this.game.rev, this.game.time, Math.min(dt, 0.05))\n' +
+      '    const stepping = !!this._stepN\n' +
+      '    if (this.film && this.game) {\n' +
+      '      // paso fijo: la misma secuencia de pasos da el mismo clima, los mismos rayos y los mismos movimientos\n' +
+      '      const f = this.film\n' +
+      '      f.acc = stepping ? 1 / 60 : this.paused ? 0 : Math.min(f.acc + dt, 15 / 60) // se pone al día hasta 0,25 s por fotograma\n' +
+      '      this._stepN = 0; this._alpha = 1\n' +
+      '      while (f.acc >= 1 / 60 - 1e-9) { f.acc -= 1 / 60; f.time += 1 / 60; f.steps++; this._simStep(1 / 60, 1, 1 / 60) } // un paso de física por paso (determinista)\n' +
+      '    } else if (this.game && ((this.state.focus && !this.paused) || stepping)) {\n' +
+      '      // Paso de física FIJO (Ajustes del juego ▸ Tasa de física): el fotograma consume el tiempo acumulado en pasos de `fdt`\n' +
+      '      // (el sobrante pasa al siguiente fotograma y la cámara se interpola con `_alpha`). Se acotan los pasos por fotograma.\n' +
+      '      let fdt = physicsStep(this.g), n\n' +
+      '      if (stepping) { dt = 1 / 60; fdt = 1 / 60; n = 1; this._pacc = 0; this._alpha = 1 }\n' +
+      '      else {\n' +
+      '        dt = Math.min(dt, 0.05)\n' +
+      '        this._pacc = Math.min((this._pacc || 0) + dt, 0.05 + fdt)\n' +
+      '        n = Math.floor(this._pacc / fdt + 1e-9); this._pacc -= n * fdt\n' +
+      '        this._alpha = Math.min(1, Math.max(0, this._pacc / fdt))\n' +
+      '      }\n' +
+      '      this._stepN = 0\n' +
+      '      this.player.frame(dt)\n' +
+      '      this._simStep(dt, n, fdt)\n' +
+      '    }\n' +
+      '    if (this.film?.onFrame) this.film.onFrame(this.film.time) // primero se actualiza el mundo de la película\n' +
+      '    this._cameraDelta = stepping ? 1 / 60 : (this.paused || !this.state.focus ? 0 : Math.max(0, dt))\n' +
+      '    this._nativeCrouchView?.(dt)\n' +
+      '    this._cameraFrame(cam)\n' +
+      '    this.audio?.update(cam)\n' +
+      '    this.weatherSound?.update(dt)\n' +
+      '    if (this.weatherSound) this.vp.weatherOcclusion = this.weatherSound.occ // bloque G: suprime lluvia visual bajo techo\n' +
+      '    this._profVolumesTick(dt)\n' +
+      '    this._thrownTick(dt)\n' +
+      '    this._vmFrame(dt)\n' +
+      '    this._updateInteractionIndicator()\n' +
+      '    this._updateHeldActions()\n' +
+      '    this.lod?.update(this.cam)\n' +
+      '    if (this._worldStreamer) {\n' +
+      '      const now = performance.now() / 1000\n' +
+      '      if (now >= this._nextStreamCheck) {\n' +
+      '        this._nextStreamCheck = now + 0.1\n' +
+      '        this._worldStreamer.update(this._nativePlayerId ? this.pos : cam.position, now)\n' +
+      '      }\n' +
+      '    }\n' +
+      '    this._shakeFrame(cam, dt, stepping) // solo afecta el fotograma renderizado, después de interacción y cinemáticas\n' +
+      '    return true // siempre se redibuja\n' +
+      '  },\n' +
+      '\n' +
+      '  /**\n' +
+      '   * Nether Film Maker: pone el clima y la hora como estaban en el segundo `t` desde el inicio (misma semilla, mismos pasos),\n' +
+      '   * sin volver a arrancar el juego. Lo usa el montaje al pasar de un plano a otro.\n' +
+      '   */\n' +
+      '  filmJump(t) {\n' +
+      '    if (!this.film) return\n' +
+      '    const w = this.ed.world, steps = Math.max(0, Math.round(t * 60))\n' +
+      '    w.configure(this.project.environment); w.reseed(this.film.seed)\n' +
+      '    this._filmJumping = true\n' +
+      '    try {\n' +
+      '      if ((this._waterConnection || this._liquidViews?.length) && this._waterFilmInitial) this.water.restore(this._waterFilmInitial)\n' +
+      '      // Repetición sincronizada: cada paso meteorológico alimenta exactamente un paso de agua.\n' +
+      '      for (let i = 0; i < steps; i++) {\n' +
+      '        w.update(1 / 60)\n' +
+      '        this._waterConnection?.step(1 / 60)\n' +
+      '        if (w.tornado) w.tornadoStep(1 / 60)\n' +
+      '        if (!this._waterConnection && this._liquidViews?.length) this.water.step(1 / 60)\n' +
+      '      }\n' +
+      '    } finally { this._filmJump'... 3351 more characters
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual: |-
+    // Entrada del jugador: ratón capturado, teclas, interacción y modo de control
+    import { doc } from '../platform.js'
+    import { physicsStep } from '../templates/gameParams.js'
+    import { refreshCameraFov } from '../render/camera-fov.js'
+    
+    export const controlsMethods = {
+      // =================== entrada ===================
+      /** Captura el ratón (el jugador solo tiene el control con el ratón capturado). Si se deniega, se avisa en vez de fallar en silencio. */
+      _lock() {
+        const fail = (err) => {
+          if (doc.pointerLockElement === this.dom || !this.on) return
+          console.warn('No se pudo capturar el ratón', err)
+          // sin gesto del usuario (p. ej. tras cargar) es normal: el aviso del visor pide hacer clic. Denegado de verdad: se dice
+          if (err && /NotAllowed|NotSupported|denied|permission/i.test(`${err.name} ${err.message}`) && !this._lockWarned) {
+            this._lockWarned = true
+            this.rt.toast('No se pudo capturar el ratón: haz clic en la vista del juego. Si sigue sin responder, el sistema bloquea la captura del puntero.', 'error', 6000)
+          }
+        }
+        try { const r = this.dom.requestPointerLock(); r?.catch?.(fail) } catch (e) { fail(e) }
+      },
+      /** URLs de las imágenes del proyecto, para `asset("nombre.png")` dentro de las interfaces. */
+      async _loadAssetUrls() {
+        this.assetUrls = new Map()
+        this.assetUrlsById = new Map()
+        for (const a of this.project.assets || []) {
+          if (a.kind !== 'texture' && a.kind !== 'font') continue
+          try { const u = await this.rt.assetUrl(a.id); if (u) { this.assetUrls.set(a.name.toLowerCase(), u); this.assetUrlsById.set(a.id, u) } } catch { /* sin imagen */ }
+        }
+      },
+    
+      /** Una interfaz modal abierta libera el ratón (y pausa el juego); al cerrarse se vuelve a capturar. */
+      _modalChanged() {
+        if (!this.on) return
+        this.keys.clear(); this.input?.clear()
+        if (this.ui.modalOpen) { if (doc.pointerLockElement === this.dom) doc.exitPointerLock() } else this._lock()
+      },
+    
+      _pick(i) {
+        const c = this.state.choices
+        if (!c || !(i >= 0 && i < c.options.length)) return
+        c.index = i
+        this._press(true)
+      },
+    
+      _lockChanged() { this.state.focus = doc.pointerLockElement === this.dom; if (this.state.focus) this.state.started = true; this._lockAt = performance.now(); this.vp.requestRender() },
+    
+      /** Modo del jugador: lo marca el evento en curso (opción «Jugador durante el evento») o game.control. */
+      _playerMode() {
+        if (this.main) return this.main.mode || 'locked'
+        if (!this.control) return this.lookControl === false ? 'frozen' : 'locked'
+        return 'free'
+      },
+    
+      _look(e) {
+        if (!this.on || doc.pointerLockElement !== this.dom) return
+        if (performance.now() - (this._lockAt || 0) < 150) return // el salto inicial del puntero al capturarlo no debe girar la cámara
+        if (this.paused || ['frozen', 'face'].includes(this._playerMode())) return
+        this.input?.movePointer(e.movementX || 0, e.movementY || 0)
+        this.player.look(e)
+      },
+    
+      _mouse(e) {
+        e.preventDefault()
+        if (this.ui.modalOpen) return
+        if (doc.pointerLockElement !== this.dom) { if (e.button === 0 && !this.paused) this._lock(); return }
+        const code = 'Mouse' + e.button
+        this.input?.set(code, 1)
+        if (this.input?.bound('interact', code)) this._press()
+      },
+    
+      _key(e, down) {
+        const t = e.target
+        if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT' || t.isContentEditable)) return
+        if (e.ctrlKey || e.metaKey || e.altKey) return
+        // En el Editor F3 pertenece al panel Stats, no al Input Map de PlayMode.
+        if (!this.runtime && e.code === 'F3') return
+        if (down) this.keys.add(e.code); else this.keys.delete(e.code)
+        if (this.state.focus || !down) this.input?.set(e.code, down ? 1 : 0)
+        e.stopPropagation()
+        if (['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Tab'].includes(e.code)) e.preventDefault()
+        if (!down || e.repeat) return
+        if (e.code === 'F5') { e.preventDefault(); if (!this.runtime) this.stop(); return }
+        if (this.ui.modalOpen) { if (e.code === 'Escape') this.ui.close(); return } // con una interfaz modal abierta, Esc la cierra y el juego no recibe teclas
+        if (e.code === 'Escape' && !this.state.focus) { if (!this.runtime) this.stop(); return }
+        if (!this.state.focus) return
+        if (e.code === 'Backspace' && !this.state.choices && this.tls?.length && this.timelineSkip()) return
+        const ch = this.state.choices
+        if (ch) {
+          const inp = this.input
+          if (inp.bound('ui_up', e.code)) ch.index = (ch.index + ch.options.length - 1) % ch.options.length
+          else if (inp.bound('ui_down', e.code)) ch.index = (ch.index + 1) % ch.options.length
+          else if (/^(Digit|Numpad)[1-9]$/.test(e.code)) { const n = +e.code.slice(-1) - 1; if (n < ch.options.length) { ch.index = n; this._press() } } else if (inp.bound('ui_cancel', e.code)) { if (ch.cancel >= 0) { ch.index = Math.min(ch.cancel, ch.options.length - 1); this._press() } }
+        }
+        if (this.input.bound('interact', e.code)) this._press()
+      },
+    
+      /** Botón de acción: avanza el texto, confirma una opción o activa el evento que se tiene delante. */
+      _press(fromUi = false) {
+        if (this.ui.modalOpen && !fromUi) return
+        const pl = this.state
+        if (pl.dialog) {
+          const d = pl.dialog
+          if (d.waitInput) { d.waitInput = false; return }
+          if (!d.done) { d.shown = d.text.length; d.done = true; return }
+          if (d.age < 0.12) return
+          pl.dialog = null
+          this._endDialog(d)
+          return
+        }
+        if (pl.choices) { const c = pl.choices; pl.choices = null; c.resolve(c.index); return }
+        if (this.main || !this.control) return
+        if (this._reconcilePages() === false) return
+        if (this.gameplayCand) {
+          const candidate = this._gpCandidate?.()
+          const current = candidate?.item?.obj.id === this.gameplayCand.obj.id ? this.gameplayCand : null
+          this.gameplayCand = null
+          if (current) void this._gpPickup(current.obj.id)
+          return
+        }
+        if (!this._canAction(this.cand)) { this.cand = null; this.state.prompt = ''; this.state.interactionIndicator = null; return }
+        this._startMain(this.cand)
+      },
+    
+      // =================== bucle ===================
+      frame(dt) {
+        if (!this.on) return false
+        const cam = this.cam, c = this.vp.container
+        this._shakeRestore(cam) // los sistemas del juego leen la pose sin desplazamiento visual
+        const aspect = Math.max(1, c.clientWidth) / Math.max(1, c.clientHeight)
+        if (Math.abs(cam.aspect - aspect) > 1e-4) { cam.aspect = aspect; refreshCameraFov(cam) }
+        this._inputFrame(dt)
+        if (this.game) this.ui.sync(this.game.rev, this.game.time, Math.min(dt, 0.05))
+        const stepping = !!this._stepN
+        if (this.film && this.game) {
+          // paso fijo: la misma secuencia de pasos da el mismo clima, los mismos rayos y los mismos movimientos
+          const f = this.film
+          f.acc = stepping ? 1 / 60 : this.paused ? 0 : Math.min(f.acc + dt, 15 / 60) // se pone al día hasta 0,25 s por fotograma
+          this._stepN = 0; this._alpha = 1
+          while (f.acc >= 1 / 60 - 1e-9) { f.acc -= 1 / 60; f.time += 1 / 60; f.steps++; this._simStep(1 / 60, 1, 1 / 60) } // un paso de física por paso (determinista)
+        } else if (this.game && ((this.state.focus && !this.paused) || stepping)) {
+          // Paso de física FIJO (Ajustes del juego ▸ Tasa de física): el fotograma consume el tiempo acumulado en pasos de `fdt`
+          // (el sobrante pasa al siguiente fotograma y la cámara se interpola con `_alpha`). Se acotan los pasos por fotograma.
+          let fdt = physicsStep(this.g), n
+          if (stepping) { dt = 1 / 60; fdt = 1 / 60; n = 1; this._pacc = 0; this._alpha = 1 }
+          else {
+            dt = Math.min(dt, 0.05)
+            this._pacc = Math.min((this._pacc || 0) + dt, 0.05 + fdt)
+            n = Math.floor(this._pacc / fdt + 1e-9); this._pacc -= n * fdt
+            this._alpha = Math.min(1, Math.max(0, this._pacc / fdt))
+          }
+          this._stepN = 0
+          this.player.frame(dt)
+          this._simStep(dt, n, fdt)
+        }
+        if (this.film?.onFrame) this.film.onFrame(this.film.time) // primero se actualiza el mundo de la película
+        this._cameraDelta = stepping ? 1 / 60 : (this.paused || !this.state.focus ? 0 : Math.max(0, dt))
+        this._nativeCrouchView?.(dt)
+        this._cameraFrame(cam)
+        this.audio?.update(cam)
+        this.weatherSound?.update(dt)
+        if (this.weatherSound) this.vp.weatherOcclusion = this.weatherSound.occ // bloque G: suprime lluvia visual bajo techo
+        this._profVolumesTick(dt)
+        this._thrownTick(dt)
+        this._vmFrame(dt)
+        this._updateInteractionIndicator()
+        this._updateHeldActions()
+        this.lod?.update(this.cam)
+        if (this._worldStreamer) {
+          const now = performance.now() / 1000
+          if (now >= this._nextStreamCheck) {
+            this._nextStreamCheck = now + 0.1
+            this._worldStreamer.update(this._nativePlayerId ? this.pos : cam.position, now)
+          }
+        }
+        this._shakeFrame(cam, dt, stepping) // solo afecta el fotograma renderizado, después de interacción y cinemáticas
+        return true // siempre se redibuja
+      },
+    
+      /**
+       * Nether Film Maker: pone el clima y la hora como estaban en el segundo `t` desde el inicio (misma semilla, mismos pasos),
+       * sin volver a arrancar el juego. Lo usa el montaje al pasar de un plano a otro.
+       */
+      filmJump(t) {
+        if (!this.film) return
+        const w = this.ed.world, steps = Math.max(0, Math.round(t * 60))
+        w.configure(this.project.environment); w.reseed(this.film.seed)
+        this._filmJumping = true
+        try {
+          if ((this._waterConnection || this._liquidViews?.length) && this._waterFilmInitial) this.water.restore(this._waterFilmInitial)
+          // Repetición sincronizada: cada paso meteorológico alimenta exactamente un paso de agua.
+          for (let i = 0; i < steps; i++) {
+            w.update(1 / 60)
+            this._waterConnection?.step(1 / 60)
+            if (w.tornado) w.tornadoStep(1 / 60)
+            if (!this._waterConnection && this._liquidViews?.length) this.water.step(1 / 60)
+          }
+        } finally { this._filmJumping = false }
+        this._tornadoStarted=!!w.tornado?.active || ['weakening','dissipation','ended'].includes(w.tornado?.phase)
+        this._tornadoEnded=w.tornado?.phase==='ended'
+        this._tornadoPhase=w.tornado?.phase ?? null
+        this._tornadoInside?.clear()
+        if (this._waterConnection) this.ed.updatePhysicalWater(this.water)
+        this._liquidRender?.()
+        this._destructionRender?.()
+        w.flash = 0; w._pulses = []
+        this.film.time = steps / 60; this.film.acc = 0
+        this.ed.applyWorld(); this.vp.requestRender()
+      },
+    
+      /**
+       * Un paso de simulación del juego. `dt` = tiempo del fotograma; `n` pasos de física de `fdt` segundos (puede ser 0 si el
+       * fotograma es más corto que el paso). Orden: timers → timeline → game.update → mundo → [fixedUpdate → Jolt → jugador] × n →
+       * perfiles/luces/animación → eventos → disparadores de entrada → game.lateUpdate.
+       */
+      _simStep(dt, n = 1, fdt = dt) {
+        {
+          this._timers(dt)
+          this._tlUpdate(dt)
+          this._tlSyncBrushes()
+          this.game.update(dt)
+          this.ed.nodeLifecycle?.process(dt)
+          // Con agua física, clima y solver comparten el reloj fijo (independiente de FPS).
+          // Sin agua se conserva el comportamiento heredado del mundo.
+          if (!this._waterConnection) this.ed.tickWorld(dt)
+          const pl = this.state
+          if (pl.dialog) this._typeDialog(pl.dialog, dt)
+          if (pl.levelTitle) this._levelTitleTick(pl.levelTitle, dt)
+          this._nativeCrouchInput?.()
+          for (let i = 0; i < n; i++) { // pasos de física a tasa fija
+            this.player.snapshot()
+            if (this._waterConnection) {
+              if (this.ed.world.active) {
+                this.ed._worldObserver()
+                this.ed.world.update(fdt)
+              }
+            }
+            // WaterWorld publica el estado antes de los consumidores físicos del mismo paso.
+            // Los aportes pedidos en fixedUpdate se aplican en el siguiente paso.
+            this._tornadoFixed?.(fdt)
+            this._destructionFixed?.(fdt)
+            this._liquidPoseSync?.()
+            this._waterDisplacementSync?.()
+            this._waterConnection?.step(fdt)
+            if (!this._waterConnection && this._liquidViews?.length) this.water.step(fdt)
+            this._nativeCrouchStep?.(fdt)
+            this.game.fixedUpdate(fdt)
+            this.ed.nodeLifecycle?.physicsProcess(fdt)
+            this._nativeCrouchSpeed?.()
+            // Un paso Jolt por intervalo fijo, haya o no CharacterBody3D controlado.
+            // NodeSpatialRuntime avanza desde JoltWorld.step, sin un segundo bucle.
+            this.phys?.step(fdt)
+            if (this.hasPlayer) this.player.update(fdt)
+            this.player.late(fdt)
+          }
+          if (this._waterConnection && n > 0) this.ed.applyWorld()
+          this._profTick(dt)
+          this._lightTick(dt)
+          this._animTick(dt)
+          this._events(dt)
+          this._inputTriggers()
+          this._bodiesTick(dt)
+          this._destructionRender?.()
+          if (this._waterConnection) {
+            this._waterViewTime = (this._waterViewTime || 0) + dt
+            if (this._waterViewTime >= 0.1) { this.ed.updatePhysicalWater(this.water); this._waterViewTime = 0 }
+          }
+          this._liquidRender?.()
+          this._waterFxTick(dt)
+          this._senseTick(dt)
+          this.game.lateUpdate(dt) // el jugador y los eventos ya están al día en este fotograma
+          this._tlBakeHold?.() // el Timeline conserva el control final de los cuerpos horneados
+        }
+      },
+    }
+    
+  operator: 'match'
+  stack: |-
+    TestContext.<anonymous> (file:///tmp/pointer/scripts/test-viewport-docking-and-camera-loopcut-s02-g001.mjs:149:10)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: un clic en el canvas de Play recupera el foco antes de capturar el puntero
+not ok 78 - un clic en el canvas de Play recupera el foco antes de capturar el puntero
+  ---
+  duration_ms: 6.08312
+  type: 'test'
+  location: '/tmp/pointer/scripts/test-viewport-docking-and-camera-loopcut-s02-g001.mjs:154:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    'prevent' !== 'focus'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'focus'
+  actual: 'prevent'
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///tmp/pointer/scripts/test-viewport-docking-and-camera-loopcut-s02-g001.mjs:164:10)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: la vista de observación consume GPU solo cuando su pestaña está visible o flotante
+ok 79 - la vista de observación consume GPU solo cuando su pestaña está visible o flotante
+  ---
+  duration_ms: 0.550379
+  type: 'test'
+  ...
+# Subtest: las vistas obligatorias no muestran la acción de ocultar
+ok 80 - las vistas obligatorias no muestran la acción de ocultar
+  ---
+  duration_ms: 0.169115
+  type: 'test'
+  ...
+# Subtest: un dock sin paneles disponibles colapsa y devuelve el espacio al viewport
+ok 81 - un dock sin paneles disponibles colapsa y devuelve el espacio al viewport
+  ---
+  duration_ms: 0.403929
+  type: 'test'
+  ...
+# Subtest: Loop Cut usa el raycast de la cara visible antes del algoritmo del anillo
+ok 82 - Loop Cut usa el raycast de la cara visible antes del algoritmo del anillo
+  ---
+  duration_ms: 0.179711
+  type: 'test'
+  ...
+1..82
+# tests 82
+# suites 0
+# pass 80
+# fail 2
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 190.190892

@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="es"><meta charset="utf-8"><title>QA S12-G004 · menú de pistas e iconos</title>
+<style>
+body{margin:0;background:#171b20;color:#e3eaf0;font:12px sans-serif}
+#timeline{width:930px;height:510px;overflow:hidden}
+#timeline-command-menu-icons-s12-g004-result{display:none}
+</style>
+<div id="timeline"></div><pre id="timeline-command-menu-icons-s12-g004-result"></pre>
+<script type="module">
+import { createApp, h, nextTick } from 'vue'
+import TimelinePanel from '/src/components/TimelinePanel.vue'
+import { createProjectData } from '/src/core/project.js'
+import { store, setEditor, resetHistory, openTimelineEditor } from '/src/core/store.js'
+import { newTimeline, newTrack, newKey, TRACK_KINDS } from '/src/core/timeline/model.js'
+import { COMMANDS, newCommand } from '/src/engine/runtime/events/commandDefs.js'
+import { createTimelinePlayback, timelinePlaybackKey } from '/src/core/timeline/playback-session.js'
+
+const out=document.querySelector('#timeline-command-menu-icons-s12-g004-result')
+const checks=[]
+function check(name,condition){checks.push({name,pass:!!condition})}
+const tick=async()=>{await nextTick();await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)))}
+const menu=()=>document.querySelector('.add-pop.timeline-dropdown')
+const trigger=()=>document.querySelector('#timeline .track-add')
+const options=()=>[...menu()?.querySelectorAll('button')||[]]
+const label=button=>button?.textContent?.trim()||''
+const click=async button=>{button?.click();await tick()}
+const open=async()=>{if(!menu())await click(trigger());return menu()}
+const find=title=>options().find(b=>label(b)===title)
+const kinds=['camera','node','audio','commands','method']
+const names=['Cámara','Nodo','Audio','Comandos','Métodos de nodo']
+const glyphs=['bi-camera-video','bi-bounding-box','bi-soundwave','bi-list-check','bi-braces']
+let app,mounted=false,playback
+try{
+  const project=createProjectData('QA menú de pistas','empty')
+  const old=newTrack('commands',{id:'pista-naturaleza-existente',name:'Naturaleza',keys:[newKey('commands',0,{name:'Relámpago',list:[newCommand('weatherLightning',{distance:1200})]})]})
+  project.timelines=[newTimeline('QA menú G004',{id:'timeline-menu-g004',duration:12,tracks:[old]})]
+  store.project=project;store.locked=false;store.play.on=false
+  setEditor({snapshotTerrain:()=>project.terrain})
+  playback=createTimelinePlayback({getProject:()=>store.project,getEditor:()=>store.editor,getObjects:()=>project.objects,
+    getContext:()=>({project:store.project,sceneId:project.activeSceneId,editor:store.editor,timelineId:store.timelineId,playOn:false,locked:false,cinematic:false}),
+    requestFrame:()=>1,cancelFrame:()=>{}})
+  app=createApp({render:()=>h(TimelinePanel)});app.provide(timelinePlaybackKey,playback)
+  resetHistory();openTimelineEditor('timeline-menu-g004');app.mount('#timeline');mounted=true;await tick()
+  check('Timeline se monta con la pista histórica Naturaleza',!!document.querySelector('#timeline .pinned-row')&&project.timelines[0].tracks.length===1)
+  check('Botón Pista accesible',!!trigger()&&trigger().getAttribute('aria-haspopup')==='true')
+  await open()
+  check('El menú abre mediante el botón original',!!menu())
+  check('Solo hay seis entradas de creación',options().length===6)
+  check('Existe crear grupo de pistas',!!find('Crear grupo de pistas'))
+  check('Solo se ofrecen los cinco tipos editables',kinds.every((kind,i)=>!!find(names[i]))&&options().every((b,i)=>i===0||names.includes(label(b))))
+  check('La pista horneada no se ofrece',!options().some(b=>label(b)==='Física horneada'))
+  check('No aparecen accesos rápidos meteorológicos',!menu().textContent.includes('Iniciar lluvia')&&!menu().textContent.includes('Relámpago')&&!menu().textContent.includes('Naturaleza'))
+  const svgs=[...menu().querySelectorAll('button svg')]
+  check('Los seis iconos son SVG, no emojis',svgs.length===6&&!menu().textContent.match(/[🎥◈♪⚡ƒ]/))
+  check('Los seis iconos SVG usan rejilla Bootstrap 16x16',svgs.every(s=>s.getAttribute('viewBox')==='0 0 16 16'))
+  check('Los seis iconos tienen rutas visibles',svgs.every(s=>s.querySelector('path[d]')?.getAttribute('d').length>30))
+  check('Los iconos son decorativos para accesibilidad',svgs.every(s=>s.getAttribute('aria-hidden')==='true'))
+  check('El primer elemento recibe foco al abrir',document.activeElement===find('Crear grupo de pistas'))
+  check('El popup usa posicionamiento fijo existente',menu().style.position==='fixed')
+  window.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));await tick()
+  check('Escape cierra menú',!menu())
+  check('Escape devuelve el foco a +Pista',document.activeElement===trigger())
+  await open();await click(find('Crear grupo de pistas'))
+  check('Crear grupo utiliza recurso real',project.timelines[0].groups.length===1)
+  check('Crear grupo cierra menú',!menu())
+  for(let i=0;i<kinds.length;i++){
+    await open()
+    const b=find(names[i]);const svg=b?.querySelector('svg')
+    check('Icono '+names[i]+' conservado tras reabrir',!!svg&&svg.getAttribute('viewBox')==='0 0 16 16')
+    await click(b)
+    check('Pista '+names[i]+' creada por el modelo',project.timelines[0].tracks.at(-1)?.kind===kinds[i])
+    check('Crear '+names[i]+' cierra menú',!menu())
+  }
+  check('Las pistas creadas tienen IDs únicos',new Set(project.timelines[0].tracks.map(x=>x.id)).size===6)
+  check('La pista Naturaleza histórica y su comando sobreviven',project.timelines[0].tracks[0].id==='pista-naturaleza-existente'&&project.timelines[0].tracks[0].keys[0].list[0].code==='weatherLightning')
+  check('Los comandos meteorológicos siguen en el catálogo', ['weather','weatherLightning','weatherThunder'].every(c=>!!COMMANDS[c]))
+  await open();document.body.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true}));await tick()
+  check('Clic fuera cierra el menú',!menu())
+  check('Los tipos y colores no se han alterado',kinds.every(k=>TRACK_KINDS[k]?.color))
+  if(checks.some(c=>!c.pass)) throw Error('Comprobaciones fallidas: '+checks.filter(c=>!c.pass).map(c=>c.name).join(' | '))
+  out.dataset.pass='true';out.textContent=JSON.stringify({pass:true,checks,gl:!!document.createElement('canvas').getContext('webgl')},null,2)
+}catch(error){out.dataset.pass='false';out.textContent=JSON.stringify({pass:false,error:error?.stack||String(error),checks},null,2)}
+finally{playback?.dispose();if(mounted)app.unmount()}
+</script></html>

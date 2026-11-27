@@ -1,0 +1,48 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Century · Multiscript S01 G002 — Inspector real</title></head><body>
+<main id="qa-inspector" style="width:310px;max-height:570px;overflow-y:auto"></main>
+<pre id="node-multiscript-s01-g002-result">Ejecutando QA Vue…</pre>
+<script type="module">
+import {createApp,nextTick} from 'vue'
+import * as THREE from 'three'
+import Inspector from '/src/components/Inspector.vue'
+import {createProjectData} from '/src/core/project.js'
+import {makeObject} from '/src/engine/runtime/nodes/index.js'
+import {store, addNodeScript, moveNodeScript, removeNodeScript, authoredNodeScriptIds} from '/src/core/store.js'
+import {resetHistory,undo,redo} from '/src/core/state/history.js'
+const checks=[];const check=(name,yes)=>{checks.push({name,pass:!!yes});if(!yes)throw Error(name)}
+const out=document.getElementById('node-multiscript-s01-g002-result')
+let renderer,app
+const next=async()=>{await nextTick();await Promise.resolve()}
+const selected=()=>store.project.objects[0]
+try{
+ renderer=new THREE.WebGLRenderer({antialias:false});renderer.setSize(16,16)
+ const scene=new THREE.Scene();scene.add(new THREE.Mesh(new THREE.BoxGeometry(.2,.2,.2),new THREE.MeshBasicMaterial({color:0x555555})))
+ const cam=new THREE.PerspectiveCamera();cam.position.z=2;renderer.render(scene,cam)
+ check('WebGL2 en Electron',renderer.capabilities.isWebGL2)
+ store.project=createProjectData('G002 QA')
+ store.project.objects=[makeObject('node','node',{id:'a',name:'PruebaMultiscript',parentId:null})]
+ store.project.scripts=[{id:'s1',name:'A.js',execution:'node',code:''},{id:'s2',name:'B.js',execution:'node',code:''},{id:'s3',name:'C.js',execution:'node',code:''},{id:'sg',name:'Global.js',execution:'global',code:''}]
+ store.selectedId='a';store.selectedIds=['a'];store.projSel=null;store.sceneSel=false;store.audioInspector=null;store.locked=false
+ store.editor={syncObject(){},syncAll(){},setSelection(){},syncEnvironment(){},snapshotTerrain:()=>({enabled:false,layers:[],foliage:[]}),restoreEdit(){},applyView(){},afterUndo(){},setCaptureClips(){},focus(){}}
+ resetHistory();app=createApp(Inspector);app.mount('#qa-inspector');await next()
+ check('Inspector existente montado',!!document.querySelector('.insp'))
+ check('Lista vacía de scripts',document.body.textContent.includes('Este nodo todavía no tiene scripts'))
+ const input=document.querySelector('[id="node-script-add-a"]');check('Selector nuevo disponible',!!input)
+ for(const id of ['s1','s2','s3']){input.value=id;input.dispatchEvent(new Event('change',{bubbles:true}));await next()}
+ check('Tres scripts y orden',JSON.stringify(authoredNodeScriptIds(selected()))==='["s1","s2","s3"]')
+ check('Lista visible completa',document.querySelectorAll('.node-script-entry').length===3)
+ check('No se puede añadir Script Global',!document.querySelector('[id="node-script-add-a"] option[value="sg"]'))
+ check('Duplicado rechazado',addNodeScript('a','s2')===false && authoredNodeScriptIds(selected()).length===3)
+ moveNodeScript('a',2,0);await next()
+ check('Reordenar funciona',JSON.stringify(authoredNodeScriptIds(selected()))==='["s3","s1","s2"]')
+ undo();await next();check('Undo restaura orden',JSON.stringify(authoredNodeScriptIds(selected()))==='["s1","s2","s3"]')
+ redo();await next();check('Redo restaura orden',authoredNodeScriptIds(selected())[0]==='s3')
+ removeNodeScript('a','s1');await next();check('Eliminar una asociación',authoredNodeScriptIds(selected()).length===2)
+ undo();await next();check('Undo recupera asociación',authoredNodeScriptIds(selected()).length===3)
+ store.project.objects[0].scriptIds.push('missing');await next()
+ check('Recurso inexistente visible',document.body.textContent.includes('Recurso inexistente (missing)'))
+ check('WebGL sin errores',renderer.getContext().getError()===renderer.getContext().NO_ERROR)
+ out.dataset.pass='true';out.textContent=JSON.stringify({pass:true,gl:renderer.getContext().getParameter(renderer.getContext().VERSION),checks},null,2)
+}catch(error){out.dataset.pass='false';out.textContent=JSON.stringify({pass:false,error:String(error.stack||error),checks},null,2)}
+finally{try{app?.unmount()}catch{}renderer?.dispose()}
+</script></body></html>

@@ -1,0 +1,59 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Property Readability S01 — Electron QA</title><style>
+body{background:#15191e;color:#ddd;font:12px sans-serif} .view{width:780px;display:flex;gap:14px} .idock-test{width:380px;height:280px;background:#20242a} .mixer-test{width:600px;height:310px} .clipped{width:80px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+</style></head><body>
+<pre id="property-readability-s01-result">Cargando...</pre><div id="app"></div>
+<script type="module">
+import * as THREE from 'three'
+import {createApp, nextTick, h, ref} from 'vue'
+import ParamForm from '/src/components/ParamForm.vue'
+import Splitter from '/src/components/Splitter.vue'
+import AudioMixer from '/src/components/AudioMixer.vue'
+import {showClippedText} from '/src/core/tooltips.js'
+import {normalizeAudio} from '/src/engine/runtime/audio/config.js'
+import {store} from '/src/core/store.js'
+import '/src/styles.css'
+const out=document.querySelector('#property-readability-s01-result'),checks=[]
+const check=(name,pass,details='')=>{checks.push({name,pass:!!pass,details});if(!pass)throw Error(`${name}: ${details}`)}
+let app,renderer,removeHints
+try {
+ renderer=new THREE.WebGLRenderer({antialias:false});renderer.setSize(12,12);renderer.render(new THREE.Scene(),new THREE.PerspectiveCamera(70,1,.1,100))
+ check('WebGL2 Electron',renderer.capabilities.isWebGL2)
+ store.project={id:'test',activeSceneId:'s1',name:'fixture',objects:[],scenes:[{id:'s1',name:'Escena 1'}],audio:normalizeAudio({}),scripts:[],assets:[],prefabs:[],profiles:[],materials:[],gameManagers:[],liquids:[],vfx:[],meshes:[],terrain:{enabled:false},uis:[],models:[],animations:[]}
+ store.selectedId=null;store.sceneSel=false;store.selectedIds=[];store.projSel=null;store.prefs.rightTab='object';store.prefs.inspLabelWidth=112;store.prefs.tooltips=false
+ store.project.audio.groups[1].name='Nombre de grupo musical considerablemente largo'
+ const props={params:[{key:'field',type:'text',label:'Propiedad con un nombre realmente largo y detallado'}],values:{field:'valor'}}
+ app=createApp({setup(){const width=ref(112);const resized=(v)=>{width.value=v;store.prefs.inspLabelWidth=v};return()=>h('main',{},[
+  h('div',{class:'view'},[
+   h('div',{class:'idock-test idock',style:{'--lf-property-label-width': width.value+'px'}},[
+      h(Splitter,{class:'property-divider',dir:'x',modelValue:width.value,min:84,max:250,label:'Ajustar ancho entre nombre de propiedad y valor','onUpdate:modelValue':resized}),
+      h('div',{class:'scroll'},[h(ParamForm,props)])
+   ]),
+  ]),h('div',{class:'mixer-test'},[h(AudioMixer)]),
+  h('div',{class:'mixer'},[h('span',{class:'nm clipped',tabindex:'0'},'Nombre extraordinariamente largo para verificar el texto completo')])
+ ])}})
+ app.mount('#app');await nextTick();await new Promise(resolve=>requestAnimationFrame(resolve))
+ removeHints=showClippedText()
+ check('divisor real Splitter dentro del Inspector simulado',!!document.querySelector('.idock .property-divider'))
+ const divider=document.querySelector('.idock .property-divider')
+ check('separador accesible',divider.getAttribute('role')==='separator' && divider.getAttribute('aria-valuenow')==='112')
+ const label=document.querySelector('.idock .row > label')
+ check('etiqueta ParamForm no truncada',getComputedStyle(label).whiteSpace==='normal' && label.scrollHeight>=label.clientHeight)
+ check('Audio Mixer conserva canal Master',!![...document.querySelectorAll('.strip .nm2')].find(x=>x.textContent==='Master'))
+ const music=[...document.querySelectorAll('.strip .nm2')].find(x=>x.textContent.includes('grupo musical'))
+ check('nombre largo en Audio Mixer envuelve líneas',music && getComputedStyle(music).whiteSpace==='normal')
+ divider.dispatchEvent(new KeyboardEvent('keydown',{key:'ArrowRight',bubbles:true,cancelable:true}));await nextTick()
+ check('teclado ajusta proporción',store.prefs.inspLabelWidth===124)
+ check('columna adopta nueva medida',document.querySelector('.idock').style.getPropertyValue('--lf-property-label-width')==='124px')
+ check('el valor conserva espacio y no queda oculto',document.querySelector('.idock .ctl').clientWidth>=90)
+ const clipped=document.querySelector('.clipped')
+ check('fixture muestra truncamiento real',clipped.scrollWidth>clipped.clientWidth)
+ clipped.dispatchEvent(new PointerEvent('pointerover',{bubbles:true}));await nextTick()
+ const hint=document.getElementById('lf-clipped-text-hint')
+ check('revelación aparece debajo con texto completo',!hint.hidden && hint.textContent===clipped.textContent)
+ check('revelación funciona con el modo tooltips desactivado',store.prefs.tooltips===false)
+ document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));await nextTick()
+ check('Escape oculta la revelación',hint.hidden)
+ check('sin errores GPU',renderer.getContext().getError()===renderer.getContext().NO_ERROR)
+ out.dataset.pass='true';out.textContent=JSON.stringify({pass:true,gl:renderer.getContext().getParameter(renderer.getContext().VERSION),checks},null,2)
+}catch(e){out.dataset.pass='false';out.textContent=JSON.stringify({pass:false,checks,error:String(e?.stack||e)},null,2)}finally{removeHints?.();app?.unmount();renderer?.dispose()}
+</script></body></html>

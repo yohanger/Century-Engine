@@ -1,0 +1,13 @@
+{
+  "sheets": [
+    "ROADMAP",
+    "BACKLOG",
+    "DEPENDENCIES",
+    "GATES",
+    "EVIDENCE",
+    "TRACEABILITY"
+  ],
+  "historical_cell_values_and_formulas_changed": 0,
+  "new_rows": 6,
+  "previous_gate_approval_changed": false
+}

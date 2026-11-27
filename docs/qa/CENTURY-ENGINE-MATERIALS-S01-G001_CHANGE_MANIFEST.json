@@ -1,0 +1,148 @@
+{
+  "gate": "CENTURY-ENGINE-MATERIALS-S01-G001-IMPORTED-MODEL-MATERIAL-AND-TEXTURE-SUPPORT",
+  "baseline_sha256": "919c5494d3a448a9ed84633c467c518cb3ca6845b603267068cf9ca24418e165",
+  "changes": [
+    {
+      "path": "docs/architecture/CENTURY-ENGINE-MATERIALS-S01-G001-IMPORTED-MODEL-MATERIAL-AND-TEXTURE-SUPPORT_CONTRACT.md",
+      "sha256": "44615a33354986aea1951cc1c89f8ecf521ea3ca609dd96a070c265f00c20ead",
+      "status": "added"
+    },
+    {
+      "path": "docs/architecture/CENTURY-ENGINE-MATERIALS-S01-G001-IMPORTED-MODEL-MATERIAL-AND-TEXTURE-SUPPORT_IMPLEMENTATION.md",
+      "sha256": "e52fd1d6a836093de06be21ae6059ce56c84e0f4e95447603e2887e0b543efde",
+      "status": "added"
+    },
+    {
+      "path": "docs/ledger/CE_ENGINE_MATERIALS_S01_G001_LEDGER.xlsx",
+      "sha256": "3da1037e44b8bd47c9ab3f48dbbd1818c71a01ebab9f2ed9b2b6157de9e9fe1d",
+      "status": "added"
+    },
+    {
+      "path": "docs/qa/CENTURY-ENGINE-MATERIALS-S01-G001_BUILD.log",
+      "sha256": "ad93033e7f39a0f04a1ed40edf91f741c64cfbf9fa5ed37ad17f38e46626cd7c",
+      "status": "added"
+    },
+    {
+      "path": "docs/qa/CENTURY-ENGINE-MATERIALS-S01-G001_NODE.log",
+      "sha256": "29a9a45820a1774fb21f552bd8451b3c792573f37a24bc0f919320cd528320fb",
+      "status": "added"
+    },
+    {
+      "path": "docs/qa/CENTURY-ENGINE-MATERIALS-S01-G001_QA.md",
+      "sha256": "d34fa3c7edee8ae0b8c67b52cdbccd5398425ed48e066f2fd146812ca79be803",
+      "status": "added"
+    },
+    {
+      "path": "docs/qa/CENTURY-ENGINE-MATERIALS-S01-G001_REGRESSION.log",
+      "sha256": "2bc5a6953e1b12f4cbd4168360c33ca2db1021e8c7f6c9f86b99e5f363074cbc",
+      "status": "added"
+    },
+    {
+      "path": "docs/qa/CENTURY-ENGINE-MATERIALS-S01-G001_REGRESSION_BASELINE.log",
+      "sha256": "aba19ba5c840edb5cf9c0d9ce65e544783fef1981e6505d89dfcb9311fe3b8e4",
+      "status": "added"
+    },
+    {
+      "path": "scripts/test-imported-model-materials.mjs",
+      "sha256": "14252dd12e5e63e7797a941ba473382fc22b415831641321bc10f587acba2760",
+      "status": "added"
+    },
+    {
+      "path": "src/components/Inspector.vue",
+      "sha256": "7c63496dc4b856a59cff0d5ea9f67bfae49da9b18e47cd676a1e4cd65c7ffe62",
+      "status": "modified"
+    },
+    {
+      "path": "src/components/MaterialSection.vue",
+      "sha256": "9f98cc34ae3fcc8154c1274c6569204c6e0bc1291339dbbf27e04729b58e7a00",
+      "status": "modified"
+    },
+    {
+      "path": "src/components/ModelMaterialSection.vue",
+      "sha256": "cd59e66da86032fedc9fa896cdae02331060a383d905704a670bc93cd3043d22",
+      "status": "added"
+    },
+    {
+      "path": "src/core/state/assets.js",
+      "sha256": "8712f5ca39f6244564635212742f6d31a61561c495f0082212108a28e6c691f9",
+      "status": "modified"
+    },
+    {
+      "path": "src/core/state/files.js",
+      "sha256": "ed2186878c847d13d2adaa3d11207f5be102945ef304aa0b6d0b1086491fa1b5",
+      "status": "modified"
+    },
+    {
+      "path": "src/core/state/filesystem.js",
+      "sha256": "fed96fc37e7c23b495a649ee97b80c5206e87fc3c757a4bde0e60abc4ae607e6",
+      "status": "modified"
+    },
+    {
+      "path": "src/core/state/materials.js",
+      "sha256": "64528863c4cdab356507fca411743f4724c605319171ee43268d83aebe0ce1d8",
+      "status": "modified"
+    },
+    {
+      "path": "src/core/state/project.js",
+      "sha256": "f7a74e63097de3bccda5d661db81aeb243bc795638b4c31ce2ab502f4cd0269e",
+      "status": "modified"
+    },
+    {
+      "path": "src/engine/runtime/geometry/mtl.js",
+      "sha256": "c718bd8d06ab1866a98e8d25b0346e0c9abf2e1eb601d77ddde939c5d10aa63f",
+      "status": "added"
+    },
+    {
+      "path": "src/engine/runtime/geometry/objconv.js",
+      "sha256": "a083b80906f60ae45a26c9855ced02034beeba8d45d15506e796ae098d3e4585",
+      "status": "modified"
+    },
+    {
+      "path": "src/engine/runtime/nodes/model.js",
+      "sha256": "6c50d7c4d610b52997d74bdbf8a2e8b5fccf131fa9403d15f69ff3ff429634e8",
+      "status": "modified"
+    },
+    {
+      "path": "src/engine/runtime/render/material-resource.js",
+      "sha256": "824932f10de500e2a6821bfbeb1124647ff00cf21cf1bde02b6453764c759a3b",
+      "status": "modified"
+    },
+    {
+      "path": "src/engine/runtime/render/model-material.js",
+      "sha256": "7ccfb9a992fb9aeb2952ffd1e385a809530e97158cb35532e3baf1af6e2f5a7a",
+      "status": "added"
+    },
+    {
+      "path": "src/engine/runtime/render/native-maps.js",
+      "sha256": "94be117a23162e250e202323066f5ae65ee45cf5578a050a9a2aaec75e17640c",
+      "status": "added"
+    },
+    {
+      "path": "src/engine/runtime/render/pbr.js",
+      "sha256": "c657e3b136c9e2040c94f37246b0b2f6c67faf7c1f703082594eb256f941388e",
+      "status": "modified"
+    },
+    {
+      "path": "src/engine/runtime/scene-graph.js",
+      "sha256": "7db8a56a0d752d1608126ff16ca736aa3ff15cfaeea0840423ffe6fc631e64ac",
+      "status": "modified"
+    },
+    {
+      "path": "src/engine/runtime/scene/environment.js",
+      "sha256": "7860b1611f2ecf1f9e801d4c35cf1a568734b958c1a2ba005548c55347146793",
+      "status": "modified"
+    },
+    {
+      "path": "src/engine/runtime/scene/models.js",
+      "sha256": "34a919d834c96ae1876918d21479fbd26bc9b675e31dfec8dbc742400c1c8f24",
+      "status": "modified"
+    },
+    {
+      "path": "src/engine/runtime/scene/objects.js",
+      "sha256": "69d628119e8f771961a77f6ba298862f18aacdd096fa2b0cf6db1059bfa37ba8",
+      "status": "modified"
+    }
+  ],
+  "manifest_self": "docs/qa/CENTURY-ENGINE-MATERIALS-S01-G001_CHANGE_MANIFEST.json",
+  "removed": []
+}

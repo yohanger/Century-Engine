@@ -1,0 +1,26 @@
+<!doctype html><html lang="es"><meta charset="utf-8"><title>Recuperación de puntero</title><style>body{font:14px sans-serif;background:#18212c;color:#e2e8f0}#holder{position:relative;width:320px;height:180px}canvas{background:#344a60;width:320px;height:180px;cursor:crosshair}pre{white-space:pre-wrap}</style><div id="holder"><canvas id="target" width="320" height="180" tabindex="0"></canvas></div><button id="normal">Control convencional</button><pre id="result">En preparación</pre>
+<script>window.__lfNativePointerReady=new Promise(r=>window.__lfNativePointerResolve=r)</script>
+<script type="module">
+import { ContinuousGrab } from '/src/core/editor/continuous-grab.js'
+const target=document.querySelector('#target'),out=document.querySelector('#result'),checks=[],reasons=[],native=target.requestPointerLock.bind(target)
+const grab=new ContinuousGrab(target,{owner:'QA viewport'});let attempts=0, clicks=0, trusted=0, finished=false
+const check=(name,pass)=>{checks.push({name,pass:!!pass});if(!pass)throw Error(name)}
+const finish=error=>{if(finished)return;finished=true;out.dataset.pass=String(!error);out.textContent=JSON.stringify({pass:!error,checks,gl:'DOM real / entradas nativas; fallo de solicitud inyectado',...(error?{error:String(error.stack||error)}:{})},null,2);window.__lfNativePointerResolve()}
+const wait=ms=>new Promise(r=>setTimeout(r,ms))
+const until=async predicate=>{for(let i=0;i<80;i++){if(predicate())return true;await wait(25)}return false}
+// La primera solicitud no responde; las siguientes usan el API real del navegador.
+target.requestPointerLock=()=>{attempts++;if(attempts===1)return;return native()}
+target.addEventListener('pointerdown',e=>{if(e.isTrusted)trusted++;grab.begin({x:e.clientX,y:e.clientY},()=>{},reason=>reasons.push(reason),{operation:'test',pointerId:e.pointerId})})
+target.addEventListener('pointerup',()=>grab.end())
+document.querySelector('#normal').addEventListener('click',e=>{if(e.isTrusted)clicks++})
+const step=(selector,type,button='left',verify=true)=>({selector,type,button,buttons:type==='mousePressed'?1:0,verify})
+window.__lfNativePointerSteps=[step('#target','mousePressed'),step('#target','mouseReleased'),step('#normal','mousePressed'),step('#normal','mouseReleased'),step('#target','mousePressed'),step('#target','mouseReleased')]
+window.__lfNativePointerAfter=async i=>{try{
+ if(i===0){check('Solicitud iniciada con ratón nativo',trusted===1&&grab.active&&!grab.locked);await wait(1150);check('Timeout cancela una vez',!grab.active&&reasons.join(',')==='timeout');check('Solicitud desbloqueada',!grab.releasing);check('Cursor restaurado',target.style.cursor==='crosshair'||getComputedStyle(target).cursor==='crosshair')}
+ if(i===3)check('El control normal recibe un clic nativo',clicks===1)
+ if(i===4){check('Nuevo gesto solicita captura',trusted===2&&attempts===2);check('Pointer Lock real recuperado',await until(()=>grab.locked&&document.pointerLockElement===target));check('Cursor virtual visible',grab.cursor.style.display==='block')}
+ if(i===5){check('Liberación nativa confirmada',await until(()=>!grab.active&&!document.pointerLockElement));check('Cursor convencional disponible',getComputedStyle(target).cursor==='crosshair');grab.dispose();check('Cursor virtual eliminado',!grab.cursor.isConnected);finish()}
+ return {ok:true}
+}catch(e){finish(e);return {ok:false,error:String(e.stack||e)}}}
+window.__lfNativePointerResolve()
+</script></html>

@@ -1,0 +1,32 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Alineación de preferencias</title></head><body><div id="app"></div><pre id="preferences-alignment-result">Cargando…</pre>
+<script type="module">
+const out=document.querySelector('#preferences-alignment-result'),checks=[]
+let app,api,finished=false
+const check=(name,passed)=>{checks.push({name,passed:!!passed});out.dataset.checks=String(checks.length);if(!passed)throw Error(name)}
+const finish=error=>{if(finished)return;finished=true;out.dataset.pass=String(!error);out.textContent=JSON.stringify({pass:!error,checks,...(error?{error:String(error.stack||error)}:{gl:'Vue / DOM / CSS de Preferencias'})},null,2)}
+window.addEventListener('error',e=>{if(e.error)finish(e.error)},true);window.addEventListener('unhandledrejection',e=>finish(e.reason))
+try {
+ await import('/src/styles.css');document.documentElement.classList.add('lf-editor')
+ const {createApp,nextTick}=await import('vue'),{default:PreferencesModal}=await import('/src/components/PreferencesModal.vue'),{default:ColorInput}=await import('/src/components/ColorInput.vue')
+ api=await import('/src/core/store.js');api.store.modal='prefs'
+ app=createApp(PreferencesModal);app.config.errorHandler=finish;app.component('ColorInput',ColorInput);app.mount('#app')
+ const frame=async()=>{await nextTick();await new Promise(r=>requestAnimationFrame(r));await nextTick()};await frame()
+ const prefs=document.querySelector('.preferences');if(!prefs)throw Error('Preferencias no montadas')
+ const doc=prefs.ownerDocument,win=doc.defaultView,aw=prefs.closest('.aw'),q=s=>prefs.querySelector(s),all=s=>[...prefs.querySelectorAll(s)]
+ if(!aw)throw Error('AppWindow no montada');aw.style.width='760px';await frame()
+ const rect=e=>e.getBoundingClientRect(),style=e=>win.getComputedStyle(e),near=(a,b)=>Math.abs(a-b)<1.1
+ const nav=()=>all('.prefs-nav button'),heads=()=>all('.section-head')
+ const left=b=>{const s=style(b);return s.justifyContent==='flex-start'&&s.textAlign==='left'&&near(rect(b.firstElementChild).left,rect(b).left+parseFloat(s.borderLeftWidth)+parseFloat(s.paddingLeft))&&near(rect(b.lastElementChild).left,rect(b.firstElementChild).right+parseFloat(s.columnGap))}
+ check('Cinco categorías',nav().length===5)
+ check('Iconos y textos de categorías a la izquierda',nav().every(left))
+ check('Categorías comparten columnas',nav().every(b=>near(rect(b.firstElementChild).left,rect(nav()[0].firstElementChild).left)&&near(rect(b.lastElementChild).left,rect(nav()[0].lastElementChild).left)))
+ check('Encabezados de navegación a la izquierda',heads().length===4&&heads().every(left))
+ const mouse=q('[data-pref-section=mouse] .section-head');mouse.click();await frame();check('Plegado y aria-expanded',mouse.getAttribute('aria-expanded')==='false'&&!q('[data-pref=mouseSensitivity]'));mouse.click();await frame();check('Desplegado conserva alineación',mouse.getAttribute('aria-expanded')==='true'&&!!q('[data-pref=mouseSensitivity]')&&left(mouse))
+ for(const i of [1,2,3]){nav()[i].click();await frame();check(`Categoría ${i}: selección y encabezados`,nav()[i].classList.contains('on')&&nav()[i].getAttribute('aria-pressed')==='true'&&heads().length>0&&heads().every(left))}
+ nav()[4].click();await frame();check('Archivo de configuración conserva acceso y texto',!!q('.prefs-content h3')&&nav()[4].lastElementChild.textContent==='Archivo de configuración'&&left(nav()[4]))
+ nav()[0].click();await frame();aw.style.width='340px';await frame()
+ check('Ventana estrecha conserva navegación adaptable',style(q('.prefs-layout')).flexDirection==='column'&&style(q('.prefs-nav')).flexWrap==='wrap'&&nav().every(left))
+ check('Ventana estrecha conserva encabezados y contenido',heads().every(left)&&q('.prefs-content').scrollWidth<=q('.prefs-content').clientWidth+1&&!!q('[data-pref=mouseSensitivity]'))
+ finish()
+}catch(e){finish(e)}finally{api?.cancelPendingAutosave?.();app?.unmount()}
+</script></body></html>

@@ -1,0 +1,46 @@
+import test from 'node:test'
+import assert from 'node:assert/strict'
+import { pathToFileURL } from 'node:url'
+const { ContinuousGrab } = await import(process.env.CE_GRAB_TEST_SOURCE ? pathToFileURL(process.env.CE_GRAB_TEST_SOURCE) : new URL('../src/core/editor/continuous-grab.js', import.meta.url))
+class Target {
+  events = new Map()
+  addEventListener(n, f) { const a=this.events.get(n)||[]; a.push(f); this.events.set(n,a) }
+  removeEventListener(n,f) { this.events.set(n,(this.events.get(n)||[]).filter(x=>x!==f)) }
+  emit(n,e={}) { for(const f of [...(this.events.get(n)||[])]) f(e) }
+  count(n) { return (this.events.get(n)||[]).length }
+}
+function fixture(t, options={}) {
+  t.mock.timers.enable({apis:['setTimeout']})
+  const logs=[];t.mock.method(console,'warn',(...args)=>logs.push(args))
+  const doc=new Target(),win=new Target(),dom=new Target(),parent=new Target()
+  doc.defaultView=win;doc.hidden=false;doc.pointerLockElement=null;doc.hasFocus=()=>true
+  doc.createElement=()=>({style:{},setAttribute(){},remove(){this.parentElement=null}})
+  dom.ownerDocument=doc;dom.parentElement=parent;dom.isConnected=true;dom.style={cursor:'crosshair'}
+  dom.getBoundingClientRect=()=>({left:0,top:0,width:300,height:200})
+  parent.getBoundingClientRect=()=>({left:0,top:0});parent.appendChild=x=>x.parentElement=parent
+  const grant=()=>{doc.pointerLockElement=dom;doc.emit('pointerlockchange')}
+  const unlock=()=>{doc.pointerLockElement=null;doc.emit('pointerlockchange')}
+  doc.exitPointerLock=unlock;dom.requestPointerLock=()=>{}
+  const grab=new ContinuousGrab(dom,{owner:'Test viewport',...options}),reasons=[]
+  const begin=()=>grab.begin(null,()=>{},x=>reasons.push(x),{operation:'navigation:fly',pointerId:7})
+  const escape=()=>doc.emit('keydown',{key:'Escape',preventDefault(){},stopImmediatePropagation(){}})
+  const tick=ms=>t.mock.timers.tick(ms)
+  return {doc,win,dom,grab,grant,unlock,begin,escape,tick,reasons,logs}
+}
+test('Escape cancela una solicitud pendiente y conserva el cursor local',t=>{const f=fixture(t);assert.equal(f.begin(),true);f.escape();assert.equal(f.grab.active,false);assert.deepEqual(f.reasons,['escape']);assert.equal(f.dom.style.cursor,'crosshair');f.grab.dispose()})
+test('Solicitud sin respuesta expira y admite un nuevo gesto',t=>{const f=fixture(t);f.begin();f.tick(1000);assert.equal(f.grab.active,false);assert.equal(f.grab.releasing,false);assert.deepEqual(f.reasons,['timeout']);f.dom.requestPointerLock=f.grant;assert.equal(f.begin(),true);assert.equal(f.grab.locked,true);f.grab.end();f.grab.dispose()})
+test('Escape y timeout no cancelan dos veces',t=>{const f=fixture(t);f.begin();f.escape();f.tick(1000);assert.deepEqual(f.reasons,['escape']);assert.equal(f.grab.releasing,false);f.tick(2000);f.grab.dispose();assert.equal(f.doc.count('pointerlockchange'),0);assert.equal(f.doc.count('pointerlockerror'),0)})
+test('Una concesión tardía después del timeout se libera sin reactivar el gesto',t=>{const f=fixture(t);f.begin();f.tick(1000);f.grant();assert.equal(f.doc.pointerLockElement,null);assert.equal(f.grab.active,false);assert.deepEqual(f.reasons,['timeout']);f.grab.dispose()})
+test('Respuesta tardía de Promise no libera una captura más reciente',async t=>{const f=fixture(t);let resolve;f.dom.requestPointerLock=()=>new Promise(r=>resolve=r);f.begin();f.tick(1000);f.dom.requestPointerLock=f.grant;f.begin();resolve();await Promise.resolve();assert.equal(f.grab.locked,true);assert.equal(f.doc.pointerLockElement,f.dom);f.grab.end();f.grab.dispose()})
+test('Respuesta tardía de Promise fuera de vigilancia por eventos se libera',async t=>{const f=fixture(t);let resolve;f.dom.requestPointerLock=()=>new Promise(r=>resolve=r);f.begin();f.tick(1000);f.tick(2000);f.doc.pointerLockElement=f.dom;resolve();await Promise.resolve();assert.equal(f.doc.pointerLockElement,null);f.grab.dispose()})
+test('Una captura ajena no se libera aunque sea el mismo canvas después de perder autoridad',t=>{let allowed=true;const f=fixture(t,{canOwnLock:()=>allowed});f.begin();f.tick(1000);allowed=false;f.grant();assert.equal(f.doc.pointerLockElement,f.dom);f.grab.dispose();assert.equal(f.doc.pointerLockElement,f.dom)})
+test('Fallo transitorio de liberación: cursor restaurado y un reintento acotado',t=>{const f=fixture(t);let attempts=0;f.dom.requestPointerLock=f.grant;f.begin();f.doc.exitPointerLock=()=>{if(++attempts===1)throw Error('native release');f.unlock()};f.grab.end();assert.equal(f.grab.active,false);assert.equal(f.dom.style.cursor,'crosshair');assert.equal(f.grab.releasing,true);f.tick(250);assert.equal(attempts,2);assert.equal(f.grab.releasing,false);assert.equal(f.doc.pointerLockElement,null);f.grab.dispose()})
+test('Liberación nativa persistente no se declara recuperada; Escape permite un nuevo intento',t=>{const f=fixture(t);f.dom.requestPointerLock=f.grant;f.begin();f.doc.exitPointerLock=()=>{};f.grab.end();f.tick(250);assert.equal(f.grab.releasing,true);assert.ok(f.logs.some(([tag,data])=>tag.includes('release-timeout')&&data.recovery==='release-not-confirmed'));f.doc.exitPointerLock=f.unlock;f.escape();assert.equal(f.doc.pointerLockElement,null);f.grab.dispose()})
+test('Pérdida real de lock restaura cursor y callback una vez',t=>{const f=fixture(t);f.dom.requestPointerLock=f.grant;f.begin();f.unlock();f.unlock();assert.deepEqual(f.reasons,['lock-lost']);assert.equal(f.dom.style.cursor,'crosshair');assert.equal(f.grab.cursor.style.display,'none');f.grab.dispose()})
+test('Diagnóstico contiene propietario, operación, excepción y estado real',t=>{const f=fixture(t);f.dom.requestPointerLock=()=>{throw new DOMException('denied','NotAllowedError')};assert.equal(f.begin(),false);const [tag,data]=f.logs.at(-1);assert.match(tag,/denied/);assert.equal(data.owner,'Test viewport');assert.equal(data.operation,'navigation:fly');assert.equal(data.previous,'pending');assert.equal(data.pointerLock,'none');assert.equal(data.error.name,'NotAllowedError');f.grab.dispose()})
+test('Blur, ocultación, cancelación del puntero y dispose cancelan una espera',t=>{const f=fixture(t);f.begin();f.win.emit('blur');assert.deepEqual(f.reasons,['blur']);f.doc.emit('pointerlockerror');f.begin();f.doc.hidden=true;f.doc.emit('visibilitychange');assert.deepEqual(f.reasons,['blur','hidden']);f.doc.emit('pointerlockerror');f.doc.hidden=false;f.begin();f.dom.emit('pointercancel',{pointerId:8});assert.equal(f.grab.active,true);f.dom.emit('pointercancel',{pointerId:7});assert.equal(f.grab.active,false);f.doc.emit('pointerlockerror');f.begin();f.grab.dispose();assert.deepEqual(f.reasons,['blur','hidden','pointercancel','dispose']);f.tick(1000);f.tick(2000);assert.equal(f.doc.count('pointerlockchange'),0)})
+test('200 ciclos de captura, liberación y cancelación no dejan listeners residuales',t=>{const f=fixture(t);f.dom.requestPointerLock=f.grant;for(let i=0;i<200;i++){assert.equal(f.begin(),true);if(i%2)f.grab.end();else f.escape();assert.equal(f.doc.pointerLockElement,null);assert.equal(f.grab.releasing,false)}f.grab.dispose();assert.equal(f.doc.count('pointerlockchange'),0);assert.equal(f.doc.count('pointerlockerror'),0);assert.equal(f.win.count('blur'),0)})
+test('Cambio de documento cancela y vuelve a escuchar en el nuevo documento',t=>{const f=fixture(t);f.dom.requestPointerLock=f.grant;f.begin();const other=new Target();other.defaultView=new Target();other.pointerLockElement=null;other.exitPointerLock=()=>{other.pointerLockElement=null;other.emit('pointerlockchange')};f.dom.ownerDocument=other;f.grab.syncDocument();assert.equal(f.doc.pointerLockElement,null);assert.equal(f.doc.count('keydown'),0);f.dom.requestPointerLock=()=>{other.pointerLockElement=f.dom;other.emit('pointerlockchange')};assert.equal(f.begin(),true);other.defaultView.emit('blur');assert.equal(other.pointerLockElement,null);f.grab.dispose();assert.equal(other.count('keydown'),0)})
+test('Error de movimiento cancela y deja visible el cursor sin ocultar la excepción',t=>{const f=fixture(t);f.dom.requestPointerLock=f.grant;f.grab.begin(null,()=>{throw Error('tool failed')},r=>f.reasons.push(r));assert.throws(()=>f.dom.emit('pointermove',{movementX:1,movementY:1}),/tool failed/);assert.equal(f.doc.pointerLockElement,null);assert.deepEqual(f.reasons,['move-error']);f.grab.dispose()})
+test('Una excepción de Promise posterior al evento de error se conserva en diagnóstico',async t=>{const f=fixture(t);let reject;f.dom.requestPointerLock=()=>new Promise((_,r)=>reject=r);f.begin();f.doc.emit('pointerlockerror');reject(new DOMException('blocked','NotAllowedError'));await Promise.resolve();assert.equal(f.logs.filter(([tag])=>tag.includes('denied-detail')).length,1);assert.equal(f.logs.at(-1)[1].error.name,'NotAllowedError');f.grab.dispose()})
+test('Diagnóstico acota URLs de código sin perder nombre, mensaje y localización',t=>{const f=fixture(t);const error=Error('denied');error.stack='Error: denied\n    at fn (data:text/javascript,('+('a'.repeat(30000))+'):12:34)\n    at owner (editor.js:4:5)';f.dom.requestPointerLock=()=>{throw error};f.begin();const data=f.logs.at(-1)[1];assert.equal(data.error.message,'denied');assert.match(data.error.stack,/data:text\/javascript\[omitted\]:12:34/);assert.match(data.error.stack,/editor\.js:4:5/);assert.ok(data.error.stack.length<=2048);f.grab.dispose()})

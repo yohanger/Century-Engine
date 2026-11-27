@@ -1,0 +1,51 @@
+{
+  "name": "@century/fluids",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Voxel water simulation, surface extraction and contact events with an optional Jolt adapter",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json",
+    "./adapters/jolt": {
+      "types": "./dist/adapters/jolt.d.ts",
+      "import": "./dist/adapters/jolt.js",
+      "default": "./dist/adapters/jolt.js"
+    },
+    "./water": {
+      "types": "./dist/fluids/water/index.d.ts",
+      "import": "./dist/fluids/water/index.js",
+      "default": "./dist/fluids/water/index.js"
+    },
+    "./surface": {
+      "types": "./dist/surface/index.d.ts",
+      "import": "./dist/surface/index.js",
+      "default": "./dist/surface/index.js"
+    }
+  },
+  "sideEffects": false,
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "build": "tsc -p tsconfig.json",
+    "prepack": "npm run build",
+    "test": "npm run build && node --test tests/*.test.mjs",
+    "qa": "npm run typecheck && npm run test"
+  },
+  "devDependencies": {
+    "typescript": "5.8.3"
+  },
+  "license": "UNLICENSED"
+}

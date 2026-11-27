@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><title>Century · Docking S03 · QA Electron</title></head>
+<body>
+  <pre id="docking-s03-result">Ejecutando...</pre>
+  <div id="dock-fixture"></div>
+  <div id="dock-bank-fixture"></div>
+  <div id="viewport-guard" aria-label="Viewport fijo">Viewport fijo</div>
+  <script type="module">
+  import { createApp, h, nextTick } from 'vue'
+  import '/src/styles.css'
+  import DockTree from '/src/components/DockTree.vue'
+  import DockFloating from '/src/components/DockFloating.vue'
+  import DockPanelBank from '/src/components/DockPanelBank.vue'
+  import { store } from '/src/core/store.js'
+  import { defaultDockLayout, findDockPanel, moveDockPanel, floatDockPanel, hideDockPanel, restoreDockPanel, normalizeDockLayout, dockGroups } from '/src/core/editor/docking.js'
+  const output = document.querySelector('#docking-s03-result')
+  const checks=[]
+  const check=(name,pass,detail='')=>{checks.push({name,pass:!!pass,detail});if(!pass)throw new Error(name+': '+detail)}
+  const tick=async()=>{await nextTick();await new Promise(requestAnimationFrame);await nextTick()}
+  const prior={layout:store.prefs.dockLayout,mode:store.ui.mode,project:store.project,log:store.log,left:store.prefs.leftOpen,right:store.prefs.rightOpen,top:store.prefs.topOpen,bottom:store.prefs.bottomOpen}
+  let app, bankApp
+  try {
+    store.ui.mode='desktop'
+    store.prefs.dockLayout=defaultDockLayout()
+    Object.assign(store.prefs,{leftOpen:true,rightOpen:true,topOpen:false,bottomOpen:true})
+    app=createApp({setup(){return()=>h('main',{id:'docking-test-root'},[
+      ...['left','right','top','bottom'].filter((zone)=>store.prefs.dockLayout.zones[zone]).map((zone)=>h('section',{key:zone,'data-fixture-zone':zone,style:'width:500px;height:240px;display:block'},[h(DockTree,{node:store.prefs.dockLayout.zones[zone],zone})])),
+      ...store.prefs.dockLayout.floats.filter((item)=>item.id==='console').map((item)=>h(DockFloating,{key:item.id,item})),
+    ])}})
+    app.mount('#dock-fixture');await tick()
+    check('Tres zonas iniciales renderizadas',document.querySelectorAll('.lf-dock-group').length===3)
+    check('Viewport no incluido en pestañas',![...document.querySelectorAll('.lf-dock-tab')].some((x)=>x.textContent.includes('Viewport')))
+    check('Viewport fijo intacto',document.querySelectorAll('#viewport-guard').length===1)
+    check('Jerarquía registrada como pestaña',!!document.querySelector('[data-fixture-zone="left"] [role="tab"]'))
+    check('Inspector y Señales como pestañas',document.querySelectorAll('[data-fixture-zone="right"] [role="tab"]').length>=2)
+    check('Seis pestañas inferiores presentes',document.querySelectorAll('[data-fixture-zone="bottom"] [role="tab"]').length===6)
+    check('Pestaña inicial seleccionada',document.querySelector('[data-fixture-zone="bottom"] [aria-selected="true"]')?.textContent.includes('Proyecto'))
+    const consoleTab=[...document.querySelectorAll('[data-fixture-zone="bottom"] [role="tab"]')].find(x=>x.textContent.includes('Consola'))
+    consoleTab?.click();await tick()
+    check('Click activa consola',findDockPanel(store.prefs.dockLayout,'console').active)
+    check('ARIA informa pestaña seleccionada',consoleTab?.getAttribute('aria-selected')==='true')
+    check('Host activo accesible',!!document.querySelector('[data-fixture-zone="bottom"] [role="tabpanel"][style*="display: none"]') && !!document.querySelector('[data-fixture-zone="bottom"] [role="tabpanel"]:not([style*="display: none"])'))
+    // CORR-001: soltar directamente sobre la barra une pestañas y no divide el dock.
+    const rightTabs=document.querySelector('[data-fixture-zone="right"] .lf-dock-tabs')
+    const dragTab=new DataTransfer()
+    dragTab.setData('application/x-lf-dock-panel','console')
+    dragTab.effectAllowed='move'
+    const rightRect=rightTabs.getBoundingClientRect()
+    const point={clientX:rightRect.left+4,clientY:rightRect.top+3}
+    rightTabs.dispatchEvent(new DragEvent('dragover',{bubbles:true,cancelable:true,dataTransfer:dragTab,...point}))
+    await tick()
+    check('Encabezado recibe pestaña compartida sin división',rightTabs.classList.contains('dock-tabs-over'))
+    rightTabs.dispatchEvent(new DragEvent('drop',{bubbles:true,cancelable:true,dataTransfer:dragTab,...point}))
+    await tick()
+    check('Pestañas comparten exactamente la misma región derecha',store.prefs.dockLayout.zones.right.type==='group' && store.prefs.dockLayout.zones.right.tabs.includes('console'))
+    check('Panel arrastrado es la pestaña activa',findDockPanel(store.prefs.dockLayout,'console').active)
+    check('Panel sale de la barra inferior',![...document.querySelectorAll('[data-fixture-zone="bottom"] [role="tab"]')].some(x=>x.textContent.includes('Consola')))
+    check('Indicador de pestañas desaparece después de soltar',!document.querySelector('.dock-tabs-over'))
+    // El arrastre cancelado no deja ninguna marca del destino pegada.
+    const rightBody=document.querySelector('[data-fixture-zone="right"] .lf-dock-group')
+    const bodyRect=rightBody.getBoundingClientRect()
+    rightBody.dispatchEvent(new DragEvent('dragover',{bubbles:true,cancelable:true,dataTransfer:dragTab,clientX:bodyRect.left+45,clientY:bodyRect.top+65}))
+    await tick()
+    check('Indicador temporal responde durante arrastre',rightBody.classList.contains('dock-hover'))
+    rightBody.dispatchEvent(new DragEvent('dragend',{bubbles:true,cancelable:true,dataTransfer:dragTab}))
+    await tick()
+    check('Cancelar arrastre limpia el indicador del grupo',!rightBody.classList.contains('dock-hover'))
+    // CORR-002: los formularios del Inspector pueden tener sus propios handlers de drop.
+    // El docking debe capturar su MIME antes de esos handlers; otros arrastres pasan intactos.
+    let childDropCount=0
+    const nested=document.createElement('div')
+    nested.className='fixture-resource-drop'
+    nested.addEventListener('drop',(event)=>{childDropCount++;event.stopPropagation()})
+    rightBody.querySelector('.lf-dock-body').appendChild(nested)
+    const nestRect=rightBody.getBoundingClientRect()
+    const nestedPoint={clientX:nestRect.left+nestRect.width*.5,clientY:nestRect.top+nestRect.height*.5}
+    const nestedDrag=new DataTransfer()
+    nestedDrag.setData('application/x-lf-dock-panel','project')
+    nested.dispatchEvent(new DragEvent('dragover',{bubbles:true,cancelable:true,dataTransfer:nestedDrag,...nestedPoint}))
+    await tick()
+    check('Drop anidado ofrece unir como pestaña',rightBody.classList.contains('dock-hover'))
+    nested.dispatchEvent(new DragEvent('drop',{bubbles:true,cancelable:true,dataTransfer:nestedDrag,...nestedPoint}))
+    await tick()
+    check('Inspector no intercepta el drop de un panel',findDockPanel(store.prefs.dockLayout,'project').zone==='right')
+    check('Drop acoplable se consume antes del handler anidado',childDropCount===0)
+    store.prefs.dockLayout=moveDockPanel(store.prefs.dockLayout,'project','bottom','lf-dock-bottom','center');await tick()
+    const assetDrag=new DataTransfer()
+    assetDrag.setData('application/x-lf-entry','asset:fixture')
+    nested.dispatchEvent(new DragEvent('drop',{bubbles:true,cancelable:true,dataTransfer:assetDrag,...nestedPoint}))
+    check('Drop de Assets no se intercepta por el docking',childDropCount===1)
+    check('Panel Proyecto recupera su grupo sin duplicados',findDockPanel(store.prefs.dockLayout,'project').zone==='bottom')
+    // Devolvemos Consola a su grupo original para continuar las pruebas históricas.
+    store.prefs.dockLayout=moveDockPanel(store.prefs.dockLayout,'console','bottom','lf-dock-bottom','center');await tick()
+    check('Un solo host para consola',document.querySelectorAll('[id*="lf-dock-target-"][id$="-console"]').length===1)
+    const tab=[...document.querySelectorAll('[data-fixture-zone="bottom"] [role="tab"]')].find(x=>x.textContent.includes('Consola'))
+    const dt=new DataTransfer()
+    const drag=new DragEvent('dragstart',{bubbles:true,cancelable:true,dataTransfer:dt})
+    tab.dispatchEvent(drag)
+    check('Arrastre transfiere identidad de pestaña',dt.getData('application/x-lf-dock-panel')==='console')
+    check('Arrastre no incorpora contenido serializado',!dt.getData('application/x-lf-dock-data'))
+    store.prefs.dockLayout=moveDockPanel(store.prefs.dockLayout,'console','left','lf-dock-left','right');await tick()
+    check('División crea dos grupos',document.querySelectorAll('[data-fixture-zone="left"] .lf-dock-group').length===2)
+    check('Separador accesible presente',!!document.querySelector('[data-fixture-zone="left"] [role="separator"]'))
+    check('Consola no duplicada tras mover',document.querySelectorAll('[id*="lf-dock-target-"][id$="-console"]').length===1)
+    check('Grupo inferior libera pestaña',document.querySelectorAll('[data-fixture-zone="bottom"] [role="tab"]').length===5)
+    store.prefs.dockLayout=moveDockPanel(store.prefs.dockLayout,'console','top');store.prefs.topOpen=true;await tick()
+    check('Zona superior monta grupo',!!document.querySelector('[data-fixture-zone="top"] .lf-dock-group'))
+    check('Consola se muestra arriba',!!document.querySelector('[data-fixture-zone="top"] [role="tab"]'))
+    store.prefs.dockLayout=floatDockPanel(store.prefs.dockLayout,'console',{x:90,y:80,w:450,h:330});await tick()
+    check('Consola cambia a flotante',findDockPanel(store.prefs.dockLayout,'console').kind==='float')
+    check('Ventana usa AppWindow original',!!document.querySelector('.aw-layer .aw'))
+    check('Ventana guarda destino único',store.prefs.dockLayout.floats.filter(x=>x.id==='console').length===1)
+    const dockButton=document.querySelector('.dock-return[aria-label="Volver a acoplar"]')
+    dockButton?.click();await tick()
+    check('Volver a acoplar desde ventana',findDockPanel(store.prefs.dockLayout,'console').kind==='dock')
+    store.prefs.dockLayout=hideDockPanel(store.prefs.dockLayout,'console');await tick()
+    check('Panel oculto no ocupa grupo',![...document.querySelectorAll('[role="tab"]')].some(x=>x.textContent.includes('Consola')))
+    store.prefs.dockLayout=restoreDockPanel(store.prefs.dockLayout,'console');await tick()
+    check('Panel oculto recuperable',findDockPanel(store.prefs.dockLayout,'console').kind==='dock')
+    const saved=JSON.parse(JSON.stringify(store.prefs.dockLayout))
+    check('Restauración mantiene ubicación',JSON.stringify(normalizeDockLayout(saved))===JSON.stringify(saved))
+    check('Sin identidades duplicadas',new Set(['left','right','top','bottom'].flatMap(z=>dockGroups(saved.zones[z]).flatMap(g=>g.tabs))).size===['left','right','top','bottom'].flatMap(z=>dockGroups(saved.zones[z]).flatMap(g=>g.tabs)).length)
+    check('Viewport continúa fijo tras cambios',document.querySelectorAll('#viewport-guard').length===1)
+    // CORR-002: antes sólo se probaban los contenedores vacíos, no el contenido transportado.
+    store.project={id:'dock-qa',activeSceneId:'scene-qa',scenes:[{id:'scene-qa',name:'Escena QA'}],
+      objects:[{id:'node-qa',name:'Grupo de QA',type:'group',parentId:null,open:true,visible:true}],
+      scripts:[],models:[],assets:[],meshes:[],terrain:{enabled:false}}
+    store.prefs.dockLayout=defaultDockLayout()
+    Object.assign(store.prefs,{leftOpen:true,rightOpen:false,topOpen:false,bottomOpen:false})
+    await tick()
+    bankApp=createApp(DockPanelBank)
+    bankApp.mount('#dock-bank-fixture');await tick();await tick()
+    const leftTree=()=>document.querySelector('[data-fixture-zone="left"] .tree')
+    check('Jerarquía activa monta SceneTree real',!!leftTree()?.querySelector('.sceneroot'))
+    check('Jerarquía muestra nodo de proyecto, no solo encabezado',leftTree()?.textContent.includes('Grupo de QA'))
+    store.prefs.rightOpen=true
+    store.prefs.dockLayout=moveDockPanel(store.prefs.dockLayout,'hierarchy','right','lf-dock-right','center')
+    await tick();await tick()
+    check('Jerarquía se transporta al nuevo host sin quedar vacía',!!document.querySelector('[data-fixture-zone="right"] .tree')?.textContent.includes('Grupo de QA'))
+    store.prefs.dockLayout=moveDockPanel(store.prefs.dockLayout,'hierarchy','left')
+    await tick();await tick()
+    check('Jerarquía regresa con una sola instancia conservada',!!leftTree()?.textContent.includes('Grupo de QA') && document.querySelectorAll('.tree').length===1)
+    output.dataset.pass='true'
+    output.textContent=JSON.stringify({pass:true,gl:'Interfaz Vue DOM en Electron, sin GPU ni QA visual',checks},null,2)
+  } catch(err) {
+    output.dataset.pass='false'
+    output.textContent=JSON.stringify({pass:false,checks,error:String(err?.stack||err)},null,2)
+  } finally {
+    bankApp?.unmount()
+    app?.unmount()
+    store.prefs.dockLayout=prior.layout
+    store.ui.mode=prior.mode;store.project=prior.project;store.log=prior.log
+    Object.assign(store.prefs,{leftOpen:prior.left,rightOpen:prior.right,topOpen:prior.top,bottomOpen:prior.bottom})
+  }
+  </script>
+</body></html>

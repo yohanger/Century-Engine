@@ -1,0 +1,57 @@
+CONSOLE warning [Century/Pointer] timeout {owner: QA viewport, operation: test, previous: pending, state: idle, pointerLock: none}
+STEP 0 {'ok': True}
+STEP 1 {'ok': True}
+STEP 2 {'ok': True}
+STEP 3 {'ok': True}
+STEP 4 {'ok': True}
+STEP 5 {'ok': True}
+{
+  "pass": true,
+  "checks": [
+    {
+      "name": "Solicitud iniciada con ratón nativo",
+      "pass": true
+    },
+    {
+      "name": "Timeout cancela una vez",
+      "pass": true
+    },
+    {
+      "name": "Solicitud desbloqueada",
+      "pass": true
+    },
+    {
+      "name": "Cursor restaurado",
+      "pass": true
+    },
+    {
+      "name": "El control normal recibe un clic nativo",
+      "pass": true
+    },
+    {
+      "name": "Nuevo gesto solicita captura",
+      "pass": true
+    },
+    {
+      "name": "Pointer Lock real recuperado",
+      "pass": true
+    },
+    {
+      "name": "Cursor virtual visible",
+      "pass": true
+    },
+    {
+      "name": "Liberación nativa confirmada",
+      "pass": true
+    },
+    {
+      "name": "Cursor convencional disponible",
+      "pass": true
+    },
+    {
+      "name": "Cursor virtual eliminado",
+      "pass": true
+    }
+  ],
+  "gl": "DOM real / entradas nativas; fallo de solicitud inyectado"
+}

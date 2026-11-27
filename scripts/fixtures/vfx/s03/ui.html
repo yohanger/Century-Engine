@@ -1,0 +1,72 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"/><title>QA VFX S01 Inspector — UI real</title><style>html,body,iframe{margin:0;width:100%;height:100%;border:0}pre{position:fixed;inset:0;background:#121820;color:#fff;z-index:99999;white-space:pre-wrap;padding:24px;font:13px monospace}</style></head><body>
+<iframe id="editor" src="/"></iframe><pre id="vfx-s03-result" data-pass="pending">Cargando editor real…</pre>
+<script type="module">
+const out=document.getElementById('vfx-s03-result')
+const checks=[]
+const assert=(condition,name)=>{if(!condition)throw Error(name);checks.push(name)}
+const sleep=ms=>new Promise(r=>setTimeout(r,ms))
+const frame=document.getElementById('editor')
+const finish=(pass,error='')=>{out.dataset.pass=String(pass);out.textContent=JSON.stringify({pass,checks,error})}
+try {
+  for(let i=0;i<120;i++){if(frame.contentWindow?.__lf?.store?.ready)break;await sleep(150)}
+  const w=frame.contentWindow, {store,S,editor}=w.__lf
+  assert(store.project&&!store.locked,'Proyecto de prueba abierto')
+  const originalObjects=JSON.stringify(store.project.objects)
+  const originalSelection=JSON.stringify(store.selectedIds)
+  const fx=S.createVfx('Assets','S01-QA.vfx')
+  assert(!!fx,'Crear recurso real')
+  assert(S.openVfxEditor(fx.id),'Seleccionar recurso mediante API pública')
+  await sleep(400)
+  const d=w.document, inspector=d.querySelector('[data-testid="vfx-inspector"]')
+  assert(!!inspector,'Recurso mostrado en Inspector real')
+  assert(store.projSel?.kind==='vfx' && store.projSel.id===fx.id,'Selección única del proyecto')
+  assert(store.prefs.rightTab==='object','Pestaña Inspector')
+  assert(store.modal!=='vfx','Sin ventana modal VFX')
+  assert(!d.querySelector('[data-window-drag-handle].vfx-title'),'Sin ventana flotante')
+  assert(editor.vp.world.visible===true,'Seleccionar no oculta el mundo')
+  const tabs=[...inspector.querySelectorAll('.vfx-tabs button')]
+  assert(tabs.length===5,'Cinco grupos de propiedades')
+  assert(!inspector.querySelector('.vfx-footer button'),'Sin botón Guardar redundante en VFX')
+  for (const index of [0,1,2,3]) {
+    tabs[index].click(); await sleep(65)
+    const selectores=[...inspector.querySelectorAll('.vfx-fields select')]
+    assert(selectores.length>0,`Selectores presentes en ${tabs[index].textContent}`)
+    for (const selector of selectores) {
+      const css=w.getComputedStyle(selector),rect=selector.getBoundingClientRect()
+      assert(rect.height>=29 && parseFloat(css.paddingTop)===0 && parseFloat(css.paddingBottom)===0,`Dropdown legible en ${tabs[index].textContent}`)
+      assert(rect.right<=inspector.getBoundingClientRect().right+1,`Dropdown dentro del Inspector en ${tabs[index].textContent}`)
+    }
+  }
+  tabs[0].click(); await sleep(65)
+  const input=inspector.querySelector('.vfx-fields input[type=text]')
+  assert(!!input,'NumberField real en Inspector')
+  input.focus();input.value='37';input.dispatchEvent(new w.Event('input',{bubbles:true}));input.blur()
+  await sleep(150)
+  assert(S.findVfx(fx.id).emission.rate===37,'Editar definición desde Inspector')
+  S.undo();assert(S.findVfx(fx.id).emission.rate===12,'Undo de edición')
+  S.redo();assert(S.findVfx(fx.id).emission.rate===37,'Redo de edición')
+  tabs.at(-1).click();await sleep(100)
+  assert(inspector.querySelectorAll('.curve').length===3,'Curvas editables')
+  const add=inspector.querySelector('.curve button[aria-label="Añadir punto"]')
+  add.click();await sleep(100)
+  assert(S.findVfx(fx.id).evolution.size.length===3,'Añadir punto desde Inspector')
+  assert(editor.vp.world.visible===true,'Editar no secuestra el viewport')
+  const before=editor.vp.saveEditorView()
+  const start=[...inspector.querySelectorAll('button')].find(b=>b.getAttribute('aria-label')==='Iniciar vista previa')
+  assert(!!start,'Inicio explícito de preview')
+  start.click();await sleep(250)
+  assert(editor.vp.world.visible===false,'Preview usa el viewport existente')
+  const close=inspector.querySelector('button[aria-label="Cerrar vista previa"]')
+  assert(!!close,'Cierre explícito de preview')
+  close.click();await sleep(180)
+  assert(editor.vp.world.visible===true && editor.vp.overlay.visible===true,'Mundo y gizmos restaurados')
+  const after=editor.vp.saveEditorView()
+  const pose=x=>JSON.stringify([x.isOrtho,x.persp.pos.toArray(),x.ortho.pos.toArray(),x.target.toArray(),x.persp.zoom,x.ortho.zoom])
+  assert(pose(before)===pose(after),'Cámara y órbita restituidas')
+  S.closeVfxEditor();await sleep(150)
+  assert(!d.querySelector('[data-testid="vfx-inspector"]'),'Inspector libera el recurso')
+  assert(JSON.stringify(store.project.objects)===originalObjects,'Escena sin modificaciones')
+  assert(JSON.stringify(store.selectedIds)===originalSelection,'Selección de nodos preservada')
+  finish(true)
+} catch(e) { finish(false,e.stack||String(e)) }
+</script></body></html>

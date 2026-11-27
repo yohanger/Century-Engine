@@ -1,0 +1,86 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Century S06-G004 — Integración final con Jolt WASM</title></head>
+<body><pre id="node-signals-editor-s06-g004-result">Comprobando Area3D…</pre>
+<script type="module">
+import * as THREE from 'three'
+import { remapSignalConnections } from '/src/core/project.js'
+import {loadJolt, JoltWorld} from '/src/engine/runtime/physics/jolt.js'
+import {NodeBodyRuntime} from '/src/engine/runtime/physics/node-bodies.js'
+import {nodesMethods} from '/src/engine/runtime/events/play-nodes.js'
+import {NodeLifecycle} from '/src/engine/runtime/scene/node-lifecycle.js'
+import {NodeScriptRuntime} from '/src/engine/runtime/scene/node-scripts.js'
+const out=document.getElementById('node-signals-editor-s06-g004-result'), checks=[]
+const check=(name,ok)=>{checks.push({name,pass:!!ok});if(!ok)throw Error(name)}
+let renderer,life,bodies,world
+const body=(id,type,props,parentId=null,pos=[0,0,0])=>({id,name:id,type,parentId,props,visible:true,position:pos,rotation:[0,0,0],scale:[1,1,1]})
+const shape=(id,parentId,size)=>body(id,'collisionshape3d',{disabled:false,shape:{type:'BoxShape3D',size}},parentId)
+try {
+ renderer=new THREE.WebGLRenderer({antialias:false});renderer.setSize(16,16)
+ const scene3=new THREE.Scene(),camera=new THREE.PerspectiveCamera(60,1,.1,10);camera.position.z=2
+ scene3.add(new THREE.Mesh(new THREE.BoxGeometry(.3,.3,.3),new THREE.MeshBasicMaterial({color:0x4466aa})))
+ renderer.render(scene3,camera)
+ check('WebGL2 real',renderer.capabilities.isWebGL2)
+ const J=await loadJolt();check('Jolt WASM real',!!J?.JoltInterface)
+ const area=body('zona','area3d',{monitoring:true,monitorable:true})
+ const areaShape=shape('forma-zona','zona',[4,4,4])
+ const other=body('otra','area3d',{monitoring:true,monitorable:true})
+ const otherShape=shape('forma-otra','otra',[2,2,2])
+ const solid=body('caja','staticbody3d',{friction:0.5,restitution:0})
+ const solidShape=shape('forma-caja','caja',[1,1,1])
+ const receiver=body('receptor','node3d',{},null)
+ const emitter=body('emisor','node3d',{},null)
+ const objects=[area,areaShape,other,otherShape,solid,solidShape,receiver,emitter]
+ const links=['body_entered','body_exited','area_entered','area_exited'].map((signal,i)=>({id:'v'+i,emitterId:'zona',signal,receiverId:'receptor',method:'recibir'}))
+ links.push({id:'custom',emitterId:'emisor',signal:'alerta',receiverId:'receptor',method:'recibir'})
+ const project={objects,activeSceneId:'uno',signalConnections:links,scripts:[
+  {id:'receptor',execution:'node',code:`function _ready(){node.expose('recibir',(evento)=>game.record(evento))}`},
+  {id:'emisor',execution:'node',code:`function _ready(){node.define_signal('alerta');node.expose('enviar',()=>node.emit_signal('alerta',42))}`}
+ ]}
+ receiver.scriptId='receptor';emitter.scriptId='emisor'
+ const nodes=new Map(),events=[],errors=[]
+ for(const o of objects){const n=new THREE.Object3D();n.name=o.name;n.userData.id=o.id;n._lfNodeOwner=o;n.position.fromArray(o.position);nodes.set(o.id,n)}
+ for(const o of objects){const n=nodes.get(o.id);if(o.parentId)nodes.get(o.parentId).add(n);else scene3.add(n)}
+ const play={on:true,_referenceSession:{},_sceneSignalReady:false,project,ed:{nodes},phys:null,colliders:[],_bodies:[],
+   game:{api:{record:(...v)=>events.push(...v)},report:(e,at)=>errors.push([e.message,at])},
+   pos:new THREE.Vector3(),vp:{requestRender(){}},vm:{held:new Map()},_animMethodsFor:()=>({}),_tagLayerApi:()=>({}),_persistMarked:()=>false,_persistSet:()=>false}
+ Object.assign(play,nodesMethods);play.game.api.node=(id)=>play._nodeHandle(id)
+ world=new JoltWorld(J);play.phys=world
+ life=new NodeLifecycle({host:{project},nodes});play.ed.nodeLifecycle=life
+ bodies=new NodeBodyRuntime(play,1);bodies.start();world.finalize()
+ check('Un JoltWorld',play.phys===world)
+ check('Dos sensores reales Area3D',world.nodeSpatial.areas.size===2)
+ check('Cuerpo sólido Jolt',world.nodeHandles.size===1)
+ life.scripts=new NodeScriptRuntime(play);life.start()
+ check('Sin script en emisores',!life.scripts.instances.has('zona')&&!life.scripts.instances.has('otra'))
+ const ah=play._nodeHandle('zona'),bh=play._nodeHandle('receptor')
+ check('No activar antes de _ready',life.scripts.sceneConnections.size===0)
+ play._sceneSignalReady=true;life.scripts.syncSceneConnections()
+ check('Conexiones de escena activadas después de _ready',life.scripts.sceneConnections.size===5)
+ check('Un listener nativo por señal',world.nodeSpatial.areas.size===2)
+ check('Conexión custom _ready',life.scripts.sceneConnections.has('custom'))
+ play._nodeHandle('emisor').call('enviar')
+ check('Señal custom entregada',events.includes(42))
+ check('Duplicado ignorado',ah.connect('body_entered',bh,'recibir')===false)
+ const count=events.length;life.scripts.syncSceneConnections()
+ check('Sin duplicación al sincronizar',life.scripts.sceneConnections.size===5&&events.length===count)
+ for(let i=0;i<3;i++)world.step(1/60)
+ check('body_entered Jolt',events.some(e=>e.areaId==='zona'&&e.type==='body'&&e.id==='caja'))
+ check('area_entered Jolt',events.some(e=>e.areaId==='zona'&&e.type==='area'&&e.id==='otra'))
+ const before=events.length;world.step(1/60)
+ check('Entrada no repetida',events.length===before)
+ area.props.monitoring=false;world.step(1/60)
+ check('body_exited Jolt',events.some((e,i)=>i>=before&&e.type==='body'))
+ check('area_exited Jolt',events.some((e,i)=>i>=before&&e.type==='area'))
+ check('Desconectar',ah.disconnect('body_entered',bh,'recibir')===true)
+ check('Desconexión idempotente',ah.disconnect('body_entered',bh,'recibir')===false)
+ check('Sin despachos periódicos extra',life.processEntries.size===0&&life.physicsEntries.size===0)
+ check('Sin errores de receptor',errors.length===0)
+ check('Datos editoriales no mutados',project.signalConnections.length===5)
+ life.stop();check('Stop libera conexiones',life.scripts.nativeSources.size===0&&life.scripts.sceneConnections.size===0)
+ const remapped=remapSignalConnections([{id:'src',emitterId:'zona',signal:'body_entered',receiverId:'receptor',method:'recibir'}],new Map([['zona','zona2'],['receptor','receptor2']]))
+ check('Remapeo real de conexiones',remapped.length===1&&remapped[0].emitterId==='zona2'&&remapped[0].receiverId==='receptor2'&&remapped[0].id!=='src')
+ check('Sin enlace a instancia previa',remapped.every(c=>c.emitterId!=='zona'&&c.receiverId!=='receptor'))
+ check('WebGL sin error',renderer.getContext().getError()===renderer.getContext().NO_ERROR)
+ out.dataset.pass='true';out.textContent=JSON.stringify({pass:true,gl:renderer.getContext().getParameter(renderer.getContext().VERSION),checks},null,2)
+} catch(error) {out.dataset.pass='false';out.textContent=JSON.stringify({pass:false,error:String(error.stack||error),checks},null,2)}
+finally {try{life?.stop()}catch{}try{bodies?.dispose()}catch{}try{world?.dispose()}catch{}renderer?.dispose()}
+</script></body></html>

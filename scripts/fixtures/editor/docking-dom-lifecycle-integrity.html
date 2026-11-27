@@ -1,0 +1,25 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Integridad DOM</title></head><body><div id="app"></div><pre id="dock-result">Cargando…</pre>
+<script type="module">
+import { createApp,h,Teleport,ref,nextTick } from 'vue'
+import { useMountedDockTarget,useNativeToolWindow } from '/src/core/editor/native-tool-window.js'
+import { getNativeToolDocument } from '/src/core/editor/native-tool-registry.js'
+const out=document.querySelector('#dock-result'),checks=[]
+let finished=false,mounts=0,app
+const check=(name,passed)=>{checks.push({name,passed:!!passed});if(!passed)throw Error(name)}
+const finish=error=>{if(finished)return;finished=true;out.dataset.pass=String(!error);out.dataset.checks=String(checks.length);out.textContent=JSON.stringify({pass:!error,checks,...(error?{error:String(error.stack||error)}:{gl:'Vue / Electron DOM'})},null,2)}
+window.addEventListener('error',e=>finish(e.error||Error(e.message)),true)
+window.addEventListener('unhandledrejection',e=>finish(e.reason))
+const frame=async()=>{await nextTick();await nextTick();await new Promise(r=>setTimeout(r,20));await nextTick()}
+try{
+ window.lf??={isElectron:true}
+ const mode=ref(false),count=ref(0),enabled=ref(false),closeChecks=[]
+ const Child={setup(){mounts++;return()=>h('span',{id:'payload'},String(count.value))}}
+ app=createApp({setup(){const dock=useMountedDockTarget(()=>mode.value?'#b':'#a',()=> '#parking',()=>[mode.value]);const native=useNativeToolWindow({kind:'qa-dom',enabled:()=>enabled.value,title:()=> 'QA DOM',width:()=>400,height:()=>300,registryId:'qa-dom',close:()=>{enabled.value=false}});return()=>h('div',[h(Teleport,{to:native.value||dock.value,defer:true},[h(Child)]),h('div',{id:'parking'}),h('div',{id:mode.value?'b':'a',key:mode.value?'b':'a'})])}})
+ app.config.errorHandler=e=>{throw e};app.mount('#app');await frame()
+ const original=document.querySelector('#payload');check('Destino inicial montado',original?.parentElement?.id==='a')
+ mode.value=true;await frame();count.value++;await frame();check('Destino reconstruido conectado',original.parentElement?.id==='b'&&original.isConnected);check('Actualización conserva contenido',original.textContent==='1');check('No duplica componente',mounts===1)
+ enabled.value=true;await frame();const doc=getNativeToolDocument('qa-dom');check('Ventana nativa registrada',!!doc);check('Misma instancia en ventana',doc.querySelector('#payload')===original&&mounts===1)
+ const popup=doc.defaultView,close=popup.close.bind(popup);popup.close=()=>{closeChecks.push({inside:!!doc.querySelector('#payload'),home:document.querySelector('#b #payload')===original});return close()}
+ enabled.value=false;await frame();await frame();check('Contenido de vuelta en documento principal',document.querySelector('#b #payload')===original);check('Cierre posterior al traslado',closeChecks.length===1&&!closeChecks[0].inside&&closeChecks[0].home);check('Registro retirado',!getNativeToolDocument('qa-dom'));check('Instancia única tras cierre',mounts===1);finish()
+}catch(e){finish(e)}finally{app?.unmount()}
+</script></body></html>

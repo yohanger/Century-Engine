@@ -1,0 +1,133 @@
+<!doctype html><html lang="es"><meta charset="utf-8"><title>QA G008-G002 · Geometría temporal</title>
+<style>html,body{margin:0;background:#151a20;color:#e6ebef;font:12px system-ui}#timeline{width:900px;height:400px;overflow:hidden}#lf-timeline-temporal-geometry-s13-g008-g002-result{display:none}</style>
+<div id="timeline"></div><pre id="lf-timeline-temporal-geometry-s13-g008-g002-result"></pre>
+<script>
+(()=>{
+ const result=document.getElementById('lf-timeline-temporal-geometry-s13-g008-g002-result'),checks=[]
+ let stage='bootstrap',finished=false
+ const report=()=>{if(!finished){result.dataset.stage=stage;result.textContent=JSON.stringify({pass:null,stage,checks})}}
+ const progress=s=>{stage=s;report()}
+ const check=(name,pass,actual)=>{checks.push({name,pass:!!pass,...(actual===undefined?{}:{actual})});progress(`${checks.length}: ${name}`)}
+ const finish=error=>{if(finished)return;finished=true;clearTimeout(watchdog)
+  const pass=!error&&checks.length===43&&checks.every(x=>x.pass)
+  result.dataset.pass=String(pass);result.dataset.checks=String(checks.length);result.dataset.stage=pass?'final:PASS':'final:FAIL'
+  result.textContent=JSON.stringify({pass,stage,...(error?{error:String(error.stack||error)}:{}),checks,gl:!!document.createElement('canvas').getContext('webgl')},null,2)
+ }
+ const watchdog=setTimeout(()=>finish(new Error(`Watchdog en ${stage}`)),49000)
+ window.addEventListener('error',e=>finish(e.error||new Error(e.message||'Error de script')))
+ window.addEventListener('unhandledrejection',e=>finish(e.reason||new Error('Promesa rechazada')))
+ window.__lfGeomQA={check,finish,progress};report()
+})()
+</script>
+<script type="module">
+const {check,finish,progress}=window.__lfGeomQA
+let app=null,playback=null
+try{
+ progress('Montaje de TimelinePanel original con escena de prueba')
+ await import('/src/styles.css')
+ const [{createApp,h,nextTick},{default:TimelinePanel},{createProjectData},storeModule,model,session]=await Promise.all([
+  import('vue'),import('/src/components/TimelinePanel.vue'),import('/src/core/project.js'),
+  import('/src/core/store.js'),import('/src/core/timeline/model.js'),import('/src/core/timeline/playback-session.js')])
+ const {store,setEditor,resetHistory,openTimelineEditor}=storeModule
+ const {newKey,newTrack,newTimeline}=model
+ const camera=newTrack('camera',{id:'g002-camera',keys:[newKey('camera',1,{id:'cam-1'}),newKey('camera',3,{id:'cam-2'}),newKey('camera',8,{id:'cam-3'})],
+  clips:[{id:'g002-clip-2s',start:1,duration:2,from:'cam-1',to:'cam-2',in:0,out:1},{id:'g002-clip-4s',start:4,duration:4,from:'cam-2',to:'cam-3',in:0,out:1}]})
+ const audio=newTrack('audio',{id:'g002-audio',keys:[newKey('audio',6,{id:'aud-2s',clip:'',duration:2})]})
+ const bake=newTrack('bake',{id:'g002-bake',start:9,duration:3,node:'',keys:[]})
+ const commands=newTrack('commands',{id:'g002-commands',keys:[newKey('commands',0,{id:'cmd-zero',name:'Evento instantáneo'})]})
+ const timeline=newTimeline('Geometría QA',{id:'g002-timeline',duration:16,tracks:[camera,audio,bake,commands],markers:[{id:'m3',t:3,name:'Marcador QA'}]})
+ const project=createProjectData('Geometría temporal QA','empty');project.timelines=[timeline]
+ store.project=project;store.locked=false;store.play.on=false
+ setEditor({snapshotTerrain:()=>project.terrain});resetHistory()
+ playback=session.createTimelinePlayback({getProject:()=>store.project,getEditor:()=>store.editor,getObjects:()=>project.objects,
+  getContext:()=>({project:store.project,sceneId:project.activeSceneId,editor:store.editor,timelineId:store.timelineId,playOn:false,locked:false,cinematic:false}),
+  requestFrame:()=>1,cancelFrame:()=>{}})
+ const before=JSON.stringify(project.timelines)
+ openTimelineEditor(timeline.id)
+ app=createApp({render:()=>h(TimelinePanel)});app.provide(session.timelinePlaybackKey,playback);app.mount('#timeline')
+ const sleep=ms=>new Promise(r=>setTimeout(r,ms))
+ const flush=async()=>{await nextTick();await sleep(50);await nextTick()}
+ const $=(s)=>document.querySelector('#timeline '+s), $all=(s)=>[...document.querySelectorAll('#timeline '+s)]
+ const clip=id=>$all('.timeline-live-clip').find(el=>el.title.includes(id==='2s'?'1.00–3.00':'4.00–8.00'))
+ const lane=kind=>$all('.lane').find(l=>l.closest('.trow')?.querySelector('.key.'+kind)||l.dataset.cameraTrack===kind)
+ const ruler=()=>$('.ruler'),scroll=()=>$('.scroll'),slider=()=>$('.zoom-slider')
+ const rect=el=>el?.getBoundingClientRect(),left=el=>parseFloat(el?.style.left||'NaN'),width=el=>parseFloat(el?.style.width||'NaN')
+ const approx=(a,b,tol=1.1)=>Number.isFinite(a)&&Math.abs(a-b)<=tol
+ // El marcador usa translateX(-50%): su centro representa el instante, no su borde izquierdo.
+ const markerClipAlignment=()=>{
+  const marker=$('.timeline-marker'), live=clip('2s')
+  const mr=rect(marker), cr=rect(live), rr=rect(ruler())
+  return {markerCenter:mr ? mr.left+mr.width/2 : NaN,clipEnd:cr?.right ?? NaN,
+   projected:rr ? rr.left+left(marker) : NaN,scrollLeft:scroll().scrollLeft}
+ }
+ const markerAligned=(value)=>approx(value.markerCenter,value.clipEnd,1.1)&&approx(value.markerCenter,value.projected,1.1)
+ const origin=24
+ await flush()
+ check('WebGL real disponible',!!document.createElement('canvas').getContext('webgl'))
+ check('TimelinePanel original está montado',!!$('.tlp')&&!!ruler()&&!!scroll())
+ check('Regla parte de un origen visual de 24px',approx(left($all('.tick').find(el=>el.textContent==='0')),origin,0.1))
+ check('Se mantiene un margen antes del origen visual',getComputedStyle($('.inner'),'::before').width==='24px')
+ check('Cero temporal sigue siendo 0 en proyecto',timeline.tracks[3].keys[0].t===0)
+ check('Cabezal parte del mismo origen de 24px',approx(left($('.playhead')),origin,.1))
+ check('Asa del cabezal comparte coordenada del cero',approx(left($('.playhead-grip')),origin,.1))
+ check('Marcador del segundo 3 respeta margen y zoom',approx(left($('.timeline-marker')),origin+3*70,.1))
+ check('Grilla comienza en el tiempo cero',getComputedStyle($('.time-grid')).backgroundPositionX.includes('24px'))
+ check('Margin y cabezal no bloquean el puntero',getComputedStyle($('.inner'),'::before').pointerEvents==='none'&&getComputedStyle($('.playhead')).pointerEvents==='none')
+ check('Clip real de duración 2 segundos montado',!!clip('2s'))
+ check('Clip real de duración 4 segundos montado',!!clip('4s'))
+ check('Clip de 2 segundos tiene ancho 140px a zoom 70',approx(width(clip('2s')),140,.1))
+ check('Clip de 4 segundos tiene ancho 280px a zoom 70',approx(width(clip('4s')),280,.1))
+ check('Los extremos de clips incluyen solo el origen en su posición',approx(left(clip('2s')),94,.1)&&approx(left(clip('4s')),304,.1))
+ const span=$('.lane .span')
+ check('Segmento de Cámara conserva escala de duración 2 segundos',approx(width(span),140,.1))
+ check('La banda Audio mantiene duración exacta de 2 segundos',approx(width($('.key.audio')),140,.1))
+ check('El asa de Audio coincide con extremo derecho del clip',approx(rect($('.audio-duration-tail'))?.right,rect($('.key.audio'))?.right,2))
+ check('Física horneada ocupa tres segundos sin expansión por padding',approx(rect($('.bakeclip'))?.width,210,.5))
+ check('Una clave instantánea de Comandos no adquiere duración',timeline.tracks[3].keys[0].duration===undefined)
+ check('El proyecto no se modifica durante el montaje',JSON.stringify(project.timelines)===before)
+ // Cambio de zoom: no modifica el proyecto ni la duración de las bandas.
+ slider().value='140';slider().dispatchEvent(new Event('input',{bubbles:true}));await flush()
+ check('Zoom aumenta a 140px/s',approx(Number(slider().value),140,.1))
+ check('Clip 2s duplica ancho a 280px',approx(width(clip('2s')),280,.1))
+ check('Clip 4s duplica ancho a 560px',approx(width(clip('4s')),560,.1))
+ check('Los clips siguen compartiendo origen visual tras zoom',approx(left(clip('2s')),164,.1)&&approx(left(clip('4s')),584,.1))
+ check('Marcador mantiene alineación a zoom 140',approx(left($('.timeline-marker')),444,.1)&&markerAligned(markerClipAlignment()),markerClipAlignment())
+ check('El segundo cero no se desplaza por zoom',approx(left($('.playhead')),origin,.1))
+ check('Duraciones serializadas no se alteran al hacer zoom',JSON.stringify(project.timelines)===before)
+ const sc=scroll(),atCursor=300
+ sc.scrollLeft=220;sc.dispatchEvent(new Event('scroll'));await flush()
+ check('Scroll horizontal conserva el origen temporal compartido',approx(rect(clip('2s')).left,rect(ruler()).left+left(clip('2s')),1.1))
+ check('Marcador y clip siguen alineados al desplazar',markerAligned(markerClipAlignment()),markerClipAlignment())
+ check('El corchete global corresponde a duración × zoom + origen - scroll',approx(left($('.duration-grip')),origin+timeline.duration*140-sc.scrollLeft,1.5))
+ const oldZ=Number(slider().value),oldTime=(sc.scrollLeft+atCursor-origin)/oldZ
+ const r=rect(sc)
+ sc.dispatchEvent(new WheelEvent('wheel',{bubbles:true,cancelable:true,ctrlKey:true,deltaY:-150,clientX:r.left+atCursor,clientY:r.top+60}))
+ await flush()
+ const z=Number(slider().value)
+ check('Ctrl+rueda aumenta zoom sin mover tiempo lógico',z>oldZ)
+ check('Cursor conserva el mismo instante durante zoom',Math.abs((sc.scrollLeft+atCursor-origin)/z-oldTime)<.08,{before:oldTime,after:(sc.scrollLeft+atCursor-origin)/z})
+ check('Clip de 2 segundos sigue siendo proporcional al zoom',approx(width(clip('2s')),2*z,.3))
+ check('Cabezal y 0 mantienen margen aun tras scroll y zoom',approx(left($('.playhead')),origin,.1)&&approx(left($all('.tick').find(el=>el.textContent==='0')),origin,.1))
+ // Scrub desde la regla: 24px de margen visual, ningún desplazamiento del tiempo persistido.
+ sc.scrollLeft=0;sc.dispatchEvent(new Event('scroll'));await flush()
+ const ruleRect=rect(ruler()),at=ruleRect.left+origin+2*z
+ ruler().dispatchEvent(new PointerEvent('pointerdown',{button:0,buttons:1,isPrimary:true,pointerId:133,clientX:at,clientY:ruleRect.top+15,bubbles:true}))
+ window.dispatchEvent(new PointerEvent('pointerup',{button:0,pointerId:133,clientX:at,bubbles:true}));await flush()
+ check('Clic en segundo 2 desplaza cabezal al tiempo 2',approx(playback.time.value,2,.05))
+ check('Cabezal visual corresponde exactamente a tiempo 2',approx(left($('.playhead')),origin+2*z,.5))
+ ruler().dispatchEvent(new PointerEvent('pointerdown',{button:0,buttons:1,isPrimary:true,pointerId:134,clientX:ruleRect.left+5,clientY:ruleRect.top+15,bubbles:true}))
+ window.dispatchEvent(new PointerEvent('pointerup',{button:0,pointerId:134,bubbles:true}));await flush()
+ check('Pulsar margen previo a cero fija tiempo 0',playback.time.value===0)
+ check('Cabezal regresa al origen visual sin cambiar Timeline',approx(left($('.playhead')),origin,.5))
+ // Doble clic en pista Comandos: misma conversión tiempo→píxel→tiempo, con Snap real.
+ const commandLane=$all('.lane').find(l=>l.querySelector('.key.commands'))
+ const commandRect=rect(commandLane),target=commandRect.left+origin+4*z
+ commandLane.dispatchEvent(new MouseEvent('dblclick',{clientX:target,clientY:commandRect.top+17,bubbles:true}))
+ await flush()
+ check('Doble clic en pista Comandos usa tiempo 4 real',timeline.tracks[3].keys.some(k=>approx(k.t,4,.01)))
+ check('Se conserva la clave original del segundo cero',timeline.tracks[3].keys.some(k=>k.id==='cmd-zero'&&k.t===0))
+ check('La nueva clave usa un marcador instantáneo',timeline.tracks[3].keys.every(k=>k.duration===undefined))
+ check('No se añade un estado temporal paralelo al proyecto',!('timeOrigin' in timeline)&&!('originPx' in timeline))
+ finish()
+}catch(error){finish(error)}finally{try{playback?.dispose()}catch{}try{app?.unmount()}catch{}}
+</script></html>

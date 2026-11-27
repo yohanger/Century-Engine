@@ -1,0 +1,112 @@
+{
+  "gate": "CENTURY-EDITOR-UX-S02-G001-CORR-003-FOCUS-INDEPENDENT-EDIT-PLAY-VIEWPORT-LIFECYCLE",
+  "authorized": "Listo. CENTURY-EDITOR-UX-S02-G001-CORR-003-FOCUS-INDEPENDENT-EDIT-PLAY-VIEWPORT-LIFECYCLE autoriza comenzar",
+  "authority": "CE-EDITOR-UX-CA-001-EDIT-PLAY-INDEPENDENT-AUTHORITY-AND-DOCKING",
+  "source_baseline": "CENTURY-EDITOR-UX-S02-G001-CORR-002-REAL-FRUSTUM-OCCLUSION-CULLING-AND-VIEWPORT-DIAGNOSTICS_SOURCE_BASELINE.zip",
+  "source_baseline_sha256": "22467a43f95987461f489b07d682384fcfb90c2711e43acff5531023bc5a93ab",
+  "source_files_verified": 3287,
+  "source_files_missing": [],
+  "source_files_changed_before_work": 0,
+  "source_files_unchanged_after_work": 3279,
+  "output_files_before_manifest": 3296,
+  "changes_excluding_manifest": [
+    {
+      "path": "docs/architecture/CENTURY-EDITOR-UX-S02-G001-CORR-003-FOCUS-INDEPENDENT-EDIT-PLAY-VIEWPORT-LIFECYCLE_IMPLEMENTATION.md",
+      "status": "added",
+      "sha256": "67aae8cf207a1968b496a667c30fd1eeb9b318d81f9a6026c06c9025f4934df9"
+    },
+    {
+      "path": "docs/qa/CENTURY-EDITOR-UX-S02-G001-CORR-003-FOCUS-INDEPENDENT-EDIT-PLAY-VIEWPORT-LIFECYCLE_EVIDENCE.md",
+      "status": "added",
+      "sha256": "f9a505efcef79ffec664c5eef5b099e6c832d0e12b02a8fe4449a93192a04218"
+    },
+    {
+      "path": "docs/qa/LevelForge_DB_Ledger.xlsx",
+      "status": "modified",
+      "sha256": "1f912f7f48149de697029bb26069b3cca565e7ec79f30b32ae00004304ff446c"
+    },
+    {
+      "path": "docs/qa/evidence/CENTURY-EDITOR-UX-S02-G001-CORR-003-FOCUS-INDEPENDENT-EDIT-PLAY-VIEWPORT-LIFECYCLE/build.log",
+      "status": "added",
+      "sha256": "ad93033e7f39a0f04a1ed40edf91f741c64cfbf9fa5ed37ad17f38e46626cd7c"
+    },
+    {
+      "path": "docs/qa/evidence/CENTURY-EDITOR-UX-S02-G001-CORR-003-FOCUS-INDEPENDENT-EDIT-PLAY-VIEWPORT-LIFECYCLE/domain-node.log",
+      "status": "added",
+      "sha256": "9cc6371c0b2c5bdbf18445b670fde929237b4d05f3d6932838b747fadbfa6fa1"
+    },
+    {
+      "path": "docs/qa/evidence/CENTURY-EDITOR-UX-S02-G001-CORR-003-FOCUS-INDEPENDENT-EDIT-PLAY-VIEWPORT-LIFECYCLE/focused-node.log",
+      "status": "added",
+      "sha256": "add733f8c6486ba187f50637c0687f1af680cf0794046b57e11eafbd8ccf0a21"
+    },
+    {
+      "path": "docs/qa/evidence/CENTURY-EDITOR-UX-S02-G001-CORR-003-FOCUS-INDEPENDENT-EDIT-PLAY-VIEWPORT-LIFECYCLE/regression-node.log",
+      "status": "added",
+      "sha256": "bd7ea4d35c00c367bbc34a4f32dd8f178b95e37d8632f4ec2a1b881bdd3f69ec"
+    },
+    {
+      "path": "docs/qa/evidence/CENTURY-EDITOR-UX-S02-G001-CORR-003-FOCUS-INDEPENDENT-EDIT-PLAY-VIEWPORT-LIFECYCLE/syntax.log",
+      "status": "added",
+      "sha256": "aabee1aa7babd541a55b0ccf3a8258f2bb367da1efe788111c9474202b2f8db1"
+    },
+    {
+      "path": "docs/qa/evidence/CENTURY-EDITOR-UX-S02-G001-CORR-003-FOCUS-INDEPENDENT-EDIT-PLAY-VIEWPORT-LIFECYCLE/three-node.log",
+      "status": "added",
+      "sha256": "ef5bef77343231bf61097851351313d831a585a73ee050d2c2911eeb224e5aa6"
+    },
+    {
+      "path": "scripts/test-editor-view-lifecycle-corr003.mjs",
+      "status": "added",
+      "sha256": "8136bc4dd0f5e4c9402caab464ac19df027191dba29904861d7e3d734498aa0b"
+    },
+    {
+      "path": "scripts/test-viewport-docking-and-camera-loopcut-s02-g001.mjs",
+      "status": "modified",
+      "sha256": "b8e43847390f4b56be7fe61865de5318dc138a0e6a399bdf14cfd52910049be9"
+    },
+    {
+      "path": "src/App.vue",
+      "status": "modified",
+      "sha256": "2b47e145459df5fb97150b25d1f7fa57021137696560ddb5df2a8494aac8737d"
+    },
+    {
+      "path": "src/components/DockFloating.vue",
+      "status": "modified",
+      "sha256": "4a6192631ca0507e4d37d46d16b60613ac10b24862658736d83a2e4ce8043546"
+    },
+    {
+      "path": "src/components/SceneRuntimeObserver.vue",
+      "status": "modified",
+      "sha256": "05b0e6417787dbe1e7b3853156de1b5a934c0fbf6ead95571d1c9b01b6f90ba3"
+    },
+    {
+      "path": "src/components/ViewBar.vue",
+      "status": "modified",
+      "sha256": "c00ef8b7d436625ca220213ef036472d63654b1d97f6fb723b26630eed6fde90"
+    },
+    {
+      "path": "src/core/editor/camera-tools.js",
+      "status": "modified",
+      "sha256": "05a7a063bbcf25077bdc279e01fb469f548f0fd181b6bb111e86ffc46975873b"
+    },
+    {
+      "path": "src/core/editor/view-dock-session.js",
+      "status": "modified",
+      "sha256": "e351d06ec6fcd88c98d9f1663842b0b078ec4001fefa0e5c8c4b2d571fadc97f"
+    }
+  ],
+  "qa": {
+    "focal": "43/43 PASS (8 tests added + previous focal)",
+    "regression": "93/95 PASS; prior failures DOCK-30 and DOCK-C09",
+    "domain": "61/61 PASS",
+    "syntax": "PASS JS and extracted SFC script blocks",
+    "build": "BLOCKED vite: not found",
+    "three": "BLOCKED missing package entrypoint",
+    "electron_visual": "NOT VERIFIED",
+    "approvals": "CORR-002 approved by user; CORR-003 pending user approval",
+    "closure": "OPEN"
+  },
+  "git_operations": "none",
+  "external_project_files_merged": false
+}

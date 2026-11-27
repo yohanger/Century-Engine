@@ -1,0 +1,96 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Century · Auditoría VFX S00</title>
+<style>body{background:#15181c;color:#e1e8ed;font:12px system-ui} canvas{border:1px solid #777}</style></head><body>
+<h3>QA Electron · perfiles diagnósticos aislados · misma cámara y resolución</h3>
+<pre id="vfx-consolidation-audit-result">Inicializando WebGL…</pre>
+<script type="module">
+import * as THREE from 'three'
+import { newVfxResource, validateVfxResource } from '/src/engine/runtime/vfx/resource.js'
+import { VfxSimulation } from '/src/engine/runtime/vfx/simulation.js'
+import { VfxBillboardRenderer } from '/src/engine/runtime/vfx/render.js'
+import { PrecipFX } from '/src/engine/runtime/world/fx.js'
+import { SplashFX } from '/src/engine/runtime/world/splash.js'
+import { LeafFX } from '/src/engine/runtime/world/leaves.js'
+import { CritterSystem } from '/src/engine/runtime/critters/system.js'
+import { LightningFX } from '/src/engine/runtime/world/lightning-fx.js'
+
+const output=document.getElementById('vfx-consolidation-audit-result')
+const checks=[],profiles=[],owned=[]
+const check=(name,pass,details='')=>{checks.push({name,pass:!!pass,details});if(!pass)throw Error(`${name}: ${JSON.stringify(details)}`)}
+let renderer
+try {
+  renderer=new THREE.WebGLRenderer({antialias:false,preserveDrawingBuffer:true})
+  renderer.setSize(320,180);renderer.setPixelRatio(1)
+  document.body.append(renderer.domElement)
+  const gl=renderer.getContext()
+  check('WebGL 2',renderer.capabilities.isWebGL2,gl.getParameter(gl.VERSION))
+  const scene=new THREE.Scene();scene.background=new THREE.Color('#37404a')
+  const camera=new THREE.PerspectiveCamera(70,320/180,0.1,800)
+  camera.position.set(0,3,8);camera.lookAt(0,1,-5);camera.updateMatrixWorld(true)
+  const neutral={precip:{rain:0,snow:0},ambientMul:1,skyHorizon:'#8899aa',wind:{x:0,z:0}}
+  const rainy={...neutral,precip:{rain:0.70,snow:0},wind:{x:2,z:-1}}
+  const snowing={...neutral,precip:{rain:0,snow:0.75}}
+  const declarations=[]
+  const track=(name,objects,setup,dispose,notes)=>{declarations.push({name,objects,setup,dispose,notes});owned.push(dispose)}
+
+  const raw=newVfxResource('qa-audit','Audit.vfx')
+  const r=validateVfxResource({...raw,emission:{...raw.emission,mode:'burst',burstCount:64,rate:0,capacity:64,loop:false},birth:{...raw.birth,lifetime:[5,5]},appearance:{...raw.appearance,opacity:0.8}})
+  const sim=new VfxSimulation(r);sim.step()
+  const view=new VfxBillboardRenderer(sim);scene.add(view.mesh);view.sync(camera)
+  track('VFX3D / VfxBillboardRenderer',[view.mesh],()=>view.sync(camera),()=>view.dispose(),{particleCount:sim.count,source:'VfxSimulation'})
+
+  const precip=new PrecipFX(scene)
+  track('PrecipFX / lluvia y bruma',[precip.rain,precip.mist,precip.splash,precip.snow],()=>precip.update(rainy,camera,1/60,180,0,{x:2,z:-1}),()=>precip.dispose(),{source:'GPU instanciado',capacityRain:7000,capacityMist:1800})
+  track('PrecipFX / nieve',[precip.rain,precip.mist,precip.splash,precip.snow],()=>precip.update(snowing,camera,1/60,180,0,{x:0,z:0}),()=>{}, {source:'GPU Points',capacitySnow:7000})
+
+  const splash=new SplashFX(scene);splash.burst(0,0,-5,{n:12,power:0.5})
+  track('SplashFX / agua',[splash.points],()=>splash.update(1/60,camera,180),()=>splash.dispose(),{source:'CPU Points',capacity:480})
+
+  const leaves=new LeafFX(scene)
+  const trunk=new THREE.BoxGeometry(0.4,4,0.4)
+  const terrain={enabled:true,ox:0,oz:0,heightAt:()=>0,foliage:{types:new Map([['audit',{cfg:{leaves:true,visible:true},count:1,data:[0,0,-6,1],parts:[{geometry:trunk}]}]])}}
+  track('LeafFX / follaje',[leaves.mesh],()=>leaves.update(neutral,camera,1/60,[terrain],true),()=>{leaves.dispose();trunk.dispose()},{source:'GPU instanciado',syntheticTree:true})
+
+  const critterNode={id:'audit-firefly',type:'critters',visible:true,position:[0,0,-5],props:{species:'firefly',count:20}}
+  const critters=new CritterSystem(scene,{objects:()=>[critterNode],ground:()=>0})
+  track('CritterSystem / luciérnagas',[critters.points],()=>critters.update(null,camera,1/60,180,true),()=>critters.dispose(),{source:'CPU agentes + Points',syntheticCluster:true})
+
+  const lightning=new LightningFX(scene)
+  track('LightningFX / inactivo',[lightning.mesh],()=>lightning.update({strike:null},camera),()=>lightning.dispose(),{source:'cintas de rayo',inactiveOnly:true})
+  check('instancias reales de seis renderers',!!view.mesh&&!!precip.rain&&!!splash.points&&!!leaves.mesh&&!!critters.points&&!!lightning.mesh)
+
+  const every=[...new Set(declarations.flatMap(x=>x.objects))]
+  for (const d of declarations) {
+    for(const obj of every)obj.visible=false
+    d.setup()
+    const enabled=new Set(d.objects)
+    for(const obj of every)if(!enabled.has(obj))obj.visible=false
+    for(let i=0;i<7;i++)renderer.render(scene,camera)
+    const times=[],calls=[]
+    for(let i=0;i<24;i++) {
+      const before=performance.now()
+      renderer.render(scene,camera)
+      times.push(performance.now()-before)
+      calls.push(renderer.info.render.calls)
+    }
+    times.sort((a,b)=>a-b)
+    const visible=d.objects.filter(o=>o.visible)
+    const record={name:d.name,drawCalls:Math.max(...calls),medianSubmitMs:(times[11]+times[12])/2,
+      visible:visible.length,totalObjects:d.objects.length,
+      instances:visible.map(o=>o.geometry?.instanceCount??o.geometry?.drawRange?.count??null),
+      gpuError:gl.getError(),notes:d.notes}
+    profiles.push(record)
+    check(`render ${d.name}`,record.gpuError===gl.NO_ERROR,record)
+  }
+  // No equivalen a FPS: medir el envío CPU no espera a la GPU; los sistemas usan cargas distintas.
+  check('perfiles independientes presentes',profiles.length===7)
+  check('VFX sin mezclar .vfx en los demás sistemas',profiles.filter(p=>p.name!=='VFX3D / VfxBillboardRenderer').every(p=>p.notes.source!=='VfxSimulation'))
+  output.dataset.pass='true'
+  output.textContent=JSON.stringify({pass:true,checks,profiles,gl:gl.getParameter(gl.VERSION),warning:'Los ms miden envío CPU, NO duración GPU, FPS ni equivalencia visual'},null,2)
+} catch(error) {
+  output.dataset.pass='false'
+  output.textContent=JSON.stringify({pass:false,checks,profiles,error:String(error.stack||error)},null,2)
+} finally {
+  for(const dispose of [...owned].reverse())try{dispose()}catch(error){console.warn('dispose QA:',error)}
+  renderer?.dispose()
+}
+</script></body></html>

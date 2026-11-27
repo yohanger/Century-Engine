@@ -1,0 +1,1300 @@
+{
+  "runtime": "v26.13.1",
+  "cpu": "Intel(R) Pentium(R) Silver N5030 CPU @ 1.10GHz",
+  "metrics": [
+    {
+      "name": "driven",
+      "particles": 320,
+      "steps": 540,
+      "massKg": 214.37499999999997,
+      "maxMassErrorKg": 0,
+      "runupZ": 0.5509285608059208,
+      "minimumRunupAfterTwoSecondsZ": 0.12341217706699742,
+      "limits": 438,
+      "maximumPenetrationMeters": 8.999745393367675e-15,
+      "peakAirMl": 137.39177595703606,
+      "addedMl": 256.41585062091025,
+      "releasedMl": 127.5139872661832,
+      "remainingMl": 128.90186335472734,
+      "maxGasBalanceErrorM3": 1.6263032587282567e-19,
+      "cumulativeImpulse": 9517.138806050521,
+      "cumulativePaddleImpulse": 995.7635949822887,
+      "maxMomentumError": 1.1475265182525618e-12,
+      "maxCompression": 0.019487136247847925,
+      "stepMedianMs": 36.25649399999929,
+      "stepP95Ms": 50.59208799999942,
+      "surfaceMedianMs": 190.67169999999896,
+      "surfaceP95Ms": 264.4476020000002,
+      "trace": [
+        {
+          "step": 12,
+          "t": 0.1,
+          "front": -0.035359619695617454,
+          "airMl": 0,
+          "triangles": 9560,
+          "rebuilt": 46,
+          "reused": 0
+        },
+        {
+          "step": 24,
+          "t": 0.2,
+          "front": 0.03228808295545744,
+          "airMl": 5.837510552717265,
+          "triangles": 9900,
+          "rebuilt": 46,
+          "reused": 0
+        },
+        {
+          "step": 36,
+          "t": 0.3,
+          "front": 0.08914943372562778,
+          "airMl": 6.347611930899461,
+          "triangles": 10452,
+          "rebuilt": 38,
+          "reused": 0
+        },
+        {
+          "step": 48,
+          "t": 0.4,
+          "front": 0.13452185305324268,
+          "airMl": 10.507914299253173,
+          "triangles": 10552,
+          "rebuilt": 42,
+          "reused": 0
+        },
+        {
+          "step": 60,
+          "t": 0.5,
+          "front": 0.1802747420311856,
+          "airMl": 13.783352375340698,
+          "triangles": 10252,
+          "rebuilt": 41,
+          "reused": 0
+        },
+        {
+          "step": 72,
+          "t": 0.6,
+          "front": 0.20768834174403047,
+          "airMl": 13.16364572802951,
+          "triangles": 9996,
+          "rebuilt": 41,
+          "reused": 0
+        },
+        {
+          "step": 84,
+          "t": 0.7,
+          "front": 0.21099252661759624,
+          "airMl": 12.59631690291135,
+          "triangles": 9880,
+          "rebuilt": 40,
+          "reused": 0
+        },
+        {
+          "step": 96,
+          "t": 0.8,
+          "front": 0.21087039756680157,
+          "airMl": 12.113414827143732,
+          "triangles": 9764,
+          "rebuilt": 41,
+          "reused": 0
+        },
+        {
+          "step": 108,
+          "t": 0.9,
+          "front": 0.20113882457349713,
+          "airMl": 25.58120957679946,
+          "triangles": 9456,
+          "rebuilt": 42,
+          "reused": 0
+        },
+        {
+          "step": 120,
+          "t": 1,
+          "front": 0.20555034695360436,
+          "airMl": 36.73202856568602,
+          "triangles": 9308,
+          "rebuilt": 44,
+          "reused": 0
+        },
+        {
+          "step": 132,
+          "t": 1.1,
+          "front": 0.1991327497442728,
+          "airMl": 36.562307768760036,
+          "triangles": 9156,
+          "rebuilt": 44,
+          "reused": 0
+        },
+        {
+          "step": 144,
+          "t": 1.2,
+          "front": 0.21183578645699438,
+          "airMl": 34.830749654810525,
+          "triangles": 9460,
+          "rebuilt": 45,
+          "reused": 0
+        },
+        {
+          "step": 156,
+          "t": 1.3,
+          "front": 0.23991322966200432,
+          "airMl": 33.232934580905884,
+          "triangles": 9436,
+          "rebuilt": 47,
+          "reused": 0
+        },
+        {
+          "step": 168,
+          "t": 1.4,
+          "front": 0.26085090344581685,
+          "airMl": 31.697901031397638,
+          "triangles": 9568,
+          "rebuilt": 46,
+          "reused": 0
+        },
+        {
+          "step": 180,
+          "t": 1.5,
+          "front": 0.27944359327144835,
+          "airMl": 31.485099970279613,
+          "triangles": 9716,
+          "rebuilt": 42,
+          "reused": 0
+        },
+        {
+          "step": 192,
+          "t": 1.6,
+          "front": 0.30853169626177224,
+          "airMl": 30.029605141606538,
+          "triangles": 9768,
+          "rebuilt": 44,
+          "reused": 0
+        },
+        {
+          "step": 204,
+          "t": 1.7,
+          "front": 0.32504361264166226,
+          "airMl": 28.554249654619227,
+          "triangles": 9684,
+          "rebuilt": 40,
+          "reused": 0
+        },
+        {
+          "step": 216,
+          "t": 1.8,
+          "front": 0.3279560377362599,
+          "airMl": 27.213919750439416,
+          "triangles": 9948,
+          "rebuilt": 40,
+          "reused": 0
+        },
+        {
+          "step": 228,
+          "t": 1.9,
+          "front": 0.31497659373155484,
+          "airMl": 25.785493875704642,
+          "triangles": 9972,
+          "rebuilt": 40,
+          "reused": 0
+        },
+        {
+          "step": 240,
+          "t": 2,
+          "front": 0.2976079027212629,
+          "airMl": 24.846489477692014,
+          "triangles": 10248,
+          "rebuilt": 48,
+          "reused": 0
+        },
+        {
+          "step": 252,
+          "t": 2.1,
+          "front": 0.28074846678896415,
+          "airMl": 23.810590146503227,
+          "triangles": 10292,
+          "rebuilt": 46,
+          "reused": 0
+        },
+        {
+          "step": 264,
+          "t": 2.2,
+          "front": 0.24943345299685127,
+          "airMl": 23.808543442725053,
+          "triangles": 10164,
+          "rebuilt": 43,
+          "reused": 0
+        },
+        {
+          "step": 276,
+          "t": 2.3,
+          "front": 0.20525545708105977,
+          "airMl": 31.456219754700818,
+          "triangles": 10304,
+          "rebuilt": 45,
+          "reused": 0
+        },
+        {
+          "step": 288,
+          "t": 2.4,
+          "front": 0.16795815934043598,
+          "airMl": 34.56921490553639,
+          "triangles": 10596,
+          "rebuilt": 40,
+          "reused": 0
+        },
+        {
+          "step": 300,
+          "t": 2.5,
+          "front": 0.1395266732489442,
+          "airMl": 46.55345800718263,
+          "triangles": 11296,
+          "rebuilt": 45,
+          "reused": 0
+        },
+        {
+          "step": 312,
+          "t": 2.6,
+          "front": 0.1262880968058737,
+          "airMl": 47.91662759596714,
+          "triangles": 11816,
+          "rebuilt": 47,
+          "reused": 0
+        },
+        {
+          "step": 324,
+          "t": 2.7,
+          "front": 0.12432959069627714,
+          "airMl": 85.20487012897422,
+          "triangles": 11704,
+          "rebuilt": 45,
+          "reused": 0
+        },
+        {
+          "step": 336,
+          "t": 2.8,
+          "front": 0.14768512430215566,
+          "airMl": 102.51875567797131,
+          "triangles": 11400,
+          "rebuilt": 46,
+          "reused": 0
+        },
+        {
+          "step": 348,
+          "t": 2.9,
+          "front": 0.19628953805291868,
+          "airMl": 101.31540129031639,
+          "triangles": 11252,
+          "rebuilt": 46,
+          "reused": 0
+        },
+        {
+          "step": 360,
+          "t": 3,
+          "front": 0.25512131436488844,
+          "airMl": 108.0091144457142,
+          "triangles": 11068,
+          "rebuilt": 46,
+          "reused": 0
+        },
+        {
+          "step": 372,
+          "t": 3.1,
+          "front": 0.3188197014127167,
+          "airMl": 118.10614768463978,
+          "triangles": 10800,
+          "rebuilt": 52,
+          "reused": 0
+        },
+        {
+          "step": 384,
+          "t": 3.2,
+          "front": 0.39948148148549834,
+          "airMl": 126.34060118650171,
+          "triangles": 10688,
+          "rebuilt": 52,
+          "reused": 0
+        },
+        {
+          "step": 396,
+          "t": 3.3,
+          "front": 0.4714642867263292,
+          "airMl": 136.974049639149,
+          "triangles": 10164,
+          "rebuilt": 52,
+          "reused": 0
+        },
+        {
+          "step": 408,
+          "t": 3.4,
+          "front": 0.5215199313095141,
+          "airMl": 131.83643146029044,
+          "triangles": 10168,
+          "rebuilt": 46,
+          "reused": 0
+        },
+        {
+          "step": 420,
+          "t": 3.5,
+          "front": 0.5461067682684295,
+          "airMl": 130.31645109108237,
+          "triangles": 10308,
+          "rebuilt": 46,
+          "reused": 0
+        },
+        {
+          "step": 432,
+          "t": 3.6,
+          "front": 0.5504826400381222,
+          "airMl": 128.33113423188382,
+          "triangles": 10304,
+          "rebuilt": 44,
+          "reused": 0
+        },
+        {
+          "step": 444,
+          "t": 3.6999999999999997,
+          "front": 0.5397641308904418,
+          "airMl": 125.12629954423356,
+          "triangles": 10308,
+          "rebuilt": 43,
+          "reused": 0
+        },
+        {
+          "step": 456,
+          "t": 3.8,
+          "front": 0.5143697999994773,
+          "airMl": 123.04477222727881,
+          "triangles": 10304,
+          "rebuilt": 41,
+          "reused": 0
+        },
+        {
+          "step": 468,
+          "t": 3.9,
+          "front": 0.4659752983339055,
+          "airMl": 117.39785541144778,
+          "triangles": 10352,
+          "rebuilt": 41,
+          "reused": 0
+        },
+        {
+          "step": 480,
+          "t": 4,
+          "front": 0.40501335247857867,
+          "airMl": 124.59414819914949,
+          "triangles": 10296,
+          "rebuilt": 41,
+          "reused": 0
+        },
+        {
+          "step": 492,
+          "t": 4.1,
+          "front": 0.3408450865378549,
+          "airMl": 126.39652757820834,
+          "triangles": 10328,
+          "rebuilt": 47,
+          "reused": 0
+        },
+        {
+          "step": 504,
+          "t": 4.2,
+          "front": 0.2597546554102333,
+          "airMl": 124.05189354624805,
+          "triangles": 10420,
+          "rebuilt": 48,
+          "reused": 0
+        },
+        {
+          "step": 516,
+          "t": 4.3,
+          "front": 0.15852670628949192,
+          "airMl": 129.5322931851459,
+          "triangles": 10632,
+          "rebuilt": 46,
+          "reused": 0
+        },
+        {
+          "step": 528,
+          "t": 4.4,
+          "front": 0.13487942608501774,
+          "airMl": 126.45982134886358,
+          "triangles": 11384,
+          "rebuilt": 49,
+          "reused": 0
+        },
+        {
+          "step": 540,
+          "t": 4.5,
+          "front": 0.12856633128605083,
+          "airMl": 128.90186335472734,
+          "triangles": 12084,
+          "rebuilt": 43,
+          "reused": 0
+        }
+      ]
+    },
+    {
+      "name": "no-air",
+      "particles": 320,
+      "steps": 540,
+      "massKg": 214.37499999999997,
+      "maxMassErrorKg": 0,
+      "runupZ": 0.5509285608059208,
+      "minimumRunupAfterTwoSecondsZ": 0.12341217706699742,
+      "limits": 438,
+      "maximumPenetrationMeters": 8.999745393367675e-15,
+      "peakAirMl": 0,
+      "addedMl": 0,
+      "releasedMl": 0,
+      "remainingMl": 0,
+      "maxGasBalanceErrorM3": 0,
+      "foamOnOffMaximumPositionDifferenceMeters": 0,
+      "cumulativeImpulse": 9517.138806050521,
+      "cumulativePaddleImpulse": 995.7635949822887,
+      "maxMomentumError": 1.1475265182525618e-12,
+      "maxCompression": 0.019487136247847925,
+      "stepMedianMs": 33.732880000003206,
+      "stepP95Ms": 53.666198999999324,
+      "surfaceMedianMs": 172.06090399999812,
+      "surfaceP95Ms": 207.84835700000258,
+      "trace": [
+        {
+          "step": 12,
+          "t": 0.1,
+          "front": -0.035359619695617454,
+          "airMl": 0,
+          "triangles": 9560,
+          "rebuilt": 46,
+          "reused": 0
+        },
+        {
+          "step": 24,
+          "t": 0.2,
+          "front": 0.03228808295545744,
+          "airMl": 0,
+          "triangles": 9900,
+          "rebuilt": 46,
+          "reused": 0
+        },
+        {
+          "step": 36,
+          "t": 0.3,
+          "front": 0.08914943372562778,
+          "airMl": 0,
+          "triangles": 10452,
+          "rebuilt": 38,
+          "reused": 0
+        },
+        {
+          "step": 48,
+          "t": 0.4,
+          "front": 0.13452185305324268,
+          "airMl": 0,
+          "triangles": 10552,
+          "rebuilt": 42,
+          "reused": 0
+        },
+        {
+          "step": 60,
+          "t": 0.5,
+          "front": 0.1802747420311856,
+          "airMl": 0,
+          "triangles": 10252,
+          "rebuilt": 41,
+          "reused": 0
+        },
+        {
+          "step": 72,
+          "t": 0.6,
+          "front": 0.20768834174403047,
+          "airMl": 0,
+          "triangles": 9996,
+          "rebuilt": 41,
+          "reused": 0
+        },
+        {
+          "step": 84,
+          "t": 0.7,
+          "front": 0.21099252661759624,
+          "airMl": 0,
+          "triangles": 9880,
+          "rebuilt": 40,
+          "reused": 0
+        },
+        {
+          "step": 96,
+          "t": 0.8,
+          "front": 0.21087039756680157,
+          "airMl": 0,
+          "triangles": 9764,
+          "rebuilt": 41,
+          "reused": 0
+        },
+        {
+          "step": 108,
+          "t": 0.9,
+          "front": 0.20113882457349713,
+          "airMl": 0,
+          "triangles": 9456,
+          "rebuilt": 42,
+          "reused": 0
+        },
+        {
+          "step": 120,
+          "t": 1,
+          "front": 0.20555034695360436,
+          "airMl": 0,
+          "triangles": 9308,
+          "rebuilt": 44,
+          "reused": 0
+        },
+        {
+          "step": 132,
+          "t": 1.1,
+          "front": 0.1991327497442728,
+          "airMl": 0,
+          "triangles": 9156,
+          "rebuilt": 44,
+          "reused": 0
+        },
+        {
+          "step": 144,
+          "t": 1.2,
+          "front": 0.21183578645699438,
+          "airMl": 0,
+          "triangles": 9460,
+          "rebuilt": 45,
+          "reused": 0
+        },
+        {
+          "step": 156,
+          "t": 1.3,
+          "front": 0.23991322966200432,
+          "airMl": 0,
+          "triangles": 9436,
+          "rebuilt": 47,
+          "reused": 0
+        },
+        {
+          "step": 168,
+          "t": 1.4,
+          "front": 0.26085090344581685,
+          "airMl": 0,
+          "triangles": 9568,
+          "rebuilt": 46,
+          "reused": 0
+        },
+        {
+          "step": 180,
+          "t": 1.5,
+          "front": 0.27944359327144835,
+          "airMl": 0,
+          "triangles": 9716,
+          "rebuilt": 42,
+          "reused": 0
+        },
+        {
+          "step": 192,
+          "t": 1.6,
+          "front": 0.30853169626177224,
+          "airMl": 0,
+          "triangles": 9768,
+          "rebuilt": 44,
+          "reused": 0
+        },
+        {
+          "step": 204,
+          "t": 1.7,
+          "front": 0.32504361264166226,
+          "airMl": 0,
+          "triangles": 9684,
+          "rebuilt": 40,
+          "reused": 0
+        },
+        {
+          "step": 216,
+          "t": 1.8,
+          "front": 0.3279560377362599,
+          "airMl": 0,
+          "triangles": 9948,
+          "rebuilt": 40,
+          "reused": 0
+        },
+        {
+          "step": 228,
+          "t": 1.9,
+          "front": 0.31497659373155484,
+          "airMl": 0,
+          "triangles": 9972,
+          "rebuilt": 40,
+          "reused": 0
+        },
+        {
+          "step": 240,
+          "t": 2,
+          "front": 0.2976079027212629,
+          "airMl": 0,
+          "triangles": 10248,
+          "rebuilt": 48,
+          "reused": 0
+        },
+        {
+          "step": 252,
+          "t": 2.1,
+          "front": 0.28074846678896415,
+          "airMl": 0,
+          "triangles": 10292,
+          "rebuilt": 46,
+          "reused": 0
+        },
+        {
+          "step": 264,
+          "t": 2.2,
+          "front": 0.24943345299685127,
+          "airMl": 0,
+          "triangles": 10164,
+          "rebuilt": 43,
+          "reused": 0
+        },
+        {
+          "step": 276,
+          "t": 2.3,
+          "front": 0.20525545708105977,
+          "airMl": 0,
+          "triangles": 10304,
+          "rebuilt": 45,
+          "reused": 0
+        },
+        {
+          "step": 288,
+          "t": 2.4,
+          "front": 0.16795815934043598,
+          "airMl": 0,
+          "triangles": 10596,
+          "rebuilt": 40,
+          "reused": 0
+        },
+        {
+          "step": 300,
+          "t": 2.5,
+          "front": 0.1395266732489442,
+          "airMl": 0,
+          "triangles": 11296,
+          "rebuilt": 45,
+          "reused": 0
+        },
+        {
+          "step": 312,
+          "t": 2.6,
+          "front": 0.1262880968058737,
+          "airMl": 0,
+          "triangles": 11816,
+          "rebuilt": 47,
+          "reused": 0
+        },
+        {
+          "step": 324,
+          "t": 2.7,
+          "front": 0.12432959069627714,
+          "airMl": 0,
+          "triangles": 11704,
+          "rebuilt": 45,
+          "reused": 0
+        },
+        {
+          "step": 336,
+          "t": 2.8,
+          "front": 0.14768512430215566,
+          "airMl": 0,
+          "triangles": 11400,
+          "rebuilt": 46,
+          "reused": 0
+        },
+        {
+          "step": 348,
+          "t": 2.9,
+          "front": 0.19628953805291868,
+          "airMl": 0,
+          "triangles": 11252,
+          "rebuilt": 46,
+          "reused": 0
+        },
+        {
+          "step": 360,
+          "t": 3,
+          "front": 0.25512131436488844,
+          "airMl": 0,
+          "triangles": 11068,
+          "rebuilt": 46,
+          "reused": 0
+        },
+        {
+          "step": 372,
+          "t": 3.1,
+          "front": 0.3188197014127167,
+          "airMl": 0,
+          "triangles": 10800,
+          "rebuilt": 52,
+          "reused": 0
+        },
+        {
+          "step": 384,
+          "t": 3.2,
+          "front": 0.39948148148549834,
+          "airMl": 0,
+          "triangles": 10688,
+          "rebuilt": 52,
+          "reused": 0
+        },
+        {
+          "step": 396,
+          "t": 3.3,
+          "front": 0.4714642867263292,
+          "airMl": 0,
+          "triangles": 10164,
+          "rebuilt": 52,
+          "reused": 0
+        },
+        {
+          "step": 408,
+          "t": 3.4,
+          "front": 0.5215199313095141,
+          "airMl": 0,
+          "triangles": 10168,
+          "rebuilt": 46,
+          "reused": 0
+        },
+        {
+          "step": 420,
+          "t": 3.5,
+          "front": 0.5461067682684295,
+          "airMl": 0,
+          "triangles": 10308,
+          "rebuilt": 46,
+          "reused": 0
+        },
+        {
+          "step": 432,
+          "t": 3.6,
+          "front": 0.5504826400381222,
+          "airMl": 0,
+          "triangles": 10304,
+          "rebuilt": 44,
+          "reused": 0
+        },
+        {
+          "step": 444,
+          "t": 3.6999999999999997,
+          "front": 0.5397641308904418,
+          "airMl": 0,
+          "triangles": 10308,
+          "rebuilt": 43,
+          "reused": 0
+        },
+        {
+          "step": 456,
+          "t": 3.8,
+          "front": 0.5143697999994773,
+          "airMl": 0,
+          "triangles": 10304,
+          "rebuilt": 41,
+          "reused": 0
+        },
+        {
+          "step": 468,
+          "t": 3.9,
+          "front": 0.4659752983339055,
+          "airMl": 0,
+          "triangles": 10352,
+          "rebuilt": 41,
+          "reused": 0
+        },
+        {
+          "step": 480,
+          "t": 4,
+          "front": 0.40501335247857867,
+          "airMl": 0,
+          "triangles": 10296,
+          "rebuilt": 41,
+          "reused": 0
+        },
+        {
+          "step": 492,
+          "t": 4.1,
+          "front": 0.3408450865378549,
+          "airMl": 0,
+          "triangles": 10328,
+          "rebuilt": 47,
+          "reused": 0
+        },
+        {
+          "step": 504,
+          "t": 4.2,
+          "front": 0.2597546554102333,
+          "airMl": 0,
+          "triangles": 10420,
+          "rebuilt": 48,
+          "reused": 0
+        },
+        {
+          "step": 516,
+          "t": 4.3,
+          "front": 0.15852670628949192,
+          "airMl": 0,
+          "triangles": 10632,
+          "rebuilt": 46,
+          "reused": 0
+        },
+        {
+          "step": 528,
+          "t": 4.4,
+          "front": 0.13487942608501774,
+          "airMl": 0,
+          "triangles": 11384,
+          "rebuilt": 49,
+          "reused": 0
+        },
+        {
+          "step": 540,
+          "t": 4.5,
+          "front": 0.12856633128605083,
+          "airMl": 0,
+          "triangles": 12084,
+          "rebuilt": 43,
+          "reused": 0
+        }
+      ]
+    },
+    {
+      "name": "stationary-paddle",
+      "particles": 320,
+      "steps": 540,
+      "massKg": 214.37499999999997,
+      "maxMassErrorKg": 0,
+      "runupZ": 0.2090359547570542,
+      "minimumRunupAfterTwoSecondsZ": 0.05190083882065398,
+      "limits": 415,
+      "maximumPenetrationMeters": 9.05178709764698e-15,
+      "peakAirMl": 17.40107347406119,
+      "addedMl": 22.16737066124381,
+      "releasedMl": 17.87712053515616,
+      "remainingMl": 4.290250126087668,
+      "maxGasBalanceErrorM3": 8.470329472543003e-21,
+      "cumulativeImpulse": 9473.084525524077,
+      "cumulativePaddleImpulse": 758.8748955342153,
+      "maxMomentumError": 1.1475265182525618e-12,
+      "maxCompression": 0.015988696970570926,
+      "stepMedianMs": 32.781400000007125,
+      "stepP95Ms": 43.318553999997675,
+      "surfaceMedianMs": 161.66377199999988,
+      "surfaceP95Ms": 180.9013280000072,
+      "trace": [
+        {
+          "step": 12,
+          "t": 0.1,
+          "front": -0.035359619695617454,
+          "airMl": 0,
+          "triangles": 9560,
+          "rebuilt": 46,
+          "reused": 0
+        },
+        {
+          "step": 24,
+          "t": 0.2,
+          "front": 0.03228145903501183,
+          "airMl": 9.768776224144263,
+          "triangles": 9860,
+          "rebuilt": 54,
+          "reused": 0
+        },
+        {
+          "step": 36,
+          "t": 0.3,
+          "front": 0.08912859145517678,
+          "airMl": 10.2824794658687,
+          "triangles": 10428,
+          "rebuilt": 48,
+          "reused": 0
+        },
+        {
+          "step": 48,
+          "t": 0.4,
+          "front": 0.1341689776658092,
+          "airMl": 14.449055339691183,
+          "triangles": 10384,
+          "rebuilt": 50,
+          "reused": 0
+        },
+        {
+          "step": 60,
+          "t": 0.5,
+          "front": 0.17907907524455116,
+          "airMl": 17.284303122782,
+          "triangles": 10204,
+          "rebuilt": 49,
+          "reused": 0
+        },
+        {
+          "step": 72,
+          "t": 0.6,
+          "front": 0.20521703155603355,
+          "airMl": 16.57175460737405,
+          "triangles": 10164,
+          "rebuilt": 49,
+          "reused": 0
+        },
+        {
+          "step": 84,
+          "t": 0.7,
+          "front": 0.2067245054002341,
+          "airMl": 15.891745496194176,
+          "triangles": 10124,
+          "rebuilt": 48,
+          "reused": 0
+        },
+        {
+          "step": 96,
+          "t": 0.8,
+          "front": 0.20017996275611324,
+          "airMl": 15.211330143055694,
+          "triangles": 10190,
+          "rebuilt": 49,
+          "reused": 0
+        },
+        {
+          "step": 108,
+          "t": 0.9,
+          "front": 0.18093320235220473,
+          "airMl": 14.804118910389523,
+          "triangles": 10336,
+          "rebuilt": 49,
+          "reused": 0
+        },
+        {
+          "step": 120,
+          "t": 1,
+          "front": 0.17322527855748854,
+          "airMl": 14.498101376640452,
+          "triangles": 10252,
+          "rebuilt": 50,
+          "reused": 0
+        },
+        {
+          "step": 132,
+          "t": 1.1,
+          "front": 0.15444974595227623,
+          "airMl": 14.283895524814879,
+          "triangles": 10248,
+          "rebuilt": 50,
+          "reused": 0
+        },
+        {
+          "step": 144,
+          "t": 1.2,
+          "front": 0.13305398266022114,
+          "airMl": 13.912187602161646,
+          "triangles": 10292,
+          "rebuilt": 44,
+          "reused": 0
+        },
+        {
+          "step": 156,
+          "t": 1.3,
+          "front": 0.11253007858630967,
+          "airMl": 13.459070693023103,
+          "triangles": 10264,
+          "rebuilt": 42,
+          "reused": 0
+        },
+        {
+          "step": 168,
+          "t": 1.4,
+          "front": 0.11409468957966101,
+          "airMl": 13.01531049752432,
+          "triangles": 10180,
+          "rebuilt": 43,
+          "reused": 0
+        },
+        {
+          "step": 180,
+          "t": 1.5,
+          "front": 0.10139829401658239,
+          "airMl": 13.29286290280531,
+          "triangles": 10076,
+          "rebuilt": 39,
+          "reused": 0
+        },
+        {
+          "step": 192,
+          "t": 1.6,
+          "front": 0.0785317494692623,
+          "airMl": 13.446384485125597,
+          "triangles": 10055,
+          "rebuilt": 39,
+          "reused": 0
+        },
+        {
+          "step": 204,
+          "t": 1.7,
+          "front": 0.07079827026820357,
+          "airMl": 12.996497587817558,
+          "triangles": 9976,
+          "rebuilt": 38,
+          "reused": 0
+        },
+        {
+          "step": 216,
+          "t": 1.8,
+          "front": 0.09792596875711261,
+          "airMl": 12.525613708477614,
+          "triangles": 9900,
+          "rebuilt": 38,
+          "reused": 0
+        },
+        {
+          "step": 228,
+          "t": 1.9,
+          "front": 0.11634155792144187,
+          "airMl": 12.08560406453837,
+          "triangles": 9964,
+          "rebuilt": 37,
+          "reused": 0
+        },
+        {
+          "step": 240,
+          "t": 2,
+          "front": 0.11954670455178518,
+          "airMl": 11.653176531153676,
+          "triangles": 9964,
+          "rebuilt": 38,
+          "reused": 0
+        },
+        {
+          "step": 252,
+          "t": 2.1,
+          "front": 0.11376714125764624,
+          "airMl": 11.193068158132997,
+          "triangles": 9976,
+          "rebuilt": 38,
+          "reused": 0
+        },
+        {
+          "step": 264,
+          "t": 2.2,
+          "front": 0.09891082876421835,
+          "airMl": 10.73907893130832,
+          "triangles": 10024,
+          "rebuilt": 38,
+          "reused": 0
+        },
+        {
+          "step": 276,
+          "t": 2.3,
+          "front": 0.08102236899425691,
+          "airMl": 10.32097533502478,
+          "triangles": 9964,
+          "rebuilt": 38,
+          "reused": 0
+        },
+        {
+          "step": 288,
+          "t": 2.4,
+          "front": 0.07582116540811107,
+          "airMl": 11.769386978780233,
+          "triangles": 9888,
+          "rebuilt": 38,
+          "reused": 0
+        },
+        {
+          "step": 300,
+          "t": 2.5,
+          "front": 0.08159240360007822,
+          "airMl": 11.308115786069855,
+          "triangles": 9868,
+          "rebuilt": 38,
+          "reused": 0
+        },
+        {
+          "step": 312,
+          "t": 2.6,
+          "front": 0.08367738090215587,
+          "airMl": 10.86727966824569,
+          "triangles": 9828,
+          "rebuilt": 38,
+          "reused": 0
+        },
+        {
+          "step": 324,
+          "t": 2.7,
+          "front": 0.07816727608271458,
+          "airMl": 10.446794763775877,
+          "triangles": 9696,
+          "rebuilt": 38,
+          "reused": 0
+        },
+        {
+          "step": 336,
+          "t": 2.8,
+          "front": 0.07590439039482443,
+          "airMl": 10.00782438225894,
+          "triangles": 9636,
+          "rebuilt": 38,
+          "reused": 0
+        },
+        {
+          "step": 348,
+          "t": 2.9,
+          "front": 0.07509315755107322,
+          "airMl": 9.554966481526085,
+          "triangles": 9661,
+          "rebuilt": 38,
+          "reused": 0
+        },
+        {
+          "step": 360,
+          "t": 3,
+          "front": 0.07357894770006543,
+          "airMl": 9.112618503550005,
+          "triangles": 9632,
+          "rebuilt": 37,
+          "reused": 0
+        },
+        {
+          "step": 372,
+          "t": 3.1,
+          "front": 0.071545416390733,
+          "airMl": 8.682474062211876,
+          "triangles": 9616,
+          "rebuilt": 37,
+          "reused": 0
+        },
+        {
+          "step": 384,
+          "t": 3.2,
+          "front": 0.07691515302271626,
+          "airMl": 8.274898025089717,
+          "triangles": 9652,
+          "rebuilt": 37,
+          "reused": 0
+        },
+        {
+          "step": 396,
+          "t": 3.3,
+          "front": 0.07898664928598649,
+          "airMl": 7.892545914425929,
+          "triangles": 9592,
+          "rebuilt": 39,
+          "reused": 0
+        },
+        {
+          "step": 408,
+          "t": 3.4,
+          "front": 0.07789347518278165,
+          "airMl": 7.5133610803929685,
+          "triangles": 9540,
+          "rebuilt": 39,
+          "reused": 0
+        },
+        {
+          "step": 420,
+          "t": 3.5,
+          "front": 0.07122974158072795,
+          "airMl": 7.169513591718301,
+          "triangles": 9582,
+          "rebuilt": 39,
+          "reused": 0
+        },
+        {
+          "step": 432,
+          "t": 3.6,
+          "front": 0.0610482687533684,
+          "airMl": 6.841003150307154,
+          "triangles": 9552,
+          "rebuilt": 38,
+          "reused": 0
+        },
+        {
+          "step": 444,
+          "t": 3.6999999999999997,
+          "front": 0.05277917520356011,
+          "airMl": 6.481436928241263,
+          "triangles": 9528,
+          "rebuilt": 38,
+          "reused": 0
+        },
+        {
+          "step": 456,
+          "t": 3.8,
+          "front": 0.054238088809664506,
+          "airMl": 6.130154912501472,
+          "triangles": 9500,
+          "rebuilt": 37,
+          "reused": 0
+        },
+        {
+          "step": 468,
+          "t": 3.9,
+          "front": 0.06584457771400903,
+          "airMl": 5.805374561304466,
+          "triangles": 9524,
+          "rebuilt": 37,
+          "reused": 0
+        },
+        {
+          "step": 480,
+          "t": 4,
+          "front": 0.0805103052340724,
+          "airMl": 5.5191982354934925,
+          "triangles": 9536,
+          "rebuilt": 37,
+          "reused": 0
+        },
+        {
+          "step": 492,
+          "t": 4.1,
+          "front": 0.0932744293963291,
+          "airMl": 5.252758703390437,
+          "triangles": 9527,
+          "rebuilt": 37,
+          "reused": 0
+        },
+        {
+          "step": 504,
+          "t": 4.2,
+          "front": 0.09926267062362648,
+          "airMl": 4.997877752237109,
+          "triangles": 9502,
+          "rebuilt": 38,
+          "reused": 0
+        },
+        {
+          "step": 516,
+          "t": 4.3,
+          "front": 0.09727955807608302,
+          "airMl": 4.754029153996085,
+          "triangles": 9468,
+          "rebuilt": 38,
+          "reused": 0
+        },
+        {
+          "step": 528,
+          "t": 4.4,
+          "front": 0.08994929555551533,
+          "airMl": 4.516525911965959,
+          "triangles": 9500,
+          "rebuilt": 38,
+          "reused": 0
+        },
+        {
+          "step": 540,
+          "t": 4.5,
+          "front": 0.07918835301796195,
+          "airMl": 4.290250126087668,
+          "triangles": 9532,
+          "rebuilt": 37,
+          "reused": 0
+        }
+      ]
+    }
+  ]
+}

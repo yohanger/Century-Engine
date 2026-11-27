@@ -1,0 +1,78 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Century · Menús S01 · QA Electron</title></head>
+<body><pre id="menus-ux-s01-result">Ejecutando...</pre><div id="app"></div>
+<script type="module">
+import '/src/styles.css'
+import { createApp, nextTick } from 'vue'
+import MenuBar from '/src/components/MenuBar.vue'
+import ContextMenu from '/src/components/ContextMenu.vue'
+import AddModal from '/src/components/AddModal.vue'
+import { store } from '/src/core/store.js'
+
+const out=document.querySelector('#menus-ux-s01-result'), checks=[]
+const check=(name, pass, detail='')=>{checks.push({name,pass:!!pass,detail});if(!pass)throw new Error(`${name}: ${detail}`)}
+const tick=async()=>{await nextTick();await new Promise(resolve=>requestAnimationFrame(resolve));await nextTick()}
+// Vue puede sufijar los @keyframes de estilos scoped. El movimiento reducido los desactiva.
+const appearance=(element, baseName)=>{
+  const css=getComputedStyle(element)
+  const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches
+  const names=css.animationName.split(',').map(name=>name.trim())
+  const scopedName=new RegExp(`^${baseName}(?:-(?:data-v-)?[a-zA-Z0-9_-]+)?$`)
+  const hasDuration=css.animationDuration.split(',').some(duration=>Number.parseFloat(duration)>0)
+  return {
+    pass:reduced ? names.every(name=>name==='none') : names.some(name=>scopedName.test(name)) && hasDuration,
+    detail:`animationName=${css.animationName}; animationDuration=${css.animationDuration}; reducedMotion=${reduced}`,
+  }
+}
+const pointer=(el)=>el.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true,cancelable:true}))
+let app, performed=0, outsideClicks=0
+try {
+  store.ui.mode='desktop'
+  store.menu=null;store.addModal=null
+  app=createApp({components:{MenuBar,ContextMenu,AddModal},setup:()=>({store}),
+    methods:{outside(){outsideClicks++}},
+    template:`<MenuBar/><button id="outside" @click="outside">Exterior</button><ContextMenu v-if="store.menu"/><AddModal v-if="store.addModal"/>`})
+  app.mount('#app')
+  await tick()
+  check('Barra montada sin logotipo SVG',!!document.querySelector('nav.menus') && !document.querySelector('header.bar .brand'))
+  check('Menús tradicionales conservados',['Archivo','Editar','Añadir','Ver','Juego','Ayuda'].every(s=>[...document.querySelectorAll('nav.menus button')].some(b=>b.textContent.trim()===s)))
+  store.menu={x:42,y:62,menubar:'Archivo',items:[{label:'Acción de prueba',run:()=>performed++},
+    {label:'Opciones',children:[{label:'Acción anidada',run:()=>performed++}]},
+    {sep:true},{label:'Inactiva',disabled:true}]}
+  await tick()
+  const veil=document.querySelector('.veil'), pop=document.querySelector('.pop')
+  check('Velo sin captura de ratón',getComputedStyle(veil).pointerEvents==='none')
+  check('Velo transparente',getComputedStyle(veil).backgroundColor==='rgba(0, 0, 0, 0)')
+  check('Popup sí recibe clics',getComputedStyle(pop).pointerEvents==='auto')
+  const menuAppearance=appearance(document.querySelector('.menu'),'menu-appear')
+  check('Aparición activa',menuAppearance.pass,menuAppearance.detail)
+  check('Acciones con rol y foco',document.querySelectorAll('.menu [role="menuitem"]').length===3 && document.activeElement?.textContent?.includes('Acción de prueba'))
+  const item=[...document.querySelectorAll('.menu > .item')].find(e=>e.textContent.includes('Opciones'))
+  item.dispatchEvent(new MouseEvent('mouseenter',{bubbles:false,cancelable:true}));await tick()
+  const sub=document.querySelector('.sub')
+  check('Submenú abierto con fila principal',!!sub && !!sub.querySelector('[role="menuitem"]'))
+  check('Submenú dentro de la pantalla',sub.getBoundingClientRect().left>=0 && sub.getBoundingClientRect().right<=innerWidth+2)
+  check('Selección neutra',getComputedStyle(item).backgroundColor!=='rgba(71, 140, 191, 0.16)')
+  sub.querySelector('.item').click();await tick()
+  check('Acción anidada una sola vez',performed===1 && store.menu===null)
+  store.menu={x:42,y:62,items:[{label:'Otra acción',run:()=>performed++}]};await tick()
+  const outside=document.querySelector('#outside');pointer(outside);outside.click();await tick()
+  check('Exterior ejecuta su acción y cierra menú',store.menu===null && outsideClicks===1)
+  const archivo=[...document.querySelectorAll('[data-menubar-trigger]')].find(b=>b.textContent==='Archivo')
+  archivo.click();await tick()
+  check('Menú Archivo abre desde barra',store.menu?.menubar==='Archivo')
+  pointer(archivo);archivo.click();await tick()
+  check('Segundo clic sobre Archivo cierra',store.menu===null)
+  let added=0
+  store.addModal={at:{x:140,y:120},items:[{heading:'Añadir'},{label:'Primitivas',children:[{label:'Cubo',icon:'box',run:()=>added++}]}]}
+  await tick()
+  check('Añadir es una región no modal',document.querySelector('.am-root')?.getAttribute('role')==='region')
+  const addAppearance=appearance(document.querySelector('.am-root'),'add-menu-appear')
+  check('Añadir sin velo y con transición',getComputedStyle(document.querySelector('.add-menu-layer')).pointerEvents==='none' && addAppearance.pass,addAppearance.detail)
+  document.querySelector('.am-root .am-item').click();await tick()
+  check('Categoría Añadir abre rama',!!document.querySelector('.am-branch .am-item'))
+  document.querySelector('.am-branch .am-item').click();await tick()
+  check('Añadir ejecuta la acción existente',added===1 && store.addModal===null)
+  out.dataset.pass='true';out.textContent=JSON.stringify({pass:true,gl:'Interfaz Electron, sin prueba GPU',checks},null,2)
+}catch(error){out.dataset.pass='false';out.textContent=JSON.stringify({pass:false,checks,error:String(error?.stack||error)},null,2)}
+finally{app?.unmount();store.menu=null;store.addModal=null}
+</script></body></html>

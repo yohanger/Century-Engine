@@ -1,0 +1,120 @@
+<!doctype html><html lang="es"><meta charset="utf-8"><title>QA S11-G007-G002 CORR-001 · Ctrl y clips</title>
+<style>
+html,body{margin:0;background:#171b20;color:#e2e8ee;font:12px sans-serif}
+#timeline{height:500px;width:970px;overflow:hidden}
+#timeline-audio-volume-automation-s11-g007-g002-corr001-result{display:none}
+</style>
+<div id="timeline"></div><pre id="timeline-audio-volume-automation-s11-g007-g002-corr001-result"></pre>
+<script>
+(() => {
+  const output=document.getElementById('timeline-audio-volume-automation-s11-g007-g002-corr001-result')
+  const checks=[];let stage='bootstrap',finished=false
+  function progress(value){if(finished)return;stage=value;output.dataset.stage=stage;output.dataset.checks=String(checks.length);output.textContent=JSON.stringify({pass:null,stage,checks},null,2)}
+  function check(name,pass,actual){checks.push({name,pass:!!pass,...(actual===undefined?{}:{actual})});progress('Comprobación '+checks.length+': '+name)}
+  function finish(error){if(finished)return;finished=true;clearTimeout(watchdog)
+    const pass=!error&&checks.length===32&&checks.every(entry=>entry.pass)
+    output.dataset.pass=String(pass);output.dataset.stage=pass?'final:PASS':'final:FAIL';output.dataset.checks=String(checks.length)
+    let gl=false;try{gl=!!document.createElement('canvas').getContext('webgl')}catch{}
+    output.textContent=JSON.stringify({pass,stage,...(error?{error:error?.stack||String(error)}:{}),checks,gl},null,2)
+  }
+  const watchdog=setTimeout(()=>finish(new Error('Timeout en '+stage)),32000)
+  window.addEventListener('error',e=>{if(e.message||e.error||e.target?.tagName==='SCRIPT')finish(e.error||new Error(e.message||'Módulo no cargado'))},true)
+  window.addEventListener('unhandledrejection',e=>finish(e.reason||new Error('Promesa rechazada')))
+  window.__lfCtrlQa={progress,check,finish};progress('bootstrap')
+})()
+</script>
+<script type="module">
+const {progress,check,finish}=window.__lfCtrlQa
+let app,playback
+try {
+  progress('Importaciones')
+  const {createApp,h,nextTick}=await import('vue')
+  const {default:TimelinePanel}=await import('/src/components/TimelinePanel.vue')
+  const {createProjectData}=await import('/src/core/project.js')
+  const {store,setEditor,resetHistory,openTimelineEditor}=await import('/src/core/store.js')
+  const {newTrack,newKey,newTimeline,addTimelineClip}=await import('/src/core/timeline/model.js')
+  const {createTimelinePlayback,timelinePlaybackKey}=await import('/src/core/timeline/playback-session.js')
+  progress('Crear Timeline con claves y clips de todos los tipos')
+  const project=createProjectData('QA cursor Ctrl','empty')
+  const camera=newTrack('camera',{id:'qa-camera',keys:[newKey('camera',.5,{id:'cam-0'}),newKey('camera',3,{id:'cam-1'})]})
+  const node=newTrack('node',{id:'qa-node',prop:'position',keys:[newKey('node',.5,{id:'node-0'}),newKey('node',3,{id:'node-1'})]})
+  const commands=newTrack('commands',{id:'qa-commands',keys:[newKey('commands',1,{id:'cmd-0'})]})
+  const method=newTrack('method',{id:'qa-method',keys:[newKey('method',1,{id:'method-0'})]})
+  const audio=newTrack('audio',{id:'qa-audio',keys:[
+    newKey('audio',1,{id:'audio-0',clip:'qa-audio.wav',duration:4,fadeIn:.3,fadeOut:.5}),
+    newKey('audio',7,{id:'audio-stop',action:'stop',duration:0,clip:''}),
+    newKey('audio',8,{id:'audio-legacy',clip:'legacy.wav',duration:0})]})
+  const bake=newTrack('bake',{id:'qa-bake',start:1,duration:2,keys:[]})
+  const timeline=newTimeline('QA Ctrl clips',{id:'qa-timeline',duration:12,tracks:[camera,node,commands,method,audio,bake]})
+  addTimelineClip(timeline,camera.id,camera.keys[0].id)
+  project.timelines=[timeline];store.project=project;store.locked=false;store.play.on=false
+  store.ui.mode='desktop';store.prefs.bottomTab='timeline'
+  setEditor({snapshotTerrain:()=>project.terrain})
+  playback=createTimelinePlayback({getProject:()=>store.project,getEditor:()=>store.editor,getObjects:()=>project.objects,
+    getContext:()=>({project:store.project,sceneId:project.activeSceneId,editor:store.editor,timelineId:store.timelineId,playOn:false,locked:false,cinematic:false}),
+    requestFrame:()=>1,cancelFrame:()=>{}})
+  resetHistory();openTimelineEditor(timeline.id)
+  app=createApp({render:()=>h(TimelinePanel)});app.provide(timelinePlaybackKey,playback);app.mount('#timeline')
+  await nextTick()
+  const el=(selector)=>document.querySelector('#timeline '+selector)
+  const computed=(selector)=>{const element=el(selector);return element?getComputedStyle(element).cursor:null}
+  const ctrlClass=()=>!!el('.tlp.ctrl-over-clips')
+  const setCtrl=async(down)=>{window.dispatchEvent(new KeyboardEvent(down?'keydown':'keyup',{key:'Control',code:'ControlLeft',bubbles:true,ctrlKey:down}));await nextTick()}
+  const dblElement=async(element,ctrlKey)=>{if(!element)throw new Error('No existe clip para doble clic')
+    const r=element.getBoundingClientRect()
+    element.dispatchEvent(new MouseEvent('dblclick',{bubbles:true,cancelable:true,ctrlKey,button:0,clientX:r.left+Math.min(80,Math.max(5,r.width/2)),clientY:r.top+9}));await nextTick()}
+  const dbl=(selector,ctrlKey)=>dblElement(el(selector),ctrlKey)
+  const audioKey=()=>store.project.timelines[0].tracks.find(t=>t.id==='qa-audio').keys.find(k=>k.id==='audio-0')
+  const original=JSON.stringify(store.project.timelines)
+  progress('Clips reales, estilo de cursor sin Ctrl')
+  check('Componente Timeline montado',!!el('.tlp'))
+  check('Claves Cámara, Nodo, Audio, Comandos y Métodos renderizadas', ['camera','node','audio','commands','method'].every(kind=>!!el('.key.'+kind)))
+  check('Clip temporal Cámara renderizado',!!el('.timeline-live-clip'))
+  check('Tramo entre claves renderizado',!!el('.span'))
+  check('Pista bake renderizada',!!el('.bakeclip'))
+  check('Audio tiene asa de duración y fundido',!!el('.audio-duration-tail')&&!!el('.audio-fade-grip'))
+  check('Cursor de Audio sin Ctrl conserva grab',computed('.key.audio')==='grab',computed('.key.audio'))
+  check('Cursor de clip Cámara sin Ctrl conserva grab',computed('.timeline-live-clip')==='grab',computed('.timeline-live-clip'))
+  check('Sin Ctrl no existe clase temporal',!ctrlClass())
+  progress('Ctrl presionado sobre clips de todos los tipos')
+  await setCtrl(true)
+  check('Ctrl activa inmediatamente la clase en Timeline',ctrlClass())
+  check('Cámara muestra flecha normal',computed('.key.camera')==='default',computed('.key.camera'))
+  check('Nodo muestra flecha normal',computed('.key.node')==='default',computed('.key.node'))
+  check('Audio muestra flecha normal',computed('.key.audio')==='default',computed('.key.audio'))
+  check('Comandos muestran flecha normal',computed('.key.commands')==='default',computed('.key.commands'))
+  check('Métodos muestran flecha normal',computed('.key.method')==='default',computed('.key.method'))
+  check('Clip temporal muestra flecha normal',computed('.timeline-live-clip')==='default',computed('.timeline-live-clip'))
+  check('Asas de audio conservan flecha normal mientras Ctrl',computed('.audio-duration-tail')==='default'&&computed('.audio-fade-grip')==='default')
+  check('No se altera proyecto por el cambio de cursor',JSON.stringify(store.project.timelines)===original)
+  progress('Ctrl liberado, foco y entrada del puntero')
+  await setCtrl(false)
+  check('Soltar Ctrl restaura cursor Audio grab',!ctrlClass()&&computed('.key.audio')==='grab',computed('.key.audio'))
+  check('Soltar Ctrl restaura cursor clip Cámara grab',computed('.timeline-live-clip')==='grab')
+  el('.tlp').dispatchEvent(new PointerEvent('pointerenter',{bubbles:false,ctrlKey:true}))
+  await nextTick()
+  check('Entrar con Ctrl presionado muestra flecha normal',ctrlClass()&&computed('.key.audio')==='default')
+  window.dispatchEvent(new Event('blur'));await nextTick()
+  check('Pérdida de foco restaura cursor original',!ctrlClass()&&computed('.key.audio')==='grab')
+  progress('Doble clic normal, Ctrl y restricciones')
+  await dbl('.key.audio',false)
+  check('Doble clic normal Audio no crea puntos',audioKey().volumeAutomation===undefined)
+  for(const kind of ['camera','node','commands','method'])await dbl('.key.'+kind,true)
+  check('Ctrl + doble clic en otros tipos no crea puntos',JSON.stringify(store.project.timelines)===original)
+  await dbl('.key.audio',true)
+  check('Ctrl + doble clic Audio crea exactamente un punto',audioKey().volumeAutomation?.length===1,audioKey().volumeAutomation)
+  check('El punto queda dentro de duración explícita',audioKey().volumeAutomation?.[0]?.t>=0&&audioKey().volumeAutomation?.[0]?.t<=4)
+  check('Crear punto no modifica fuente ni volumen base ni duración',audioKey().duration===4&&audioKey().clip==='qa-audio.wav'&&audioKey().volume===1)
+  check('Automatización conserva la misma pista',store.project.timelines[0].tracks.length===6)
+  await dbl('.key.audio',true)
+  check('Ctrl + doble clic repetido no duplica el mismo tiempo',audioKey().volumeAutomation?.length===1)
+  check('El punto aparece como control con teclado',!!el('.audio-volume-point[role="slider"]'))
+  const allAudio=[...document.querySelectorAll('#timeline .key.audio')]
+  await dblElement(allAudio[1],true)
+  check('Ctrl + doble clic sobre clave Stop no crea puntos',!store.project.timelines[0].tracks.find(t=>t.id==='qa-audio').keys[1].volumeAutomation)
+  await dblElement(allAudio[2],true)
+  check('Ctrl + doble clic sobre Audio duration=0 no migra datos',store.project.timelines[0].tracks.find(t=>t.id==='qa-audio').keys[2].duration===0&&!store.project.timelines[0].tracks.find(t=>t.id==='qa-audio').keys[2].volumeAutomation)
+  finish()
+} catch (error) {finish(error)}
+finally {try{app?.unmount();playback?.dispose()}catch{}}
+</script></html>

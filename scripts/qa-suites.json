@@ -1,0 +1,758 @@
+{
+  "description": "Catálogo de pruebas por área; conserva los grupos históricos y verifica el comportamiento vigente mediante smoke.",
+  "groups": {
+    "native-docking-restoration": { "files": ["scripts/test-native-docking-restoration.mjs", "scripts/test-dock-detach-points.mjs", "scripts/test-native-dock-universal.mjs", "scripts/test-docking-dom-lifecycle-integrity.mjs"] },
+    "native-docking-restoration-electron": { "files": ["scripts/test-native-docking-restoration-electron.mjs"] },
+    "asset-iconography-toolbar": { "files": ["scripts/test-asset-iconography-toolbar.mjs"] },
+    "asset-iconography-toolbar-electron": { "files": ["scripts/test-asset-iconography-toolbar-electron.mjs"] },
+    "mesh-modal-pointer-authority": { "files": ["scripts/test-mesh-modal-pointer-authority.mjs"] },
+    "mesh-modal-pointer-authority-electron": { "files": ["scripts/test-mesh-modal-pointer-authority-electron.mjs"] },
+    "psx-temporal": { "files": ["scripts/test-psx-temporal.mjs"] },
+    "psx-temporal-electron": { "files": ["scripts/test-psx-temporal-electron.mjs"] },
+    "integral-pointer-recovery": { "files": ["scripts/test-integral-pointer-recovery.mjs", "scripts/test-editor-continuous-grab-corr-g001.mjs", "scripts/test-editor-camera-continuous-grab-g001.mjs", "scripts/test-editor-pointer-capture-authority.mjs", "scripts/test-selection-independent-fly-navigation.mjs", "scripts/test-editor-numeric-pointer-integrity.mjs"] },
+    "integral-pointer-recovery-electron": { "files": ["scripts/test-integral-pointer-recovery-electron.mjs", "scripts/test-selection-independent-fly-navigation-electron.mjs", "scripts/test-editor-continuous-grab-electron-corr-g001.mjs", "scripts/test-editor-camera-continuous-grab-electron-g001.mjs"] },
+    "camera-aligned-placement": { "files": ["scripts/test-camera-aligned-placement.mjs", "scripts/test-scene-clipboard-g001.mjs"] },
+    "camera-aligned-placement-electron": { "files": ["scripts/test-camera-aligned-placement-electron.mjs"] },
+    "documentation-api": { "files": ["scripts/test-documentation-api-s01-g001.mjs", "scripts/test-docs-web-g001.mjs", "scripts/test-vcs-docs-g001.mjs"] },
+    "documentation-api-electron": { "files": ["scripts/test-documentation-api-s01-g001-electron.mjs"] },
+    "preferences-section-alignment": { "files": ["scripts/test-preferences-section-alignment.mjs"] },
+    "preferences-section-alignment-electron": { "files": ["scripts/test-preferences-section-alignment-electron.mjs"] },
+    "docking-dom-lifecycle-integrity": { "files": ["scripts/test-docking-dom-lifecycle-integrity.mjs"] },
+    "docking-dom-lifecycle-integrity-electron": { "files": ["scripts/test-docking-dom-lifecycle-integrity-electron.mjs"] },
+    "editor-pointer-capture-authority": { "files": ["scripts/test-editor-pointer-capture-authority.mjs"] },
+    "editor-pointer-capture-authority-electron": { "files": ["scripts/test-selection-independent-fly-navigation-electron.mjs"] },
+    "numeric-display-precision": { "files": ["scripts/test-editor-numeric-field-commit.mjs", "scripts/test-mesh-transform-numeric-g001.mjs", "scripts/test-node-inspector-professional-ux.mjs"] },
+    "selection-independent-fly-navigation": { "files": ["scripts/test-selection-independent-fly-navigation.mjs"] },
+    "selection-independent-fly-navigation-electron": { "files": ["scripts/test-selection-independent-fly-navigation-electron.mjs"] },
+    "numeric-display-precision-electron": { "files": ["scripts/test-numeric-display-precision-electron.mjs"] },
+    "history-scene-graph-synchronization": {
+      "files": ["scripts/test-history-scene-graph-synchronization.mjs"]
+    },
+    "undo-context-and-mouse-sensitivity": {
+      "files": ["scripts/test-undo-context-and-mouse-sensitivity.mjs"]
+    },
+    "editor-mouse-sensitivity-config": {
+      "files": ["scripts/test-editor-mouse-sensitivity-config.mjs"]
+    },
+    "undo-context-and-mouse-sensitivity-electron": {
+      "files": ["scripts/test-undo-context-and-mouse-sensitivity-electron.mjs"]
+    },
+    "editor-workspace-session": {
+      "files": ["scripts/test-editor-workspace-session.mjs"]
+    },
+    "editor-workspace-session-electron": {
+      "files": ["scripts/test-editor-workspace-session-electron.mjs"]
+    },
+    "node-inspector-professional-ux": {
+      "files": ["scripts/test-node-inspector-professional-ux.mjs"]
+    },
+    "node-inspector-professional-ux-electron": {
+      "files": ["scripts/test-node-inspector-professional-ux-electron.mjs"]
+    },
+    "scene-fixture-diagnostics": {
+      "files": ["scripts/test-scene-fixture-diagnostics.mjs"]
+    },
+    "scene-inspector-professional-ux": {
+      "files": ["scripts/test-scene-inspector-professional-ux.mjs"]
+    },
+    "scene-inspector-professional-ux-electron": {
+      "files": ["scripts/test-scene-inspector-professional-ux-electron.mjs"]
+    },
+    "edit-mesh-inspector-ux": {
+      "files": ["scripts/test-edit-mesh-inspector-ux.mjs"]
+    },
+    "edit-mesh-inspector-ux-electron": {
+      "files": ["scripts/test-edit-mesh-inspector-ux-electron.mjs"]
+    },
+    "gizmo-axis-pivot-integrity": {
+      "files": ["scripts/test-gizmo-axis-pivot-integrity.mjs"]
+    },
+    "gizmo-axis-pivot-integrity-electron": {
+      "files": ["scripts/test-gizmo-axis-pivot-integrity-electron.mjs"]
+    },
+    "model-material-inspector-ux": {
+      "files": ["scripts/test-model-material-inspector-ux.mjs"]
+    },
+    "model-material-inspector-ux-electron": {
+      "files": ["scripts/test-model-material-inspector-ux-electron.mjs"]
+    },
+    "move-to-collection-group": {
+      "files": ["scripts/test-move-to-collection-group.mjs"]
+    },
+    "move-to-collection-group-electron": {
+      "files": ["scripts/test-move-to-collection-group-electron.mjs"]
+    },
+    "hierarchical-viewport-selection": {
+      "files": ["scripts/test-hierarchical-viewport-selection.mjs"]
+    },
+    "mesh-local-view": {
+      "files": ["scripts/test-mesh-local-view.mjs"]
+    },
+    "escape-property-focus": {
+      "files": [
+        "scripts/test-editor-escape-property-focus.mjs",
+        "scripts/test-editor-property-readability-s01-g001.mjs",
+        "scripts/test-script-editor-godot-ux-s04-g001-integral.mjs",
+        "scripts/test-mesh-edit-modal-transform-corr-g001.mjs",
+        "scripts/test-timeline-library-picker-ux-s12-g005.mjs"
+      ]
+    },
+    "box-fit": {
+      "files": [
+        "scripts/test-collision-box-fit-g001.mjs",
+        "scripts/test-box-fit-integration-g001.mjs",
+        "scripts/test-box-fit-scene-g001.mjs"
+      ]
+    },
+    "trimesh": {
+      "files": [
+        "scripts/test-node-trimesh-g001.mjs",
+        "scripts/test-node-physics-s02-g001.mjs",
+        "scripts/test-node-physics-runtime-s03-g001.mjs"
+      ]
+    },
+    "vcs": {
+      "files": [
+        "scripts/test-vcs-s01-g001.mjs",
+        "scripts/test-vcs-s02-g001.mjs",
+        "scripts/test-vcs-s03-g001.mjs",
+        "scripts/test-vcs-s04-g001.mjs",
+        "scripts/test-vcs-s04-https.mjs"
+      ]
+    },
+    "mesh-topology": {
+      "files": [
+        "scripts/test-mesh-parametric-topology.mjs",
+        "scripts/test-mesh-edit-s02-g001.mjs"
+      ]
+    },
+    "mesh-loopcut-selection": {
+      "files": [
+        "scripts/test-mesh-loopcut-selection-integrity.mjs",
+        "scripts/test-mesh-parametric-topology.mjs",
+        "scripts/test-mesh-edit-s02-g001.mjs",
+        "scripts/test-trimesh-reference-integrity.mjs"
+      ]
+    },
+    "bevel-vertex": {
+      "files": [
+        "scripts/test-mesh-bevel-vertex-corr-g001.mjs"
+      ]
+    },
+    "snap-shift": {
+      "files": [
+        "scripts/test-editor-snap-shift-g001.mjs"
+      ]
+    },
+    "viewbar-ux": {
+      "files": [
+        "scripts/test-editor-viewbar-ux-g001.mjs"
+      ]
+    },
+    "liquid-hydrology": {
+      "files": [
+        "scripts/test-liquid-hydrology-s06-g001.mjs",
+        "scripts/test-water-s01.mjs",
+        "scripts/test-water-s02.mjs",
+        "scripts/test-water-s03.mjs",
+        "scripts/test-water-s03-corr001.mjs",
+        "scripts/test-water-s04.mjs",
+        "scripts/test-liquid-arch-s05-g001.mjs",
+        "scripts/test-render-pipe-s01.mjs"
+      ]
+    },
+    "liquid-arch": {
+      "files": [
+        "scripts/test-liquid-arch-s05-g001.mjs",
+        "scripts/test-water-s01.mjs",
+        "scripts/test-water-s02.mjs",
+        "scripts/test-water-s03.mjs",
+        "scripts/test-water-s03-corr001.mjs",
+        "scripts/test-water-s04.mjs"
+      ]
+    },
+    "uniform-scale": {
+      "files": [
+        "scripts/test-transform-uniform-scale-s04-g001.mjs"
+      ]
+    },
+    "editmode-ux": {
+      "files": [
+        "scripts/test-editor-editmode-ux-s02-g002.mjs",
+        "scripts/test-editor-viewbar-ux-g001.mjs"
+      ]
+    },
+    "assets-slot-dnd": {
+      "files": [
+        "scripts/test-assets-slot-dnd-s01-g001.mjs",
+        "scripts/test-assets-slot-dnd-s01-g002.mjs",
+        "scripts/test-assets-slot-dnd-s01-g003.mjs",
+        "scripts/test-assets-slot-dnd-s01-g004.mjs"
+      ]
+    },
+    "ui-designer-ux": {
+      "files": [
+        "scripts/test-ui-designer-ux-s03-g001.mjs",
+        "scripts/test-assets-slot-dnd-s01-g003.mjs"
+      ]
+    },
+    "liquid-rain-audio": {
+      "files": [
+        "scripts/test-liquid-rain-audio-s08-g001.mjs",
+        "scripts/test-audio-s01.mjs",
+        "scripts/test-audio-s02.mjs",
+        "scripts/test-audio-s02-corr001.mjs",
+        "scripts/test-thunder.mjs",
+        "scripts/test-liquid-rainflow-s07-g001.mjs",
+        "scripts/test-liquid-hydrology-s06-g001.mjs",
+        "scripts/test-water-s01.mjs",
+        "scripts/test-water-s02.mjs",
+        "scripts/test-water-s03.mjs",
+        "scripts/test-water-s03-corr001.mjs",
+        "scripts/test-water-s04.mjs",
+        "scripts/test-liquid-arch-s05-g001.mjs",
+        "scripts/test-render-pipe-s01.mjs"
+      ]
+    },
+    "liquid-rainflow": {
+      "files": [
+        "scripts/test-liquid-rainflow-s07-g001.mjs",
+        "scripts/test-liquid-hydrology-s06-g001.mjs",
+        "scripts/test-water-s01.mjs",
+        "scripts/test-water-s02.mjs",
+        "scripts/test-water-s03.mjs",
+        "scripts/test-water-s03-corr001.mjs",
+        "scripts/test-water-s04.mjs",
+        "scripts/test-liquid-arch-s05-g001.mjs",
+        "scripts/test-render-pipe-s01.mjs"
+      ]
+    },
+    "liquid-waterbody-coupling": {
+      "files": [
+        "scripts/test-liquid-waterbody-coupling-s09-g001.mjs",
+        "scripts/test-liquid-rain-audio-s08-g001.mjs",
+        "scripts/test-liquid-rainflow-s07-g001.mjs",
+        "scripts/test-liquid-hydrology-s06-g001.mjs",
+        "scripts/test-liquid-arch-s05-g001.mjs",
+        "scripts/test-water-s01.mjs",
+        "scripts/test-water-s02.mjs",
+        "scripts/test-water-s03.mjs",
+        "scripts/test-water-s03-corr001.mjs",
+        "scripts/test-water-s04.mjs",
+        "scripts/test-render-pipe-s01.mjs",
+        "scripts/test-node-physics-s02-g001.mjs",
+        "scripts/test-node-physics-runtime-s03-g001.mjs",
+        "scripts/test-audio-s01.mjs",
+        "scripts/test-audio-s02.mjs",
+        "scripts/test-audio-s02-corr001.mjs",
+        "scripts/test-thunder.mjs"
+      ]
+    },
+    "liquid-containers": {
+      "files": [
+        "scripts/test-liquid-containers-s10-g001.mjs",
+        "scripts/test-liquid-waterbody-coupling-s09-g001.mjs",
+        "scripts/test-liquid-rain-audio-s08-g001.mjs",
+        "scripts/test-liquid-rainflow-s07-g001.mjs",
+        "scripts/test-liquid-hydrology-s06-g001.mjs",
+        "scripts/test-liquid-arch-s05-g001.mjs",
+        "scripts/test-water-s01.mjs",
+        "scripts/test-water-s02.mjs",
+        "scripts/test-water-s03.mjs",
+        "scripts/test-water-s03-corr001.mjs",
+        "scripts/test-water-s04.mjs",
+        "scripts/test-render-pipe-s01.mjs",
+        "scripts/test-node-physics-s02-g001.mjs",
+        "scripts/test-node-physics-runtime-s03-g001.mjs",
+        "scripts/test-audio-s01.mjs",
+        "scripts/test-audio-s02.mjs",
+        "scripts/test-audio-s02-corr001.mjs",
+        "scripts/test-thunder.mjs"
+      ]
+    },
+    "weather-lightning-world": {
+      "files": [
+        "scripts/test-weather-lightning-world-s11-g001.mjs",
+        "scripts/test-lightning.mjs",
+        "scripts/test-thunder.mjs",
+        "scripts/test-liquid-containers-s10-g001.mjs",
+        "scripts/test-liquid-waterbody-coupling-s09-g001.mjs",
+        "scripts/test-liquid-rain-audio-s08-g001.mjs",
+        "scripts/test-liquid-rainflow-s07-g001.mjs",
+        "scripts/test-liquid-hydrology-s06-g001.mjs",
+        "scripts/test-liquid-arch-s05-g001.mjs",
+        "scripts/test-water-s01.mjs",
+        "scripts/test-water-s02.mjs",
+        "scripts/test-water-s03.mjs",
+        "scripts/test-water-s03-corr001.mjs",
+        "scripts/test-water-s04.mjs",
+        "scripts/test-render-pipe-s01.mjs",
+        "scripts/test-node-physics-s02-g001.mjs",
+        "scripts/test-node-physics-runtime-s03-g001.mjs",
+        "scripts/test-audio-s01.mjs",
+        "scripts/test-audio-s02.mjs",
+        "scripts/test-audio-s02-corr001.mjs",
+        "scripts/test-thunder.mjs"
+      ]
+    },
+    "weather-tornado-world": {
+      "files": [
+        "scripts/test-weather-tornado-world-s12-g001.mjs",
+        "scripts/test-weather-lightning-world-s11-g001.mjs",
+        "scripts/test-lightning.mjs",
+        "scripts/test-thunder.mjs",
+        "scripts/test-liquid-containers-s10-g001.mjs",
+        "scripts/test-liquid-waterbody-coupling-s09-g001.mjs",
+        "scripts/test-liquid-rain-audio-s08-g001.mjs",
+        "scripts/test-liquid-rainflow-s07-g001.mjs",
+        "scripts/test-liquid-hydrology-s06-g001.mjs",
+        "scripts/test-liquid-arch-s05-g001.mjs",
+        "scripts/test-water-s01.mjs",
+        "scripts/test-water-s02.mjs",
+        "scripts/test-water-s03.mjs",
+        "scripts/test-water-s03-corr001.mjs",
+        "scripts/test-water-s04.mjs",
+        "scripts/test-render-pipe-s01.mjs",
+        "scripts/test-node-physics-s02-g001.mjs",
+        "scripts/test-node-physics-runtime-s03-g001.mjs",
+        "scripts/test-audio-s01.mjs",
+        "scripts/test-audio-s02.mjs",
+        "scripts/test-audio-s02-corr001.mjs",
+        "scripts/test-thunder.mjs",
+        "scripts/test-vfx-simulation-s02-g001.mjs",
+        "scripts/test-vfx-node-s02-g002.mjs",
+        "scripts/test-windfield.mjs"
+      ]
+    },
+    "weather-tornado-destructive": {
+      "files": [
+        "scripts/test-weather-tornado-destructive-s12a-g001.mjs",
+        "scripts/test-weather-tornado-world-s12-g001.mjs",
+        "scripts/test-weather-lightning-world-s11-g001.mjs",
+        "scripts/test-lightning.mjs",
+        "scripts/test-thunder.mjs",
+        "scripts/test-liquid-containers-s10-g001.mjs",
+        "scripts/test-liquid-waterbody-coupling-s09-g001.mjs",
+        "scripts/test-liquid-rain-audio-s08-g001.mjs",
+        "scripts/test-liquid-rainflow-s07-g001.mjs",
+        "scripts/test-liquid-hydrology-s06-g001.mjs",
+        "scripts/test-liquid-arch-s05-g001.mjs",
+        "scripts/test-water-s01.mjs",
+        "scripts/test-water-s02.mjs",
+        "scripts/test-water-s03.mjs",
+        "scripts/test-water-s03-corr001.mjs",
+        "scripts/test-water-s04.mjs",
+        "scripts/test-render-pipe-s01.mjs",
+        "scripts/test-node-physics-s02-g001.mjs",
+        "scripts/test-node-physics-runtime-s03-g001.mjs",
+        "scripts/test-audio-s01.mjs",
+        "scripts/test-audio-s02.mjs",
+        "scripts/test-audio-s02-corr001.mjs",
+        "scripts/test-thunder.mjs",
+        "scripts/test-vfx-simulation-s02-g001.mjs",
+        "scripts/test-vfx-node-s02-g002.mjs",
+        "scripts/test-windfield.mjs"
+      ]
+    },
+    "viewbar-render-selector": {
+      "files": [
+        "scripts/test-editor-viewbar-render-selector-corr-g001.mjs",
+        "scripts/test-editor-viewbar-ux-g001.mjs",
+        "scripts/test-scene-inspector-s01-g001.mjs",
+        "scripts/test-camera-fov-horizontal-g001.mjs",
+        "scripts/test-editor-snap-shift-g001.mjs",
+        "scripts/test-assets-slot-dnd-s01-g001.mjs",
+        "scripts/test-assets-slot-dnd-s01-g002.mjs",
+        "scripts/test-assets-slot-dnd-s01-g003.mjs",
+        "scripts/test-assets-slot-dnd-s01-g004.mjs"
+      ]
+    },
+    "runtime-jolt-contract": {
+      "files": [
+        "scripts/test-node-physics-runtime-s03-g001.mjs",
+        "scripts/test-node-physics-s02-g001.mjs",
+        "scripts/test-gameplay-physics.mjs",
+        "scripts/test-runtime-jolt-play-corr-g001.mjs"
+      ]
+    },
+    "viewbar-nav-device": {
+      "files": [
+        "scripts/test-editor-viewbar-nav-device-corr-g001.mjs",
+        "scripts/test-editor-viewbar-render-selector-corr-g001.mjs",
+        "scripts/test-editor-viewbar-ux-g001.mjs",
+        "scripts/test-scene-inspector-s01-g001.mjs",
+        "scripts/test-camera-fov-horizontal-g001.mjs",
+        "scripts/test-editor-snap-shift-g001.mjs",
+        "scripts/test-assets-slot-dnd-s01-g001.mjs",
+        "scripts/test-assets-slot-dnd-s01-g002.mjs",
+        "scripts/test-assets-slot-dnd-s01-g003.mjs",
+        "scripts/test-assets-slot-dnd-s01-g004.mjs",
+        "scripts/test-editor-editmode-ux-s02-g002.mjs"
+      ]
+    },
+    "editor-hub-feedback": {
+      "files": [
+        "scripts/test-editor-hub-feedback-corr-g001.mjs",
+        "scripts/test-editor-hub-s02-g001.mjs",
+        "scripts/test-editor-hub-polish-g001.mjs",
+        "scripts/test-hub-templates-s01-g001.mjs",
+        "scripts/test-hub-templates-s01-g001-corr-001.mjs",
+        "scripts/test-project-safe.mjs"
+      ]
+    },
+    "vfx-inspector": {
+      "files": [
+        "scripts/test-vfx-inspector-s01-g001.mjs",
+        "scripts/test-vfx-editor-s03-g001.mjs",
+        "scripts/test-vfx-simulation-s02-g001.mjs",
+        "scripts/test-vfx-node-s02-g002.mjs",
+        "scripts/test-weather-tornado-world-s12-g001.mjs",
+        "scripts/test-weather-tornado-destructive-s12a-g001.mjs",
+        "scripts/test-assets-slot-dnd-s01-g004.mjs",
+        "scripts/test-resource-inspector-g001.mjs",
+        "scripts/test-resource-inspector-g002.mjs",
+        "scripts/test-resource-inspector-g003.mjs",
+        "scripts/test-scene-inspector-s01-g001.mjs"
+      ]
+    },
+    "vfx-inspector:ui": {
+      "files": [
+        "scripts/test-vfx-ui-s03-g001.mjs"
+      ]
+    },
+    "vfx-inspector:full": {
+      "steps": [
+        {
+          "group": "vfx-inspector"
+        },
+        {
+          "files": [
+            "scripts/test-vfx-resource-s01-g001.mjs",
+            "scripts/test-vfx-player-s02-g002.mjs"
+          ]
+        },
+        {
+          "group": "vfx-inspector:ui"
+        }
+      ]
+    },
+    "editor-gizmos": {
+      "files": [
+        "scripts/test-editor-gizmo-independent-visibility.mjs",
+        "scripts/test-editor-ux-hub-gizmos-g001.mjs",
+        "scripts/test-editor-ux-s01-g002.mjs",
+        "scripts/test-physics-gizmo-s01-g001.mjs"
+      ]
+    },
+    "smoke": {
+      "files": [
+        "scripts/test-tooling-s00-g001-electron-and-scripts.mjs",
+        "scripts/test-water-legacy-restoration.mjs"
+      ]
+    },
+    "fluids": {
+      "files": [
+        "scripts/test-fluid-module.mjs",
+        "scripts/test-water-empty-domain.mjs",
+        "scripts/test-water-native-s01-g001.mjs",
+        "scripts/test-water-s01.mjs",
+        "scripts/test-water-s02.mjs",
+        "scripts/test-water-s03.mjs",
+        "scripts/test-water-s03-corr001.mjs",
+        "scripts/test-water-s04.mjs",
+        "scripts/test-liquid-arch-s05-g001.mjs",
+        "scripts/test-liquid-hydrology-s06-g001.mjs",
+        "scripts/test-liquid-rainflow-s07-g001.mjs",
+        "scripts/test-liquid-waterbody-coupling-s09-g001.mjs",
+        "scripts/test-liquid-containers-s10-g001.mjs",
+        "scripts/test-node-physics-runtime-s03-g001.mjs",
+        "scripts/test-runtime-jolt-wasm-real-corr-g001.mjs",
+        "scripts/test-fluid-props.mjs"
+      ]
+    },
+    "water-visibility-electron": {
+      "files": [
+        "scripts/test-water-empty-domain-electron.mjs"
+      ]
+    },
+    "fluid-integration": {
+      "files": [
+        "scripts/test-fluid-props.mjs",
+        "scripts/test-fluid-integration-electron.mjs",
+        "scripts/test-water-empty-domain-electron.mjs"
+      ]
+    },
+    "render-diagnostics": {
+      "steps": [
+        {
+          "files": [
+            "scripts/test-render-diagnostics-reduction-regression.mjs",
+            "scripts/test-shader-source-metrics-corr001.mjs",
+            "scripts/test-lod-projected-error.mjs",
+            "scripts/test-trianghor-s17-g003-corr003.mjs",
+            "scripts/test-performance-s17-g001-profiler-contract.mjs",
+            "scripts/test-performance-s17-g003-ao-g001-cost-diagnosis.mjs",
+            "scripts/test-performance-s17-g003-ao-g002-optimization.mjs",
+            "scripts/test-performance-s17-g003-ao-g003-composite-scene-diagnosis.mjs",
+            "scripts/test-performance-s17-g003-ao-g004-composite-optimization.mjs",
+            "scripts/test-performance-s17-g003-corr001.mjs",
+            "scripts/test-performance-s17-g003-corr002-viewport-ux.mjs",
+            "scripts/test-performance-s17-g003-diagnostics.mjs",
+            "scripts/test-performance-s17-g003-integral.mjs",
+            "scripts/test-editor-viewmodes-s01-g001.mjs"
+          ]
+        },
+        {
+          "files": [
+            "scripts/test-editor-viewmodes-electron-s01-g001.mjs"
+          ]
+        },
+        {
+          "files": [
+            "scripts/test-render-diagnostics-reduction-electron.mjs"
+          ]
+        },
+        {
+          "files": [
+            "scripts/test-cloud-light-electron.mjs"
+          ]
+        }
+      ]
+    },
+    "performance-controller": {
+      "steps": [
+        {
+          "files": [
+            "scripts/test-performance-controller.mjs"
+          ]
+        },
+        {
+          "files": [
+            "scripts/test-performance-controller-electron.mjs"
+          ]
+        }
+      ]
+    },
+    "sky-quality": {
+      "steps": [
+        {
+          "files": [
+            "scripts/test-sky-variants.mjs"
+          ]
+        },
+        {
+          "files": [
+            "scripts/test-sky-variants-electron.mjs"
+          ]
+        }
+      ]
+    },
+    "editor-player-visual-parity": {
+      "files": [
+        "scripts/test-player-scene-visual-parity.mjs"
+      ]
+    },
+    "editor-console-input": {
+      "files": [
+        "scripts/test-editor-console-input.mjs",
+        "scripts/test-editor-continuous-grab-corr-g001.mjs"
+      ]
+    },
+    "editor-stairs": {
+      "files": [
+        "scripts/test-stairs-inspector-access.mjs",
+        "scripts/test-stairs-param-g001.mjs",
+        "scripts/test-stairs-curve-g001.mjs",
+        "scripts/test-stairs-sides-g001.mjs",
+        "scripts/test-stairs-integration-qa-g001.mjs",
+        "scripts/test-inspector-primitives-ux-s01-g001.mjs",
+        "scripts/test-inspector-global-folding-s13-g002.mjs"
+      ]
+    },
+    "trimesh-integrity": {
+      "files": [
+        "scripts/test-trimesh-reference-integrity.mjs",
+        "scripts/test-scene-clipboard-g001.mjs"
+      ]
+    },
+    "mesh-editor-stability": {
+      "files": [
+        "scripts/test-mesh-editor-console-correction.mjs",
+        "scripts/test-mesh-parametric-topology.mjs",
+        "scripts/test-mesh-edit-s02-g001.mjs",
+        "scripts/test-mesh-integration-g001.mjs",
+        "scripts/test-trimesh-reference-integrity.mjs"
+      ]
+    },
+    "mesh-loopcut-region": {
+      "files": [
+        "scripts/test-mesh-loopcut-region-coverage.mjs",
+        "scripts/test-mesh-loopcut-selection-integrity.mjs",
+        "scripts/test-mesh-parametric-topology.mjs",
+        "scripts/test-mesh-edit-s02-g001.mjs",
+        "scripts/test-trimesh-reference-integrity.mjs"
+      ]
+    },
+    "mesh-loopcut-blender": {
+      "files": [
+        "scripts/test-mesh-loopcut-blender-topology.mjs",
+        "scripts/test-mesh-loopcut-region-coverage.mjs",
+        "scripts/test-mesh-loopcut-selection-integrity.mjs",
+        "scripts/test-mesh-parametric-topology.mjs",
+        "scripts/test-mesh-edit-s02-g001.mjs",
+        "scripts/test-trimesh-reference-integrity.mjs"
+      ]
+    },
+    "mesh-merge-faces": {
+      "files": [
+        "scripts/test-mesh-merge-selected-faces.mjs",
+        "scripts/test-mesh-edit-s02-g001.mjs",
+        "scripts/test-mesh-loopcut-blender-topology.mjs",
+        "scripts/test-trimesh-reference-integrity.mjs"
+      ]
+    },
+    "mesh-merge-runtime-dispatch": {
+      "files": [
+        "scripts/test-mesh-merge-runtime-dispatch.mjs",
+        "scripts/test-mesh-merge-selected-faces.mjs",
+        "scripts/test-mesh-edit-s02-g001.mjs",
+        "scripts/test-mesh-loopcut-blender-topology.mjs",
+        "scripts/test-trimesh-reference-integrity.mjs"
+      ]
+    },
+    "mesh-face-integrity": {
+      "files": [
+        "scripts/test-mesh-face-picking-and-merge-integrity.mjs",
+        "scripts/test-mesh-merge-runtime-dispatch.mjs",
+        "scripts/test-mesh-merge-selected-faces.mjs",
+        "scripts/test-mesh-edit-s02-g001.mjs",
+        "scripts/test-trimesh-reference-integrity.mjs"
+      ]
+    },
+    "mesh-topology-cleanup": {
+      "files": [
+        "scripts/test-mesh-topology-cleanup.mjs",
+        "scripts/test-mesh-face-picking-and-merge-integrity.mjs",
+        "scripts/test-mesh-merge-runtime-dispatch.mjs",
+        "scripts/test-mesh-edit-s02-g001.mjs",
+        "scripts/test-trimesh-reference-integrity.mjs"
+      ]
+    },
+    "csg-subtract-editable": {
+      "files": [
+        "scripts/test-editable-subtract-csg.mjs",
+        "scripts/test-mesh-parametric-topology.mjs",
+        "scripts/test-mesh-edit-s02-g001.mjs",
+        "scripts/test-trimesh-reference-integrity.mjs"
+      ]
+    },
+    "csg-subtract-geometry-stability": {
+      "files": [
+        "scripts/test-subtract-geometry-lifecycle.mjs",
+        "scripts/test-editable-subtract-csg.mjs",
+        "scripts/test-mesh-edit-s02-g001.mjs",
+        "scripts/test-trimesh-reference-integrity.mjs"
+      ]
+    },
+    "csg-subtract-live-edit": {
+      "files": [
+        "scripts/test-subtract-live-edit-visibility.mjs",
+        "scripts/test-subtract-geometry-lifecycle.mjs",
+        "scripts/test-editable-subtract-csg.mjs",
+        "scripts/test-mesh-edit-s02-g001.mjs",
+        "scripts/test-trimesh-reference-integrity.mjs"
+      ]
+    },
+    "viewmodes-gizmo-parity": {
+      "files": [
+        "scripts/test-editor-viewmodes-gizmo-parity.mjs",
+        "scripts/test-editor-viewmodes-s01-g001.mjs",
+        "scripts/test-editor-gizmo-independent-visibility.mjs",
+        "scripts/test-performance-s17-g003-corr002-viewport-ux.mjs"
+      ]
+    },
+    "viewport-infinite-grid": {
+      "files": [
+        "scripts/test-editor-infinite-grid.mjs",
+        "scripts/test-editor-viewmodes-gizmo-parity.mjs",
+        "scripts/test-editor-gizmo-independent-visibility.mjs"
+      ]
+    },
+    "viewmodes-trianghor-parity": {
+      "files": [
+        "scripts/test-viewmodes-wireframe-triangles-parity.mjs",
+        "scripts/test-editor-viewmodes-s01-g001.mjs",
+        "scripts/test-editor-viewmodes-gizmo-parity.mjs",
+        "scripts/test-editor-infinite-grid.mjs",
+        "scripts/test-trianghor-s17-g003-corr003.mjs"
+      ]
+    },
+    "trianghor-independent-consumer": {
+      "files": [
+        "scripts/test-century-trianghor-independent-integration.mjs",
+        "scripts/test-trianghor-s17-g003-corr003.mjs",
+        "scripts/test-performance-s17-g003-integral.mjs",
+        "scripts/test-performance-s17-g003-corr001.mjs",
+        "scripts/test-viewmodes-wireframe-triangles-parity.mjs"
+      ]
+    },
+    "subtract-picking-priority": {
+      "files": [
+        "scripts/test-subtract-picking-priority.mjs",
+        "scripts/test-editor-ux-s01-g001.mjs",
+        "scripts/test-editor-ux-s01-g002.mjs",
+        "scripts/test-editable-subtract-csg.mjs"
+      ]
+    },
+    "trianghor-npm-clean-install": {
+      "files": [
+        "scripts/test-century-trianghor-npm-lock.mjs",
+        "scripts/test-century-trianghor-independent-integration.mjs"
+      ]
+    },
+    "multi-inspector-universal-occlusion": {
+      "files": [
+        "scripts/test-multi-inspector-universal-occlusion.mjs",
+        "scripts/test-inspector-global-folding-s13-g002.mjs",
+        "scripts/test-camera-occlusion-s17-g002.mjs"
+      ]
+    },
+    "selection-highlight-multi-visibility": {
+      "files": [
+        "scripts/test-selection-highlight-multi-visibility.mjs",
+        "scripts/test-three-s04-g002.mjs",
+        "scripts/test-transform-global-local-corr-g001.mjs",
+        "scripts/test-editor-ux-s01-g001.mjs",
+        "scripts/test-editor-ux-s01-g002.mjs"
+      ]
+    },
+    "occlusion-bake-bounds-integrity": {
+      "files": [
+        "scripts/test-occlusion-bake-bounds-integrity.mjs",
+        "scripts/test-multi-inspector-universal-occlusion.mjs",
+        "scripts/test-inspector-global-folding-s13-g002.mjs"
+      ]
+    },
+    "multi-inspector-static-qa": {
+      "files": [
+        "scripts/test-multi-inspector-universal-occlusion.mjs",
+        "scripts/test-inspector-global-folding-s13-g002.mjs"
+      ]
+    },
+    "dockable-edit-play-camera-loopcut": {
+      "files": [
+        "scripts/test-viewport-docking-and-camera-loopcut-s02-g001.mjs",
+        "scripts/test-mesh-loopcut-region-coverage.mjs",
+        "scripts/test-mesh-loopcut-blender-topology.mjs",
+        "scripts/test-mesh-loopcut-selection-integrity.mjs"
+      ]
+    },
+    "water-legacy-restoration": {
+      "files": [
+        "scripts/test-water-legacy-restoration.mjs"
+      ]
+    },
+    "editor-numeric-pointer-integrity": { "files": ["scripts/test-editor-numeric-pointer-integrity.mjs", "scripts/test-editor-numeric-field-commit.mjs"] },
+    "editor-numeric-pointer-integrity-electron": { "files": ["scripts/test-editor-numeric-pointer-integrity-electron.mjs"] }
+  }
+}

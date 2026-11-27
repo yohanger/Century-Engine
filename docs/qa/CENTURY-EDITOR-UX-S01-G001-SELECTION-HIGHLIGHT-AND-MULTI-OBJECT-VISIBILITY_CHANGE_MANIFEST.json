@@ -1,0 +1,42 @@
+{
+  "gate": "CENTURY-EDITOR-UX-S01-G001-SELECTION-HIGHLIGHT-AND-MULTI-OBJECT-VISIBILITY",
+  "source_baseline": "CENTURY-EDITOR-S01-G001-CORR-001-OCCLUSION-BAKE-BOUNDS-INTEGRITY_SOURCE_BASELINE.zip",
+  "original_files": 3233,
+  "added": [
+    "docs/architecture/CENTURY-EDITOR-UX-S01-G001-SELECTION-HIGHLIGHT-AND-MULTI-OBJECT-VISIBILITY_IMPLEMENTATION.md",
+    "docs/qa/CENTURY-EDITOR-UX-S01-G001-SELECTION-HIGHLIGHT-AND-MULTI-OBJECT-VISIBILITY_EVIDENCE.md",
+    "docs/qa/evidence/CENTURY-EDITOR-UX-S01-G001-SELECTION-HIGHLIGHT-AND-MULTI-OBJECT-VISIBILITY/baseline_smoke.log",
+    "docs/qa/evidence/CENTURY-EDITOR-UX-S01-G001-SELECTION-HIGHLIGHT-AND-MULTI-OBJECT-VISIBILITY/build.log",
+    "docs/qa/evidence/CENTURY-EDITOR-UX-S01-G001-SELECTION-HIGHLIGHT-AND-MULTI-OBJECT-VISIBILITY/inspector_suite.log",
+    "docs/qa/evidence/CENTURY-EDITOR-UX-S01-G001-SELECTION-HIGHLIGHT-AND-MULTI-OBJECT-VISIBILITY/occlusion_suite.log",
+    "docs/qa/evidence/CENTURY-EDITOR-UX-S01-G001-SELECTION-HIGHLIGHT-AND-MULTI-OBJECT-VISIBILITY/selection_core_qa.log",
+    "docs/qa/evidence/CENTURY-EDITOR-UX-S01-G001-SELECTION-HIGHLIGHT-AND-MULTI-OBJECT-VISIBILITY/selection_suite.log",
+    "docs/qa/evidence/CENTURY-EDITOR-UX-S01-G001-SELECTION-HIGHLIGHT-AND-MULTI-OBJECT-VISIBILITY/selection_suite_baseline.log",
+    "docs/qa/evidence/CENTURY-EDITOR-UX-S01-G001-SELECTION-HIGHLIGHT-AND-MULTI-OBJECT-VISIBILITY/selection_unit_final.log",
+    "docs/qa/evidence/CENTURY-EDITOR-UX-S01-G001-SELECTION-HIGHLIGHT-AND-MULTI-OBJECT-VISIBILITY/viewmode_suite.log",
+    "docs/qa/evidence/CENTURY-EDITOR-UX-S01-G001-SELECTION-HIGHLIGHT-AND-MULTI-OBJECT-VISIBILITY/work_smoke.log",
+    "scripts/test-selection-highlight-multi-visibility.mjs",
+    "src/core/editor/selection-box.js"
+  ],
+  "modified": [
+    "docs/qa/LevelForge_DB_Ledger.xlsx",
+    "scripts/qa-suites.json",
+    "scripts/test-editor-ux-s01-g002.mjs",
+    "src/components/PreferencesModal.vue",
+    "src/core/editor/selection.js"
+  ],
+  "removed": [],
+  "approved_source_preserved": true,
+  "node_tests": {
+    "new": "15/15 PASS",
+    "ux": "70/70 PASS",
+    "viewmodes": "39/39 PASS",
+    "inspector": "37/37 PASS",
+    "occlusion": "47/47 PASS"
+  },
+  "historical_qa": "3 OutlinePass assertions and 1 smoke assertion failed equally in baseline and work",
+  "build": "NO COMPILADO — vite: not found",
+  "electron_webgl2": "NO VERIFICADO",
+  "user_approved": "PENDIENTE",
+  "git_operations": false
+}

@@ -1,0 +1,48 @@
+{
+  "gate": "LF-WATER-NATIVE-S01-G001-INTEGRAL-LAKE-RIVER-SIMULATION-AND-NODE-INTERACTION",
+  "authority": "LF-WATER-NATIVE-REPLACEMENT-CA-005 (ratificado 2026-11-18)",
+  "source_baseline_parent": "LF_TOOLING_S00_G001_ELECTRON_LAUNCH_AND_PACKAGE_SCRIPTS_HYGIENE_SOURCE_BASELINE.zip",
+  "source_baseline_parent_sha256": "78a92688d4e243855d7aa8220f82b0b225619e25f65b4e331e8fe6bf58145c44",
+  "parent_files": 3686,
+  "changed_or_added_files": 21,
+  "added_files": [
+    "docs/architecture/LF-WATER-NATIVE-REPLACEMENT-CA-005.md",
+    "docs/architecture/LF-WATER-NATIVE-S01-G001_IMPLEMENTATION.md",
+    "docs/qa/LF-WATER-NATIVE-S01-G001_QA.md",
+    "docs/qa/evidence/LF_WATER_NATIVE_S01_G001_NODE_113_PASS.log",
+    "docs/qa/evidence/LF_WATER_NATIVE_S01_G001_NPM_SMOKE_25_PASS.log",
+    "scripts/test-water-native-s01-g001.mjs"
+  ],
+  "deleted_files": [],
+  "change_files_sha256": {
+    "docs/architecture/LF-WATER-NATIVE-REPLACEMENT-CA-005.md": "a2020372fc73ed4fe8689daa68fd3bbf549606ab74b82559f1af16357c848f97",
+    "docs/architecture/LF-WATER-NATIVE-S01-G001_IMPLEMENTATION.md": "47cc74952fa97a475b198e39e1c8d555b15fad01d21799a981ac4000be15cc31",
+    "docs/qa/LF-WATER-NATIVE-S01-G001_QA.md": "208e80d710635d18d873d8c04084fbcb984f08524c76c825929b3910e09a0b1d",
+    "docs/qa/evidence/LF_WATER_NATIVE_S01_G001_NODE_113_PASS.log": "e802a6469483836b4db7904314a5b545ecf31d0995fcf143ac9122aaaff542ac",
+    "docs/qa/evidence/LF_WATER_NATIVE_S01_G001_NPM_SMOKE_25_PASS.log": "4ee354c6674e740e6e6b0498316337c0afc61d9ddc505761e0a6432cb1225bbb",
+    "scripts/test-water-native-s01-g001.mjs": "b6339384c35427a584b48a3c2da309bddbcba12bad070149f2f4801b41bf5857",
+    "scripts/test-water-runtime-visibility-s00-g001.mjs": "b4d389f5ec1d97d35fd85581f49fefecf174da04cc0fd6bb5ccdc4c88708f206",
+    "scripts/test-water-s02.mjs": "ecb2bf0eae25aa4bf552dba751640245f477b581b15afc12bc3afb347135d472",
+    "scripts/test-water-s03.mjs": "88592cb37f32721d91e06802d66b9cf49c95dc8947562e41b3188fc3fffdbc6f",
+    "scripts/test-water-s04.mjs": "27c299c098db8940473cbedca5fd60d799dc94586533e075ca3874efea7cf51f",
+    "src/engine/runtime/events/play-bodies.js": "0c1dd608e4328c92132d205e32e889f508266db91c77402423235fcfaf29187d",
+    "src/engine/runtime/events/play-water.js": "d7d1e92301ea09cce3ba55399d0bdcc46755adb059d6c2c49061336d1ef4ffaa",
+    "src/engine/runtime/events/play.js": "a988ff50c75911d5c64fc5cff9f6972de28c99735a8f9ed825161e66d26af24f",
+    "src/engine/runtime/geometry/water-solver.js": "1db37a6965003776ad002ecc77cba1c481a942feafa6e8c21b1c055f24d36d6d",
+    "src/engine/runtime/geometry/water-surface.js": "9174e59c9366ddcf560d3b8ea1eacd0abd592e32d9017720198a52103c30391e",
+    "src/engine/runtime/geometry/water-terrain.js": "2f56cbbfd321151f30bc51af048fa8c57b72c6a455e92c8bb2fc44ced88dd3c1",
+    "src/engine/runtime/geometry/waterfx.js": "52e8b0d3dd0ecd61a6e6957bfd7910277fe295d91d123e8759862a387b514fe3",
+    "src/engine/runtime/geometry/watershader.js": "16491758d34d0c262201a0f569e27dbcf3e8e3837145ae7873fde63105a29577",
+    "src/engine/runtime/geometry/waterworld.js": "db0ce23edd5304acd0fab9397121de08da5e0942cd048402a80d0df0d030584d",
+    "src/engine/runtime/physics/node-spatial.js": "b2458cae2098fa4b494b4cfb0604b04478ce03d0582f3785055f70c42d9fddfb",
+    "src/engine/runtime/scene/water.js": "ac83489173b157cccdd0619e5c5960ff3b5af63782633c3ac9d84b56b9f0282e"
+  },
+  "qa": {
+    "Node_water": "113/113 PASS",
+    "npm_smoke": "25/25 PASS",
+    "JS_syntax": "PASS",
+    "Vite_build": "NO VERIFICADO (no node_modules)",
+    "Electron_Jolt_WASM_Player_GPU": "NO VERIFICADO"
+  },
+  "notes": "G001 aplica CA-005 solo Lago/Río 2.5D, no solver universal ni SPlisHSPlasH; no elimina archivos anteriores."
+}

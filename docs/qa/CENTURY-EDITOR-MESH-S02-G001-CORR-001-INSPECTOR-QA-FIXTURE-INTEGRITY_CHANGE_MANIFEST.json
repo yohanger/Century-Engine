@@ -1,0 +1,75 @@
+{
+  "gate": "CENTURY-EDITOR-MESH-S02-G001-CORR-001-INSPECTOR-QA-FIXTURE-INTEGRITY",
+  "baseline": "CENTURY_EDITOR_MESH_S02_G001_INSPECTOR_UX_SOURCE_BASELINE.zip",
+  "baseline_sha256": "c4f25880737e20747d2b804517071f64d2233eef6d968549fb48d35fa74df9ba",
+  "baseline_files": 3921,
+  "deleted": [],
+  "changed_or_added": [
+    {
+      "path": "docs/architecture/CENTURY-EDITOR-MESH-S02-G001-CORR-001-INSPECTOR-QA-FIXTURE-INTEGRITY_CONTRACT.md",
+      "type": "added",
+      "sha256": "25966f437af04493b6a4cbd95c2dd2b323078842cc3a544cf41526620a0cd3c9"
+    },
+    {
+      "path": "docs/architecture/CENTURY-EDITOR-MESH-S02-G001-CORR-001-INSPECTOR-QA-FIXTURE-INTEGRITY_IMPLEMENTATION.md",
+      "type": "added",
+      "sha256": "c5ff4b159ede5e640f4edd3deb01a385ab437619064977f5503aaf43137bb069"
+    },
+    {
+      "path": "docs/ledger/CE_EDITOR_MESH_S02_G001_CORR001_LEDGER.xlsx",
+      "type": "added",
+      "sha256": "785eff5c8910d61b259a4f1eb71bd395f1a8e84c37b80150aeba2f6f5aa69d10"
+    },
+    {
+      "path": "docs/qa/CENTURY-EDITOR-MESH-S02-G001-CORR-001-INSPECTOR-QA-FIXTURE-INTEGRITY_BASELINE_REGRESSION.log",
+      "type": "added",
+      "sha256": "234024c0de9b48d0dd08ecadaa34ba4fab58932c06f27dcdf0f07cb251174b18"
+    },
+    {
+      "path": "docs/qa/CENTURY-EDITOR-MESH-S02-G001-CORR-001-INSPECTOR-QA-FIXTURE-INTEGRITY_ELECTRON.log",
+      "type": "added",
+      "sha256": "458f8d9623526aa10b838029f05f2fdfdaa1ba8eac83a1a66c83f763dd5266a2"
+    },
+    {
+      "path": "docs/qa/CENTURY-EDITOR-MESH-S02-G001-CORR-001-INSPECTOR-QA-FIXTURE-INTEGRITY_FOCAL.log",
+      "type": "added",
+      "sha256": "6988ae5c6293038df5d16146aaa54bd3912db0bbfe249569afcb64964c8a3021"
+    },
+    {
+      "path": "docs/qa/CENTURY-EDITOR-MESH-S02-G001-CORR-001-INSPECTOR-QA-FIXTURE-INTEGRITY_INTEGRATION.log",
+      "type": "added",
+      "sha256": "39ac2e5a5e3ec3699231b85e5cc93db02ca2177e2ba6007f4bc6a3c587db65a3"
+    },
+    {
+      "path": "docs/qa/CENTURY-EDITOR-MESH-S02-G001-CORR-001-INSPECTOR-QA-FIXTURE-INTEGRITY_QA.md",
+      "type": "added",
+      "sha256": "3f5dc35d5d2ef2ac21d3688da974763631ab8c80eff61e00c9c5985717c2bd78"
+    },
+    {
+      "path": "docs/qa/CENTURY-EDITOR-MESH-S02-G001-CORR-001-INSPECTOR-QA-FIXTURE-INTEGRITY_REGRESSION.log",
+      "type": "added",
+      "sha256": "1ef09406c3d733dfb1274c011c6ea6212fa40f66e1e1b20e3057225ad1cbc1be"
+    },
+    {
+      "path": "docs/qa/CENTURY-EDITOR-MESH-S02-G001-CORR-001-INSPECTOR-QA-FIXTURE-INTEGRITY_SYNTAX.log",
+      "type": "added",
+      "sha256": "b5ef6dd8bc206613467a096e0ff12ec422e00a00db85585cb9f242d3211b0cc3"
+    },
+    {
+      "path": "scripts/fixtures/mesh/edit-session-integration-corr-g001.mjs",
+      "type": "modified",
+      "sha256": "48049430e38a33b1a4bd82819138196acf4bfc94dd3ff014d0c2a0f7f7e0080f"
+    },
+    {
+      "path": "scripts/test-edit-mesh-inspector-ux.mjs",
+      "type": "modified",
+      "sha256": "bf4aaf92390f25003476db1c8e44b1b944450e3a3aab50414fb2678f8abe65b4"
+    },
+    {
+      "path": "scripts/test-mesh-edit-integration-corr-g001.mjs",
+      "type": "modified",
+      "sha256": "7fe099bb44bf2a688f9b43b38ec5b009e5f3f7e1e55272829b8fb9af4b1d1ef7"
+    }
+  ],
+  "manifest_self_excluded": true
+}

@@ -1,0 +1,65 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Century Multiscript S01-G001 — QA Electron</title></head>
+<body><pre id="node-multiscript-s01-g001-result">Verificando multiscript…</pre>
+<script type="module">
+import * as THREE from 'three'
+import { Game } from '/src/engine/runtime/events/interpreter.js'
+import { nodesMethods } from '/src/engine/runtime/events/play-nodes.js'
+import { NodeLifecycle } from '/src/engine/runtime/scene/node-lifecycle.js'
+import { NodeScriptRuntime } from '/src/engine/runtime/scene/node-scripts.js'
+import { registerNode } from '/src/engine/runtime/nodes/registry.js'
+registerNode({type:'multiscriptElectronQA',label:'QA multiscript',create:()=>({}),build:()=>({}),update:()=>{}})
+const out=document.getElementById('node-multiscript-s01-g001-result')
+const checks=[], check=(name,ok)=>{checks.push({name,pass:!!ok});if(!ok)throw Error(name)}
+let renderer,life
+try {
+ renderer=new THREE.WebGLRenderer({antialias:false});renderer.setSize(16,16)
+ const scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(60,1,.1,10);camera.position.z=2
+ scene.add(new THREE.Mesh(new THREE.BoxGeometry(.4,.4,.4),new THREE.MeshBasicMaterial({color:0x7eaabf})));renderer.render(scene,camera)
+ check('WebGL2 real en Electron',renderer.capabilities.isWebGL2)
+ const a={id:'a',name:'A',type:'multiscriptElectronQA',parentId:null,scriptIds:['A','B']}
+ const b={id:'b',name:'B',type:'multiscriptElectronQA',parentId:'a',scriptId:'legacy'}
+ const project={objects:[a,b],activeSceneId:'uno',signalConnections:[],scripts:[
+  {id:'A',execution:'node',code:`let privateA=0;node.define_signal('listo');node.expose('contar',()=>++privateA);function _enter_tree(){game.record('A:enter')}function _ready(){game.record('A:ready')}function _process(){game.record('A:frame')}function _exit_tree(){game.record('A:exit')}`},
+  {id:'B',execution:'node',code:`let privateB=5;node.expose('valorB',()=>++privateB);node.expose('emitir',(v)=>node.emit_signal('listo',v));function _enter_tree(){game.record('B:enter')}function _ready(){game.record('B:ready')}function _exit_tree(){game.record('B:exit')}`},
+  {id:'legacy',execution:'node',code:`node.expose('recibir',(v)=>game.record('legacy:',v));function _enter_tree(){game.record('legacy:enter')}function _ready(){game.record('legacy:ready')}`},
+ ]}
+ const nodes=new Map(),records=[],errors=[]
+ for(const obj of project.objects){const n=new THREE.Group();n.name=obj.name;n._lfNodeOwner=obj;scene.add(n);nodes.set(obj.id,n)}
+ const game=new Game({host:{error:(message,error)=>errors.push([message,error?.message])}})
+ game.api.record=(...args)=>records.push(args)
+ life=new NodeLifecycle({nodes,host:{project}})
+ const play={on:true,_referenceSession:{},project,ed:{nodes,nodeLifecycle:life},game,
+  _tagLayerApi:()=>({}),_animMethodsFor:()=>({}),_persistMarked:()=>false,_persistSet:()=>false,
+  vm:{held:new Map()},pos:new THREE.Vector3(),vp:{requestRender(){}}}
+ Object.assign(play,nodesMethods);game.api.node=(id)=>play._nodeHandle(id)
+ life.scripts=new NodeScriptRuntime(play);life.start()
+ check('Una entrada de nodo con dos scripts',life.scripts.instances.get('a')?.slots.length===2)
+ check('Un script antiguo sigue funcional',life.scripts.instances.get('b')?.slots.length===1)
+ check('Orden enter árbol',records.slice(0,3).map(a=>a[0]).join(',')==='A:enter,B:enter,legacy:enter')
+ check('Orden ready hijos primero',records.slice(3,6).map(a=>a[0]).join(',')==='legacy:ready,A:ready,B:ready')
+ const ah=play._nodeHandle('a'),bh=play._nodeHandle('b')
+ check('Método de script A público',ah.call('contar')===1)
+ check('Cierre de A conserva estado',ah.call('contar')===2)
+ check('Método de script B público',ah.call('valorB')===6)
+ check('Callbacks periódicos solo existentes',life.processEntries.size===1&&life.physicsEntries.size===0)
+ check('Conexión Custom Signal entre scripts',ah.connect('listo',bh,'recibir')===true)
+ ah.call('emitir',35)
+ check('Custom Signal emitida por B y declarada en A',records.some(r=>r[0]==='legacy:'&&r[1]===35))
+ check('No duplica conexiones',ah.connect('listo',bh,'recibir')===false)
+ check('Llamada de script externo imposible',(()=>{try{ah.call('privado');return false}catch{return true}})())
+ records.length=0;life.process(.016)
+ check('Process único por nodo válido',records.length===1&&records[0][0]==='A:frame')
+ a.scriptIds=['B','A'];life.sync()
+ check('Reordenación reinicia ambas instancias',life.scripts.instances.get('a')?.slots[0].scriptId==='B')
+ check('Nueva conexión no revive receptores viejos',life.scripts.instances.get('a')?.signals.get('listo')?.size===0)
+ check('Semántica de lectura scriptIds prevalece',life.scripts.instances.get('a')?.idsKey===JSON.stringify(['B','A']))
+ const prev=life.scripts.instances.get('a')
+ life.stop()
+ check('Stop libera registros',life.scripts.instances.size===0)
+ life.start();check('Play nuevo no reutiliza el registro',life.scripts.instances.get('a')!==prev)
+ life.stop();check('Sin errores del motor',errors.length===0)
+ check('WebGL sin error',renderer.getContext().getError()===renderer.getContext().NO_ERROR)
+ out.dataset.pass='true';out.textContent=JSON.stringify({pass:true,gl:renderer.getContext().getParameter(renderer.getContext().VERSION),checks},null,2)
+} catch(error){out.dataset.pass='false';out.textContent=JSON.stringify({pass:false,error:String(error.stack||error),checks},null,2)}
+finally {try{life?.stop()}catch{}renderer?.dispose()}
+</script></body></html>

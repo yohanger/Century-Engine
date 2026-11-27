@@ -1,0 +1,223 @@
+{
+  "baseline": "CENTURY_EDITOR_INSPECTOR_S01_G001_SOURCE_BASELINE.zip",
+  "baseline_files": 3972,
+  "files": {
+    "docs/architecture/CENTURY-EDITOR-STABILITY-S01-G001-POINTER-LIFECYCLE-AND-NUMERIC-INTEGRITY_CONTRACT.md": {
+      "before": null,
+      "after": "a32a7085b4554318a632ae399b61217204d69ce68c62e607c0cf3372844c2e18"
+    },
+    "docs/architecture/CENTURY-EDITOR-STABILITY-S01-G001-POINTER-LIFECYCLE-AND-NUMERIC-INTEGRITY_IMPLEMENTATION.md": {
+      "before": null,
+      "after": "39934a80d13b008417b6fd8d6ba334d7048f69c3703be8aec58ba453e32cae9a"
+    },
+    "docs/ledger/CE_EDITOR_STABILITY_S01_G001_LEDGER.xlsx": {
+      "before": null,
+      "after": "0dd67ab2816c6beeeab2bb195fe19c5fade0a3cc30a7a39f538249e2e029b7c8"
+    },
+    "docs/qa/CENTURY-EDITOR-STABILITY-S01-G001-POINTER-LIFECYCLE-AND-NUMERIC-INTEGRITY_BASELINE_REGRESSION.log": {
+      "before": null,
+      "after": "a8870acd0932d2601a306b2a95ce1c47c94d2ca9921caa3d530bbb8a37dbb1e6"
+    },
+    "docs/qa/CENTURY-EDITOR-STABILITY-S01-G001-POINTER-LIFECYCLE-AND-NUMERIC-INTEGRITY_BUILD.log": {
+      "before": null,
+      "after": "ad93033e7f39a0f04a1ed40edf91f741c64cfbf9fa5ed37ad17f38e46626cd7c"
+    },
+    "docs/qa/CENTURY-EDITOR-STABILITY-S01-G001-POINTER-LIFECYCLE-AND-NUMERIC-INTEGRITY_ELECTRON.log": {
+      "before": null,
+      "after": "c48dd0d43ff09541f679b246ab1ec46e0a5f559ec2d8cb8b4a9d3daf5f3a63a4"
+    },
+    "docs/qa/CENTURY-EDITOR-STABILITY-S01-G001-POINTER-LIFECYCLE-AND-NUMERIC-INTEGRITY_FOCAL.log": {
+      "before": null,
+      "after": "f53481821db388ad68062d657fd5c0b01fc9e643a49ae60ae2d48659fa5038ef"
+    },
+    "docs/qa/CENTURY-EDITOR-STABILITY-S01-G001-POINTER-LIFECYCLE-AND-NUMERIC-INTEGRITY_QA.md": {
+      "before": null,
+      "after": "16432608e3bbd26cc9256746e1d035ce7af6a490c533eb812c896c6293e241c9"
+    },
+    "docs/qa/CENTURY-EDITOR-STABILITY-S01-G001-POINTER-LIFECYCLE-AND-NUMERIC-INTEGRITY_REGRESSION.log": {
+      "before": null,
+      "after": "589e5ea9f5d1daa3debcd5fbc58638988f1fb391dd927fcc5d518c19f54046f9"
+    },
+    "docs/qa/CENTURY-EDITOR-STABILITY-S01-G001-POINTER-LIFECYCLE-AND-NUMERIC-INTEGRITY_SYNTAX.log": {
+      "before": null,
+      "after": "feaa64351fc945c668c3bd396dce1820075c11499a227634f4c00feda94ea5aa"
+    },
+    "scripts/fixtures/editor/editor-numeric-pointer-integrity.html": {
+      "before": null,
+      "after": "7b12a0c16bf9367c5ae353fecd4504507e86b754c96fbff583bd930c727f7193"
+    },
+    "scripts/qa-suites.json": {
+      "before": "de6b63d0b2161dd6edc41829861ea6289e7838d447fa204eff3ede53e90d158e",
+      "after": "33478898fe9b86432e644cd3d29a8d93a9532c33d0478646bfc2f3e372fe4362"
+    },
+    "scripts/test-editor-numeric-pointer-integrity-electron.mjs": {
+      "before": null,
+      "after": "bda0ff0677b08fa9ed8a5defdcc2c04d9926a65ff0f234308d90633ca84d57b9"
+    },
+    "scripts/test-editor-numeric-pointer-integrity.mjs": {
+      "before": null,
+      "after": "1ae1b6b1a37ae71e27ce57659e952e027ef6dada65f314b93fa02ec75ad75bed"
+    },
+    "scripts/test-gizmo-axis-pivot-integrity.mjs": {
+      "before": "2b1a6fcae4858be03cef33b851fe51cc33b9bb8bc3a1937042a94203ef672e4a",
+      "after": "610623d3b838cd2ca3d3ec4de5ad9e2efc3826fdca45565d4539737c43c594b1"
+    },
+    "scripts/test-mesh-transform-numeric-g001.mjs": {
+      "before": "a5b9181f746cbec68543e2f398b1e1f86b51eb867dbf80d64255ef40559d8fc1",
+      "after": "004e2181d569aad51bd0ee197333ffe5e5a0297386714705e7bf26b68a737c2d"
+    },
+    "src/components/AppWindow.vue": {
+      "before": "4694b30c15d1b03545e5fb9614e2059ae11a223fc4187b8bc0028ee09a0e56b8",
+      "after": "7cf43301ccb68db18fb630844e0d7e2003fbab80844699cfbbe8959c3474a4b6"
+    },
+    "src/components/ColorInput.vue": {
+      "before": "6ccc46dea03a17755518ff492fc1e6d12bdcf490b43d2fc50ab32cc3205a5a24",
+      "after": "d806bec7bc379cca55c89fe8397dd2835c3534f802cb8975f33c8850633c0e25"
+    },
+    "src/components/ColorWheel.vue": {
+      "before": "26770f4338264c8f7f5dc789c3883f08120377418f70758333e4777c2f76a49d",
+      "after": "9bc9f3fa7dca8623bb3755d8f404b13bff785909cf7654dee7e55fcdf5b5a6eb"
+    },
+    "src/components/DockTree.vue": {
+      "before": "b991634c99a9d02c97879d634ce8e6d19c5e61a92cb7d65bf24bf714c2681bd5",
+      "after": "2933ccb2c0b7b31ec5526fd0def74c1956402abe4530b18b3df1abefe579cadf"
+    },
+    "src/components/EventPreview.vue": {
+      "before": "0b38e0bf8c59a2c742378450639dcb0ca8ff73aa482e7d8275442d4848fc0fe6",
+      "after": "76dbc95ebec2b077bb077fdb48a065ad5f6b5aad871ba0ff110739c77694a0c0"
+    },
+    "src/components/FloatingEditorWindow.vue": {
+      "before": "bf7cf3193b5a1be8b2ed0f8a32e06d0f2f54e4c0669de7c9b1376b1299cfab92",
+      "after": "7fbd112f9cd406a83f051d00dcf9441e445af666e2ed913b6c636b3fa3803172"
+    },
+    "src/components/InspectorDock.vue": {
+      "before": "24a68aa143985f28bed872793e055ecc8686721ed9d3f99eb036958a496b534c",
+      "after": "d6bdab823c2852a42f0511d67951078608d68840920a4ced452f0644e59a0ede"
+    },
+    "src/components/MapPicker.vue": {
+      "before": "57155e16fbae93eb88f55106e1dd5ad2f7e002f86991a18adf2ef8713f3ff757",
+      "after": "ebc44288606462abd5c085a40694134aee4ca95369464e7ad2e6540a28defded"
+    },
+    "src/components/MeshPanel.vue": {
+      "before": "c61643c21c27ea33282f55044b47357408d5c4230a90a2d06dbbba3d5ccc8452",
+      "after": "1e02c74dbf032882c063775b573446c42e0fc3a1e42e9c26f7e7e49e3c7360b3"
+    },
+    "src/components/NumberField.vue": {
+      "before": "6251a4aa3001a23997ab12126d174d68246dea9ab61e2e0fa1f47d6202902cd6",
+      "after": "578efe62e6f76ff5f11e6971a147f57c7ccad0a467178415b4ced793ff2e5fc3"
+    },
+    "src/components/OrientGizmo.vue": {
+      "before": "cad35f1e9717228644757795ffd194f9313729dca1416527f7fdf150695a9ff2",
+      "after": "bebf7e964f80f0490371d76bd4b6db0ca91620adeb51e955a8f1c9ac4bebd419"
+    },
+    "src/components/PlayerPreview.vue": {
+      "before": "155a705f76eaa6ae97a0365ded975c4e10120a200599d65c5f061eaf01678850",
+      "after": "ee16725366a09284e5c90b30d01dabca5073da220d00c57bc1a319a64a7a8908"
+    },
+    "src/components/TimelinePanel.vue": {
+      "before": "c334d4d39ac90715508e6ed32f922d6ef19b76e2f6f06a162c08f0f98750a103",
+      "after": "8032f7e2fee5ab59a65c4c5ec67f26870b0342453e1e4299cc64484ca0fb70d7"
+    },
+    "src/components/UiDesignOverlay.vue": {
+      "before": "b67e93d617dc31d3d9efcea4078acc61763851db2fbb8a5156cddb935afbf03d",
+      "after": "39bf13b62815246b284724739233aa81b33079fe1fe7e8c796c51207e8b936c4"
+    },
+    "src/components/UiEditor.vue": {
+      "before": "37ab6a3d2dae0b8998b8ff815ee30b8914183007be13fae8e958b00d43cfca52",
+      "after": "81a8156a35dfa24d5dc93c3006fbd3a91387f8679901354a581ff19e7818771b"
+    },
+    "src/components/VfxCurveEditor.vue": {
+      "before": "4a3b97657725196fc0eab2cc128b5a1376996332a5af5c5d2852442fee6dcfd5",
+      "after": "02e02ae0daccf74ca7d1615b7fa303df3336a3a31930e913ef21340cba9bad1b"
+    },
+    "src/components/number-draft.js": {
+      "before": "b74a18f2d135a0b0e4b41d6973ccd76bb6898ac3fe2f4eac1902321266510bb8",
+      "after": "ddbc48278986c6a8d21233d5fa1c482a55db776268adfa1663c2f0a0cdefab65"
+    },
+    "src/core/db.js": {
+      "before": "e2064fe58854fe6227e23299cd6b5cb23f6beedc89f97bb3395807968d37f8dd",
+      "after": "859df751088270258a7847e692db7a7a429bb895a76ee0102dfe1a22434d54f0"
+    },
+    "src/core/editor/collider.js": {
+      "before": "755c4aedad9293efcfe7c98f01e36426d3535f9f13ebbf9e4dd84c603d1bc1a7",
+      "after": "52d521707ca36699ac85de9ee46e9e23ea654ab258a1dfb185b1afb020cb98de"
+    },
+    "src/core/editor/dock-gesture.js": {
+      "before": "dba7733ef9df27034d94e5a193ef4054e86d05c2301c447db5524b4bb8d82969",
+      "after": "011e4438923b74c7474e82622379303123dd2a6a1a800465f787c423cc3e70e1"
+    },
+    "src/core/editor/gizmo.js": {
+      "before": "8d90a251d891f4249e54d4c8bfab4e66b74ca5d74a390d149dbb53e9e69557b4",
+      "after": "ae417cb6a64a0ae2134aa5ea9aef736d5aa11fe729f04a35e840a15e8220e4ab"
+    },
+    "src/core/editor/placement.js": {
+      "before": "29ecbe05c6e9eb586dc60633e6952cc4c4621cbc61355766ccec72c7814ea497",
+      "after": "ee75e02c28730c68082886b06c61f6b5b0f505b459be71aeed902055bee3d18f"
+    },
+    "src/core/editor/pointer.js": {
+      "before": "412d0dc818e04080183a77d337e11bddbca485460ca2878998c18bfff9884017",
+      "after": "3dcac755d2d23f60ad4b16bea5fb133d9a6d526bdd68bc0b96f20bc4fa1f67fc"
+    },
+    "src/core/editor/roads.js": {
+      "before": "c558fb3f39f2d3ea958f6bb687ce465367b77ff9394e3e241ae97b1218d7c279",
+      "after": "90c7e3c296d2bbaacb30e4acb5a9d4fd8752596cb408c2f7064c86f6798bb492"
+    },
+    "src/core/lfproj.js": {
+      "before": "a764a9526fe032ff906493859286bfbca75843d0f087d46877e80397953980ce",
+      "after": "6820edee11181ac703950067167cbe7fa76d59983a60c4c2129b3efb850b7e80"
+    },
+    "src/core/mesh/session-input.js": {
+      "before": "d995c4de644dbdf226448d626f62d203c4869df45ebc90bea950a7c96e349bcc",
+      "after": "acd6fa5760d699fa516dd22bd9dfe64b2866722081ce01f97f1dabfbca4bea92"
+    },
+    "src/core/mesh/session-modal.js": {
+      "before": "4f5769c41d8ba59c7b11454c30971e7b5e9445de6d880e81d72a95a50eb058c1",
+      "after": "f2486bb85aa11683079f49c29a9e0ed9e23a2d769694f21344c8f81ea7c24b75"
+    },
+    "src/core/mesh/session-pick.js": {
+      "before": "23104d8de6768c5ae64bbfcf4a6b27a71743cbe6f8f8a9ad0c6d427d4645c80c",
+      "after": "b5fa61f716b403843b73bbdfa321fa33d9bbf23357220ffed2fd77ec51a1b1c7"
+    },
+    "src/core/mesh/session-xform.js": {
+      "before": "12399037ad8928ec60589acb39946e893080fcdc0546e39b8efdb341ee6da1a7",
+      "after": "bc6a5153fcddd3023c1d0b47330238051a1279e5bee8b6df71f8f6012be7f85c"
+    },
+    "src/core/mesh/session.js": {
+      "before": "9a8f96e17bdace7ca6855bf3aa63cc61cd4e657e2a4d5a1530bd78cd352d2f18",
+      "after": "c1c296a3eeac52ec49822cc576c6378c573fb71ebd3e065640f6a24ea0d9fc0e"
+    },
+    "src/core/mesh/uv.js": {
+      "before": "0ad9660d5c13b462fe6704e7bfa610cacb8d6bbe8201cd08bafafd66316824ba",
+      "after": "cc73670e52214b0495238ba0ad467417d70dd8c82934fa429f30b43d4cbf5f36"
+    },
+    "src/core/paint/session.js": {
+      "before": "db87b92594275c5bf17fc17f6454b83793759cee42a0a3a6d800809d6129b50e",
+      "after": "d685a8df9750efbb94a71474294e2510ca970a55eb67e038df20fa33b078cf53"
+    },
+    "src/core/project.js": {
+      "before": "1516945742e70cb828da8b9e13b908329d6f7ec3bb6cbca330fd0a1a79ee7a63",
+      "after": "b88df4319d13e52665cae6a3e9ba9e68666c41cc401d70068983545b43874161"
+    },
+    "src/core/state/history.js": {
+      "before": "1412e704be6b79de55c329645c2a6f1856beca4e78925996295fa73e29ba45c5",
+      "after": "1f8411c8ad74cc6ac4da36f43b9df8eaada441cb87cd51982b10acdb5247cd24"
+    },
+    "src/core/state/objects.js": {
+      "before": "517ae81ea214232db66cd6d5e16815751d7cbc00f81fe8a61cac7b8925dd14b9",
+      "after": "e7a416989e1a92378578883c20a90f2fe7a97ccaee06410e33ad165d4e2a2e4a"
+    },
+    "src/engine/runtime/input/pointer-capture.js": {
+      "before": null,
+      "after": "b74bb808312a3a5a6e1a01a96be7fea1f8f4658473061cefb147ea42f0fe6050"
+    },
+    "src/engine/runtime/numeric-integrity.js": {
+      "before": null,
+      "after": "ff1253f2fe7f69d7b6ccc434d03edf94bc975c0d4cfc023a0e61c90deaad3698"
+    },
+    "src/engine/runtime/render/viewport-nav.js": {
+      "before": "0af9a8c7142ab32660130a595864741090d34b8d3d48e2658c851838b9080202",
+      "after": "49c48ddddb3e83211aebf8b1830c2bcacdd2eafb2f689ff405063d4fa9f845eb"
+    }
+  },
+  "note": "El manifiesto se excluye de su propio hash; se incluye en ambos ZIP."
+}

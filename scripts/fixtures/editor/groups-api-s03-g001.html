@@ -1,0 +1,40 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Century Groups S03 Electron</title>
+<style>body{background:#222;color:#ddd;font:12px sans-serif}#wide{width:320px}#narrow{width:260px}#mount{display:flex;gap:15px}</style></head>
+<body><pre id="groups-api-s03-g001-result">Cargando…</pre><div id="mount"><section id="wide"></section><section id="narrow"></section></div>
+<script type="module">
+import * as THREE from 'three'
+import {createApp,nextTick} from 'vue'
+import TagLayerRow from '/src/components/TagLayerRow.vue'
+import {store} from '/src/core/store.js'
+import {createProjectData} from '/src/core/project.js'
+import {makeObject} from '/src/engine/runtime/nodes/index.js'
+import {addGroup,groupsOf,migrateObjectGroups,defaultTagLayers} from '/src/engine/runtime/layers.js'
+import '/src/styles.css'
+const checks=[],out=document.getElementById('groups-api-s03-g001-result')
+const check=(name,yes)=>{checks.push({name,pass:!!yes});if(!yes)throw Error(name)}
+let renderer,a,b
+const flush=async()=>{await nextTick();await new Promise(resolve=>requestAnimationFrame(resolve));await nextTick()}
+try{
+ renderer=new THREE.WebGLRenderer({antialias:false});renderer.setSize(16,16);renderer.render(new THREE.Scene(),new THREE.PerspectiveCamera(60,1,.1,100))
+ check('WebGL real',renderer.capabilities.isWebGL2)
+ const p=createProjectData('Test Groups S03');const cube=makeObject('primitive','box',{id:'qa-1',name:'Cubo',groups:['enemigos'],layers:[0]});p.objects=[cube];addGroup(p.tagLayers,'enemigos');addGroup(p.tagLayers,'voladores');store.project=p;store.editor={syncObject(){},requestRender(){}}
+ a=createApp(TagLayerRow,{obj:cube});a.mount('#wide');b=createApp(TagLayerRow,{obj:cube});b.mount('#narrow');await flush()
+ const root=document.getElementById('wide');check('Selector Groups',!!root.querySelector('[data-testid="insp-groups"]'));check('Selector Layers',!!root.querySelector('[data-testid="insp-layer"]'))
+ check('Grupo existente visible',root.querySelector('[data-testid="insp-groups"]').textContent.includes('enemigos'))
+ check('No selector Tag anterior',!root.querySelector('[data-testid="insp-tag"]'))
+ root.querySelector('[data-testid="insp-groups"]').click();await flush()
+ check('Panel de grupos abierto',!!root.querySelector('.pop'))
+ check('Dos nombres de grupos sugeridos',root.querySelectorAll('.pop .opt').length===2)
+ check('enemigos inicialmente marcado',root.querySelector('.pop .opt input').checked)
+ check('Layers conservadas sin alteración',p.tagLayers.layers.length===32)
+ check('Registro global tiene dos nombres',p.tagLayers.groups.length===2)
+ check('Objeto fuente mantiene pertenencia',groupsOf(cube).includes('enemigos'))
+ check('Inspector 260px mantiene selector',!!document.querySelector('#narrow [data-testid="insp-groups"]'))
+ check('Dos componentes no duplican datos',p.objects.length===1)
+ const old={tag:'Antiguo'};migrateObjectGroups(old);check('Migración legacy en renderer',old.groups[0]==='Antiguo')
+ const original=[...cube.groups];check('Primer grupo no cambia sin pulsar casilla',cube.groups.join(',')===original.join(','))
+ check('Lista renderizada sin desbordamiento crítico',document.querySelector('#narrow').scrollWidth<=document.querySelector('#narrow').clientWidth+4)
+ check('GL sin error',renderer.getContext().getError()===renderer.getContext().NO_ERROR)
+ out.dataset.pass='true';out.textContent=JSON.stringify({pass:true,gl:renderer.getContext().getParameter(renderer.getContext().VERSION),checks},null,2)
+}catch(e){out.dataset.pass='false';out.textContent=JSON.stringify({pass:false,error:String(e.stack||e),checks},null,2)}finally{a?.unmount();b?.unmount();renderer?.dispose()}
+</script></body></html>

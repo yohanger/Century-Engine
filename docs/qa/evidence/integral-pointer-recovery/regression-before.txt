@@ -1,0 +1,328 @@
+TAP version 13
+# Subtest: ECG-01: la navegación reutiliza exactamente el cursor existente
+ok 1 - ECG-01: la navegación reutiliza exactamente el cursor existente
+  ---
+  duration_ms: 2.432046
+  type: 'test'
+  ...
+# Subtest: ECG-02: ratón normal no inicia bloqueo ni altera selección
+ok 2 - ECG-02: ratón normal no inicia bloqueo ni altera selección
+  ---
+  duration_ms: 0.979946
+  type: 'test'
+  ...
+# Subtest: ECG-03: fuente de navegación deshabilitada no permite captura continua
+ok 3 - ECG-03: fuente de navegación deshabilitada no permite captura continua
+  ---
+  duration_ms: 0.200532
+  type: 'test'
+  ...
+# Subtest: ECG-04: botón central orbita con movimiento relativo sin límite
+ok 4 - ECG-04: botón central orbita con movimiento relativo sin límite
+  ---
+  duration_ms: 0.629909
+  type: 'test'
+  ...
+# Subtest: ECG-05: Shift + botón central desplaza sin orbitar
+ok 5 - ECG-05: Shift + botón central desplaza sin orbitar
+  ---
+  duration_ms: 0.939126
+  type: 'test'
+  ...
+# Subtest: ECG-06: Alt+izquierdo órbita y Alt+Shift+izquierdo desplaza
+ok 6 - ECG-06: Alt+izquierdo órbita y Alt+Shift+izquierdo desplaza
+  ---
+  duration_ms: 0.311639
+  type: 'test'
+  ...
+# Subtest: ECG-07: Space+izquierdo desplaza en vez de seleccionar
+ok 7 - ECG-07: Space+izquierdo desplaza en vez de seleccionar
+  ---
+  duration_ms: 0.276207
+  type: 'test'
+  ...
+# Subtest: ECG-08: derecho en vuelo consume un único delta y libera el cursor
+ok 8 - ECG-08: derecho en vuelo consume un único delta y libera el cursor
+  ---
+  duration_ms: 0.217217
+  type: 'test'
+  ...
+# Subtest: ECG-09: Shift+derecho desplaza la vista y no inicia vuelo
+ok 9 - ECG-09: Shift+derecho desplaza la vista y no inicia vuelo
+  ---
+  duration_ms: 0.55048
+  type: 'test'
+  ...
+# Subtest: ECG-10: bloquear otro gesto durante el primero no genera otra captura
+ok 10 - ECG-10: bloquear otro gesto durante el primero no genera otra captura
+  ---
+  duration_ms: 0.625132
+  type: 'test'
+  ...
+# Subtest: ECG-11: pointerup conserva evidencia de desplazamiento para no seleccionar ni abrir menú
+ok 11 - ECG-11: pointerup conserva evidencia de desplazamiento para no seleccionar ni abrir menú
+  ---
+  duration_ms: 0.458652
+  type: 'test'
+  ...
+# Subtest: ECG-12: un clic derecho sin movimiento todavía permite menú contextual
+ok 12 - ECG-12: un clic derecho sin movimiento todavía permite menú contextual
+  ---
+  duration_ms: 0.271288
+  type: 'test'
+  ...
+# Subtest: ECG-13: Escape cancela, libera el bloqueo y termina vuelo activo
+ok 13 - ECG-13: Escape cancela, libera el bloqueo y termina vuelo activo
+  ---
+  duration_ms: 0.189295
+  type: 'test'
+  ...
+# Subtest: ECG-14: pérdida de foco y pointercancel liberan bloqueo
+ok 14 - ECG-14: pérdida de foco y pointercancel liberan bloqueo
+  ---
+  duration_ms: 0.209766
+  type: 'test'
+  ...
+# Subtest: ECG-15: denegación de Pointer Lock conserva la navegación nativa
+ok 15 - ECG-15: denegación de Pointer Lock conserva la navegación nativa
+  ---
+  duration_ms: 0.144538
+  type: 'test'
+  ...
+# Subtest: ECG-16: el código respeta el modo Player y la salida de Edit Mode
+ok 16 - ECG-16: el código respeta el modo Player y la salida de Edit Mode
+  ---
+  duration_ms: 1.600452
+  type: 'test'
+  ...
+# Subtest: CG-01: bloqueo y cursor virtual aparecen solo durante el gesto
+ok 17 - CG-01: bloqueo y cursor virtual aparecen solo durante el gesto
+  ---
+  duration_ms: 2.527619
+  type: 'test'
+  ...
+# Subtest: CG-02: derecha, izquierda, arriba y abajo reaparecen en el borde opuesto
+ok 18 - CG-02: derecha, izquierda, arriba y abajo reaparecen en el borde opuesto
+  ---
+  duration_ms: 0.786205
+  type: 'test'
+  ...
+# Subtest: CG-03: recorrido continuo no pierde píxeles por cruces repetidos
+ok 19 - CG-03: recorrido continuo no pierde píxeles por cruces repetidos
+  ---
+  duration_ms: 0.8623
+  type: 'test'
+  ...
+# Subtest: CG-04: mientras no hay bloqueo, no intercepta selección ni navegación
+ok 20 - CG-04: mientras no hay bloqueo, no intercepta selección ni navegación
+  ---
+  duration_ms: 0.294624
+  type: 'test'
+  ...
+# Subtest: CG-05: error de bloqueo mantiene el ratón nativo y no deja captura residual
+ok 21 - CG-05: error de bloqueo mantiene el ratón nativo y no deja captura residual
+  ---
+  duration_ms: 0.41841
+  type: 'test'
+  ...
+# Subtest: CG-06: Escape cancela una sola vez y libera la captura
+ok 22 - CG-06: Escape cancela una sola vez y libera la captura
+  ---
+  duration_ms: 0.399842
+  type: 'test'
+  ...
+# Subtest: CG-07: cambio de foco y visibilidad cancelan sin reintentos
+ok 23 - CG-07: cambio de foco y visibilidad cancelan sin reintentos
+  ---
+  duration_ms: 0.467374
+  type: 'test'
+  ...
+# Subtest: CG-08: liberación normal no cancela, y dispose elimina listeners
+ok 24 - CG-08: liberación normal no cancela, y dispose elimina listeners
+  ---
+  duration_ms: 0.368094
+  type: 'test'
+  ...
+# Subtest: CG-09: rangos pequeños no producen NaN ni modulo cero
+ok 25 - CG-09: rangos pequeños no producen NaN ni modulo cero
+  ---
+  duration_ms: 0.950693
+  type: 'test'
+  ...
+# Subtest: El punto de selección se limita al visor mientras el movimiento sigue acumulándose
+ok 26 - El punto de selección se limita al visor mientras el movimiento sigue acumulándose
+  ---
+  duration_ms: 1.948366
+  type: 'test'
+  ...
+# Subtest: Cancelar antes de completar la petición libera un bloqueo tardío
+ok 27 - Cancelar antes de completar la petición libera un bloqueo tardío
+  ---
+  duration_ms: 0.718813
+  type: 'test'
+  ...
+# Subtest: CG-10: entrada modal conserva los atajos y la acumulación angular no se reinicia
+ok 28 - CG-10: entrada modal conserva los atajos y la acumulación angular no se reinicia
+  ---
+  duration_ms: 1.044073
+  type: 'test'
+  ...
+# Subtest: CG-11: el gizmo de objetos recibe NDC de cursor acumulado
+ok 29 - CG-11: el gizmo de objetos recibe NDC de cursor acumulado
+  ---
+  duration_ms: 1.59924
+  type: 'test'
+  ...
+# Subtest: CG-12: gizmos conservan Snap, Undo y controles del Player aislados
+ok 30 - CG-12: gizmos conservan Snap, Undo y controles del Player aislados
+  ---
+  duration_ms: 0.586003
+  type: 'test'
+  ...
+# Subtest: pointer capture invalidated during docking does not open a gesture
+ok 31 - pointer capture invalidated during docking does not open a gesture
+  ---
+  duration_ms: 2.540238
+  type: 'test'
+  ...
+# Subtest: successful capture keeps real pointer identity
+ok 32 - successful capture keeps real pointer identity
+  ---
+  duration_ms: 0.248645
+  type: 'test'
+  ...
+# Subtest: hidden zero-size viewport cannot produce NDC by division
+ok 33 - hidden zero-size viewport cannot produce NDC by division
+  ---
+  duration_ms: 0.437138
+  type: 'test'
+  ...
+# Subtest: JSON rejects NaN with full data path instead of writing null
+ok 34 - JSON rejects NaN with full data path instead of writing null
+  ---
+  duration_ms: 0.57727
+  type: 'test'
+  ...
+# Subtest: JSON preserves valid values and rejects Infinity
+ok 35 - JSON preserves valid values and rejects Infinity
+  ---
+  duration_ms: 1.19467
+  type: 'test'
+  ...
+# Subtest: mesh preflight detects Float32 overflow as well as non-finite geometry and UV
+ok 36 - mesh preflight detects Float32 overflow as well as non-finite geometry and UV
+  ---
+  duration_ms: 0.70312
+  type: 'test'
+  ...
+# Subtest: UV multiplication rejects overflow without partial mutation
+ok 37 - UV multiplication rejects overflow without partial mutation
+  ---
+  duration_ms: 1.158697
+  type: 'test'
+  ...
+# Subtest: non-finite quaternion and sparse numeric tuple rejected
+ok 38 - non-finite quaternion and sparse numeric tuple rejected
+  ---
+  duration_ms: 0.427464
+  type: 'test'
+  ...
+# Subtest: numeric draft rejects overflow and invalid bounds
+ok 39 - numeric draft rejects overflow and invalid bounds
+  ---
+  duration_ms: 3.213072
+  type: 'test'
+  ...
+# Subtest: inspector width writer obeys the Electron range at large panel widths
+ok 40 - inspector width writer obeys the Electron range at large panel widths
+  ---
+  duration_ms: 1.224466
+  type: 'test'
+  ...
+# Subtest: una captura ajena o un gesto activo no llega a los addons
+ok 41 - una captura ajena o un gesto activo no llega a los addons
+  ---
+  duration_ms: 1.617668
+  type: 'test'
+  ...
+# Subtest: un vuelo inmediato durante la liberación propia evita la segunda captura
+ok 42 - un vuelo inmediato durante la liberación propia evita la segunda captura
+  ---
+  duration_ms: 1.059998
+  type: 'test'
+  ...
+# Subtest: una solicitud pendiente también impide una segunda captura; normal y Player no cambian
+ok 43 - una solicitud pendiente también impide una segunda captura; normal y Player no cambian
+  ---
+  duration_ms: 0.377969
+  type: 'test'
+  ...
+# Subtest: la navegación aceptada consume pointerdown antes de los listeners posteriores
+ok 44 - la navegación aceptada consume pointerdown antes de los listeners posteriores
+  ---
+  duration_ms: 0.689579
+  type: 'test'
+  ...
+# Subtest: el guard se instala en la fase de captura antes de construir OrbitControls
+ok 45 - el guard se instala en la fase de captura antes de construir OrbitControls
+  ---
+  duration_ms: 1.408302
+  type: 'test'
+  ...
+# Subtest: El gizmo seleccionado no compite por la captura de vuelo ni se oculta
+ok 46 - El gizmo seleccionado no compite por la captura de vuelo ni se oculta
+  ---
+  duration_ms: 8.521111
+  type: 'test'
+  ...
+# Subtest: La pérdida de Pointer Capture al adquirir el bloqueo no termina el vuelo
+ok 47 - La pérdida de Pointer Capture al adquirir el bloqueo no termina el vuelo
+  ---
+  duration_ms: 3.35085
+  type: 'test'
+  ...
+# Subtest: Denegación asíncrona conserva vuelo y entrada WASD con captura nativa
+ok 48 - Denegación asíncrona conserva vuelo y entrada WASD con captura nativa
+  ---
+  duration_ms: 3.715549
+  type: 'test'
+  ...
+# Subtest: Nuevo vuelo durante liberación de un bloqueo propio no exige deseleccionar
+ok 49 - Nuevo vuelo durante liberación de un bloqueo propio no exige deseleccionar
+  ---
+  duration_ms: 3.223348
+  type: 'test'
+  ...
+# Subtest: Bloqueo ajeno y operación activa no son apropiados por el vuelo
+ok 50 - Bloqueo ajeno y operación activa no son apropiados por el vuelo
+  ---
+  duration_ms: 3.613015
+  type: 'test'
+  ...
+# Subtest: Pérdida real de captura sin bloqueo cancela y restaura el control
+ok 51 - Pérdida real de captura sin bloqueo cancela y restaura el control
+  ---
+  duration_ms: 3.62277
+  type: 'test'
+  ...
+# Subtest: WASD sin mover el ratón se registra como navegación y no clic contextual
+ok 52 - WASD sin mover el ratón se registra como navegación y no clic contextual
+  ---
+  duration_ms: 2.237212
+  type: 'test'
+  ...
+# Subtest: Blur, Escape y cambio de escena terminan el fallback sin teclas pegadas
+ok 53 - Blur, Escape y cambio de escena terminan el fallback sin teclas pegadas
+  ---
+  duration_ms: 3.766967
+  type: 'test'
+  ...
+1..53
+# tests 53
+# suites 0
+# pass 53
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 246.228409

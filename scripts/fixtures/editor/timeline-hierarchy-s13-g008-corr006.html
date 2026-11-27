@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="es">
+<meta charset="utf-8">
+<title>Century · Jerarquía de Timeline CORR-006</title>
+<style>
+html,body { margin:0; height:100%; background:#181a1d; }
+#timeline { height:450px; width:100%; overflow:hidden; }
+#result { display:none; }
+</style>
+<div id="timeline"></div><pre id="result"></pre>
+<script>
+window.__lfNativePointerReady=new Promise(resolve=>{window.__lfNativePointerResolve=resolve})
+</script>
+<script type="module">
+const target=document.querySelector('#result'),checks=[]
+const captureOnly=new URL(location.href).searchParams.has('capture')
+const check=(name,pass)=>{
+ checks.push({name,pass:!!pass})
+ if(!pass)throw new Error(name)
+}
+const finish=error=>{
+ window.__lfNativePointerResolve?.()
+ target.dataset.pass=String(!error)
+ const metrics=[...document.querySelectorAll('.pinned-row')].map(row=>{
+  const label=row.querySelector('.node-row-name span,.node-property-name')
+  const rect=row.getBoundingClientRect()
+  return {type:row.dataset.timelineRow,label:label?.textContent.trim(),x:label?.getBoundingClientRect().left,
+   y:rect.top,height:rect.height,labelWidth:label?.clientWidth,textWidth:label?.scrollWidth}
+ })
+ target.textContent=JSON.stringify({pass:!error,checks,metrics,viewport:{width:innerWidth,height:innerHeight},gl:!!document.createElement('canvas').getContext('webgl'),
+  ...(error?{error:error.stack||String(error)}:{})})
+}
+window.addEventListener('error',event=>finish(event.error||new Error(event.message)))
+window.addEventListener('unhandledrejection',event=>finish(event.reason))
+try {
+ await import('/src/styles.css')
+ const {createApp,ref,provide,h,nextTick}=await import('vue')
+ const {default:TimelinePanel}=await import('/src/components/TimelinePanel.vue')
+ const {default:ContextMenu}=await import('/src/components/ContextMenu.vue')
+ const {store,setEditor,resetHistory}=await import('/src/core/store.js')
+ const {createProjectData}=await import('/src/core/project.js')
+ const {makeObject}=await import('/src/engine/runtime/nodes/index.js')
+ const {newTimeline,upsertTimelineNodePropertyKey,addTimelineGroup}=await import('/src/core/timeline/model.js')
+ const {timelinePlaybackKey}=await import('/src/core/timeline/playback-session.js')
+ const doc=createProjectData('Jerarquía CORR-006','empty')
+ const camera=makeObject('camera','camera'),light=makeObject('light','omni'),mesh=makeObject('mesh')
+ Object.assign(camera,{id:'qa-camera',name:'Cámara'})
+ Object.assign(light,{id:'qa-light',name:'Light_1'})
+ Object.assign(mesh,{id:'qa-mesh',name:'Malla con un nombre extenso para comprobar el truncamiento'})
+ doc.objects=[camera,light,mesh]
+ const timeline=newTimeline('Movimiento de escena',{id:'qa-hierarchy',duration:6})
+ doc.timelines=[timeline]
+ const add=(node,prop,time)=>upsertTimelineNodePropertyKey(timeline,node,prop,doc.activeSceneId,doc.objects,time,
+  prop==='scale'?[1,1,1]:[0,0,0])
+ for(const [node,props] of [[camera,['position','scale']],[light,['position']],[mesh,['position']]])
+  for(const prop of props){add(node,prop,0);add(node,prop,2)}
+ store.project=doc;store.timelineId=timeline.id;store.selectedId=null;store.selectedIds=[]
+ store.temporalSelection=null;store.projSel=null;store.menu=null;store.locked=store.play.on=store.filmMode=false
+ store.prefs.bottomTab='timeline';store.prefs.bottomOpen=true
+ setEditor({snapshotTerrain:()=>doc.terrain,restoreTerrain(){},syncAll(){},syncEnvironment(){},setSelection(){},setActivePiece(){},syncObject(){},restoreEdit(){},afterUndo(){}})
+ resetHistory()
+ const playback={time:ref(1),playing:ref(false),previewEnabled:ref(false),resourceId:null,
+  pause(){},stop(){},refresh(){},seek(value){this.time.value=value},yieldToEditing(){return true},eventsEdited(){}}
+ createApp({setup(){
+  provide(timelinePlaybackKey,playback)
+  return()=>h('div',{style:{height:'100%'}},[h(TimelinePanel),store.menu?h(ContextMenu):null])
+ }}).mount('#timeline')
+ const settle=async()=>{await nextTick();await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));await nextTick()}
+ const all=selector=>[...document.querySelectorAll(selector)]
+ const first=selector=>document.querySelector(selector)
+ const aligned=()=>all('.pinned-row').every((row,index)=>Math.abs(row.getBoundingClientRect().top-all('.trow')[index].getBoundingClientRect().top)<1.5)
+ await settle()
+ check('El panel real se monta',!!first('.tlp .main'))
+ if(!captureOnly){
+  check('Hay una cabecera por nodo',all('.node-head').length===3)
+  check('Cámara contiene Posición y Escala antes de Light_1',all('.pinned-row').slice(0,5).map(el=>el.querySelector('.node-row-name span,.node-property-name')?.textContent.trim()).join('|')==='Cámara|Posición|Escala|Light_1|Posición')
+  check('La lista y los carriles tienen el mismo número de filas',all('.pinned-row').length===all('.trow').length)
+  check('Todas las filas se alinean',aligned())
+  check('Las cabeceras miden 27 px como la referencia',Math.abs(first('.node-heading-row').getBoundingClientRect().height-27)<.1)
+  check('Las propiedades miden 21 px como la referencia',Math.abs(first('.property-value-row').getBoundingClientRect().height-21)<.1)
+  const keyRect=first('.property-lane .key.node').getBoundingClientRect(),laneRect=first('.property-lane').getBoundingClientRect()
+  check('El rombo queda centrado en el carril compacto',Math.abs(keyRect.top+keyRect.height/2-laneRect.top-laneRect.height/2)<1)
+  const title=first('.node-row-name span'),name=first('.node-property-name')
+  check('La propiedad tiene sangría respecto del nodo',name.getBoundingClientRect().left>title.getBoundingClientRect().left+10)
+  check('Posición se lee completa en reposo',name.clientWidth>=name.scrollWidth)
+  check('Las propiedades prescinden de iconos decorativos',all('.node-property-head .ico').length===0)
+  const head=first('.node-property-head'),actions=head.querySelector('.property-actions')
+  first('.tm').focus();await settle()
+  check('Las acciones están ocultas en reposo',getComputedStyle(actions).opacity==='0')
+  head.querySelector('.property-row-select').focus();await settle()
+  check('El teclado revela las acciones de la fila',getComputedStyle(actions).opacity==='1')
+  check('La llave de propiedad sigue accesible con teclado',!!head.querySelector('.property-key'))
+  head.querySelector('.property-menu').click();await settle()
+  check('Opciones reutiliza el menú compartido',!!first('.veil [role=menuitem]'))
+  let mute=all('.veil [role=menuitem]').find(el=>el.textContent.trim()==='Silenciar pista')
+  mute.click();await settle()
+  check('Silenciar usa la pista existente',timeline.tracks[0].muted===true)
+  check('El estado silenciado permanece visible',!!head.querySelector('.property-state [aria-hidden]')||head.querySelector('.property-state')?.getAttribute('aria-label').includes('Silenciada'))
+  head.querySelector('.property-menu').click();await settle()
+  all('.veil [role=menuitem]').find(el=>el.textContent.trim()==='Bloquear pista').click();await settle()
+  check('Bloquear usa la pista existente',timeline.tracks[0].locked===true)
+  check('La llave bloqueada queda deshabilitada',head.querySelector('.property-key').disabled)
+  timeline.tracks[0].muted=false;timeline.tracks[0].locked=false
+  const toggle=first('.node-row-toggle')
+  toggle.click();await settle()
+  check('Contraer oculta únicamente las propiedades de Cámara',all('.node-property-head').length===2&&timeline.tracks.length===4)
+  toggle.click();await settle()
+  check('Expandir conserva la alineación',all('.node-property-head').length===4&&aligned())
+  const lanes=all('.property-lane')
+  const a=lanes[0].getBoundingClientRect(),z=lanes[1].getBoundingClientRect()
+  lanes[0].dispatchEvent(new PointerEvent('pointerdown',{button:0,shiftKey:true,clientX:a.left+22,clientY:a.top+1,bubbles:true,cancelable:true}))
+  const corner={clientX:z.left+24+2*70+2,clientY:z.bottom-1,bubbles:true}
+  window.dispatchEvent(new PointerEvent('pointermove',corner))
+  window.dispatchEvent(new PointerEvent('pointerup',corner))
+  await settle()
+  check('La selección rectangular sigue las alturas compactas',first('.selection-tools')?.textContent.includes('4 claves'))
+  first('.property-row-select').click()
+  await settle()
+  const resize=first('.header-resizer')
+  for(let index=0;index<5;index++)resize.dispatchEvent(new KeyboardEvent('keydown',{key:'ArrowLeft',bubbles:true,cancelable:true}))
+  await settle();first('.tm').focus();await settle()
+  check('Posición se lee completa con la columna a 164 px',first('.node-property-name').scrollWidth<=first('.node-property-name').clientWidth)
+  check('El nombre largo tiene truncamiento controlado',getComputedStyle(all('.node-row-name span')[2]).textOverflow==='ellipsis')
+  for(let index=0;index<5;index++)resize.dispatchEvent(new KeyboardEvent('keydown',{key:'ArrowRight',bubbles:true,cancelable:true}))
+  await settle()
+  check('Los keyframes siguen siendo puntuales',all('.property-lane .key.node').length===8&&all('.property-lane .span').length===0)
+  check('La selección de pista conserva el contexto del Inspector',store.selectedId===null&&store.temporalSelection===null)
+  check('El layout conserva los datos autorales',timeline.tracks.length===4&&doc.objects.length===3)
+  first('.tm').focus();await settle()
+ }
+ if(captureOnly)finish()
+ else {
+  window.__lfNativePointerSteps=[{type:'mouseMoved',button:'none',selector:'.node-property-head',x:.7,y:.5}]
+  window.__lfNativePointerResolve()
+  const pending=setInterval(()=>{
+   if(!window.__lfNativePointerDone)return
+   clearInterval(pending)
+   try {
+    check('El puntero nativo revela las acciones sin desplazar la fila',getComputedStyle(first('.property-actions')).opacity==='1'&&aligned())
+    finish()
+   }catch(error){finish(error)}
+  },25)
+ }
+}catch(error){finish(error)}
+</script>
+</html>

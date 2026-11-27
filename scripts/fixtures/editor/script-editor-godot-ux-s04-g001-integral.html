@@ -1,0 +1,112 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Century · Script Editor S04 · Electron QA</title></head><body>
+<pre id="script-editor-s04-result">Ejecutando…</pre><div id="script-editor-qa"></div>
+<script type="module">
+import {createApp, nextTick} from 'vue'
+import '/src/styles.css'
+import ScriptEditor from '/src/components/ScriptEditor.vue'
+import {store} from '/src/core/store.js'
+import {createProjectData} from '/src/core/project.js'
+import {floatDockPanel} from '/src/core/editor/docking.js'
+const output=document.querySelector('#script-editor-s04-result'),checks=[]
+const check=(name,pass,detail='')=>{checks.push({name,pass:!!pass,detail});if(!pass)throw new Error(name+': '+detail)}
+const tick=async()=>{await nextTick();await new Promise(requestAnimationFrame);await nextTick()}
+const before={project:store.project,modal:store.modal,id:store.scriptEditId,mode:store.ui.mode,layout:store.prefs.dockLayout}
+let app
+try {
+  store.ui.mode='desktop'
+  store.project=createProjectData('Script QA')
+  store.project.scripts=[
+    {id:'qa-global',folder:'Assets/Scripts',name:'Jugador.js',code:'function start() {\n  game.log("Jugador");\n}',execution:'global'},
+    {id:'qa-node',folder:'Assets/Scripts/Gameplay',name:'Cámara.js',code:'function update(dt) {\n  node.position.x += dt;\n}',execution:'node'},
+  ]
+  store.scriptEditId='qa-global';store.modal='script'
+  store.prefs.dockLayout=floatDockPanel(store.prefs.dockLayout,'scriptEditor',{x:25,y:45,w:900,h:600})
+  app=createApp(ScriptEditor)
+  app.mount('#script-editor-qa');await tick()
+  const shell=()=>document.querySelector('.edwin.se')
+  check('Editor de scripts real montado',!!shell())
+  check('CodeMirror se monta una sola vez',document.querySelectorAll('.edwin.se .cm-editor').length===1)
+  check('Navegación visible por defecto',!!document.querySelector('.se-sidebar'))
+  check('Lista de scripts obtenida del proyecto',document.querySelectorAll('.se-file').length===2)
+  check('Documento activo original visible',document.querySelector('.cm-content')?.textContent.includes('Jugador'))
+  check('Sección de métodos usa funciones reales',!![...document.querySelectorAll('.ol-item')].find(x=>x.textContent.includes('start')))
+  const search=document.querySelector('.se-search-box input')
+  search.value='camara';search.dispatchEvent(new Event('input',{bubbles:true}));await tick()
+  check('Filtro ignora acentos y mayúsculas',document.querySelectorAll('.se-file').length===1 && document.querySelector('.se-file')?.textContent.includes('Cámara'))
+  document.querySelector('.se-file')?.click();await tick()
+  check('Navega al segundo script sin recrear CodeMirror',store.scriptEditId==='qa-node' && document.querySelectorAll('.cm-editor').length===1)
+  check('Muestra contenido del script de nodo',document.querySelector('.cm-content')?.textContent.includes('node.position.x'))
+  check('No cambia el código original del primer script',store.project.scripts[0].code.includes('Jugador'))
+  check('Ejecución Nodo seleccionada correctamente',document.querySelector('.script-execution select')?.value==='node')
+  check('Métodos siguen el script activo',!![...document.querySelectorAll('.ol-item')].find(x=>x.textContent.includes('update')))
+  const method=document.querySelector('.ol-item');method?.click();await tick()
+  check('Navegación de métodos actualiza el cursor',document.querySelector('.status-position')?.textContent.includes('Ln 1'))
+  const nav=document.querySelector('.se-nav-toggle');nav?.click();await tick()
+  check('Ocultar navegación no destruye editor',!document.querySelector('.se-sidebar') && document.querySelectorAll('.cm-editor').length===1)
+  nav?.click();await tick()
+  check('Se puede restaurar navegación',!!document.querySelector('.se-sidebar'))
+  check('Barra de comandos integra búsqueda/guardado',!![...document.querySelectorAll('.se-commands button')].find(x=>x.textContent.includes('Guardar')))
+  check('Control del minimapa conserva ARIA',!!document.querySelector('.se-command[aria-pressed]'))
+  check('Estado de posición y modo de ejecución visibles',!!document.querySelector('.status-position') && !!document.querySelector('.script-execution'))
+  check('El Editor mantiene destino flotante único',document.querySelectorAll('.floating-editor-window').length===1)
+  const frame=document.querySelector('.floating-editor-window')
+  const chrome=frame?.querySelector('.floating-editor-chrome.integrated')
+  check('Barra de título propia y sin controles superpuestos',!!chrome && !!chrome.querySelector('.floating-editor-actions') && !frame.querySelector('.script-header'))
+  check('Cerrar y acoplar están dentro de la barra del editor',!!chrome?.querySelector('[aria-label="Close window"]') && !!chrome?.querySelector('[aria-label="Acoplar editor"]'))
+  check('Los paneles usan la superficie grafito del Editor',getComputedStyle(shell()).backgroundColor===getComputedStyle(document.querySelector('.se-sidebar')).backgroundColor,
+    `script=${getComputedStyle(shell()).backgroundColor}; sidebar=${getComputedStyle(document.querySelector('.se-sidebar')).backgroundColor}`)
+  // Eventos DOM sintéticos: el test valida límites de geometría, no la respuesta física de un ratón.
+  const originalCapture=frame.setPointerCapture, originalRelease=frame.releasePointerCapture, originalHas=frame.hasPointerCapture
+  frame.setPointerCapture=()=>{};frame.releasePointerCapture=()=>{};frame.hasPointerCapture=()=>true
+  try {
+    const x0=parseFloat(frame.style.left), y0=parseFloat(frame.style.top)
+    chrome.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true,pointerId:53,button:0,clientX:180,clientY:80}))
+    frame.dispatchEvent(new PointerEvent('pointermove',{bubbles:true,pointerId:53,button:0,clientX:-80,clientY:170}))
+    await tick()
+    check('La ventana se mueve horizontal y verticalmente',parseFloat(frame.style.left)<x0-150 && parseFloat(frame.style.top)>y0+50,
+      `antes=(${x0},${y0}); después=(${frame.style.left},${frame.style.top})`)
+    frame.dispatchEvent(new PointerEvent('pointerup',{bubbles:true,pointerId:53,button:0}))
+  } finally {
+    frame.setPointerCapture=originalCapture;frame.releasePointerCapture=originalRelease;frame.hasPointerCapture=originalHas
+  }
+  // Maximizar debe cubrir la región bajo el menú real de Century, sin márgenes de 12 px.
+  const beforeMax={left:parseFloat(frame.style.left),top:parseFloat(frame.style.top),width:parseFloat(frame.style.width),height:parseFloat(frame.style.height)}
+  frame.querySelector('[aria-label="Maximize window"]')?.click();await tick()
+  const maximizedRect=frame.getBoundingClientRect()
+  check('Maximizado rellena ambos bordes horizontales',
+    Math.abs(maximizedRect.left)<1 && Math.abs(maximizedRect.right-window.innerWidth)<1,
+    `left=${maximizedRect.left}; right=${maximizedRect.right}; width=${window.innerWidth}`)
+  check('Maximizado rellena hasta el borde inferior bajo menú de 36 px',
+    Math.abs(maximizedRect.top-36)<1 && Math.abs(maximizedRect.bottom-window.innerHeight)<1,
+    `top=${maximizedRect.top}; bottom=${maximizedRect.bottom}; height=${window.innerHeight}`)
+  const maximizedEditor=shell().getBoundingClientRect()
+  const computedEditor=getComputedStyle(shell())
+  const cmRect=document.querySelector('.cm-editor')?.getBoundingClientRect()
+  check('Script Editor y CodeMirror se expanden en el área maximizada',
+    computedEditor.maxWidth==='none' && computedEditor.maxHeight==='none' &&
+    Math.abs(maximizedEditor.left-maximizedRect.left)<2 &&
+    Math.abs(maximizedEditor.top-maximizedRect.top-36)<2 &&
+    Math.abs(maximizedEditor.right-maximizedRect.right)<2 &&
+    Math.abs(maximizedEditor.bottom-maximizedRect.bottom)<2 &&
+    cmRect?.width>100 && cmRect?.height>80 && cmRect.bottom<=maximizedEditor.bottom+2,
+    `editor=${maximizedEditor.width}x${maximizedEditor.height}; window=${maximizedRect.width}x${maximizedRect.height}; `+
+    `max-width=${computedEditor.maxWidth}; max-height=${computedEditor.maxHeight}; `+
+    `CodeMirror=${cmRect?.width}x${cmRect?.height}`)
+  frame.querySelector('[aria-label="Restore window"]')?.click();await tick()
+  check('Restaurar recupera geometría flotante sin encajar de nuevo toda la ventana',
+    Math.abs(parseFloat(frame.style.left)-beforeMax.left)<1 && Math.abs(parseFloat(frame.style.top)-beforeMax.top)<1 &&
+    Math.abs(parseFloat(frame.style.width)-beforeMax.width)<1 && Math.abs(parseFloat(frame.style.height)-beforeMax.height)<1,
+    `antes=${JSON.stringify(beforeMax)}; ahora=${frame.style.cssText}`)
+  // CodeMirror puede crear canvas internos (p. ej., el minimapa); no son el viewport Three.js.
+  const workspace = shell()?.querySelector('.se-workspace')
+  const foreignCanvases = [...(workspace?.querySelectorAll('canvas') ?? [])]
+    .filter((canvas) => !canvas.closest('.cm-editor'))
+  const unexpectedViewport = workspace?.querySelector('.viewport, .sp-viewport, .game-viewport, [data-viewport]')
+  const canvasContext = foreignCanvases.map((canvas) => canvas.outerHTML.slice(0, 180)).join(' | ')
+  check('El viewport no se monta en el Script Editor',
+    !!workspace && !unexpectedViewport && foreignCanvases.length === 0,
+    `viewport=${unexpectedViewport?.className || 'ninguno'}; canvas fuera de CodeMirror=${foreignCanvases.length}; ${canvasContext}`)
+  output.dataset.pass='true';output.textContent=JSON.stringify({pass:true,gl:'Vue, CodeMirror y docking en Electron; sin QA visual ni GPU',checks},null,2)
+}catch(error){output.dataset.pass='false';output.textContent=JSON.stringify({pass:false,checks,error:String(error?.stack||error)},null,2)}
+finally {app?.unmount();store.project=before.project;store.modal=before.modal;store.scriptEditId=before.id;store.ui.mode=before.mode;store.prefs.dockLayout=before.layout}
+</script></body></html>

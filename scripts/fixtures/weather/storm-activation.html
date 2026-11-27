@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="es">
+<head><meta charset="utf-8"><title>Century · Auditoría de activación meteorológica</title>
+<style>
+body{margin:0;background:#1b2027;color:#e7edf5;font:12px system-ui;padding:8px}
+#stage{position:absolute;left:-10000px;top:0;width:480px;height:270px}
+#samples{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:4px}
+figure{margin:0;background:#28313c;border:1px solid #485366;padding:3px}
+figure canvas{display:block;width:100%;height:100px;object-fit:cover}
+figcaption{padding:3px;font-size:11px}#storm-audit-result{display:none}
+</style></head><body>
+<strong>Auditoría de clima · mismas escena y cámara, tornados deshabilitados</strong>
+<div id="stage"></div><section id="samples"></section><pre id="storm-audit-result">Ejecutando...</pre>
+<script type="module">
+import * as THREE from 'three'
+import { World } from '/src/engine/runtime/world/world.js'
+import { Viewport } from '/src/engine/runtime/render/viewport.js'
+
+const result = document.getElementById('storm-audit-result')
+const samples = document.getElementById('samples')
+const checks = [], audit = []
+const check = (name, pass, details = '') => { checks.push({name, pass: !!pass, details}); if (!pass) throw Error(`${name}: ${JSON.stringify(details)}`) }
+let vp
+try {
+  vp = new Viewport(document.getElementById('stage'))
+  vp.liveFx = true
+  vp.persp.position.set(0, 1.7, 6)
+  vp.persp.lookAt(0, 0.8, -11)
+  vp.camera = vp.persp
+  vp.setGrid(1, 1)
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(64,64), new THREE.MeshLambertMaterial({color:'#3a6849',side:THREE.DoubleSide}))
+  floor.rotation.x = -Math.PI/2; floor.name = 'QA suelo de contraste'; vp.scene.add(floor)
+  const box = new THREE.Mesh(new THREE.BoxGeometry(2,2,2),new THREE.MeshLambertMaterial({color:'#c4b6a6'}))
+  box.position.set(0,1,-13);box.name='QA objeto de contraste';vp.scene.add(box)
+  const env = {skyTop:'#46586a',skyHorizon:'#8792a0',ground:'#4d6750',ambientColor:'#d3dfed',ambient:0.7,skyExposure:1,cloudsOn:true}
+  vp.setEnvironment(env)
+  const world = new World(31)
+  world.configure({time:{on:false}, weather:{on:true,preset:'clear',intensity:1,lightning:false,tornadoEnabled:false,director:false,cloudModel:'classic'}})
+  vp.windWorld = world
+  const objects = {rain:vp.precip.rain,mist:vp.precip.mist,snow:vp.precip.snow,splash:vp.precip.splash,lightning:vp.bolt.mesh,sky:vp.sky}
+  const geometry = o => ({uuid:o.uuid,visible:o.visible,instances:o.geometry?.instanceCount??null,drawCount:o.geometry?.drawRange?.count??null,
+    type:o.type,material:o.material?.type,depthWrite:o.material?.depthWrite,transparent:o.material?.transparent,renderOrder:o.renderOrder})
+  const record = (label) => {
+    const gl=vp.renderer.getContext(), width=vp.renderer.domElement.width,height=vp.renderer.domElement.height
+    vp.look.render(0)
+    const px = new Uint8Array(width*height*4)
+    gl.readPixels(0,0,width,height,gl.RGBA,gl.UNSIGNED_BYTE,px)
+    const gpuError=gl.getError()
+    let nearlyBlack=0; for(let i=0;i<px.length;i+=4){if(px[i]<20&&px[i+1]<20&&px[i+2]<20)nearlyBlack++}
+    const img=document.createElement('canvas');img.width=width;img.height=height
+    const ctx=img.getContext('2d'), data=ctx.createImageData(width,height)
+    for(let y=0;y<height;y++) data.data.set(px.subarray((height-y-1)*width*4,(height-y)*width*4),y*width*4)
+    ctx.putImageData(data,0,0)
+    const fig=document.createElement('figure'),cap=document.createElement('figcaption');cap.textContent=label;fig.append(img,cap);samples.append(fig)
+    const sceneCount={total:0,renderableVisible:0,renderableHidden:0}
+    vp.scene.traverse(o=>{sceneCount.total++;if(o.isMesh||o.isPoints){if(o.visible)sceneCount.renderableVisible++;else sceneCount.renderableHidden++}})
+    const entry={label,preset:world.preset,precipitation:{...world.frame().precip},visible:Object.fromEntries(Object.entries(objects).map(([n,o])=>[n,geometry(o)])),
+      fog:{enabled:!!vp.scene.fog,density:vp.scene.fog?.density??null},clouds:{enabled:vp.skyMat.uniforms.uClouds.value,density:vp.skyMat.uniforms.uCDens.value},
+      counts:sceneCount,drawCalls:vp.renderer.info.render.calls,nearlyBlackPixels:nearlyBlack,gpuError}
+    audit.push(entry)
+    return entry
+  }
+  const setPreset = (preset) => {
+    world.setWeather(preset,1,0);world.update(0.016,{clock:false})
+    vp.setWorld(world.frame());vp._render()
+  }
+  for(const preset of ['clear','cloudy','overcast','drizzle','rain','storm']) {
+    setPreset(preset)
+    record(preset)
+  }
+  check('sin tornados en todos los presets', world.tornado===null)
+  check('llovizna activa gotas y bruma',audit.find(a=>a.label==='drizzle').visible.rain.visible && audit.find(a=>a.label==='drizzle').visible.mist.visible)
+  check('despejado deja gotas y bruma ocultas',!audit.find(a=>a.label==='clear').visible.rain.visible && !audit.find(a=>a.label==='clear').visible.mist.visible)
+  check('nublado no añade lluvia',!audit.find(a=>a.label==='cloudy').visible.rain.visible)
+  check('identidad constante de las geometrías',new Set(audit.map(a=>a.visible.rain.uuid)).size===1)
+  // Aislamiento por visibilidad del mismo objeto ya creado: nunca cambia el proyecto ni World.
+  for(const [name,hide] of [
+    ['tormenta · sin bruma',['mist']],['tormenta · sin gotas',['rain']],['tormenta · sin precipitación',['rain','mist','splash']],
+    ['tormenta · sin nubes',['sky']],['llovizna · sin precipitación',['rain','mist','splash']],
+  ]){
+    const preset=name.startsWith('llovizna')?'drizzle':'storm'
+    setPreset(preset)
+    const previous=hide.map(key=>[objects[key],objects[key].visible])
+    for(const [obj] of previous) obj.visible=false
+    record(name)
+    for(const [obj,old] of previous) obj.visible=old
+  }
+  check('no se crearon meshes nuevos durante el aislamiento',new Set(audit.map(a=>a.visible.mist.uuid)).size===1)
+  check('auditoría generó comparaciones',audit.length===11,{total:audit.length})
+  check('sin errores WebGL al comparar',audit.every(a=>a.gpuError===0),audit.filter(a=>a.gpuError!==0).map(a=>({label:a.label,error:a.gpuError})))
+  result.dataset.pass='true'
+  result.textContent=JSON.stringify({pass:true,checks,audit,gl:vp.renderer.getContext().getParameter(vp.renderer.getContext().VERSION)},null,2)
+}catch(error){result.dataset.pass='false';result.textContent=JSON.stringify({pass:false,checks,audit,error:String(error.stack||error)},null,2)}
+finally{vp?.dispose?.()}
+</script></body></html>

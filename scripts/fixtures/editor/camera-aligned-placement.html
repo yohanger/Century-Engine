@@ -1,0 +1,28 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Colocación de nodos</title><style>body{margin:0}#viewport{width:680px;height:380px;position:relative}pre{max-width:680px;white-space:pre-wrap}</style></head><body><div id="viewport"></div><pre id="placement-result">Cargando…</pre>
+<script type="module">
+const out=document.querySelector('#placement-result'),checks=[];let S,editor
+const check=(name,passed)=>{checks.push({name,passed:!!passed});out.dataset.checks=String(checks.length);if(!passed)throw Error(name)}
+const equal=(a,b,tol=1e-7)=>a.length===b.length&&a.every((v,i)=>Math.abs(v-b[i])<=tol)
+try {
+ const THREE=await import('three'),{nextTick}=await import('vue'),{Editor}=await import('/src/core/editor.js'),{registerTools}=await import('/src/core/tools.js'),{EditSession}=await import('/src/core/mesh/session.js');registerTools({mesh:{EditSession}})
+ S=await import('/src/core/store.js');const {store}=S,{splitProject}=await import('/src/core/project.js'),{makeObject}=await import('/src/engine/runtime/nodes/index.js'),{Terrain}=await import('/src/engine/runtime/geometry/terrain.js'),db=await import('/src/core/db.js')
+ const frame=async()=>{await nextTick();await new Promise(r=>requestAnimationFrame(r));await nextTick()}
+ const p=S.createProjectData('Colocación QA','empty-project',{renderer:'compat'});p.id='qa-camera-placement';p.objects=[makeObject('node3d','node3d',{id:'parent',name:'Padre',position:[5,0,5],rotation:[0,90,0],scale:[2,3,4]}),makeObject('primitive','box',{id:'child',name:'Caja',parentId:'parent',position:[1,0,0],rotation:[0,12.345678,0]}),makeObject('primitive','box',{id:'other',name:'Otro',position:[-5,0,5]}),makeObject('primitive','box',{id:'wall',name:'Superficie',position:[30,2,-1.5],scale:[2,2,1]})]
+ const terrain=new Terrain(32,8,p.terrain.layers);terrain.enabled=false;const serialized=terrain.serialize();terrain.dispose();const {meta,scene}=splitProject(p,serialized);await db.saveScene(p.id,p.activeSceneId,scene);await db.saveProject(meta);await db.confirmProject(p.id)
+ editor=new Editor(document.querySelector('#viewport'));S.setEditor(editor);store.ready=true;check('Proyecto real',await S.openProject(p.id));await frame();S.cancelPendingAutosave()
+ const vp=editor.vp, camera=vp.camera
+ const pose=(xyz,dir)=>{camera.position.fromArray(xyz);vp.controls.target.copy(camera.position).add(new THREE.Vector3(...dir));camera.lookAt(vp.controls.target);camera.updateMatrixWorld(true)}
+ const pos=id=>new THREE.Vector3().setFromMatrixPosition(S.worldMatrix(id)).toArray()
+ const delta=(a,b)=>a.map((v,i)=>v-b[i]);const original=S.getObject('child');const rotation=[...original.rotation],scale=[...original.scale]
+ for(const [dir,expected] of [[[1,.25,.1],[2,0,0]],[[-1,0,.2],[-2,0,0]],[[.1,0,1],[0,0,2]],[[.1,0,-1],[0,0,-2]]]){
+  pose([0,8,20],dir);S.selectObject('child');const before=pos('child');check('Duplicación '+expected,S.duplicateSelected());const id=store.selectedId;check('Traslación mundial '+expected,equal(delta(pos(id),before),expected));const copy=S.getObject(id);check('Transform local íntegro '+expected,equal(copy.rotation,rotation)&&equal(copy.scale,scale)&&copy.parentId==='parent')
+ }
+ pose([0,8,20],[1,0,0]);S.selectObject('child');S.selectObject('other',{additive:true});const prev=['child','other'].map(pos);check('Duplicación de varias raíces',S.duplicateSelected());check('Desplazamiento común',store.selectedIds.every((id,i)=>equal(delta(pos(id),prev[i]),[2,0,0])))
+ const count=store.project.objects.length;S.undo();check('Undo retira la duplicación',store.project.objects.length===count-2);S.redo();check('Redo restaura la duplicación',store.project.objects.length===count)
+ pose([0,8,20],[1,0,0]);S.selectObject('other');const old=pos('other');const linked=S.linkedDuplicateSelected();check('Alt+D comparte recurso real',!!linked?.length&&linked[0].props.meshRef===S.getObject('other').props.meshRef);check('Alt+D conserva distancia mundial',equal(delta(pos(linked[0].id),old),[2,0,0]))
+ S.selectObject('child');check('Copia instantánea',S.copySelected());pose([30,2,0],[0,0,-1]);await frame();pose([30,2,0],[0,0,-1]);const hit=editor.clipboardPlacePoint();check('Pegado sobre cara visible a 1 m',equal(hit,[30,2,-1]));const first=S.pasteSelected(hit);check('Centro pegado en superficie',!!first?.length&&equal(pos(first[0].id),hit));check('Conserva rotación y escala',equal(first[0].rotation,rotation)&&equal(first[0].scale,scale))
+ pose([60,5,20],[1,.7,.1]);const free=editor.clipboardPlacePoint();check('Traslado a otra zona: fallback cardinal',equal(free,[62,5,20]));const pasted=S.pasteSelected(free);check('Pegar en nueva zona',!!pasted?.length&&equal(pos(pasted[0].id),free))
+ pose([65,9,25],[-3,-4,-5]);vp.requestRender();await frame();await frame()
+ out.dataset.pass='true';out.textContent=JSON.stringify({pass:true,checks,gl:'Editor real / Three.js / WebGL'},null,2)
+}catch(e){out.dataset.pass='false';out.textContent=JSON.stringify({pass:false,checks,error:String(e.stack||e)},null,2)}finally{S?.cancelPendingAutosave?.()}
+</script></body></html>

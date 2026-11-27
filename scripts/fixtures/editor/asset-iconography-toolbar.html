@@ -1,0 +1,51 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Iconografía de Proyecto</title></head><body><div id="app"></div><pre id="asset-iconography-result">Cargando…</pre>
+<script type="module">
+const checks=[],out=document.querySelector('#asset-iconography-result')
+let app,history,finished=false
+const check=(name,pass)=>{checks.push({name,pass:!!pass});if(!pass)throw Error(name)}
+const finish=error=>{if(finished)return;finished=true;out.dataset.pass=String(!error);out.textContent=JSON.stringify({pass:!error,checks,gl:'Vue / DOM / CSS',...(error?{error:String(error.stack||error)}:{})})}
+window.addEventListener('error',e=>{if(e.error)finish(e.error)},true)
+window.addEventListener('unhandledrejection',e=>finish(e.reason))
+try {
+ await import('/src/styles.css');document.documentElement.classList.add('lf-editor')
+ const {createApp,nextTick}=await import('vue')
+ const [{default:ProjectPanel},{default:Toolbar},{default:MenuBar},{default:ContextMenu},api,project,db]=await Promise.all([
+  import('/src/components/ProjectPanel.vue'),import('/src/components/Toolbar.vue'),import('/src/components/MenuBar.vue'),import('/src/components/ContextMenu.vue'),import('/src/core/store.js'),import('/src/core/project.js'),import('/src/core/db.js')])
+ history=await import('/src/core/state/history.js')
+ const {store}=api
+ store.project=project.createProjectData('QA iconos','empty');store.locked=false;store.ready=true;store.ui.mode='desktop';store.projFolder='Assets'
+ store.editor={snapshotTerrain:()=>store.project.terrain,serializeTerrain:()=>store.project.terrain,syncAll(){},syncEnvironment(){},setSelection(){},restoreTerrain(){},applyView(){}}
+ history.configureHistory({save(){},hasDisk:()=>false,markPending(){},syncPieces(){}});history.resetHistory()
+ const p=store.project
+ p.folders.push('Assets/Models')
+ p.models=['obj','glb','gltf'].map(ext=>({id:ext,name:`Car.${ext}`,ext,folder:'Assets',bytes:0,size:[1,1,1]}))
+ p.scripts.push({id:'script-icon',name:'Player.js',folder:'Assets',execution:'node',code:''})
+ p.assets.push({id:'fallback',kind:'file',name:'sample.xyz',folder:'Assets'},{id:'hdr',kind:'file',name:'sky.hdr',folder:'Assets'},{id:'png',kind:'texture',name:'image.png',folder:'Assets'})
+ const canvas=document.createElement('canvas');canvas.width=canvas.height=2;canvas.getContext('2d').fillRect(0,0,2,2)
+ const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));await db.putAsset(p.id,'png','image.png',await blob.arrayBuffer())
+ store.prefs.projView='grid'
+ app=createApp({components:{ProjectPanel,Toolbar,MenuBar,ContextMenu},setup:()=>({store}),template:'<MenuBar/><Toolbar/><div style="height:420px;width:100%"><ProjectPanel/></div><ContextMenu v-if="store.menu"/>'});app.config.errorHandler=finish;app.mount('#app')
+ const tick=async()=>{await nextTick();await new Promise(r=>requestAnimationFrame(r));await nextTick()}
+ const wait=async fn=>{for(let i=0;i<120;i++){if(fn())return true;await new Promise(r=>setTimeout(r,20))}return false}
+ const tiles=()=>[...document.querySelectorAll('.tile')],tile=name=>tiles().find(el=>el.querySelector('.lbl')?.textContent===name),art=name=>tile(name)?.querySelector('.asset-art'),src=name=>art(name)?.src
+ await tick()
+ check('Tres vistas y ausencia de los cinco accesos retirados',document.querySelectorAll('.tb .view-mode').length===3&&!document.querySelector('.tb .dock-menu')&&!document.querySelector('.tb .pill.acc')&&!document.querySelector('.tb [aria-label="Jerarquía"]'))
+ check('Arte de modelos en cuadrícula',await wait(()=>['Car.obj','Car.glb','Car.gltf'].every(n=>art(n)?.naturalWidth>0)))
+ check('Tres iconos distintos',new Set(['Car.obj','Car.glb','Car.gltf'].map(src)).size===3)
+ check('Scripts y archivo auxiliar reconocidos',await wait(()=>art('Player.js')?.naturalWidth>0&&art('sky.hdr')?.naturalWidth>0&&src('Player.js')!==src('sky.hdr')))
+ check('Archivo desconocido conserva fallback',await wait(()=>art('sample.xyz')?.naturalWidth>0&&src('sample.xyz')!==src('sky.hdr')))
+ check('Miniatura de imagen real tiene prioridad',await wait(()=>tile('image.png')?.querySelector('.thumb img:not(.asset-art)')?.naturalWidth===2))
+ check('Carpeta original disponible',await wait(()=>art('Models')?.naturalWidth>0))
+ const gridIcon=src('Car.obj');store.prefs.projView='list';await tick();check('Misma fuente en lista',src('Car.obj')===gridIcon&&!!document.querySelector('.asset-list'))
+ tile('Car.obj').click();await tick();check('Selección individual',tile('Car.obj').classList.contains('sel'))
+ tile('Car.glb').dispatchEvent(new MouseEvent('click',{bubbles:true,ctrlKey:true}));await tick();check('Selección múltiple',tile('Car.obj').classList.contains('sel')&&tile('Car.glb').classList.contains('sel'))
+ const transfer=new DataTransfer();tile('Car.obj').dispatchEvent(new DragEvent('dragstart',{bubbles:true,dataTransfer:transfer}));check('Arrastre mantiene datos',transfer.types.length>0);tile('Car.obj').dispatchEvent(new DragEvent('dragend',{bubbles:true,dataTransfer:transfer}))
+ const created=api.createScript('Assets','Created.js','node');await tick();check('Creación conserva icono',!!art('Created.js'))
+ check('Renombrado conserva tipo',api.renameEntry('script',created.id,'Renamed'));await tick();check('Icono tras renombrar',!!art('Renamed.js'))
+ check('Eliminar recurso',await api.removeEntry('script',created.id));await tick();check('Recurso retirado del panel',!tile('Renamed.js'))
+ check('Importar archivo existente',await api.importFiles([new File(['void main(){}'],'Imported.glsl')],'Assets')===1);await tick();check('Icono tras importación',!!art('Imported.glsl'))
+ const ver=[...document.querySelectorAll('.menus button')].find(b=>b.textContent.trim()==='Ver');ver.click();await tick();const panels=store.menu.items.find(it=>it.label==='Paneles del editor');check('Paneles accesibles en Ver',panels?.children?.some(it=>it.label==='Restaurar disposición'))
+ const add=[...document.querySelectorAll('.menus button')].find(b=>b.textContent.trim()==='Añadir');check('Menú Añadir conservado',!!add)
+ finish()
+}catch(error){finish(error)}finally{history?.cancelPendingAutosave();app?.unmount()}
+</script></body></html>

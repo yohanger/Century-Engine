@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:,">
+  <meta name="theme-color" content="#080d19">
+  <title>Century Fluids · Playground</title>
+</head>
+<body>
+  <div id="app">
+    <header class="topbar">
+      <div class="brand"><div class="mark" aria-hidden="true"><span></span><span></span><span></span></div><div><strong>CENTURY<span>FLUIDS</span></strong><small>LABORATORIO DE SIMULACIÓN</small></div></div>
+      <div class="top-center"><span class="workspace-dot"></span> PLAYGROUND <span class="version">Agua voxelizada</span></div>
+      <div class="top-right"><span id="engineBadge" class="engine-badge loading">Jolt · iniciando</span><span class="separation"></span><button id="resetTop" class="icon-button" aria-label="Reiniciar simulación" title="Reiniciar simulación">↺</button></div>
+    </header>
+    <div class="app-body">
+      <aside class="sidebar">
+        <div class="sidebar-scroll">
+          <div class="sidebar-heading">EXPERIMENTACIÓN <span class="tag">01</span></div>
+          <div class="field"><label for="fluidSelect">Tipo de fluido</label><select id="fluidSelect" aria-label="Tipo de fluido"></select><small id="fluidHint">Única especialización implementada</small></div>
+          <div class="field"><label for="sceneSelect">Escenario</label><select id="sceneSelect"></select></div>
+          <div class="field"><label for="viewSelect">Representación</label><select id="viewSelect"><option value="both">Superficie + celdas</option><option value="surface" selected>Solo superficie</option><option value="particles">Centros de celdas</option></select></div>
+          <div class="field"><label for="qualitySelect">Suavizado de superficie</label><select id="qualitySelect"><option value="fast">Bajo</option><option value="balanced" selected>Medio</option><option value="fine">Alto</option></select></div>
+          <div class="sidebar-rule"></div>
+          <div class="sidebar-heading">REPRODUCCIÓN</div>
+          <div class="transport"><button id="playButton" class="button-primary"><span id="playIcon">❚❚</span><span id="playLabel">Pausar</span></button><button id="stepButton" class="button-secondary" title="Avanzar un paso físico">Paso +1</button><button id="resetButton" class="button-secondary small-icon" title="Reiniciar" aria-label="Reiniciar">↺</button></div>
+          <div class="field range-field"><div class="field-head"><label for="speedRange">Velocidad</label><output id="speedText">1,00×</output></div><input id="speedRange" type="range" min="0.25" max="1.5" step="0.25" value="1"></div>
+          <div class="field range-field"><div class="field-head"><label for="meshRange">Intervalo de malla</label><output id="meshText">100 ms</output></div><input id="meshRange" type="range" min="50" max="1250" step="50" value="100"></div>
+          <div class="sidebar-rule"></div>
+          <details class="water-appearance">
+            <summary>Apariencia del agua</summary>
+            <div class="field water-tint"><label for="waterTint">Color</label><input id="waterTint" type="color" value="#67bbc4"></div>
+            <div class="field range-field"><label for="waterTransmission">Transparencia</label><input id="waterTransmission" type="range" min="0.05" max="1" step="0.01" value="0.96"></div>
+            <label class="foam-option"><input id="physicalFoam" type="checkbox" checked> Espuma de flujo</label>
+          </details>
+          <div class="sidebar-rule"></div>
+          <div class="sidebar-heading">DIAGNÓSTICO</div>
+          <div class="inspector-grid"><div><small>CELDAS HÚMEDAS</small><strong id="particleValue">—</strong></div><div><small>TRIÁNGULOS</small><strong id="triangleValue">—</strong></div><div><small>CONTACTOS</small><strong id="contactValue">—</strong></div><div><small>CARAS EVALUADAS</small><strong id="convergenceValue">—</strong></div></div>
+          <div class="metrics cup-metrics" id="cupMetrics" hidden>
+            <div><span>Agua en el vaso</span><strong id="cupMass">0 kg</strong></div>
+            <div><span>Trabajo del vaso sobre el agua</span><strong id="cupWork">0 J</strong></div>
+          </div>
+          <div class="metrics"><div><span>Masa de agua</span><strong id="massValue">—</strong></div><div><span>Simulación CPU</span><strong id="physicsMs">—</strong></div><div><span>Actualizar superficie CPU</span><strong id="meshMs">—</strong></div><div><span>Envío render CPU</span><strong id="renderMs">—</strong></div><div><span>Chunks de malla</span><strong id="chunkCount">—</strong></div><div><span>Chunks reconstruidos</span><strong id="chunkRebuilt">—</strong></div><div><span>Chunks reutilizados</span><strong id="chunkReused">—</strong></div><div><span>Memoria JS estimada</span><strong id="memoryValue">—</strong></div><div><span>Tiempo simulado</span><strong id="simTime">0,00 s</strong></div><div><span>Pasos descartados</span><strong id="dropValue">0</strong></div></div>
+        </div>
+        <footer class="sidebar-footer">Century Fluids · visor independiente</footer>
+      </aside>
+      <main class="viewport-panel">
+        <div class="viewport-header"><div><span class="viewport-badge">3D</span> Vista de simulación <span id="sceneName" class="muted">—</span></div><div class="viewport-actions"><span id="status" class="status">Preparando…</span><span class="divider-v"></span><span id="fpsValue">— FPS</span></div></div>
+        <div id="viewport" class="viewport" role="img" aria-label="Vista interactiva 3D de la simulación"><div class="corner-label"><span class="live-dot"></span><span id="modeLabel">Simulación física</span></div><div class="orientation" aria-hidden="true">Y ↑</div></div>
+        <div class="viewport-footer"><div id="viewportHint">Clic en agua: oleaje <span>·</span> Arrastrar: orbitar <span>·</span> Rueda: zoom</div><div id="stepState">Un reloj físico · Sin datos simulados</div></div>
+      </main>
+    </div>
+    <div id="notice" class="notice" role="status" aria-live="polite" hidden></div>
+  </div>
+  <script type="module" src="/src/main.mjs"></script>
+</body>
+</html>

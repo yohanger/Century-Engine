@@ -1,0 +1,108 @@
+<!doctype html><html lang="es"><meta charset="utf-8"><title>QA FX por clip · CA-001</title>
+<style>html,body{margin:0;background:#161b21;color:#e5e9ef;font:12px sans-serif}
+#inspector,#mixer{height:520px;width:430px;overflow:auto;display:inline-block;vertical-align:top}
+#timeline-audio-clip-fx-ux-s12-g006-g002-result{display:none}</style>
+<div id="inspector"></div><div id="mixer"></div>
+<pre id="timeline-audio-clip-fx-ux-s12-g006-g002-result"></pre>
+<script>
+(() => {
+ const output=document.getElementById('timeline-audio-clip-fx-ux-s12-g006-g002-result')
+ const checks=[];let stage='bootstrap',finished=false
+ function progress(value){if(finished)return;stage=value;output.dataset.stage=stage;output.dataset.checks=String(checks.length);output.textContent=JSON.stringify({pass:null,stage,checks})}
+ function check(name,pass,actual){checks.push({name,pass:!!pass,...(actual===undefined?{}:{actual})});progress('Comprobación '+checks.length+': '+name)}
+ function finish(error){if(finished)return;finished=true;clearTimeout(timer)
+  const pass=!error&&checks.length===30&&checks.every(entry=>entry.pass)
+  output.dataset.pass=String(pass);output.dataset.stage=pass?'final:PASS':'final:FAIL';output.dataset.checks=String(checks.length)
+  let gl=false;try{gl=!!document.createElement('canvas').getContext('webgl')}catch{}
+  output.textContent=JSON.stringify({pass,stage,...(error?{error:error?.stack||String(error)}:{}),checks,gl},null,2)
+ }
+ const timer=setTimeout(()=>finish(new Error('Watchdog · '+stage)),35000)
+ window.addEventListener('error',e=>{if(e.message||e.error||e.target?.tagName==='SCRIPT')finish(e.error||new Error(e.message||'Módulo no cargado'))},true)
+ window.addEventListener('unhandledrejection',e=>finish(e.reason||new Error('Promesa rechazada')))
+ window.__clipFxUxQa={progress,check,finish};progress('bootstrap')
+})()
+</script>
+<script type="module">
+const {progress,check,finish}=window.__clipFxUxQa
+let inspectorApp,mixerApp
+try {
+ progress('Importaciones Vue y componentes reales')
+ const {createApp,h,nextTick}=await import('vue')
+ const {default:TemporalResourceInspector}=await import('/src/components/TemporalResourceInspector.vue')
+ const {default:AudioMixerInspector}=await import('/src/components/AudioMixerInspector.vue')
+ const {createProjectData}=await import('/src/core/project.js')
+ const {store,selectTemporal,selectAudioInspector}=await import('/src/core/store.js')
+ const {newTimeline,newTrack,newKey,normalizeTimeline}=await import('/src/core/timeline/model.js')
+ const {newFx,normalizeAudio}=await import('/src/engine/runtime/audio/config.js')
+ const fx=[newFx('eq3',{id:'eq-guardado',low:5,mid:-4}),newFx('echo',{id:'echo-guardado',time:.45,mix:.2,on:false})]
+ const busFx=newFx('lowpass',{id:'bus-low',freq:900})
+ const project=createProjectData('QA Inspector FX','empty')
+ project.audio=normalizeAudio({groups:[{id:'music',fx:[busFx]}]})
+ const track=newTrack('audio',{id:'track-audio',keys:[
+   newKey('audio',1,{id:'fresh',clip:'nuevo.wav',duration:2}),
+   newKey('audio',4,{id:'empty',clip:'vacio.wav',duration:2,fx:[]}),
+   newKey('audio',7,{id:'saved',clip:'guardado.wav',duration:2,volume:.8,fadeIn:.3,fadeOut:.4,fx}),
+   newKey('audio',11,{id:'stop',action:'stop',clip:''}),
+ ]})
+ const commandTrack=newTrack('commands',{id:'commands',keys:[newKey('commands',1,{id:'cmd'})]})
+ const timeline=newTimeline('QA FX',{id:'qa-fx',duration:15,tracks:[track,commandTrack]})
+ project.timelines=[timeline]
+ store.project=project;store.locked=false;store.play.on=false;store.ui.mode='desktop'
+ const original=JSON.stringify(project.timelines)
+ const current=()=>store.project.timelines[0].tracks[0].keys.find(key=>key.id==='saved')
+ const select=async(id,trackId='track-audio')=>{selectTemporal('timeline',timeline.id,'key',trackId,id);await nextTick()}
+ inspectorApp=createApp({render:()=>h(TemporalResourceInspector,{kind:'timeline',resourceId:timeline.id})})
+ inspectorApp.mount('#inspector');await nextTick()
+ const indicator=()=>document.querySelector('#inspector [data-test="timeline-clip-fx-readonly"]')
+ const anyFxEditor=()=>document.querySelector('#inspector .audio-props, #inspector [aria-label="Añadir efecto"], #inspector .chain-head, #inspector .inspector-audio-fx')
+ const mixerEditor=()=>document.querySelector('#mixer .audio-props')
+ progress('Clave Audio sin campo FX')
+ await select('fresh')
+ check('Inspector real montado',!!document.querySelector('#inspector .temporal-inspector'))
+ check('Clave nueva no tiene FX',!store.project.timelines[0].tracks[0].keys.find(key=>key.id==='fresh').fx)
+ check('Clave sin FX no muestra indicador',!indicator())
+ check('Clave sin FX no muestra sección vacía ni editor',!anyFxEditor())
+ check('Fuente Audio existente permanece visible',!!document.querySelector('#inspector .inspector-audio-volume'))
+ progress('Clave Audio con array vacío')
+ await select('empty')
+ check('FX vacío no muestra indicador',!indicator())
+ check('FX vacío no muestra controles de autoría',!anyFxEditor())
+ check('No se crean FX automáticamente',store.project.timelines[0].tracks[0].keys[1].fx?.length===0)
+ progress('Clave Audio con FX guardados')
+ await select('saved')
+ check('Inspector muestra indicador de solo lectura',!!indicator()&&indicator().getAttribute('role')==='status')
+ check('El indicador es compacto y no contiene inputs',indicator()?.querySelectorAll('input,select,textarea').length===0)
+ check('El indicador no contiene botones de autoría',indicator()?.querySelectorAll('button').length===0)
+ check('No aparece editor privado del Mixer dentro del Inspector',!anyFxEditor())
+ check('Muestra exactamente dos efectos',indicator()?.textContent?.includes('FX guardados (2)'))
+ check('Muestra Ecualizador y Eco en orden',indicator()?.textContent?.indexOf('Ecualizador') < indicator()?.textContent?.indexOf('Eco'))
+ check('Muestra estado activo y desactivado',indicator()?.textContent?.includes('activo')&&indicator()?.textContent?.includes('desactivado'))
+ check('La clave no se modifica por selección',JSON.stringify(store.project.timelines)===original)
+ check('El usuario conserva controles de volumen/fundidos',!!document.querySelector('#inspector .inspector-audio-volume')&&!!document.querySelector('#inspector input'))
+ check('No se altera el volumen base',current().volume===.8)
+ check('Los parámetros y el orden de FX siguen intactos',current().fx[0].id==='eq-guardado'&&current().fx[1].id==='echo-guardado'&&current().fx[0].low===5&&current().fx[1].time===.45)
+ progress('Cambio de selección y bloqueo')
+ store.project.timelines[0].tracks[0].locked=true;await nextTick()
+ check('Pista bloqueada conserva indicador',!!indicator())
+ check('Pista bloqueada no introduce controles FX',!anyFxEditor())
+ store.project.timelines[0].tracks[0].locked=false;await nextTick()
+ await select('stop')
+ check('Clave Stop no muestra indicador',!indicator())
+ await select('cmd','commands')
+ check('Clave de Comandos no recibe indicador FX',!indicator())
+ await select('saved')
+ check('Volver a seleccionar la clave muestra el mismo resumen',indicator()?.textContent?.includes('FX guardados (2)'))
+ check('El resumen restaurado tampoco contiene controles editables',!indicator()?.querySelector('button,input,select,textarea'))
+ check('Serialización conserva IDs, bypass y parámetros',JSON.stringify(normalizeTimeline(JSON.parse(JSON.stringify(store.project.timelines[0]))).tracks[0].keys.find(key=>key.id==='saved').fx)===JSON.stringify(current().fx))
+ progress('Audio Mixer: editor bus real, separado')
+ check('Mixer conserva bus music y FX propio',store.project.audio.groups.find(group=>group.id==='music')?.fx[0]?.id==='bus-low')
+ selectAudioInspector('music')
+ mixerApp=createApp({render:()=>h(AudioMixerInspector)})
+ mixerApp.mount('#mixer');await nextTick()
+ check('Audio Mixer real mantiene editor FX del bus',!!mixerEditor())
+ check('Audio Mixer mantiene selector para añadir efectos',!!document.querySelector('#mixer select[aria-label="Añadir efecto"]'))
+ check('Audio Mixer muestra cadena existente del bus',mixerEditor()?.textContent?.includes('Cadena de efectos (1)'))
+ finish()
+} catch(error){finish(error)}
+finally{try{mixerApp?.unmount();inspectorApp?.unmount()}catch{}}
+</script></html>

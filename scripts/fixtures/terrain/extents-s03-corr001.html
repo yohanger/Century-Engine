@@ -1,0 +1,50 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Terrain S03 CORR-001 · Vista previa de bordes</title></head>
+<body style="background:#13181b;color:#ddd"><pre id="terrain-extents-corr001-result">Iniciando...</pre>
+<script type="module">
+import * as THREE from 'three'
+import { Terrain } from '/src/engine/runtime/geometry/terrain.js'
+const out=document.querySelector('#terrain-extents-corr001-result'), checks=[]
+const check=(name,pass,details='')=>{checks.push({name,pass:!!pass,details});if(!pass)throw Error(`${name}: ${details}`)}
+let renderer,t
+try {
+ renderer=new THREE.WebGLRenderer({antialias:false,preserveDrawingBuffer:true});renderer.setSize(320,200)
+ document.body.append(renderer.domElement)
+ check('WebGL2 real',renderer.capabilities.isWebGL2)
+ const scene=new THREE.Scene();scene.background=new THREE.Color(0x18384e)
+ const camera=new THREE.OrthographicCamera(-38,38,24,-24,.1,120)
+ camera.position.set(10,40,20);camera.lookAt(10,0,0)
+ scene.add(new THREE.HemisphereLight(0xffffff,0x999999,2))
+ t=new Terrain(24,12);t.setOffset(0,0,4);scene.add(t.mesh,t.foliage.group)
+ t.heights.fill(2);t.refreshAll()
+ const originalGeometry=t.mesh.geometry,originalPosition=t.mesh.position.clone(),heights=t.heights.slice(),paint=t.splat.slice()
+ const image=()=>{
+   renderer.render(scene,camera)
+   const gl=renderer.getContext(),bytes=new Uint8Array(320*200*4)
+   gl.readPixels(0,0,320,200,gl.RGBA,gl.UNSIGNED_BYTE,bytes)
+   return bytes
+ }
+ const delta=(a,b)=>a.reduce((sum,v,i)=>sum+Math.abs(v-b[i]),0)
+ const before=image()
+ check('vista previa valida +X',t.previewEdge('px',8))
+ check('la geometría real cambia temporalmente',t.mesh.geometry!==originalGeometry)
+ check('se modifica la posición visual por mitad de ancho añadido',Math.abs(t.mesh.position.x-originalPosition.x-8)<.001)
+ check('alturas locales intactas',t.heights.every((v,i)=>v===heights[i]))
+ check('pintura intacta',t.splat.every((v,i)=>v===paint[i]))
+ check('dimensiones persistidas intactas',t.size===24&&t.segments===12)
+ const during=image(),visualDiff=delta(before,during)
+ check('la superficie se ve distinta durante el drag',visualDiff>2000,visualDiff)
+ const firstPreview=t.mesh.geometry
+ check('misma celda sin reconstrucción',t.previewEdge('px',8)&&t.mesh.geometry===firstPreview)
+ check('pasar a otra celda libera buffer anterior',t.previewEdge('px',9)&&t.mesh.geometry!==firstPreview)
+ t.clearEdgePreview()
+ check('se recupera el objeto de geometría original',t.mesh.geometry===originalGeometry)
+ check('la malla recupera el centro',t.mesh.position.distanceTo(originalPosition)<.001)
+ check('el buffer provisional se libera',firstPreview!==t.mesh.geometry)
+ const after=image(),restoreDiff=delta(before,after)
+ check('la imagen cancelada coincide con la original',restoreDiff===0,restoreDiff)
+ check('no hay errores de GPU',renderer.getContext().getError()===renderer.getContext().NO_ERROR)
+ check('solo existe una malla en escena',scene.children.filter(o=>o===t.mesh).length===1)
+ out.dataset.pass='true';out.textContent=JSON.stringify({pass:true,gl:renderer.getContext().getParameter(renderer.getContext().VERSION),checks},null,2)
+}catch(e){out.dataset.pass='false';out.textContent=JSON.stringify({pass:false,checks,error:String(e?.stack||e)},null,2)}
+finally{t?.dispose();renderer?.dispose()}
+</script></body></html>

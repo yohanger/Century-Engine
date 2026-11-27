@@ -1,0 +1,7 @@
+# Validación del escenario de desacoplamiento
+
+El log local acredita cinco checks en Electron y un timeout en el segundo arrastre, sin solicitud de ventana. Con el rectángulo registrado de la pestaña, la distancia de salida es 17 px; la franja real puede ser más amplia. La prueba aislada contrasta ese límite con la función de producción. El escenario actualizado toma la franja de pestañas real y calcula puntos sin destino antes y al cruzar 24 px (más 12 px de recorrido inicial). No modifica producción ni timeouts. Se mantiene la prioridad de destinos válidos y las comprobaciones posteriores de transferencia.
+
+Resultados de esta entrega: Docking 38/38, ratón 70/70, Edit Mesh 9/9, API documental 28/28, portal 14/14. El runner integrado se intentó ejecutar, pero se detuvo antes de Vite por ausencia de la dependencia instalada. No se obtuvo evidencia visual de desacoplamiento nativo. El portal se generó con la implementación alternativa de Marked disponible, no con la versión fijada; se conserva el lockfile. El PDF se regeneró desde la fuente documental. El ledger conserva las 46.346 celdas previamente pobladas y añade seis filas. No se inspeccionaron los cambios locales del equipo.
+
+La elección de CDP en el último log es un hecho; el motivo específico no está acreditado porque el log no incluye las variables de sesión. El nuevo runner registra ese motivo. No mezclar entrada física con CDP; en X11 no tocar el ratón mientras corre la prueba. Las aserciones originales de transferencia no se eliminan. Gate abierto.

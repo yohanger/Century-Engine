@@ -1,0 +1,108 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Century S04-G002 · Signals Receptor Tree</title></head>
+<body><main id="qa-ui" style="height:580px;max-width:315px"></main><pre id="node-signals-godot-receiver-tree-s04-g002-result">Ejecutando QA del Inspector…</pre>
+<script type="module">
+import { createApp, nextTick } from 'vue'
+import * as THREE from 'three'
+import Panel from '/src/components/SignalConnectionsPanel.vue'
+import { store } from '/src/core/store.js'
+import { resetHistory, undo, redo } from '/src/core/state/history.js'
+import { loadJolt } from '/src/engine/runtime/physics/jolt.js'
+const checks=[];const check=(name,value)=>{checks.push({name,pass:!!value});if(!value)throw Error(name)}
+const out=document.getElementById('node-signals-godot-receiver-tree-s04-g002-result')
+let app,renderer
+const click=(selector)=>{const el=document.querySelector(selector);if(!el)throw Error('Elemento no encontrado: '+selector);el.click()}
+const field=async(selector,value)=>{const e=document.querySelector(selector);if(!e)throw Error(selector);e.value=value;e.dispatchEvent(new Event(e.tagName==='SELECT'?'change':'input',{bubbles:true}));await nextTick()}
+try {
+ renderer = new THREE.WebGLRenderer({antialias:false});renderer.setSize(16,16)
+ const sc=new THREE.Scene(),cam=new THREE.PerspectiveCamera(70,1,.1,10);cam.position.z=2
+ sc.add(new THREE.Mesh(new THREE.BoxGeometry(.3,.3,.3),new THREE.MeshBasicMaterial({color:0x98a9b7})));renderer.render(sc,cam)
+ check('WebGL2 con Electron',renderer.capabilities.isWebGL2)
+ const J=await loadJolt();check('Jolt WASM real',!!J?.JoltInterface)
+ store.project={id:'qa',name:'QA',activeSceneId:'uno',scenes:[],objects:[{id:'a',name:'AreaDetector',type:'area3d'},{id:'b',name:'Puerta',type:'node3d',parentId:'a',scriptId:'scriptb'},{id:'c',name:'FueraDeRama',type:'node3d'},{id:'d',name:'HijoExterno',type:'node3d',parentId:'c'}],scripts:[{id:'scriptb',execution:'node',name:'scriptb',code:"node.define_signal('puerta_abierta')"}],
+  signalConnections:[],materials:[],profiles:[],gameManagers:[],timelines:[],captures:[],assets:[],models:[],render:{},audio:{},environment:{},terrain:{enabled:false,layers:[],foliage:[]}}
+ store.locked=false;store.selectedId='a';store.selectedIds=['a'];store.sceneSel=false;store.projSel=null;store.play.on=false
+ store.editor={snapshotTerrain:()=>({enabled:false,layers:[],foliage:[]}),syncAll(){},syncEnvironment(){},setSelection(){},restoreEdit(){},afterUndo(){},setCaptureClips(){},player:{on:false}}
+ resetHistory();app=createApp(Panel);app.mount('#qa-ui');await nextTick()
+ check('Panel real montado',!!document.querySelector('[data-testid="signal-connections-panel"]'))
+ check('Catálogo Area3D',document.body.textContent.includes('body_entered')&&document.body.textContent.includes('area_exited'))
+ check('Árbol Godot de señales',!!document.querySelector('[role=tree][aria-label="Señales disponibles"]'))
+ check('Grupos Nodo y Area3D',document.body.textContent.includes('Nodo')&&document.body.textContent.includes('Area3D'))
+ check('Firmas nativas desde catálogo',document.body.textContent.includes('body_entered(event: Area3DEvent)'))
+ check('Sin tarjetas originales',document.querySelectorAll('.sig-section,.sig-group').length===0)
+ check('Cabeceras plegables y roles accesibles',!!document.querySelector('.sig-tree-category[role=treeitem][aria-expanded]'))
+ check('Firma animation_finished',document.body.textContent.includes('animation_finished(clipName: string)'))
+ const nativeRow=[...document.querySelectorAll('.sig-signal-row')].find(e=>e.textContent.includes('body_entered'));nativeRow?.dispatchEvent(new MouseEvent('dblclick',{bubbles:true}));await nextTick()
+ check('Diálogo accesible',!!document.querySelector('[role="dialog"][aria-modal="true"]'))
+ check('Doble clic conserva señal seleccionada',document.querySelector('#lf-sig-name')?.textContent.includes('body_entered(event: Area3DEvent)'))
+ check('Vista inicial acotada al emisor',document.querySelectorAll('.sig-receiver-row').length===2&&!document.querySelector('.sig-receiver-tree')?.textContent.includes('HijoExterno'))
+ check('Control de alcance accesible',document.querySelectorAll('.sig-receiver-scope button').length===2)
+ const scopeButtons=[...document.querySelectorAll('.sig-receiver-scope button')]
+ scopeButtons[1]?.click();await nextTick()
+ check('Vista explícita de escena completa',document.querySelectorAll('.sig-receiver-row').length===4)
+ check('Jerarquía externa correcta',document.querySelectorAll('.sig-receiver-row')[3]?.getAttribute('aria-level')==='2')
+ scopeButtons[0]?.click();await nextTick()
+ check('Retorno a subárbol sin nodos externos',document.querySelectorAll('.sig-receiver-row').length===2)
+ check('Receptores como árbol jerárquico',document.querySelectorAll('.sig-receiver-row').length===2)
+ check('Hijo refleja nivel 2',document.querySelectorAll('.sig-receiver-row')[1]?.getAttribute('aria-level')==='2')
+ check('Origen fijo sin campo de texto libre',!document.querySelector('input#lf-sig-name')&&!document.querySelector('#lf-sig-known'))
+ check('No es select plano',!document.querySelector('select#lf-sig-receiver'))
+ document.querySelectorAll('.sig-receiver-row')[1].click();await nextTick();await field('#lf-sig-method','abrir')
+ click('.sig-dialog button[type="submit"]');await nextTick()
+ check('Conexión guardada en escena',store.project.signalConnections.length===1&&store.project.signalConnections[0].method==='abrir')
+ check('Conexión subordinada en el árbol',!!document.querySelector('.sig-entry-children .sig-link'))
+ check('Conexión no ejecutada en edición',store.editor.player.on===false)
+ check('Estado editorial',document.querySelector('.sig-link')?.textContent.includes('Registrada'))
+ click('.sig-link button[title="Editar"]');await nextTick()
+ await field('#lf-sig-method','cerrar');click('.sig-dialog button[type="submit"]');await nextTick()
+ check('Edición del método',store.project.signalConnections[0].method==='cerrar')
+ check('Diálogo método sin generador ficticio',document.body.textContent.includes('No se genera código'))
+ undo();await nextTick();check('Undo restaura método',store.project.signalConnections[0].method==='abrir')
+ redo();await nextTick();check('Redo restaura edición',store.project.signalConnections[0].method==='cerrar')
+ store.editor.player.on=true;store.editor.nodeLifecycle={scripts:{sceneConnections:new Map([[store.project.signalConnections[0].id,{}]]),sceneConnectionErrors:new Map()}}
+ store.play.on=true;await nextTick()
+ check('Activa solo con evidencia runtime',document.body.textContent.includes('Activa en Play'))
+ check('Edición bloqueada en Play',!document.querySelector('.sig-connect-icon'))
+ store.play.on=false;store.editor.player.on=false;await nextTick()
+ click('.sig-link button[title="Desconectar"]');await nextTick()
+ check('Desconexión con historial',store.project.signalConnections.length===0)
+ undo();await nextTick();check('Undo restaurar desconexión',store.project.signalConnections.length===1)
+ store.project.objects[0].scriptIds=['scriptcustom'];store.project.scripts.push({id:'scriptcustom',execution:'node',code:"node.define_signal('alerta_sin_conexiones')"});await nextTick()
+ check('Custom sin conexiones visible',document.body.textContent.includes('alerta_sin_conexiones'))
+ check('Custom estado estático visible',document.body.textContent.includes('Detectada en código'))
+ store.selectedId=null;store.selectedIds=[];await nextTick()
+ check('Sin selección',document.body.textContent.includes('Selecciona un único nodo'))
+ check('Sin error WebGL',renderer.getContext().getError()===renderer.getContext().NO_ERROR)
+
+ // Contrato contextual: el origen viene de la señal seleccionada, no de texto libre.
+ check('Sin botón de conexión genérica', !document.querySelector('.sig-new'))
+ check('Sin lista de nombres arbitrarios', !document.querySelector('#lf-sig-known'))
+ store.selectedId='a';store.selectedIds=['a'];await nextTick()
+ const sourceAfter=[...document.querySelectorAll('.sig-signal-row')].find(e=>e.textContent.includes('body_entered'))
+ check('Señal física presente solo en Area3D',!!sourceAfter)
+ const plus=[...document.querySelectorAll('.sig-connect-icon')].find(e=>e.getAttribute('aria-label')==='Conectar body_entered')
+ check('Botón más contextual a la señal',!!plus)
+ plus?.click();await nextTick()
+ check('Más abre diálogo con señal fija',document.querySelector('#lf-sig-name')?.textContent.includes('body_entered') && !document.querySelector('input#lf-sig-name'))
+ check('Origen fijo es un div no editable', !document.querySelector('input#lf-sig-name') && document.querySelector('#lf-sig-name')?.tagName==='DIV')
+ click('.sig-dialog header button');await nextTick()
+ store.selectedId='b';store.selectedIds=['b'];await nextTick()
+ check('Cambio de nodo quita señal física',![...document.querySelectorAll('.sig-signal-row')].some(e=>e.textContent.includes('body_entered')))
+ check('Nativas comunes siguen en el nodo',document.body.textContent.includes('ready()'))
+ check('Custom Signals pertenecen al nodo actual',document.body.textContent.includes('puerta_abierta'))
+ store.selectedId='a';store.selectedIds=['a'];await nextTick()
+ const plusOutside=[...document.querySelectorAll('.sig-connect-icon')].find(e=>e.getAttribute('aria-label')==='Conectar body_entered')
+ plusOutside?.click();await nextTick()
+ const modes=[...document.querySelectorAll('.sig-receiver-scope button')];modes[1]?.click();await nextTick()
+ const external=[...document.querySelectorAll('.sig-receiver-row')].find(e=>e.textContent.includes('FueraDeRama'))
+ external?.click();await field('#lf-sig-method','recibir_externo')
+ click('.sig-dialog button[type="submit"]');await nextTick()
+ check('Conexión externa permitida con vista escena',store.project.signalConnections.some(c=>c.receiverId==='c'))
+ const rowExternal=[...document.querySelectorAll('.sig-link-target')].find(e=>e.textContent.includes('FueraDeRama'))
+ rowExternal?.click();await nextTick()
+ check('Edición histórica externa abre toda la escena',document.querySelectorAll('.sig-receiver-row').length===4&&document.querySelector('.sig-receiver-scope button[aria-pressed="true"]')?.textContent.includes('Toda'))
+ check('Receptor histórico externo seleccionado',document.querySelector('.sig-receiver-row.on')?.textContent.includes('FueraDeRama'))
+ click('.sig-dialog header button');await nextTick()
+ out.dataset.pass='true';out.textContent=JSON.stringify({pass:true,gl:renderer.getContext().getParameter(renderer.getContext().VERSION),checks},null,2)
+} catch(error) {out.dataset.pass='false';out.textContent=JSON.stringify({pass:false,error:String(error.stack||error),checks},null,2)}
+finally {try{app?.unmount()}catch{}renderer?.dispose()}
+</script></body></html>

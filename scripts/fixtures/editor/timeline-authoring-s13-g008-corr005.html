@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="es">
+<meta charset="utf-8">
+<title>Century · QA Timeline CORR-005</title>
+<style>
+  html,body,#root { height:100%; margin:0; }
+  .workspace { display:grid; grid-template-columns: minmax(110px, 17%) minmax(0, 1fr) minmax(135px, 20%); height:100%; }
+  .workspace > div { min-width:0; min-height:0; overflow:hidden; }
+  #result { display:none; }
+</style>
+<div id="root"></div><pre id="result"></pre>
+<script type="module">
+const checks = []
+const result = document.querySelector('#result')
+const check = (name, pass) => {
+  checks.push({name, pass: !!pass})
+  result.dataset.stage = name
+  if (!pass) throw new Error(name)
+}
+function finish(error) {
+  if (result.dataset.pass) return
+  result.dataset.pass = String(!error)
+  result.textContent = JSON.stringify({
+    pass: !error, checks, ...(error ? {error: error.stack || String(error)} : {}),
+    gl: !!document.createElement('canvas').getContext('webgl'),
+  })
+}
+window.addEventListener('error', event => finish(event.error || new Error(event.message)))
+window.addEventListener('unhandledrejection', event => finish(event.reason))
+
+try {
+  await import('/src/styles.css')
+  const {createApp, h, nextTick, provide} = await import('vue')
+  const {default: SceneTree} = await import('/src/components/SceneTree.vue')
+  const {default: TimelinePanel} = await import('/src/components/TimelinePanel.vue')
+  const {default: InspectorDock} = await import('/src/components/InspectorDock.vue')
+  const {default: ContextMenu} = await import('/src/components/ContextMenu.vue')
+  const {store, setEditor, resetHistory, undo, redo, buildProjectFile} = await import('/src/core/store.js')
+  const {parseLfproj} = await import('/src/core/lfproj.js')
+  const {createProjectData} = await import('/src/core/project.js')
+  const {makeObject} = await import('/src/engine/runtime/nodes/index.js')
+  const {newTimeline} = await import('/src/core/timeline/model.js')
+  const {createTimelinePlayback, timelinePlaybackKey} = await import('/src/core/timeline/playback-session.js')
+
+  const doc = createProjectData('Autoría CORR-005', 'empty')
+  const camera = makeObject('camera', 'camera'), other = makeObject('camera', 'camera')
+  const light = makeObject('light', 'omni'), mesh = makeObject('mesh')
+  Object.assign(camera,{id:'qa-camera',name:'Cámara',position:[1,2,3]})
+  Object.assign(other,{id:'qa-other',name:'Cámara',position:[9,9,9]})
+  Object.assign(light,{id:'qa-light',name:'Luz'})
+  Object.assign(mesh,{id:'qa-mesh',name:'Malla'})
+  doc.objects = [camera, other, light, mesh]
+  doc.timelines = [newTimeline('Autoría', {id:'qa-timeline', duration:8})]
+  store.project = doc
+  store.timelineId = doc.timelines[0].id
+  store.prefs.bottomTab = 'timeline'
+  store.prefs.rightTab = 'object'
+  store.prefs.bottomOpen = true
+  store.locked = store.filmMode = store.play.on = false
+  setEditor({
+    snapshotTerrain:()=>doc.terrain, serializeTerrain:()=>doc.terrain, restoreTerrain(){}, syncAll(){}, syncEnvironment(){},
+    setSelection(){}, setActivePiece(){}, syncObject(){}, restoreEdit(){}, afterUndo(){},
+  })
+  resetHistory()
+
+  const samples = []
+  const playback = createTimelinePlayback({
+    getContext:()=>({project:store.project, sceneId:store.project.activeSceneId, timelineId:store.timelineId,
+      editor:store.editor, locked:store.locked, playOn:store.play.on, cinematic:store.filmMode}),
+    getProject:()=>store.project, getEditor:()=>store.editor, getObjects:()=>store.project.objects,
+    worldMatrix:()=>null,
+    createVisualPreview:()=>({apply(_timeline,time){samples.push(time)},stop(){samples.push(null)}}),
+  })
+  createApp({setup(){
+    provide(timelinePlaybackKey, playback)
+    return ()=>h('div',{class:'workspace'},[
+      h('div',{id:'tree'},[h(SceneTree)]),
+      h('div',{id:'timeline'},[h(TimelinePanel)]),
+      h('div',{id:'inspector'},[h(InspectorDock)]),
+      ...(store.menu ? [h(ContextMenu)] : []),
+    ])
+  }}).mount('#root')
+
+  const settle = async () => { await nextTick(); await new Promise(resolve=>requestAnimationFrame(resolve)); await nextTick() }
+  const query = selector => document.querySelector(selector)
+  const byText = (selector, text) => [...document.querySelectorAll(selector)].find(el=>el.textContent.trim()===text)
+  const tracks = () => store.project.timelines[0].tracks
+  const track = (node, prop) => tracks().find(item=>item.node===node && item.prop===prop)
+  const header = id => query(`#timeline .node-head[data-node-id="${id}"]`)
+  const drag = async (id, target = query('#timeline .main')) => {
+    const transfer = new DataTransfer()
+    const source = query(`#tree [role=treeitem][data-id="${id}"]`)
+    source.dispatchEvent(new DragEvent('dragstart',{dataTransfer:transfer,bubbles:true,cancelable:true}))
+    for (const type of ['dragover','drop']) target.dispatchEvent(new DragEvent(type,{dataTransfer:transfer,bubbles:true,cancelable:true}))
+    source.dispatchEvent(new DragEvent('dragend',{dataTransfer:transfer,bubbles:true}))
+    await settle()
+  }
+  const choose = async (id, label) => {
+    header(id).querySelector('.node-key-picker').click()
+    await settle()
+    byText('[role=menuitem]',label).click()
+    await settle()
+  }
+  const seek = async time => {
+    const field = query('#timeline .tm')
+    field.value = time
+    field.dispatchEvent(new Event('change',{bubbles:true}))
+    await settle()
+  }
+  await settle()
+
+  await drag(camera.id)
+  check('Soltar crea un encabezado editorial sin pista', !!header(camera.id) && tracks().length===0)
+  check('El nodo arrastrado aparece en el Inspector', store.selectedId===camera.id && !!query('#inspector [data-node-type=camera]'))
+  check('El Inspector carece de controles temporales', !query('#inspector .property-key, #inspector [data-test=temporal-inspector-timeline]'))
+  await seek(1)
+  check('El cabezal aplica preview antes de Play', samples.at(-1)===1)
+  await choose(camera.id,'Posición')
+  const first = track(camera.id,'position')?.keys[0]
+  check('Selector crea pista y primera clave usando ID y cabezal', first?.t===1 && first.v.join()===camera.position.join())
+  check('El nombre homónimo no recibe pistas', !track(other.id,'position'))
+  undo(); await settle()
+  check('Un Undo retira pista y clave', tracks().length===0)
+  redo(); await settle()
+  check('Redo restaura la identidad de la clave', track(camera.id,'position')?.keys[0]?.id===first.id)
+  await seek(2)
+  const cameraKey = () => query('#timeline .property-key')
+  cameraKey().click(); await settle()
+  check('La llave de la pista añade una segunda clave', track(camera.id,'position')?.keys[1]?.t===2)
+  const lastKey = track(camera.id,'position').keys[1]
+  store.project.objects.find(node=>node.id===camera.id).position = [5,6,7]
+  cameraKey().click(); await settle()
+  check('Actualizar el mismo instante conserva ID y valor autoral', track(camera.id,'position').keys.length===2 && lastKey.v.join()==='5,6,7')
+  check('La selección de clave conserva el Inspector del nodo', !!query('#inspector [data-node-type=camera]') && !store.temporalSelection)
+  byText('#timeline button','Detalles').click(); await settle()
+  check('Detalles se monta dentro de Timeline para la clave', !!query('#timeline .timeline-details [data-part=key]'))
+  const editTime = query('#timeline .timeline-details input[inputmode=decimal]')
+  editTime.dispatchEvent(new FocusEvent('focus'))
+  editTime.value='2.5'
+  editTime.dispatchEvent(new Event('input',{bubbles:true}))
+  editTime.dispatchEvent(new FocusEvent('blur'))
+  await settle()
+  check('El formulario modifica el tiempo de la clave seleccionada', lastKey.t===2.5)
+  query('#timeline [aria-label="Cerrar detalles"]').click(); await settle()
+  track(camera.id,'position').locked=true; await settle()
+  check('La llave de una pista bloqueada queda deshabilitada', cameraKey().disabled)
+  track(camera.id,'position').locked=false
+  playback.yieldToEditing(); await settle()
+  check('Ceder el visor restaura la edición espacial', samples.at(-1)===null)
+  await seek(3)
+  check('El siguiente desplazamiento vuelve a muestrear', samples.at(-1)===3)
+  check('El panel prescinde del interruptor de preview', !query('#timeline .preview-toggle') && !query('#timeline .options-pop input[type=checkbox]'))
+
+  await drag(mesh.id)
+  check('Mesh también obtiene un encabezado editorial', !!header(mesh.id))
+  header(mesh.id).querySelector('[aria-label="Cancelar nodo provisional"]').click(); await settle()
+  check('Cancelar no modifica el recurso', !header(mesh.id) && tracks().length===1)
+  await drag(light.id); await choose(light.id,'Luz: intensidad')
+  check('Light usa un descriptor numérico del mismo selector', typeof track(light.id,'light.energy')?.keys[0]?.v==='number')
+  check('Las propiedades de Light se quedan en el Inspector', !!query('#inspector [data-node-type=light]') && !query('#inspector .property-key'))
+  const {blob} = await buildProjectFile()
+  const archive = await parseLfproj(await blob.arrayBuffer())
+  check('El archivo real conserva pistas y claves', JSON.stringify(archive).includes(lastKey.id) && JSON.stringify(archive).includes('light.energy'))
+  byText('#timeline button','Detalles').click(); await settle()
+  finish()
+} catch (error) { finish(error) }
+</script>
+</html>

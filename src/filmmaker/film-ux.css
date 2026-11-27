@@ -1,0 +1,480 @@
+/*
+ * LF-FILMMAKER-UX-S01-G002 — studio workbench skin.
+ * Pure presentation: preserves the existing node tree, Vue actions, NLE tracks,
+ * mobile drawer, scene renderer and the versioned .nfm model. No duplicate state.
+ * Loaded only from filmmaker/main.js, never from the Century editor or Player.
+ */
+.fm {
+  --film-shell: #0a1118;
+  --film-bar: #101922;
+  --film-dock: #131d27;
+  --film-raised: #1b2835;
+  --film-field: #111a24;
+  --film-border: #2c3c49;
+  --film-border-soft: #22303c;
+  --film-fg: #dbe5ed;
+  --film-muted: #96a8b8;
+  --film-dim: #738799;
+  --film-accent: #4f9ed8;
+  --film-accent-soft: rgba(79,158,216,.16);
+  --film-record: #e35b62;
+  --g-950: #0a1118;
+  --g-900: #0d1620;
+  --g-850: #131d27;
+  --g-800: #1a2734;
+  --g-700: #253441;
+  --g-600: #344554;
+  --hair: #2b3946;
+  --hair-soft: #23313d;
+  --text: #e4ebf0;
+  --text-2: #acbbc8;
+  --text-3: #8798a7;
+  --blue: #4f9ed8;
+  --blue-hi: #7dbce9;
+  --blue-wash: rgba(79,158,216,.17);
+  --amber: #4f9ed8;
+  --amber-wash: rgba(79,158,216,.13);
+  --amber-edge: rgba(97,176,234,.6);
+  background: var(--film-shell);
+  color: var(--film-fg);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Studio toolbar: every original button retains its existing handler. */
+body .fm .bar {
+  height: 48px;
+  min-height: 48px;
+  padding: 0 12px;
+  gap: 8px;
+  background: linear-gradient(180deg, #172330, #111b25);
+  border-bottom: 1px solid var(--film-border);
+  box-shadow: 0 1px 0 #060a0e;
+}
+.fm .brand {
+  font-size: 14px;
+  letter-spacing: -.2px;
+  color: #f1f6fa;
+  font-weight: 650;
+  margin-right: 4px;
+  white-space: nowrap;
+}
+.fm .brand span { color: var(--film-accent); }
+.fm .bar .title {
+  color: var(--film-muted);
+  font-size: 11px;
+  max-width: 205px;
+  padding-left: 12px;
+  margin-left: 2px;
+  border-left: 1px solid var(--film-border);
+}
+.fm .bar > .sp { min-width: 0; }
+.fm .bar button,
+.fm .bar select {
+  min-height: 28px;
+  height: 28px;
+  padding: 0 9px;
+  border-radius: 4px;
+  color: var(--film-fg);
+  border: 1px solid var(--film-border);
+  background: var(--film-raised);
+  font-size: 11px;
+}
+.fm .bar select { max-width: 184px; }
+.fm .bar button:hover,
+.fm .bar select:hover { background: #263746; border-color: #4e687e; }
+.fm .bar button:focus-visible,
+.fm button:focus-visible,
+.fm [tabindex]:focus-visible { outline: 2px solid #87c4ee; outline-offset: -2px; }
+.fm .bar .transport {
+  gap: 2px;
+  padding: 3px 4px;
+  background: #0b131b;
+  border: 1px solid var(--film-border);
+  border-radius: 5px;
+}
+.fm .bar .transport button { min-width: 30px; padding: 0 7px; background: #18232e; }
+.fm .bar .transport button:hover { background: #304758; }
+.fm .bar .transport .play.on { background: #24547a; border-color: #408bc3; color: #fff; }
+.fm .bar .transport .time {
+  font: 600 12px/1.2 ui-monospace, SFMono-Regular, Consolas, monospace;
+  color: #88d1f6;
+  letter-spacing: .02em;
+  min-width: 77px;
+  text-align: center;
+  padding: 0 7px;
+  white-space: nowrap;
+}
+.fm .bar button.primary { background: #235c85; border-color: #3a81b4; font-weight: 600; }
+.fm .bar button.primary:hover { background: #3075a5; }
+
+/* One continuous workbench with legible docks, not detached glass cards. */
+body .fm .work { background: #080e14; }
+body .fm .dock {
+  background: var(--film-dock);
+  color: var(--film-fg);
+}
+.fm .dock.left { border-right: 1px solid var(--film-border); }
+.fm .dock.right { border-left: 1px solid var(--film-border); }
+.fm .dock.bottom { border-top: 1px solid var(--film-border); }
+.fm .dock .tabs {
+  height: 36px;
+  min-height: 36px;
+  padding: 0 7px;
+  align-items: stretch;
+  gap: 1px;
+  background: #101923;
+  border-bottom: 1px solid var(--film-border);
+}
+.fm .dock .tabs button {
+  height: 35px;
+  min-height: 35px;
+  padding: 0 11px;
+  background: transparent;
+  color: var(--film-muted);
+  font-size: 11px;
+  font-weight: 500;
+  white-space: nowrap;
+  border-radius: 0;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  box-shadow: none;
+}
+.fm .dock .tabs button:hover { background: #1c2a36; color: #e6f0f8; }
+.fm .dock .tabs button.on {
+  color: #8dccf8;
+  background: #172430;
+  border-bottom-color: var(--film-accent);
+  box-shadow: none;
+}
+.fm .dock .pane { scrollbar-color: #3a4e60 #121c27; }
+.fm .dock.left .pane { background: #121d27; }
+.fm .dock.right .pane { background: #15202b; }
+.fm .dock .pane:has(.pn) { padding-top: 0; }
+
+/* Program monitor: the stage is the hero, but it does not create another viewport. */
+body .fm .stage {
+  background: #04080c;
+  border: 9px solid #0b141c;
+  box-shadow: inset 0 0 0 1px #2a3946;
+  overflow: hidden;
+}
+.fm .stage::before {
+  content: 'MONITOR DE PROGRAMA';
+  position: absolute;
+  z-index: 6;
+  top: 8px;
+  left: 14px;
+  pointer-events: none;
+  color: #b6c9d7;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .105em;
+  text-shadow: 0 1px 4px #000;
+}
+.fm .stage::after {
+  content: 'NETHER  •  MONITOR';
+  position: absolute;
+  z-index: 6;
+  bottom: 7px;
+  right: 10px;
+  pointer-events: none;
+  color: #9eb4c4;
+  font-size: 9px;
+  letter-spacing: .04em;
+  text-shadow: 0 1px 4px #000;
+}
+.fm .stage .host,
+.fm .stage .film-frame .host { touch-action: none; }
+.fm .stage .film-frame { box-shadow: 0 0 0 1px #314758, 0 7px 28px #0008; }
+.fm .stage .tools {
+  left: 12px;
+  top: 31px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 4px;
+  border: 1px solid #496175;
+  border-radius: 5px;
+  background: #0b151fdc;
+  box-shadow: 0 5px 16px #0008;
+}
+.fm .stage .tools button {
+  width: 29px;
+  height: 29px;
+  font-size: 14px;
+  background: #1b2b38;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  color: #dde6ed;
+}
+.fm .stage .tools button:hover { background: #344d5d; }
+.fm .stage .tools button.on { color: #b5e4ff; background: #245173; border-color: #4485ae; }
+.fm .stage .recdot,
+.fm .stage .badge {
+  background: #0a1520ed;
+  border: 1px solid #31465a;
+  border-radius: 3px;
+  font: 600 10px/1.2 ui-monospace, Consolas, monospace;
+  letter-spacing: .02em;
+  padding: 5px 8px;
+}
+.fm .stage .recdot { color: var(--film-record); }
+.fm .stage .recdot.view { color: #87d3fb; }
+.fm .stage .pip { border: 1px solid #637f97; border-radius: 2px; box-shadow: 0 3px 10px #0008; }
+.fm .stage .drop { border-color: var(--film-accent); }
+
+/* Inspector and editorial panels: compact, aligned, clear visual hierarchy. */
+.fm .pn {
+  gap: 8px;
+  padding: 11px 12px 16px;
+  color: var(--film-fg);
+}
+.fm .pn h4 {
+  padding: 9px 0 5px;
+  margin: 8px 0 1px;
+  border-bottom: 1px solid var(--film-border-soft);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .09em;
+  color: #83bfe9;
+}
+.fm .pn .f { color: var(--film-muted); gap: 5px; font-size: 11px; }
+.fm .pn label { min-width: 0; }
+.fm .pn input:not([type=range]):not([type=checkbox]),
+.fm .pn select,
+.fm .pn textarea,
+.fm .nle .props input,
+.fm .nle .props select {
+  max-width: 100%;
+  background: var(--film-field);
+  border: 1px solid #324556;
+  border-radius: 3px;
+  color: #e8f0f7;
+}
+.fm .pn select,
+.fm .pn input:not([type=checkbox]):not([type=range]) { height: 28px; }
+.fm .pn input:focus-visible,
+.fm .pn select:focus-visible { outline: 1px solid #69b7ec; outline-offset: 0; }
+.fm .pn dl {
+  padding: 8px 10px;
+  background: #101a24;
+  border: 1px solid #2b3d4d;
+  border-radius: 4px;
+  gap: 6px 9px;
+}
+.fm .pn dt { color: var(--film-dim); }
+.fm .pn dd { text-align: right; min-width: 0; overflow-wrap: anywhere; }
+.fm .pn .row { min-width: 0; }
+.fm .pn .row input[type=range] { accent-color: var(--film-accent); }
+.fm .pn .list li { background: #101b25; border: 1px solid var(--film-border-soft); border-radius: 3px; }
+.fm .pn .hint { line-height: 1.45; color: var(--film-dim); }
+.fm .pn button:hover { border-color: #5e8aaa; }
+
+/* Existing NLE renderer and editing gestures remain untouched. */
+body .fm .nle { color: #cbd9e5; background: #0c1620; }
+body .fm .nle .tb {
+  min-height: 37px;
+  gap: 4px;
+  padding: 5px 8px;
+  background: #16212c;
+  border-bottom: 1px solid #314252;
+}
+.fm .nle .tb button,
+.fm .nle .tb select {
+  background: #203140;
+  border: 1px solid #304655;
+  color: #d4e4f1;
+  border-radius: 3px;
+  height: 25px;
+  font-size: 11px;
+}
+.fm .nle .tb button:hover,
+.fm .nle .tb select:hover { background: #314c61; }
+.fm .nle .tb button.on,
+.fm .nle .tb .play.on { background: #255b82; border-color: #5293bd; }
+.fm .nle .tc { font: 600 12px/1.2 ui-monospace, Consolas, monospace; color: #8dd4fa; }
+.fm .nle .tc small { color: #8198ab; }
+.fm .nle .sep { background: #3a5061; }
+.fm .nle .heads { background: #14212c; border-right-color: #314351; }
+.fm .nle .rh { background: #1a2a38; border-bottom-color: #395065; }
+.fm .nle .h {
+  background: #15212c;
+  border-bottom: 1px solid #273844;
+  color: #c9d8e4;
+  font-size: 11px;
+}
+.fm .nle .h.v { box-shadow: inset 3px 0 #4795cc; }
+.fm .nle .h.a { box-shadow: inset 3px 0 #73a98d; }
+.fm .nle .h.t { box-shadow: inset 3px 0 #a18ad2; }
+.fm .nle .h.f { box-shadow: inset 3px 0 #b68ece; }
+.fm .nle .h.au { box-shadow: inset 3px 0 #49af9a; }
+.fm .nle .h.selt { background: #26455c; }
+.fm .nle .scroll { background: #0c151d; }
+.fm .nle .ruler { background: #1a2a37; border-color: #344655; }
+.fm .nle .tick { color: #91a9bb; border-color: #314352; }
+.fm .nle .lane { border-bottom: 1px solid #23323f; }
+.fm .nle .lane:nth-child(odd) { background: #111c27; }
+.fm .nle .lane:nth-child(even) { background: #0e1822; }
+.fm .nle .clip { border-radius: 3px; border: 1px solid #ffffff38; box-shadow: inset 0 1px 0 #ffffff1b; }
+.fm .nle .clip .nm { font-size: 11px; font-weight: 500; color: #f6fbff; }
+.fm .nle .clip.shot { background: #285f93; border-color: #4a8ec5; }
+.fm .nle .clip.shot.on { background: #327db7; }
+.fm .nle .clip.actor { background: #376457; border-color: #528571; }
+.fm .nle .clip.text { background: #614f94; border-color: #8772b7; }
+.fm .nle .clip.fx { background: #695388; border-color: #9275b8; }
+.fm .nle .clip.audio { background: #176d65; border-color: #319a8e; }
+.fm .nle .clip.sel { outline: 2px solid #9ad4fd; outline-offset: 0; }
+.fm .nle .playhead { background: #79c6ef; box-shadow: 0 0 0 1px #2b6d9c66; }
+.fm .nle .props { background: #17232e; border-left: 1px solid #354957; }
+.fm .nle .props h5 { color: #9ccff0; }
+
+/* Calm, practical welcome instead of a promotional landing page. */
+.fm .welcome {
+  background: radial-gradient(ellipse at 50% 32%, #142432, #0b141d 58%, #080e15);
+  gap: 14px;
+}
+.fm .welcome h1 { color: #e9f2f7; font-size: clamp(22px, 3vw, 32px); letter-spacing: -.025em; }
+.fm .welcome h1 span { color: var(--film-accent); }
+.fm .welcome p { color: #9bb0bf; line-height: 1.6; }
+.fm .welcome button.primary { background: #235f89; border-color: #4e9bce; height: 34px; }
+
+/* Original mobile drawer survives, with comfortable tap targets and no clipping. */
+body .fm.narrow .bar { height: 47px; min-height: 47px; padding: 0 7px; gap: 4px; }
+.fm.narrow .bar .brand { font-size: 13px; }
+.fm.narrow .bar .transport { gap: 1px; padding: 2px; }
+.fm.narrow .bar .transport button { min-width: 29px; padding: 0 4px; }
+.fm.narrow .bar .transport .time { min-width: 59px; padding: 0 3px; font-size: 10px; }
+.fm.narrow .bar button { min-height: 28px; padding: 0 5px; }
+.fm.narrow .stage { border-width: 3px; }
+.fm.narrow .stage::before,
+.fm.narrow .stage::after { display: none; }
+.fm.narrow .stage .tools { top: 7px; left: 7px; padding: 2px; }
+.fm.narrow .stage .tools button { width: 31px; height: 31px; }
+.fm.narrow .mnav { background: #14222d; border-top-color: #3a4c59; }
+.fm.narrow .mnav button { color: #afc1ce; min-width: 66px; }
+.fm.narrow .mnav button.on { color: #88c7f0; box-shadow: inset 0 3px #4f9ed8; }
+.fm.narrow .sheet { background: #162431; border-color: #496073; border-radius: 7px 7px 0 0; }
+.fm.narrow .sheet .sh { background: #1d2f3d; }
+.fm.narrow .sheet button { min-height: 28px; }
+
+/* Small laptop: preserve all original tools rather than cutting off buttons. */
+@media (max-width: 1320px) and (min-width: 820px) {
+  .fm .bar { gap: 5px; padding: 0 8px; }
+  .fm .bar .title { max-width: 120px; padding-left: 8px; }
+  .fm .bar .brand { font-size: 12px; }
+  .fm .bar .transport button { min-width: 27px; }
+  .fm .bar .sel select { max-width: 142px; }
+  .fm .dock .tabs { padding: 0 3px; }
+  .fm .dock .tabs button { padding: 0 8px; }
+}
+@media (max-height: 750px) and (min-width: 820px) {
+  .fm .bar { height: 42px; min-height: 42px; }
+  .fm .dock .tabs { height: 31px; min-height: 31px; }
+  .fm .dock .tabs button { height: 30px; min-height: 30px; }
+  .fm .stage { border-width: 4px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fm button, .fm .dock .tabs button { transition: none; }
+}
+
+/* SVG controls replace the original emoji without affecting accessible text. */
+.fm .film-glyph { flex: none; display: inline-block; vertical-align: middle; color: inherit; }
+.fm .bar .brand { display: inline-flex; align-items: center; gap: 6px; }
+.fm .bar .brand .film-glyph { width: 20px; height: 20px; color: #81c8f4; }
+.fm .bar .transport .film-glyph { width: 14px; height: 14px; }
+.fm .bar button .film-glyph { width: 14px; height: 14px; }
+.fm .dock .tabs button { display: inline-flex; align-items: center; gap: 6px; }
+.fm .dock .tabs button .film-glyph { width: 14px; height: 14px; color: #8faabc; }
+.fm .dock .tabs button.on .film-glyph { color: #8dccf8; }
+.fm .nle .tb button .film-glyph { width: 13px; height: 13px; }
+.fm .nle .h .film-glyph { width: 12px; height: 12px; flex: none; }
+.fm .narrow .mnav .film-glyph { width: 18px; height: 18px; }
+
+/* UX-G002 (baseline G001 real): enlace directo a los ajustes del encuadre ya implementado. */
+.fm .bar .frame-access {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  color: #b9d9eb; border-color: #36546a; background: #172b3a;
+  font-variant-numeric: tabular-nums; white-space: nowrap; flex: none;
+}
+.fm .bar .frame-access:hover { background: #224359; border-color: #5792bb; }
+.fm .bar .frame-access .film-glyph { width: 14px; height: 14px; }
+.fm .bar .frame-access .frame-text { font-size: 11px; }
+@media (min-width: 820px) and (max-width: 1130px) {
+  .fm .bar .title { display: none; }
+  .fm .bar .frame-access .frame-text { display: none; }
+  .fm .bar .frame-access { width: 30px; padding: 0; }
+  .fm .bar .sel select { max-width: 125px; }
+}
+.fm.narrow .bar .frame-access { width: 28px; padding: 0; }
+.fm.narrow .bar .frame-access .frame-text { display: none; }
+/* Se conserva el indicador de foco visible en botones de contenido. */
+.fm .dock button:focus-visible, .fm .nle button:focus-visible, .fm .pn button:focus-visible {
+  outline: 2px solid #9cd8ff; outline-offset: -2px;
+}
+
+/* G002_CORR-001 — el espacio del monitor y del timeline manda sobre los docks.
+ * Bajo 1220px solo se muestra un dock lateral a la vez, intercambiable desde la barra.
+ * Con esto el NLE deja de comprimirse a un ancho de menos de 200px en pantallas HD. */
+.fm .compact-docks { display: flex; flex: none; gap: 3px; padding: 2px; border: 1px solid var(--film-border); border-radius: 4px; background: #0c1721; }
+.fm .compact-docks button { display: inline-flex; align-items: center; gap: 5px; min-width: 29px; padding: 0 8px; }
+.fm .compact-docks button[aria-pressed="true"] { color: #a0d9ff; background: #254a65; border-color: #4c87b0; }
+.fm .compact-docks .film-glyph { width: 14px; height: 14px; }
+.fm .work, .fm .center { min-width: 0; }
+.fm .work.compactDesk .center { flex: 1 1 0; min-width: 0; }
+.fm .work.compactDesk .dock { min-width: 0; }
+.fm .nle .body { min-width: 0; }
+.fm .nle .scroll { min-width: 0; scrollbar-color: #61798a #0d1720; }
+.fm .nle .time-scroll { background: #111e28; border-top-color: #344858; }
+.fm .nle .time-scroll input[type="range"]:focus-visible { outline: 2px solid #93c6e7; outline-offset: 1px; }
+.fm .nle .props { background: #1a2a38; border-color: #4a667a; }
+
+@media (max-width: 1220px) and (min-width: 820px) {
+  body .fm .bar { height: auto; min-height: 46px; max-height: 92px; flex-wrap: wrap; align-content: center; row-gap: 4px; padding: 5px 8px; }
+  .fm .bar .brand { font-size: 12px; }
+  .fm .bar .title { display: none; }
+  .fm .bar .sel select { max-width: 130px; }
+  .fm .bar .frame-access .frame-text { display: none; }
+  .fm .bar .frame-access { width: 30px; padding: 0; }
+  .fm .dock .tabs button { padding: 0 7px; }
+  .fm .dock .tabs { overflow-x: auto; }
+  .fm .nle .tb { gap: 3px; padding: 4px 6px; }
+  .fm .nle .tb select { max-width: 148px; }
+}
+@media (max-width: 970px) and (min-width: 820px) {
+  .fm .bar .brand span { display: none; }
+  .fm .bar .compact-docks button span { display: none; }
+  .fm .bar .transport .time { min-width: 62px; padding: 0 4px; }
+  .fm .bar button.primary .lbl, .fm .bar button[data-test="open"] .lbl { display: none; }
+  .fm .bar .sel select { max-width: 115px; }
+  .fm .dock .tabs { gap: 0; }
+}
+@media (max-height: 640px) and (min-width: 820px) {
+  .fm .stage::before, .fm .stage::after { display: none; }
+  .fm .stage { border-width: 3px; }
+  .fm .dock .tabs { height: 29px; min-height: 29px; }
+  .fm .dock .tabs button { height: 28px; min-height: 28px; }
+}
+
+/* Un único Inspector de FilmMaker: alterna entre nodo de escena y propiedades NLE. */
+.fm .film-nle-inspector-switch { width:100%; height:100%; min-height:0; display:flex; flex-direction:column; }
+.fm .film-nle-inspector-host { height:100%; min-height:0; overflow:auto; }
+.fm .node-chooser-wrap { position:relative; flex:none; }
+/* Portal de + Nodo: fuera de los docks recortados y sobre el visor, sin duplicar el selector. */
+.film-node-picker { z-index:5000; box-sizing:border-box; overflow:auto; padding:9px; background:#162330; color:#e4ebf0; border:1px solid #4a667a; box-shadow:0 8px 22px #000b; border-radius:5px; display:flex; flex-direction:column; gap:7px; }
+.film-node-picker label { font-size:11px; color:#b5c7d5; }
+.film-node-picker input { min-height:29px; background:#0d1620; color:#e4ebf0; padding:4px 7px; border:1px solid #455b6e; border-radius:4px; }
+.film-node-picker .node-chooser-list { display:flex; flex-direction:column; gap:4px; max-height:230px; overflow:auto; }
+.film-node-picker .node-chooser-heading { font-size:10px; color:#accbe0; padding-top:6px; border-top:1px solid #456; }
+.film-node-picker button { text-align:left; white-space:normal; background:#233746; color:#e4ebf0; border:1px solid #385366; min-height:29px; border-radius:4px; padding:5px 7px; cursor:pointer; }
+.film-node-picker button:hover,.film-node-picker button:focus-visible { border-color:#7dbce9; background:#2d526c; }
+.film-node-picker small { color:#accbe0; margin-left:5px; }
+.film-node-picker .hint { font-size:11px; color:#b5c7d5; }
+
+/* Menú de inserción de FilmMaker: portal fuera de la Timeline recortada. */
+.film-add-picker { z-index:5000; position:fixed; box-sizing:border-box; min-width:235px; display:flex; flex-direction:column; gap:6px; overflow:auto; background:#1a2734; color:#e4ebf0; border:1px solid #4a667a; border-radius:5px; padding:10px; box-shadow:0 12px 30px #000b; }
+.film-add-picker strong { font-size:11px; color:#acbbc8; padding-bottom:5px; border-bottom:1px solid #344554; }
+.film-add-picker button,.film-add-picker select { width:100%; min-height:30px; box-sizing:border-box; border:1px solid #385366; background:#233746; color:#e4ebf0; text-align:left; border-radius:4px; padding:4px 8px; cursor:pointer; }
+.film-add-picker button:hover,.film-add-picker button:focus-visible { background:#2d526c; border-color:#7dbce9; }
+.film-add-picker .nle-add-fx { display:flex; gap:5px; }
+.film-add-picker .nle-add-fx select { min-width:0; flex:1; }
+.film-add-picker .nle-add-fx button { width:auto; flex:none; }

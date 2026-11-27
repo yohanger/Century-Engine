@@ -1,0 +1,49 @@
+{
+  "name": "@century/radiance",
+  "version": "0.0.1-s00",
+  "private": true,
+  "description": "Independent Century Radiance lighting module",
+  "type": "module",
+  "files": [
+    "dist",
+    "README.md",
+    "THIRD_PARTY_NOTICES.md"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./worker": {
+      "types": "./dist/workers/RadianceWorkerClient.d.ts",
+      "import": "./dist/workers/RadianceWorkerClient.js"
+    },
+    "./worker/browser": "./dist/workers/RadianceWorker.js",
+    "./worker/node": "./dist/workers/RadianceNodeWorker.js"
+  },
+  "scripts": {
+    "clean": "node tools/Clean.mjs",
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.browser.json",
+    "build": "npm run clean && tsc -p tsconfig.json",
+    "test": "npm run build && node --test tests/*.test.mjs",
+    "build:playground": "vite build",
+    "dev": "vite --host 127.0.0.1",
+    "qa:webgl": "npm run build:playground && node tools/RunWebGL2QA.mjs",
+    "qa": "npm run verify:imports && npm run typecheck && npm test && npm run qa:webgl",
+    "verify:imports": "node tools/CheckBoundaries.mjs",
+    "verify:manifest": "node tools/VerifyManifest.mjs"
+  },
+  "peerDependencies": {
+    "three": "0.186.1"
+  },
+  "devDependencies": {
+    "@types/node": "24.19.1",
+    "@types/three": "0.186.0",
+    "three": "0.186.1",
+    "typescript": "5.9.3",
+    "vite": "6.4.6"
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  }
+}

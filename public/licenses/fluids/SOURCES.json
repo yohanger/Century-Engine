@@ -1,0 +1,14 @@
+{
+  "ultra-water": {
+    "url": "https://github.com/Humpalumps/Ultra-Water",
+    "commit": "30ea65ecb0a66b137aa200d099965634bdd84d51",
+    "license": "MIT",
+    "use": "OceanSim, shore travel fields and wave GLSL; integrated through Century adapters"
+  },
+  "splash": {
+    "url": "https://github.com/matsuoka-601/Splash",
+    "commit": "3df5d621e6f153d7269037cbd8606bd83796f3fd",
+    "license": "MIT",
+    "use": "MLS-MPM P2G/G2P algorithms, ported to CPU for bounded container domains"
+  }
+}

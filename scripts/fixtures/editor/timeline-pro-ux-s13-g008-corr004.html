@@ -1,0 +1,93 @@
+<!doctype html><html lang="es"><meta charset="utf-8"><title>Century · S13-G008 CORR-004 · Timeline UX</title>
+<style>html,body{margin:0;background:#171b20;color:#e8eaec;font:12px system-ui}#timeline{height:435px;width:100%;overflow:hidden}#result{display:none}</style>
+<div id="timeline"></div><pre id="result"></pre>
+<script>
+(()=>{const target=document.getElementById('result'),checks=[];let stage='inicio',done=false
+const finish=err=>{if(done)return;done=true;clearTimeout(watchdog);const pass=!err&&checks.length===25&&checks.every(c=>c.pass);target.dataset.pass=String(pass);target.dataset.checks=String(checks.length);target.dataset.stage=pass?'final:PASS':'final:FAIL';let gl=false;try{gl=!!document.createElement('canvas').getContext('webgl')}catch{}target.textContent=JSON.stringify({pass,stage,...(err?{error:err.stack||String(err)}:{}),checks,gl},null,2)}
+const check=(name,pass,actual)=>{checks.push({name,pass:!!pass,...(actual===undefined?{}:{actual})});stage=`${checks.length}: ${name}`;target.dataset.stage=stage;target.dataset.checks=String(checks.length);if(!pass)throw new Error('Falló '+name+(actual!==undefined?': '+JSON.stringify(actual):''))}
+const watchdog=setTimeout(()=>finish(new Error('Tiempo agotado: '+stage)),50000)
+window.addEventListener('error',e=>finish(e.error||new Error(e.message||'Error de script')),true)
+window.addEventListener('unhandledrejection',e=>finish(e.reason||new Error('Promesa rechazada')))
+window.__lfUX004={check,finish,progress:value=>{stage=value;target.dataset.stage=value}}
+})()
+</script>
+<script type="module">
+const {check,finish,progress}=window.__lfUX004
+let app
+try{
+ await import('/src/styles.css')
+ const Vue=await import('vue'),{ref,provide,h,nextTick}=Vue
+ const {default:TimelinePanel}=await import('/src/components/TimelinePanel.vue')
+ const {default:ContextMenu}=await import('/src/components/ContextMenu.vue')
+ const {store,resetHistory,setEditor}=await import('/src/core/store.js')
+ const {timelinePlaybackKey}=await import('/src/core/timeline/playback-session.js')
+ const {createProjectData}=await import('/src/core/project.js')
+ const {makeObject}=await import('/src/engine/runtime/nodes/index.js')
+ const {newTimeline,upsertTimelineNodePropertyKey}=await import('/src/core/timeline/model.js')
+ const settle=async()=>{await nextTick();await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));await nextTick()}
+ const doc=createProjectData('QA UX','empty'),cam=makeObject('camera','camera'),light=makeObject('light','omni')
+ cam.id='cam-ux';cam.name='Cámara de inspección con nombre largo para truncamiento';light.id='light-ux';light.name='Luz'
+ doc.objects=[cam,light];const timeline=newTimeline('Animación QA',{id:'tl-ux004',duration:8});doc.timelines=[timeline]
+ const add=(node,prop,t,val)=>upsertTimelineNodePropertyKey(timeline,node,prop,doc.activeSceneId,doc.objects,t,val)
+ add(cam,'position',0,cam.position);add(cam,'position',1,cam.position)
+ add(cam,'rotation',0,cam.rotation);add(cam,'rotation',2,cam.rotation)
+ add(cam,'scale',0,cam.scale)
+ add(light,'light.energy',0,light.light.energy)
+ store.project=doc;store.selectedId=cam.id;store.selectedIds=[cam.id];store.projSel=null;store.temporalSelection=null;store.locked=false;store.play.on=false;store.filmMode=false
+ store.prefs.bottomTab='timeline';store.prefs.bottomOpen=true;store.prefs.rightTab='object';store.timelineId=timeline.id;store.menu=null
+ setEditor({snapshotTerrain:()=>doc.terrain,restoreTerrain(){},syncAll(){},syncEnvironment(){},setSelection(){},setActivePiece(){},syncObject(){},restoreEdit(){},afterUndo(){}})
+ resetHistory()
+ const playback={time:ref(0),playing:ref(false),previewEnabled:ref(false),resourceId:null,caption:ref(''),dialog:ref(null),pause(){},stop(){},refresh(){},seek(v){this.time.value=v},toggle(){},eventsEdited(){},yieldToEditing(){return true}}
+ app=Vue.createApp({setup(){provide(timelinePlaybackKey,playback);return()=>h('div',{style:{height:'100%'}},[h(TimelinePanel),store.menu ? h(ContextMenu) : null])}})
+ app.mount('#timeline');await settle()
+ const all=sel=>[...document.querySelectorAll(sel)]
+ const first=sel=>document.querySelector(sel)
+ const sameRows=()=>all('.pinned-row').length===all('.trow').length
+ const aligned=()=>all('.pinned-row').every((row,i)=>Math.abs(row.getBoundingClientRect().top-all('.trow')[i].getBoundingClientRect().top)<=1.5)
+ const mouseContext=(node,fy=.5)=>{const r=node.getBoundingClientRect();node.dispatchEvent(new MouseEvent('contextmenu',{bubbles:true,cancelable:true,button:2,clientX:r.left+Math.min(65,r.width*.5),clientY:r.top+r.height*fy}))}
+ const close=async()=>{window.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));await settle()}
+ const pop=()=>first('.veil .pop'),menu=()=>first('.veil .pop .menu')
+ progress('Jerarquía visual y columnas de filas')
+ check('Timeline Vue se monta con la estructura original',!!first('.tlp .main')&&!!first('.pinned-column')&&!!first('.scroll'))
+ check('Dos cabeceras representan dos nodos reales',all('.pinned-row .node-head').length===2)
+ check('Cuatro filas de propiedades se agrupan bajo dos nodos',all('.node-property-head').length===4)
+ check('Cada fila del panel izquierdo tiene carril temporal',sameRows())
+ check('Filas alineadas en toda la lista',aligned())
+ const headerName=first('.node-row-name span'),childName=first('.node-property-name')
+ check('Propiedad sangrada respecto del nombre del nodo',childName.getBoundingClientRect().left>headerName.getBoundingClientRect().left)
+ check('Nombre largo del nodo tiene ellipsis',getComputedStyle(headerName).textOverflow==='ellipsis')
+ check('Las propiedades priorizan el nombre sobre iconos decorativos',all('.node-property-head .ico').length===0)
+ check('La llave y el menú comparten la columna de acciones',first('.node-property-head .property-key').getBoundingClientRect().width===22&&first('.node-property-head .property-menu').getBoundingClientRect().width===22)
+ check('Keyframes puntuales e interpolación sin clips falsos',all('.property-lane .key.node').length>=6&&all('.property-lane .span').length===0)
+ check('Las líneas de interpolación no bloquean interacciones',getComputedStyle(first('.property-lane .node-key-interval')).pointerEvents==='none')
+ progress('Menú contextual vinculado a la pista')
+ const row=first('.node-property-head');mouseContext(row);await settle()
+ check('Menú de pista original abre con opciones existentes',!!menu()&&menu().textContent.includes('Añadir clave'))
+ const rect=pop().getBoundingClientRect(),ruler=first('.rulerrow').getBoundingClientRect(),parent=row.getBoundingClientRect()
+ check('Menú inicia debajo de la regla temporal',rect.top>=ruler.bottom-1,{top:rect.top,rule:ruler.bottom})
+ check('Menú se ubica al lado sin tapar nombre seleccionado',rect.left>=parent.right+3,{menuLeft:rect.left,parentRight:parent.right})
+ check('Menú contenido horizontalmente en viewport',rect.right<=window.innerWidth-2)
+ check('Título del menú no desborda su ancho',getComputedStyle(first('.veil .pop .head')).textOverflow==='ellipsis')
+ check('Primer ítem disponible recibe foco accesible',!!document.activeElement?.closest?.('.veil .pop [role="menuitem"]'))
+ await close();check('Escape cierra menú sin modificar pistas',!pop()&&timeline.tracks.length===4)
+ progress('Reubicación y altura limitada en bordes')
+ const bottomRow=all('.pinned-row .head').at(-1);mouseContext(bottomRow);await settle()
+ check('Menú de fila inferior nunca invade regla',pop()?.getBoundingClientRect().top>=ruler.bottom-1)
+ close();await settle()
+ // El host puede reconstruir items sin modificar acciones: verificar overflow real.
+ const targetRow=all('.node-property-head').at(-1);mouseContext(targetRow);await settle()
+ store.menu={...store.menu,items:[{heading:'Propiedad con nombre considerablemente largo'},...Array.from({length:22},(_,i)=>({label:'Acción contextual extensa '+i,run(){}}))]};await settle()
+ check('Menú extenso se desplaza dentro de su contenedor',menu().scrollHeight>menu().clientHeight&&getComputedStyle(menu()).overflowY==='auto')
+ check('Menú largo respeta límites de pantalla',pop().getBoundingClientRect().top>=ruler.bottom-1&&pop().getBoundingClientRect().bottom<=window.innerHeight+1)
+ await close()
+ progress('Menús compartidos y cierre fuera')
+ store.menu={x:window.innerWidth-12,y:window.innerHeight-12,items:[{label:'Acción compartida',run(){}}]};await settle()
+ check('Menú normal continúa limitado al viewport',pop().getBoundingClientRect().right<=window.innerWidth+1&&pop().getBoundingClientRect().bottom<=window.innerHeight+1)
+ document.body.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true}));await settle()
+ check('Clic exterior cierra el menú compartido',!pop())
+ progress('Seleccionar nodo y conservar valores')
+ check('Sin mutación en pistas por cambios visuales',timeline.tracks.length===4&&timeline.tracks.every(t=>t.keys.length>=1))
+ check('Modelos de nodos originales preservados',store.project.objects.length===2&&store.project.objects[0].id==='cam-ux')
+ finish()
+}catch(error){finish(error)}finally{try{app?.unmount()}catch{}}
+</script></html>

@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="es"><meta charset="utf-8"><title>QA Timeline recorte ambos extremos S13-G008-G003</title>
+<style>
+body {margin:0;background:#151b21;color:#e1e6eb;font:12px sans-serif}
+#timeline {height:280px;width:780px;overflow:hidden}
+#inspector {height:330px;width:360px;overflow:auto}
+#timeline-audio-trim-both-ends-s13-g008-g003-result {display:none}
+</style>
+<div id="timeline"></div><div id="inspector"></div>
+<pre id="timeline-audio-trim-both-ends-s13-g008-g003-result"></pre>
+<script type="module">
+import { createApp, h, nextTick } from 'vue'
+import '/src/styles.css'
+import TimelinePanel from '/src/components/TimelinePanel.vue'
+import TemporalResourceInspector from '/src/components/TemporalResourceInspector.vue'
+import { createProjectData } from '/src/core/project.js'
+import { putAsset, deleteAsset } from '/src/core/db.js'
+import { store, setEditor, resetHistory, openTimelineEditor, selectTemporal } from '/src/core/store.js'
+import { newKey, newTrack, newTimeline, normalizeTimeline, trimTimelineAudioKey } from '/src/core/timeline/model.js'
+import { createTimelinePlayback, timelinePlaybackKey } from '/src/core/timeline/playback-session.js'
+import { getAudio } from '/src/engine/runtime/audio/engine.js'
+import { requestTimelineAudioAnalysis } from '/src/core/timeline/audio-source-analysis.js'
+import { audioWaveformPath, audioWaveformPeak } from '/src/core/timeline/audio-waveform.js'
+const report=document.querySelector('#timeline-audio-trim-both-ends-s13-g008-g003-result'), apps=[], checks=[]
+const check=(name,pass)=>{checks.push({name,pass:!!pass});if(!pass)throw Error(name)}
+const sleep=ms=>new Promise(r=>setTimeout(r,ms))
+async function until(fn,label){for(let i=0;i<160;i++){if(fn())return;await sleep(30)}throw Error('Tiempo agotado: '+label)}
+function wav(seconds=6){
+  const rate=16000,frames=rate*seconds,bytes=new ArrayBuffer(44+frames*2),view=new DataView(bytes)
+  const w=(i,str)=>[...str].forEach((c,j)=>view.setUint8(i+j,c.charCodeAt(0)))
+  w(0,'RIFF');view.setUint32(4,bytes.byteLength-8,true);w(8,'WAVE');w(12,'fmt ')
+  view.setUint32(16,16,true);view.setUint16(20,1,true);view.setUint16(22,1,true)
+  view.setUint32(24,rate,true);view.setUint32(28,rate*2,true);view.setUint16(32,2,true);view.setUint16(34,16,true)
+  w(36,'data');view.setUint32(40,frames*2,true)
+  // Cada segundo presenta una amplitud diferente para detectar un offset visual erróneo.
+  const amplitudes=[.04,.82,.12,.53,.23,.67]
+  for(let i=0;i<frames;i++)view.setInt16(44+i*2,Math.sin(2*Math.PI*180*i/rate)*amplitudes[Math.min(amplitudes.length-1,Math.floor(i/rate))]*32767,true)
+  return bytes
+}
+const project=createProjectData('QA S12-G002','empty')
+const asset={id:'g002-audio-source',name:'prueba-s12.wav',kind:'audio',ext:'wav',folder:'Assets'}
+const legacy=newKey('audio',0,{id:'legacy-g002',clip:asset.name,duration:0})
+const fresh=newKey('audio',8,{id:'fresh-g002',clip:'',duration:0})
+const track=newTrack('audio',{id:'audio-g002',keys:[legacy,fresh]})
+const timeline=newTimeline('QA recorte audio',{id:'timeline-g002',duration:18,tracks:[track]})
+project.assets=[asset];project.timelines=[timeline]
+store.project=project;store.locked=false;store.play.on=false
+setEditor({snapshotTerrain:()=>project.terrain})
+const playback=createTimelinePlayback({getProject:()=>store.project,getEditor:()=>store.editor,getObjects:()=>project.objects,
+  getContext:()=>({project:store.project,sceneId:project.activeSceneId,editor:store.editor,timelineId:store.timelineId,playOn:false,locked:false,cinematic:false}),
+  requestFrame:()=>1,cancelFrame:()=>{}})
+function mount(component,where,props){const app=createApp({render:()=>h(component,props)});app.provide(timelinePlaybackKey,playback);app.mount(where);apps.push(app)}
+const clips=()=>[...document.querySelectorAll('#timeline .key.audio')]
+const tails=()=>[...document.querySelectorAll('#timeline .audio-duration-tail')]
+const expectedWidth=(key)=>Number.parseFloat(clips()[0].style.width)
+const borderError=(index=0)=>Math.abs(tails()[index]?.getBoundingClientRect().right-clips()[index]?.getBoundingClientRect().right)
+const startError=(index=0)=>Math.abs(clips()[index]?.getBoundingClientRect().left-(clips()[index]?.parentElement.getBoundingClientRect().left+Number.parseFloat(clips()[index].style.left)))
+try{
+  await putAsset(project.id,asset.id,asset.name,wav())
+  resetHistory();openTimelineEditor(timeline.id)
+  mount(TimelinePanel,'#timeline');mount(TemporalResourceInspector,'#inspector',{kind:'timeline',resourceId:timeline.id})
+  await until(()=>clips()[0]?.querySelector('.timeline-waveform')?.dataset.audioAnalysis==='ready','PCM primera clave')
+  await nextTick()
+  check('Duración legacy cero no se migra',legacy.duration===0)
+  check('Duración real visible de 6 s, sin placeholder de 1 s',Math.abs(expectedWidth(legacy)-420)<1)
+  check('Onda PCM presente y sigue en la clave existente',!!clips()[0].querySelector('.timeline-waveform path'))
+  check('Asa integrada en el borde derecho',borderError()<1)
+  check('El inicio del audio coincide con la coordenada de la clave',startError()<1)
+  check('El audio sin fuente usa el mismo origen y asa',borderError(1)<1&&startError(1)<1)
+  const zoomControl=document.querySelector('#timeline .zoom-slider')
+  check('El zoom existente está disponible para la regresión',!!zoomControl)
+  zoomControl.value='105';zoomControl.dispatchEvent(new Event('input',{bubbles:true}));await nextTick()
+  check('Extremo derecho alineado al cambiar zoom',borderError()<1&&borderError(1)<1&&Math.abs(expectedWidth(legacy)-630)<1)
+  zoomControl.value='70';zoomControl.dispatchEvent(new Event('input',{bubbles:true}));await nextTick()
+  check('Volver a zoom inicial no introduce desfase',borderError()<1&&Math.abs(expectedWidth(legacy)-420)<1)
+  legacy.offset=1;legacy.pitch=2;await nextTick()
+  check('La duración legacy se dibuja según offset y pitch',Math.abs(expectedWidth(legacy)-175)<1)
+  check('Offset y pitch visuales no migran el valor duration=0',legacy.duration===0)
+  check('Asa acompaña la duración efectiva tras offset y pitch',borderError()<1)
+  legacy.offset=0;legacy.pitch=1;await nextTick()
+  const firstEnd=legacy.t, originalGlobal=timeline.duration
+  let handle=tails()[0],x=handle.getBoundingClientRect().right,y=handle.getBoundingClientRect().top+10
+  handle.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true,button:0,buttons:1,isPrimary:true,pointerId:41,clientX:x,clientY:y}))
+  window.dispatchEvent(new PointerEvent('pointermove',{bubbles:true,button:0,buttons:1,isPrimary:true,pointerId:41,clientX:x-70,clientY:y}))
+  window.dispatchEvent(new PointerEvent('pointerup',{bubbles:true,button:0,buttons:0,isPrimary:true,pointerId:41,clientX:x-70,clientY:y}))
+  await nextTick()
+  check('Arrastrar extremo derecho recorta duración persistida',Math.abs(legacy.duration-5)<.0001)
+  check('El recorte no mueve el inicio ni duración global',legacy.t===firstEnd&&timeline.duration===originalGlobal)
+  check('Recortar una clave no modifica la otra',fresh.duration===0&&fresh.clip==='')
+  check('Recortar conserva Asset y bus de la clave',legacy.clip===asset.name&&legacy.group==='sfx')
+  check('Inspector refleja el mismo dato al seleccionar la clave',legacy.duration===5)
+  tails()[0].dispatchEvent(new KeyboardEvent('keydown',{key:'Home',bubbles:true}))
+  await nextTick()
+  check('Home recupera semántica antigua de audio completo',legacy.duration===0)
+  check('La longitud real se muestra otra vez tras Home',Math.abs(expectedWidth(legacy)-420)<1)
+  track.locked=true
+  tails()[0].dispatchEvent(new KeyboardEvent('keydown',{key:'ArrowLeft',bubbles:true}))
+  check('Pista bloqueada impide recortes',legacy.duration===0)
+  track.locked=false
+  selectTemporal('timeline',timeline.id,'key',track.id,fresh.id);await nextTick()
+  const select=document.querySelector('#inspector .t-audio select')
+  check('Inspector conserva selector original de Audio Asset',!!select)
+  select.value=asset.name;select.dispatchEvent(new Event('change',{bubbles:true}))
+  await until(()=>fresh.duration>0,'Duración por selección de Asset')
+  check('Selección nueva inicializa la duración según la fuente',fresh.duration===6)
+  check('El nuevo clip mantiene su inicio, ID y referencia',fresh.t===8&&fresh.id==='fresh-g002'&&fresh.clip===asset.name)
+  check('La duración global no se amplía al asignar audio',timeline.duration===18)
+  check('Análisis no inicia reproducción en tiempo real',getAudio().ctx===null)
+  // S13-G008-G003: ejercitar ASAS REALES, no solo la función pura.
+  const heads=()=>[...document.querySelectorAll('#timeline .audio-duration-head')]
+  check('Ambos clips muestran asa izquierda accesible',heads().length===2 && heads().every(h=>h.getAttribute('role')==='slider'))
+  check('Asa izquierda coincide con coordenada de inicio real',Math.abs(heads()[1].getBoundingClientRect().left-clips()[1].getBoundingClientRect().left)<1)
+  check('Una fuente de seis segundos se conoce antes del gesto',fresh.duration===6 && fresh.clip===asset.name)
+  const firstRight=tails()[1].getBoundingClientRect().right
+  function drag(handle, dx, pointerId) {
+    const r=handle.getBoundingClientRect(),x=r.left+Math.max(2,r.width/2),y=r.top+Math.max(2,r.height/2)
+    handle.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true,button:0,buttons:1,isPrimary:true,pointerId,clientX:x,clientY:y}))
+    window.dispatchEvent(new PointerEvent('pointermove',{bubbles:true,button:0,buttons:1,isPrimary:true,pointerId,clientX:x+dx,clientY:y}))
+    window.dispatchEvent(new PointerEvent('pointerup',{bubbles:true,button:0,buttons:0,isPrimary:true,pointerId,clientX:x+dx,clientY:y}))
+  }
+  drag(heads()[1],70,71);await nextTick()
+  check('Arrastrar inicio desplaza clave un segundo real',Math.abs(fresh.t-9)<.0001)
+  check('Recorte izquierdo avanza offset y conserva duración restante',Math.abs(fresh.offset-1)<.0001 && Math.abs(fresh.duration-5)<.0001)
+  check('Extremo derecho sigue donde estaba tras mover el inicio',Math.abs(tails()[1].getBoundingClientRect().right-firstRight)<1)
+  // El clip de t=9 queda fuera del viewport de 590 px si scrollLeft=0.
+  // Se debe llevar a pantalla con el scroller REAL, sin forzar el renderizado fuera de vista.
+  const scroller=document.querySelector('#timeline .scroll')
+  check('Timeline conserva el scroll nativo',!!scroller)
+  scroller.scrollLeft=460
+  scroller.dispatchEvent(new Event('scroll',{bubbles:true}))
+  const wave=()=>clips()[1]?.querySelector('.timeline-waveform')
+  await until(()=>wave()?.dataset.audioAnalysis==='ready' && parseFloat(wave().style.width)>0 && !!wave().querySelector('path[d]'),'Waveform PCM visible tras scroll')
+  check('El scroll real muestra el clip recortado',scroller.scrollLeft>=400 && parseFloat(wave().style.width)>0)
+  let pcm=null
+  const cancelPcm=requestTimelineAudioAnalysis(project,asset.name,result=>{if(result.status==='ready')pcm=result.data},true)
+  await until(()=>pcm?.low?.length>0,'Análisis PCM compartido')
+  cancelPcm()
+  const peakAt=second=>{
+    const start=Math.floor((second+.15)*pcm.low.length/pcm.duration)
+    const end=Math.ceil((second+.85)*pcm.low.length/pcm.duration)
+    let peak=0
+    for(let i=start;i<Math.min(end,pcm.low.length);i++)peak=Math.max(peak,Math.abs(pcm.low[i]),Math.abs(pcm.high[i]))
+    return peak
+  }
+  check('El WAV de QA distingue físicamente dos tramos de fuente',peakAt(1)>peakAt(0)*5 && peakAt(3)>peakAt(2)*2)
+  function actualWaveMatchesSource(key,index) {
+    const svg=clips()[index]?.querySelector('.timeline-waveform'), path=svg?.querySelector('path[d]')
+    if(!path || svg.dataset.audioAnalysis!=='ready')return false
+    const fullWidth=parseFloat(clips()[index].style.width)
+    const left=Number(svg.dataset.waveformWindowStart),width=parseFloat(svg.style.width)
+    const columns=Number(svg.dataset.waveformColumns)
+    if(!(fullWidth>0 && width>0 && columns>0))return false
+    const options={columns,startTime:key.duration*left/fullWidth,endTime:key.duration*(left+width)/fullWidth,
+      peak:audioWaveformPeak(pcm,key.duration,key.offset,key.pitch,key.loop)}
+    const expected=audioWaveformPath(pcm,key.duration,key.offset,key.pitch,key.loop,options)
+    const staleOffset=audioWaveformPath(pcm,key.duration,0,key.pitch,key.loop,options)
+    return !!expected && path.getAttribute('d')===expected && expected!==staleOffset
+  }
+  check('Waveform sigue dibujada y desplazada sobre la fuente',actualWaveMatchesSource(fresh,1))
+  check('Clip e inicio siguen alineados tras recortar',Math.abs(heads()[1].getBoundingClientRect().left-clips()[1].getBoundingClientRect().left)<1)
+  const croppedRight=tails()[1].getBoundingClientRect().right
+  drag(tails()[1],-70,72);await nextTick()
+  check('Recortar final deja audio de cuatro segundos',Math.abs(fresh.duration-4)<.0001)
+  check('Recortar final conserva inicio y offset',fresh.t===9 && fresh.offset===1)
+  check('Asa derecha y waveform reflejan el nuevo final',Math.abs(tails()[1].getBoundingClientRect().right-(croppedRight-70))<1)
+  drag(heads()[1],-70,73);await nextTick()
+  check('Extender inicio recupera fuente y adelanta posición de clave',fresh.t===8 && fresh.offset===0 && fresh.duration===5)
+  drag(tails()[1],70,74);await nextTick()
+  check('Extender fin recupera el audio originalmente oculto',fresh.duration===6)
+  fresh.volumeAutomation=[{id:'p-g003',t:3,value:.6,name:'Lluvia'}]
+  await nextTick()
+  drag(heads()[1],70,75);await nextTick()
+  check('Los puntos conservan tiempo absoluto e identidad durante recorte izquierdo',fresh.t===9 && fresh.volumeAutomation?.[0]?.t===2 && fresh.volumeAutomation?.[0]?.id==='p-g003')
+  const blocked=JSON.stringify({t:fresh.t,offset:fresh.offset,duration:fresh.duration,volumeAutomation:fresh.volumeAutomation})
+  drag(heads()[1],210,76);await nextTick()
+  check('No se destruye automatización cuando un borde cruza un punto',JSON.stringify({t:fresh.t,offset:fresh.offset,duration:fresh.duration,volumeAutomation:fresh.volumeAutomation})===blocked)
+  check('Guardado y reapertura conservan tramo y punto existente',(()=>{const copy=normalizeTimeline(JSON.parse(JSON.stringify(timeline)));const k=copy.tracks[0].keys.find(k=>k.id===fresh.id);return k.t===fresh.t&&k.offset===fresh.offset&&k.duration===fresh.duration&&k.volumeAutomation?.[0]?.id==='p-g003'})())
+  check('No hay reproducción real activada por las operaciones de recorte',getAudio().ctx===null)
+
+  check('WebGL disponible',!!document.createElement('canvas').getContext('webgl'))
+  report.dataset.pass='true';report.textContent=JSON.stringify({pass:true,checks,gl:true},null,2)
+}catch(error){report.dataset.pass='false';report.dataset.stage='fallo';report.textContent=JSON.stringify({pass:false,error:error?.stack||String(error),checks},null,2)}
+finally{playback.dispose();for(const app of apps)app.unmount();try{await deleteAsset(project.id,asset.id)}catch{}}
+</script></html>

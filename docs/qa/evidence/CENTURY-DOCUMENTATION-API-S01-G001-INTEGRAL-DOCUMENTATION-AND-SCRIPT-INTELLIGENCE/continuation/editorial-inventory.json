@@ -1,0 +1,1461 @@
+{
+  "previous": 214,
+  "current": 213,
+  "pages": [
+    {
+      "id": "agua",
+      "title": "Agua y fluidos",
+      "group": "Sistemas del motor",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "api-animatable",
+      "title": "Animatable",
+      "group": "API JavaScript",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "api-animationapi",
+      "title": "AnimationApi",
+      "group": "API JavaScript",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "api-animationhandle",
+      "title": "AnimationHandle",
+      "group": "API JavaScript",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "api-animationoptions",
+      "title": "AnimationOptions",
+      "group": "API JavaScript",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "api-area3dsignalevent",
+      "title": "Area3DSignalEvent",
+      "group": "API JavaScript",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "api-audioapi",
+      "title": "AudioApi",
+      "group": "API JavaScript",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "api-audiohandle",
+      "title": "AudioHandle",
+      "group": "API JavaScript",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "api-audiosourcehandle",
+      "title": "AudioSourceHandle",
+      "group": "API JavaScript",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "api-battler",
+      "title": "Battler",
+      "group": "API JavaScript",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "api-body",
+      "title": "Body",
+      "group": "API JavaScript",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "api-bodyoptions",
+      "title": "BodyOptions",
+      "group": "API JavaScript",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "api-cameraapi",
+      "title": "CameraApi",
+      "group": "API JavaScript",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "api-cameralease",
+      "title": "CameraLease",
+      "group": "API JavaScript",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "api-camerareleaseoptions",
+      "title": "CameraReleaseOptions",
+      "group": "API JavaScript",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "api-camerashakeapi",
+      "title": "CameraShakeApi",
+      "group": "API JavaScript",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "api-cameratransitionoptions",
+      "title": "CameraTransitionOptions",
+      "group": "API JavaScript",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "api-canvashandle",
+      "title": "CanvasHandle",
+      "group": "API JavaScript",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "api-characterbody3dnodescripthandle",
+      "title": "CharacterBody3DNodeScriptHandle",
+      "group": "API JavaScript",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "api-clockapi",
+      "title": "ClockApi",
+      "group": "API JavaScript",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "api-detection",
+      "title": "Detection",
+      "group": "API JavaScript",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "api-dialoganim",
+      "title": "DialogAnim",
+      "group": "API JavaScript",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "api-eventhandle",
+      "title": "EventHandle",
+      "group": "API JavaScript",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "api-floater",
+      "title": "Floater",
+      "group": "API JavaScript",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "api-floatoptions",
+      "title": "FloatOptions",
+      "group": "API JavaScript",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "api-game",
+      "title": "Game",
+      "group": "API JavaScript",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "api-graphicsapi",
+      "title": "GraphicsApi",
+      "group": "API JavaScript",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "api-hit",
+      "title": "Hit",
+      "group": "API JavaScript",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "api-inputapi",
+      "title": "InputApi",
+      "group": "API JavaScript",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "api-intro",
+      "title": "Referencia de la API JavaScript",
+      "group": "API JavaScript",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "api-levelapi",
+      "title": "LevelApi",
+      "group": "API JavaScript",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "api-lighthandle",
+      "title": "LightHandle",
+      "group": "API JavaScript",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "api-navapi",
+      "title": "NavApi",
+      "group": "API JavaScript",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "api-nodehandle",
+      "title": "NodeHandle",
+      "group": "API JavaScript",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "api-nodescripthandle",
+      "title": "NodeScriptHandle",
+      "group": "API JavaScript",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "api-party",
+      "title": "Party",
+      "group": "API JavaScript",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "api-physicsapi",
+      "title": "PhysicsApi",
+      "group": "API JavaScript",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "api-player",
+      "title": "Player",
+      "group": "API JavaScript",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "api-profileapi",
+      "title": "ProfileApi",
+      "group": "API JavaScript",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "api-rayoptions",
+      "title": "RayOptions",
+      "group": "API JavaScript",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "api-runtimeprefabsapi",
+      "title": "RuntimePrefabsApi",
+      "group": "API JavaScript",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "api-runtimescenesapi",
+      "title": "RuntimeScenesApi",
+      "group": "API JavaScript",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "api-saveapi",
+      "title": "SaveApi",
+      "group": "API JavaScript",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "api-saveinfo",
+      "title": "SaveInfo",
+      "group": "API JavaScript",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "api-sceneapi",
+      "title": "SceneApi",
+      "group": "API JavaScript",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "api-sceneprops",
+      "title": "SceneProps",
+      "group": "API JavaScript",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "api-sensor",
+      "title": "Sensor",
+      "group": "API JavaScript",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "api-sensoroptions",
+      "title": "SensorOptions",
+      "group": "API JavaScript",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "api-splashoptions",
+      "title": "SplashOptions",
+      "group": "API JavaScript",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "api-timelineapi",
+      "title": "TimelineApi",
+      "group": "API JavaScript",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "api-timelinecameraexit",
+      "title": "TimelineCameraExit",
+      "group": "API JavaScript",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "api-timelinecameraexitpolicy",
+      "title": "TimelineCameraExitPolicy",
+      "group": "API JavaScript",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "api-tornadobodysignal",
+      "title": "TornadoBodySignal",
+      "group": "API JavaScript",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "api-tornadophasesignal",
+      "title": "TornadoPhaseSignal",
+      "group": "API JavaScript",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "api-tornadosignal",
+      "title": "TornadoSignal",
+      "group": "API JavaScript",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "api-triggerinfo",
+      "title": "TriggerInfo",
+      "group": "API JavaScript",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "api-uiapi",
+      "title": "UiApi",
+      "group": "API JavaScript",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "api-variablesapi",
+      "title": "VariablesApi",
+      "group": "API JavaScript",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "api-viewmodel",
+      "title": "ViewModel",
+      "group": "API JavaScript",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "api-viewmodeloptions",
+      "title": "ViewModelOptions",
+      "group": "API JavaScript",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "api-viewmodelslot",
+      "title": "ViewModelSlot",
+      "group": "API JavaScript",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "api-waterapi",
+      "title": "WaterApi",
+      "group": "API JavaScript",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "api-watersample",
+      "title": "WaterSample",
+      "group": "API JavaScript",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "api-weatherapi",
+      "title": "WeatherApi",
+      "group": "API JavaScript",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "atajos",
+      "title": "Atajos y comandos del editor",
+      "group": "Editor y escenas",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "audio",
+      "title": "Audio y animación",
+      "group": "Sistemas del motor",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "clima",
+      "title": "Clima y efectos ambientales",
+      "group": "Sistemas del motor",
+      "status": "añadida"
+    },
+    {
+      "id": "cmd-actorstat",
+      "title": "Cambiar vida / energía",
+      "group": "Comandos de evento",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "cmd-audiogroup",
+      "title": "Volumen de un grupo",
+      "group": "Comandos de evento",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "cmd-break",
+      "title": "Romper bucle",
+      "group": "Comandos de evento",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "cmd-callfn",
+      "title": "Llamar función de script",
+      "group": "Comandos de evento",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "cmd-cameracontrol",
+      "title": "Controlar cámara",
+      "group": "Comandos de evento",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "cmd-caption",
+      "title": "Subtítulo",
+      "group": "Comandos de evento",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "cmd-choices",
+      "title": "Mostrar opciones",
+      "group": "Comandos de evento",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "cmd-clearitems",
+      "title": "Vaciar inventario",
+      "group": "Comandos de evento",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "cmd-clock",
+      "title": "Hora del día",
+      "group": "Comandos de evento",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "cmd-comment",
+      "title": "Comentario",
+      "group": "Comandos de evento",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "cmd-commonevent",
+      "title": "Llamar evento común",
+      "group": "Comandos de evento",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "cmd-control",
+      "title": "Control del jugador",
+      "group": "Comandos de evento",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "cmd-deletesave",
+      "title": "Borrar partida guardada",
+      "group": "Comandos de evento",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "cmd-equip",
+      "title": "Cambiar equipo",
+      "group": "Comandos de evento",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "cmd-erase",
+      "title": "Borrar este evento",
+      "group": "Comandos de evento",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "cmd-exit",
+      "title": "Salir del evento",
+      "group": "Comandos de evento",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "cmd-fade",
+      "title": "Fundido de pantalla",
+      "group": "Comandos de evento",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "cmd-gold",
+      "title": "Cambiar oro",
+      "group": "Comandos de evento",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "cmd-if",
+      "title": "Condición (Si…)",
+      "group": "Comandos de evento",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "cmd-inputaction",
+      "title": "Modificar Input Map",
+      "group": "Comandos de evento",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "cmd-item3d",
+      "title": "Objeto 3D de Database",
+      "group": "Comandos de evento",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "cmd-items",
+      "title": "Cambiar objetos / armas / armaduras",
+      "group": "Comandos de evento",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "cmd-journal",
+      "title": "Misiones y documentos",
+      "group": "Comandos de evento",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "cmd-letterbox",
+      "title": "Barras de cine",
+      "group": "Comandos de evento",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "cmd-level",
+      "title": "Cambiar nivel / experiencia",
+      "group": "Comandos de evento",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "cmd-levelname",
+      "title": "Mostrar nombre del mapa",
+      "group": "Comandos de evento",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "cmd-light",
+      "title": "Controlar luz",
+      "group": "Comandos de evento",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "cmd-loadgame",
+      "title": "Cargar partida",
+      "group": "Comandos de evento",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "cmd-loop",
+      "title": "Bucle",
+      "group": "Comandos de evento",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "cmd-match",
+      "title": "Match (casos)",
+      "group": "Comandos de evento",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "cmd-moveroute",
+      "title": "Ruta de movimiento",
+      "group": "Comandos de evento",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "cmd-nameactor",
+      "title": "Cambiar nombre / apodo",
+      "group": "Comandos de evento",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "cmd-nodemove",
+      "title": "Mover nodo",
+      "group": "Comandos de evento",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "cmd-nodepersist",
+      "title": "DontDestroyOnLoad",
+      "group": "Comandos de evento",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "cmd-nodevisible",
+      "title": "Mostrar / ocultar nodo",
+      "group": "Comandos de evento",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "cmd-party",
+      "title": "Cambiar grupo",
+      "group": "Comandos de evento",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "cmd-playanimation",
+      "title": "Reproducir animación",
+      "group": "Comandos de evento",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "cmd-profile",
+      "title": "Perfil de post-proceso",
+      "group": "Comandos de evento",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "cmd-recoverall",
+      "title": "Recuperar a todo el grupo",
+      "group": "Comandos de evento",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "cmd-runevent",
+      "title": "Ejecutar evento",
+      "group": "Comandos de evento",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "cmd-saveaccess",
+      "title": "Permitir / bloquear guardado",
+      "group": "Comandos de evento",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "cmd-savegame",
+      "title": "Guardar partida",
+      "group": "Comandos de evento",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "cmd-savescreen",
+      "title": "Abrir pantalla de guardado / carga",
+      "group": "Comandos de evento",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "cmd-scene",
+      "title": "Ir a otra escena",
+      "group": "Comandos de evento",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "cmd-script",
+      "title": "Script (JavaScript)",
+      "group": "Comandos de evento",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "cmd-selfswitch",
+      "title": "Auto-interruptor",
+      "group": "Comandos de evento",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "cmd-signal",
+      "title": "Emitir señal",
+      "group": "Comandos de evento",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "cmd-skill",
+      "title": "Aprender / olvidar habilidad",
+      "group": "Comandos de evento",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "cmd-sound",
+      "title": "Reproducir sonido",
+      "group": "Comandos de evento",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "cmd-soundstop",
+      "title": "Detener sonidos",
+      "group": "Comandos de evento",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "cmd-stashitem",
+      "title": "Guardar objeto en variable",
+      "group": "Comandos de evento",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "cmd-state",
+      "title": "Cambiar estado",
+      "group": "Comandos de evento",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "cmd-stopanimation",
+      "title": "Detener animación",
+      "group": "Comandos de evento",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "cmd-switch",
+      "title": "Interruptor",
+      "group": "Comandos de evento",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "cmd-teleport",
+      "title": "Teletransportar jugador",
+      "group": "Comandos de evento",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "cmd-text",
+      "title": "Mostrar texto",
+      "group": "Comandos de evento",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "cmd-timeline",
+      "title": "Reproducir timeline (cinemática)",
+      "group": "Comandos de evento",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "cmd-timelinestop",
+      "title": "Detener / omitir timeline",
+      "group": "Comandos de evento",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "cmd-ui",
+      "title": "Mostrar / cerrar interfaz",
+      "group": "Comandos de evento",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "cmd-unstashitem",
+      "title": "Sacar objeto guardado",
+      "group": "Comandos de evento",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "cmd-useitem",
+      "title": "Usar objeto",
+      "group": "Comandos de evento",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "cmd-useskill",
+      "title": "Usar habilidad",
+      "group": "Comandos de evento",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "cmd-variable",
+      "title": "Variable",
+      "group": "Comandos de evento",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "cmd-variablearray",
+      "title": "Variable: lista",
+      "group": "Comandos de evento",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "cmd-viewmodel",
+      "title": "Mover al view model",
+      "group": "Comandos de evento",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "cmd-viewmodelrelease",
+      "title": "Sacar del view model",
+      "group": "Comandos de evento",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "cmd-wait",
+      "title": "Esperar",
+      "group": "Comandos de evento",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "cmd-waitinput",
+      "title": "Esperar entrada",
+      "group": "Comandos de evento",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "cmd-waitsignal",
+      "title": "Esperar señal",
+      "group": "Comandos de evento",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "cmd-weapon3d",
+      "title": "Arma equipada 3D",
+      "group": "Comandos de evento",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "cmd-weather",
+      "title": "Cambiar el clima",
+      "group": "Comandos de evento",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "cmd-weatherlightning",
+      "title": "Relámpago (sin trueno automático)",
+      "group": "Comandos de evento",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "cmd-weatherthunder",
+      "title": "Trueno independiente",
+      "group": "Comandos de evento",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "comandos-intro",
+      "title": "Referencia de comandos de eventos",
+      "group": "Eventos",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "database",
+      "title": "Database y gameplay",
+      "group": "Sistemas del motor",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "editor",
+      "title": "Manual del editor",
+      "group": "Editor y escenas",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "escenas",
+      "title": "Escenas y nodos",
+      "group": "Editor y escenas",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "eventos",
+      "title": "Eventos y Event Order Flow",
+      "group": "Eventos",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "exportacion",
+      "title": "Exportación y Player",
+      "group": "Sistemas del motor",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "fisica",
+      "title": "Física y colisiones",
+      "group": "Sistemas del motor",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "graficos",
+      "title": "Gráficos y materiales",
+      "group": "Sistemas del motor",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "inicio",
+      "title": "Documentación de Century Engine",
+      "group": "Introducción",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "inspector",
+      "title": "Inspector",
+      "group": "Editor y escenas",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "intellisense",
+      "title": "IntelliSense y VS Code",
+      "group": "Scripting",
+      "status": "retirada del portal, fuente preservada"
+    },
+    {
+      "id": "mantenimiento",
+      "title": "Mantener la documentación",
+      "group": "Ayuda",
+      "status": "retirada del portal, fuente preservada"
+    },
+    {
+      "id": "mesh-edit",
+      "title": "Edit Mesh",
+      "group": "Sistemas del motor",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "node-area3d",
+      "title": "area3d",
+      "group": "Tipos de nodo",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "node-atmovolume",
+      "title": "atmovolume",
+      "group": "Tipos de nodo",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "node-audio",
+      "title": "audio",
+      "group": "Tipos de nodo",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "node-camera",
+      "title": "camera",
+      "group": "Tipos de nodo",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "node-cameraShake",
+      "title": "cameraShake",
+      "group": "Tipos de nodo",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "node-canvas",
+      "title": "canvas",
+      "group": "Tipos de nodo",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "node-characterbody3d",
+      "title": "characterbody3d",
+      "group": "Tipos de nodo",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "node-collisionshape3d",
+      "title": "collisionshape3d",
+      "group": "Tipos de nodo",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "node-critters",
+      "title": "critters",
+      "group": "Tipos de nodo",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "node-decal",
+      "title": "decal",
+      "group": "Tipos de nodo",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "node-event",
+      "title": "event",
+      "group": "Tipos de nodo",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "node-fluidcontainer3d",
+      "title": "fluidcontainer3d",
+      "group": "Tipos de nodo",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "node-gameplayObject",
+      "title": "gameplayObject",
+      "group": "Tipos de nodo",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "node-group",
+      "title": "group",
+      "group": "Tipos de nodo",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "node-light",
+      "title": "light",
+      "group": "Tipos de nodo",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "node-mesh",
+      "title": "mesh",
+      "group": "Tipos de nodo",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "node-meshSubtract",
+      "title": "meshSubtract",
+      "group": "Tipos de nodo",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "node-model",
+      "title": "model",
+      "group": "Tipos de nodo",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "node-nature",
+      "title": "nature",
+      "group": "Tipos de nodo",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "node-navigation",
+      "title": "navigation",
+      "group": "Tipos de nodo",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "node-node",
+      "title": "node",
+      "group": "Tipos de nodo",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "node-node3d",
+      "title": "node3d",
+      "group": "Tipos de nodo",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "node-postvolume",
+      "title": "postvolume",
+      "group": "Tipos de nodo",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "node-primitive",
+      "title": "primitive",
+      "group": "Tipos de nodo",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "node-rigidbody3d",
+      "title": "rigidbody3d",
+      "group": "Tipos de nodo",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "node-road",
+      "title": "road",
+      "group": "Tipos de nodo",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "node-sceneInstance",
+      "title": "sceneInstance",
+      "group": "Tipos de nodo",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "node-spawn",
+      "title": "spawn",
+      "group": "Tipos de nodo",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "node-sprite2d",
+      "title": "sprite2d",
+      "group": "Tipos de nodo",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "node-sprite3d",
+      "title": "sprite3d",
+      "group": "Tipos de nodo",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "node-staticbody3d",
+      "title": "staticbody3d",
+      "group": "Tipos de nodo",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "node-subtract",
+      "title": "subtract",
+      "group": "Tipos de nodo",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "node-terrain",
+      "title": "terrain",
+      "group": "Tipos de nodo",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "node-text",
+      "title": "text",
+      "group": "Tipos de nodo",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "node-trigger",
+      "title": "trigger",
+      "group": "Tipos de nodo",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "node-vfx",
+      "title": "vfx",
+      "group": "Tipos de nodo",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "node-water",
+      "title": "water",
+      "group": "Tipos de nodo",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "optimizacion",
+      "title": "Optimización y diagnóstico",
+      "group": "Sistemas del motor",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "preferencias",
+      "title": "Preferencias del editor",
+      "group": "Editor y escenas",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "primeros-pasos",
+      "title": "Primeros pasos",
+      "group": "Introducción",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "problemas",
+      "title": "Solución de problemas",
+      "group": "Ayuda",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "propiedades-editables",
+      "title": "Propiedades editables de scripts",
+      "group": "Scripting",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "referencia-shaders",
+      "title": "Shaders de superficie (GLSL)",
+      "group": "Referencia complementaria",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "referencia-textos",
+      "title": "Códigos de texto",
+      "group": "Referencia complementaria",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "referencia-ui",
+      "title": "Interfaces: nodos Canvas y recursos .ui",
+      "group": "Referencia complementaria",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "scene-tree",
+      "title": "Scene Tree",
+      "group": "Editor y escenas",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "scripts",
+      "title": "Scripting JavaScript",
+      "group": "Scripting",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "scripts-nodo",
+      "title": "Scripts por nodo",
+      "group": "Scripting",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "shader-graph",
+      "title": "Shader Graph",
+      "group": "Sistemas del motor",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "timeline-filmmaker",
+      "title": "Timeline y FilmMaker",
+      "group": "Sistemas del motor",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "tutorial-evento",
+      "title": "Tutorial: tu primer evento",
+      "group": "Tutoriales",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "tutorial-fisica",
+      "title": "Tutorial: cuerpos y colisiones",
+      "group": "Tutoriales",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "tutorial-script",
+      "title": "Tutorial: script asociado a un nodo",
+      "group": "Tutoriales",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "tutorial-vertical-slice",
+      "title": "Tutorial: un vertical slice",
+      "group": "Tutoriales",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "ui",
+      "title": "Interfaces y localización",
+      "group": "Sistemas del motor",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "vcs-commits",
+      "title": "Cambios y commits Git",
+      "group": "Control de versiones Git",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "vcs-historial",
+      "title": "Historial y comparación de revisiones",
+      "group": "Control de versiones Git",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "vcs-intro",
+      "title": "Control de versiones Git en Century Engine",
+      "group": "Control de versiones Git",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "vcs-problemas",
+      "title": "Problemas frecuentes del control de versiones",
+      "group": "Control de versiones Git",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "vcs-ramas",
+      "title": "Ramas y restauración segura",
+      "group": "Control de versiones Git",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "vcs-remotos",
+      "title": "Repositorios remotos: Clone, Fetch, Push y Pull",
+      "group": "Control de versiones Git",
+      "status": "actualizada o regenerada"
+    },
+    {
+      "id": "vcs-seguridad",
+      "title": "Seguridad, respaldos y límites de Git",
+      "group": "Control de versiones Git",
+      "status": "actualizada o regenerada"
+    }
+  ],
+  "manual_sources": [
+    {
+      "path": "docs/web-src/agua.md",
+      "status": "actualizada"
+    },
+    {
+      "path": "docs/web-src/api-intro.md",
+      "status": "actualizada"
+    },
+    {
+      "path": "docs/web-src/atajos.md",
+      "status": "actualizada"
+    },
+    {
+      "path": "docs/web-src/audio.md",
+      "status": "actualizada"
+    },
+    {
+      "path": "docs/web-src/clima.md",
+      "status": "añadida"
+    },
+    {
+      "path": "docs/web-src/comandos-intro.md",
+      "status": "actualizada"
+    },
+    {
+      "path": "docs/web-src/database.md",
+      "status": "conservada"
+    },
+    {
+      "path": "docs/web-src/editor.md",
+      "status": "actualizada"
+    },
+    {
+      "path": "docs/web-src/escenas.md",
+      "status": "actualizada"
+    },
+    {
+      "path": "docs/web-src/eventos.md",
+      "status": "actualizada"
+    },
+    {
+      "path": "docs/web-src/exportacion.md",
+      "status": "actualizada"
+    },
+    {
+      "path": "docs/web-src/fisica.md",
+      "status": "actualizada"
+    },
+    {
+      "path": "docs/web-src/graficos.md",
+      "status": "actualizada"
+    },
+    {
+      "path": "docs/web-src/inicio.md",
+      "status": "actualizada"
+    },
+    {
+      "path": "docs/web-src/inspector.md",
+      "status": "actualizada"
+    },
+    {
+      "path": "docs/web-src/intellisense.md",
+      "status": "retirada del portal, fuente preservada"
+    },
+    {
+      "path": "docs/web-src/mantenimiento.md",
+      "status": "retirada del portal, fuente preservada"
+    },
+    {
+      "path": "docs/web-src/mesh-edit.md",
+      "status": "actualizada"
+    },
+    {
+      "path": "docs/web-src/optimizacion.md",
+      "status": "conservada"
+    },
+    {
+      "path": "docs/web-src/preferencias.md",
+      "status": "actualizada"
+    },
+    {
+      "path": "docs/web-src/primeros-pasos.md",
+      "status": "conservada"
+    },
+    {
+      "path": "docs/web-src/problemas.md",
+      "status": "actualizada"
+    },
+    {
+      "path": "docs/web-src/propiedades-editables.md",
+      "status": "actualizada"
+    },
+    {
+      "path": "docs/web-src/scene-tree.md",
+      "status": "conservada"
+    },
+    {
+      "path": "docs/web-src/scripts-nodo.md",
+      "status": "actualizada"
+    },
+    {
+      "path": "docs/web-src/scripts.md",
+      "status": "actualizada"
+    },
+    {
+      "path": "docs/web-src/shader-graph.md",
+      "status": "conservada"
+    },
+    {
+      "path": "docs/web-src/timeline-filmmaker.md",
+      "status": "conservada"
+    },
+    {
+      "path": "docs/web-src/tutorial-evento.md",
+      "status": "conservada"
+    },
+    {
+      "path": "docs/web-src/tutorial-fisica.md",
+      "status": "conservada"
+    },
+    {
+      "path": "docs/web-src/tutorial-script.md",
+      "status": "conservada"
+    },
+    {
+      "path": "docs/web-src/ui.md",
+      "status": "actualizada"
+    },
+    {
+      "path": "docs/web-src/vcs-commits.md",
+      "status": "conservada"
+    },
+    {
+      "path": "docs/web-src/vcs-historial.md",
+      "status": "conservada"
+    },
+    {
+      "path": "docs/web-src/vcs-intro.md",
+      "status": "actualizada"
+    },
+    {
+      "path": "docs/web-src/vcs-problemas.md",
+      "status": "actualizada"
+    },
+    {
+      "path": "docs/web-src/vcs-ramas.md",
+      "status": "conservada"
+    },
+    {
+      "path": "docs/web-src/vcs-remotos.md",
+      "status": "conservada"
+    },
+    {
+      "path": "docs/web-src/vcs-seguridad.md",
+      "status": "actualizada"
+    }
+  ],
+  "archive": "docs/architecture/DOCUMENTATION_PUBLIC_EDITORIAL_HISTORY.md",
+  "consolidation": {
+    "clima": "Procedimientos de clima separados de escenas; sin duplicar el capítulo.",
+    "agua": "Información de uso consolidada; historial interno archivado.",
+    "intellisense": "Instrucción breve de editor externo en scripts; detalles internos conservados.",
+    "mantenimiento": "Instrucciones técnicas conservadas fuera del portal."
+  }
+}

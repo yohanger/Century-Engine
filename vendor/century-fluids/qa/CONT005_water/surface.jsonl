@@ -1,0 +1,15 @@
+{"scenarioId":"tank","step":36,"old":1,"current":1,"triangles":[2164,1908]}
+{"scenarioId":"tank","step":60,"old":5,"current":1,"triangles":[2220,1992]}
+{"scenarioId":"tank","step":96,"old":5,"current":1,"triangles":[2160,2292]}
+{"scenarioId":"tank","step":144,"old":1,"current":1,"triangles":[1932,2156]}
+{"scenarioId":"tank","step":360,"old":1,"current":1,"triangles":[1952,2216]}
+{"scenarioId":"dam","step":36,"old":3,"current":2,"triangles":[3124,2968]}
+{"scenarioId":"dam","step":60,"old":3,"current":1,"triangles":[3596,3556]}
+{"scenarioId":"dam","step":96,"old":3,"current":2,"triangles":[4044,4076]}
+{"scenarioId":"dam","step":144,"old":1,"current":1,"triangles":[4228,4200]}
+{"scenarioId":"dam","step":360,"old":2,"current":2,"triangles":[4260,4136]}
+{"scenarioId":"obstacle","step":36,"old":1,"current":1,"triangles":[2792,2636]}
+{"scenarioId":"obstacle","step":60,"old":3,"current":1,"triangles":[3244,3112]}
+{"scenarioId":"obstacle","step":96,"old":4,"current":1,"triangles":[3360,3268]}
+{"scenarioId":"obstacle","step":144,"old":4,"current":1,"triangles":[3280,3172]}
+{"scenarioId":"obstacle","step":360,"old":2,"current":1,"triangles":[3324,3288]}

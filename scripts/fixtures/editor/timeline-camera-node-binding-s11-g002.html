@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="es">
+<meta charset="utf-8">
+<title>QA Timeline Camera3D S11-G002</title>
+<style>
+  body { margin:0; background:#15171a; color:#ddd; font:12px sans-serif }
+  #tree { height:72px }
+  #timeline { height:265px; width:620px }
+  #inspector { height:126px; overflow:auto }
+  #camera-binding-result { display:none }
+</style>
+<div id="tree"></div><div id="timeline"></div><div id="inspector"></div>
+<pre id="camera-binding-result"></pre>
+<script type="module">
+import { createApp, h, nextTick } from 'vue'
+import * as THREE from 'three'
+import SceneTree from '/src/components/SceneTree.vue'
+import TimelinePanel from '/src/components/TimelinePanel.vue'
+import TemporalResourceInspector from '/src/components/TemporalResourceInspector.vue'
+import { store, setEditor, openTimelineEditor, resetHistory } from '/src/core/store.js'
+import { createProjectData } from '/src/core/project.js'
+import { makeObject } from '/src/engine/runtime/nodes/index.js'
+import { addTimelineClip, newTimeline } from '/src/core/timeline/model.js'
+import { createTimelinePlayback, timelinePlaybackKey } from '/src/core/timeline/playback-session.js'
+
+const out = document.querySelector('#camera-binding-result')
+const apps = [], checks = [], warnings = []
+const check = (name, pass) => { checks.push({ name, pass: !!pass }); if (!pass) throw new Error(name) }
+const mount = (component, selector, props) => {
+  const app = createApp({ render: () => h(component, props) })
+  app.provide(timelinePlaybackKey, playback)
+  app.mount(selector)
+  apps.push(app)
+}
+const drop = (from, to, x = 0) => {
+  const dataTransfer = new DataTransfer()
+  from.dispatchEvent(new DragEvent('dragstart', { bubbles:true, cancelable:true, dataTransfer }))
+  to.dispatchEvent(new DragEvent('dragover', { bubbles:true, cancelable:true, dataTransfer, clientX:x }))
+  to.dispatchEvent(new DragEvent('drop', { bubbles:true, cancelable:true, dataTransfer, clientX:x }))
+  from.dispatchEvent(new DragEvent('dragend', { bubbles:true, dataTransfer }))
+}
+const cameraId = 'camera-s11'
+const project = createProjectData('QA Camera3D', 'empty')
+project.objects = [makeObject('camera', 'camera', { id: cameraId, name: 'Toma original' })]
+project.timelines = [newTimeline('QA Camera3D', { duration: 20 })]
+store.project = project
+store.locked = false
+const node = new THREE.Group()
+node.position.set(3, 4, 5)
+const persp = new THREE.PerspectiveCamera()
+const vp = { persp, camera:persp, controls:{ enabled:true }, container:{ clientWidth:640, clientHeight:480 }, requestRender() {} }
+setEditor({ vp, nodes:new Map([[cameraId, node]]), snapshotTerrain:() => project.terrain, setSelection() {} })
+const playback = createTimelinePlayback({
+  getProject:() => store.project, getEditor:() => store.editor, getObjects:() => store.project.objects,
+  getContext:() => ({ project:store.project, sceneId:store.project.activeSceneId, timelineId:store.timelineId,
+    editor:store.editor, playOn:false, locked:false, cinematic:false }),
+  onWarning:message => warnings.push(message),
+})
+const timeline = store.project.timelines[0]
+try {
+  resetHistory()
+  openTimelineEditor(timeline.id)
+  mount(SceneTree, '#tree')
+  mount(TimelinePanel, '#timeline')
+  mount(TemporalResourceInspector, '#inspector', { kind:'timeline', resourceId:timeline.id })
+  const from = document.querySelector('#tree [role="treeitem"][data-id="camera-s11"]')
+  const area = document.querySelector('#timeline .main')
+  check('Jerarquía y superficie de drop presentes', from && area)
+  drop(from, area)
+  const track = timeline.tracks[0], key = track?.keys[0]
+  check('Drop de Jerarquía registra clave por escena e ID', key?.mode === 'camera3d' && key.node === cameraId && key.sceneId === project.activeSceneId)
+  drop(from, area)
+  check('Repetir drop sobre el cabezal no duplica pista ni clave', timeline.tracks.length === 1 && track.keys.length === 1)
+  await nextTick()
+  const lane = document.querySelector('[data-camera-track]')
+  drop(from, lane, lane.getBoundingClientRect().left + 140)
+  check('Drop en carril reutiliza pista y respeta el tiempo', track.keys.length === 2 && track.keys[1].t === 2)
+  const clip = addTimelineClip(timeline, track.id, key.id)
+  store.project.objects[0].name = 'Toma renombrada'
+  await nextTick()
+  check('Inspector actualiza el nombre por ID', document.querySelector('[data-test="timeline-camera-binding"]')?.textContent.includes('Toma renombrada'))
+  check('Play usa la cámara vinculada', playback.toggle(timeline) && vp.camera.position.x === 3)
+  const start = playback.time.value
+  const selector = '#timeline .timeline-live-clip'
+  const send = (type, button, buttons, x) => ({ type, button, buttons, selector, x })
+  window.__lfNativePointerSteps = [
+    send('mousePressed', 'left', 1, .42),
+    send('mouseMoved', 'none', 1, .44),
+    send('mouseReleased', 'left', 0, .44),
+  ]
+  for (let attempt = 0; attempt < 150 && !window.__lfNativePointerDone; attempt++) {
+    await new Promise(resolve => setTimeout(resolve, 40))
+  }
+  check('Electron envió pulsación, pequeño movimiento y liberación', window.__lfNativePointerDone === true)
+  check('Selección abre el Inspector de clip', store.temporalSelection?.element === 'clip' && store.temporalSelection.itemId === clip.id)
+  check('Selección conserva transporte y clip', playback.playing.value && playback.time.value > start && track.clips[0].start === clip.start)
+  store.project.objects = []
+  playback.refresh(timeline)
+  await nextTick()
+  check('Camera3D ausente se muestra y libera la vista', warnings.length === 1 && vp.camera === persp &&
+    document.querySelector('[data-test="timeline-camera-binding"]')?.textContent.includes('Camera3D ausente'))
+  out.dataset.pass = 'true'
+  out.textContent = JSON.stringify({ pass:true, checks })
+} catch (error) {
+  out.dataset.pass = 'false'
+  out.textContent = JSON.stringify({ pass:false, checks, error:error.stack })
+} finally {
+  playback.dispose()
+  for (const app of apps) app.unmount()
+}
+</script>
+</html>

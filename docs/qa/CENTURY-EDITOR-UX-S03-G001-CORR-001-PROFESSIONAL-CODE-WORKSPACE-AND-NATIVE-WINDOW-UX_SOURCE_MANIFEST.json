@@ -1,0 +1,125 @@
+{
+  "gate": "CENTURY-EDITOR-UX-S03-G001-CORR-001-PROFESSIONAL-CODE-WORKSPACE-AND-NATIVE-WINDOW-UX",
+  "source_baseline": "CENTURY-EDITOR-UX-S03-G001-INTEGRATED-NATIVE-CODE-WORKSPACE_SOURCE_BASELINE.zip",
+  "source_baseline_sha256": "e0dbc899b8bc94522965d390665afe4bc1d97fdcacb8f38ae0f54fb5c3e4d74a",
+  "original_files": 3324,
+  "new_files": 9,
+  "changed_files": 12,
+  "removed_files": [],
+  "files": [
+    {
+      "path": "docs/architecture/CENTURY-EDITOR-UX-S03-G001-CORR-001-PROFESSIONAL-CODE-WORKSPACE-AND-NATIVE-WINDOW-UX_IMPLEMENTATION.md",
+      "status": "ADDED",
+      "sha256": "5f1b25ff0ee78449fd62d526dd05ae090cbfd784f2f6a3fb09b08ab2ce72539f"
+    },
+    {
+      "path": "docs/qa/CENTURY-EDITOR-UX-S03-G001-CORR-001-PROFESSIONAL-CODE-WORKSPACE-AND-NATIVE-WINDOW-UX_BASELINE_DOCKING.log",
+      "status": "ADDED",
+      "sha256": "f3de978437d3b1eb6b62775053dd59d61df709c1693d842ea4cc50d42ca62dd4"
+    },
+    {
+      "path": "docs/qa/CENTURY-EDITOR-UX-S03-G001-CORR-001-PROFESSIONAL-CODE-WORKSPACE-AND-NATIVE-WINDOW-UX_BUILD.log",
+      "status": "ADDED",
+      "sha256": "ad93033e7f39a0f04a1ed40edf91f741c64cfbf9fa5ed37ad17f38e46626cd7c"
+    },
+    {
+      "path": "docs/qa/CENTURY-EDITOR-UX-S03-G001-CORR-001-PROFESSIONAL-CODE-WORKSPACE-AND-NATIVE-WINDOW-UX_EVIDENCE.md",
+      "status": "ADDED",
+      "sha256": "b80301f2c5e2e09a9327d8221e605953b0958fba81e55a0049725a1178dd6e73"
+    },
+    {
+      "path": "docs/qa/CENTURY-EDITOR-UX-S03-G001-CORR-001-PROFESSIONAL-CODE-WORKSPACE-AND-NATIVE-WINDOW-UX_NEW_TESTS.log",
+      "status": "ADDED",
+      "sha256": "b282bcd50ef7e14d4496c038c31921baad491426bcffe50763930ab7becf842a"
+    },
+    {
+      "path": "docs/qa/CENTURY-EDITOR-UX-S03-G001-CORR-001-PROFESSIONAL-CODE-WORKSPACE-AND-NATIVE-WINDOW-UX_REGRESSION.log",
+      "status": "ADDED",
+      "sha256": "ab092e2fb75d0e29a310c3d6affba6dc3633d9eb75b71f34992af6a78a34973b"
+    },
+    {
+      "path": "docs/qa/CENTURY-EDITOR-UX-S03-G001-CORR-001-PROFESSIONAL-CODE-WORKSPACE-AND-NATIVE-WINDOW-UX_SYNTAX.log",
+      "status": "ADDED",
+      "sha256": "e5d3294724f70329a32ab1336fbc20d4f794eb154b3f1bafbb21aa27dafb0c96"
+    },
+    {
+      "path": "docs/qa/LevelForge_DB_Ledger.xlsx",
+      "status": "MODIFIED",
+      "sha256": "952f9e6a49f9cbb7395c6c77368638f4f1fb4bf049860cc30620407df3afab3f"
+    },
+    {
+      "path": "package-lock.json",
+      "status": "MODIFIED",
+      "sha256": "10e036e11fd42d0a0a55d39961d96deaaaa3b9d42ca2482ca4d210668ae27027"
+    },
+    {
+      "path": "package.json",
+      "status": "MODIFIED",
+      "sha256": "1c177e6df09b779fa11a7b38da3826a5de40f3dc74f2c344af25b6ddf4b34f9f"
+    },
+    {
+      "path": "scripts/test-century-code-professional-workspace.mjs",
+      "status": "ADDED",
+      "sha256": "03b69cc61efa6e23bb67b700fc39ac16602f9d20a1d19376c07d3d44a94a455a"
+    },
+    {
+      "path": "scripts/test-code-workspace-integration.mjs",
+      "status": "MODIFIED",
+      "sha256": "332db094731eb3cfde0bbd09d70dd80529bda408df87fdebec27c71bd510efa3"
+    },
+    {
+      "path": "scripts/test-script-editor-godot-ux-s04-g001-integral.mjs",
+      "status": "MODIFIED",
+      "sha256": "6c9999d712f91f6abfbab8e6ab1e3d7dcd64ce90cebbfb096282feeb98df36d7"
+    },
+    {
+      "path": "scripts/test-vscode-default-script-editor-s02-g001.mjs",
+      "status": "MODIFIED",
+      "sha256": "454c083e797d301514b57af2f676b448d19d16c98a032b6f992eed7b19423da7"
+    },
+    {
+      "path": "src/components/DockTree.vue",
+      "status": "MODIFIED",
+      "sha256": "c87cf50abf84ed2ad4402b40913d979fe4287e6ede59fb4ab80e2c721816a1de"
+    },
+    {
+      "path": "src/components/FloatingEditorWindow.vue",
+      "status": "MODIFIED",
+      "sha256": "1a16397ece0c89a99a5fd4bd5818ce3eb816a036bf24705a4286adceb0199120"
+    },
+    {
+      "path": "src/components/ScriptEditor.vue",
+      "status": "MODIFIED",
+      "sha256": "57488f152c7a274e9f1f36cad9b5a3d02344aa9c0e437d6c24a2f62d9be1d40d"
+    },
+    {
+      "path": "src/core/editor/native-tool-registry.js",
+      "status": "ADDED",
+      "sha256": "99385f8079e4b0df582ea0c0082c0c45bb72e44d10e26a4f5f84962799d1142f"
+    },
+    {
+      "path": "src/core/editor/native-tool-window.js",
+      "status": "MODIFIED",
+      "sha256": "eab75d1fb4f364c624e468dbd36e29165df04ec51a3df940e6159f1424033af4"
+    },
+    {
+      "path": "src/core/editor/view-dock-session.js",
+      "status": "MODIFIED",
+      "sha256": "81c2c886cb3531366d484cefc3aa911ea438480ee4b4a41cf4fdad78759577dc"
+    },
+    {
+      "path": "src/core/state/state.js",
+      "status": "MODIFIED",
+      "sha256": "456acb567c50dd92620cfc872816e46994f11046b9012fac61b6c20909cc5dbf"
+    }
+  ],
+  "qa_status": "SOURCE IMPLEMENTED; NODE TESTS PASS ACOTADO; VITE/ELECTRON NO VERIFICADO",
+  "ledger_sheets": [
+    "ROADMAP",
+    "BACKLOG",
+    "DEPENDENCIES",
+    "GATES",
+    "EVIDENCE",
+    "TRACEABILITY"
+  ]
+}

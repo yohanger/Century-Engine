@@ -1,0 +1,10 @@
+{
+  "name": "century-fluids-s06-jolt-real-lab",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Isolated native WASM QA; never imported by @century/fluids core",
+  "dependencies": {
+    "jolt-physics": "1.1.0"
+  }
+}

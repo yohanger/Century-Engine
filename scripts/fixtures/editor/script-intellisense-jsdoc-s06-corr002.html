@@ -1,0 +1,96 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Century S06 CORR-002 · Escritura CodeMirror</title></head><body>
+<pre id="s06-corr002-result">Iniciando…</pre><div id="s06-corr002-app"></div>
+<script type="module">
+import { createApp, nextTick } from 'vue'
+import { EditorView } from '@codemirror/view'
+import { undo, redo } from '@codemirror/commands'
+import '/src/styles.css'
+import ScriptEditor from '/src/components/ScriptEditor.vue'
+import { store } from '/src/core/store.js'
+import { createProjectData } from '/src/core/project.js'
+import { floatDockPanel } from '/src/core/editor/docking.js'
+const output=document.querySelector('#s06-corr002-result'), checks=[]
+const stage=(value)=>{ output.dataset.stage=value; output.dataset.checks=String(checks.length) }
+const check=(name,pass,detail='')=>{
+  checks.push({name,pass:!!pass,detail:String(detail)})
+  stage(name)
+  if(!pass) throw new Error(`${name}: ${detail}`)
+}
+// El BrowserWindow de QA no se muestra. Esperar rAF puede quedar suspendido;
+// ceder al event loop mantiene la comprobación real del DOM sin depender de visibilidad.
+const tick=async()=>{ await nextTick(); await new Promise(resolve=>setTimeout(resolve,20)); await nextTick() }
+stage('Módulos cargados')
+const snapshot={project:store.project,modal:store.modal,id:store.scriptEditId,mode:store.ui.mode,layout:store.prefs.dockLayout}
+const original='function _ready() {\n  game.log("vivo");\n}\n\nfunction _process(delta) {\n  game.log(delta);\n}\n'
+let app
+try {
+  stage('Preparando documentos'); store.ui.mode='desktop'
+  store.project=createProjectData('S06 CORR-002')
+  store.project.scripts=[{id:'s1',folder:'Assets',name:'Primero.js',code:original,execution:'node'},{id:'s2',folder:'Assets',name:'Segundo.js',code:'function start() { game.log("ok"); }',execution:'global'}]
+  store.modal='script';store.scriptEditId='s1'
+  store.prefs.dockLayout=floatDockPanel(store.prefs.dockLayout,'scriptEditor',{x:18,y:45,w:660,h:440})
+  stage('Montando CodeMirror'); app=createApp(ScriptEditor);app.mount('#s06-corr002-app');await tick()
+  const el=document.querySelector('.edwin.se .cm-editor')
+  const view=el && EditorView.findFromDOM(el)
+  check('CORR2-E01 CodeMirror real está montado',!!view)
+  check('CORR2-E02 documento inicial íntegro',view.state.doc.toString()===original)
+  check('CORR2-E03 se conserva una instancia de editor',document.querySelectorAll('.edwin.se .cm-editor').length===1)
+  // document.execCommand dispara la entrada real de Chromium sobre contenteditable,
+  // no llama manualmente a inputHandler ni simula el reducer del estado.
+  const setCursor=async(at=0)=>{ view.dispatch({selection:{anchor:at}});view.focus();await tick() }
+  const type=async(chars)=>{
+    for(const char of chars){
+      const before=view.state.doc.toString(), at=view.state.selection.main.head
+      const accepted=document.execCommand('insertText',false,char)
+      await tick()
+      check(`CORR2 tecla ${JSON.stringify(char)} en ${at}`,accepted && view.state.doc.length===before.length+char.length,
+        `accepted=${accepted}; cursor=${view.state.selection.main.head}; before=${before.length}; after=${view.state.doc.length}`)
+    }
+  }
+  const verify=async(sequence,name)=>{
+    stage(name); await setCursor()
+    await type(sequence)
+    const doc=view.state.doc.toString(),pos=view.state.selection.main.head
+    check(`${name}: texto exacto`,doc===sequence+original,JSON.stringify(doc.slice(0,sequence.length+20)))
+    check(`${name}: cursor correcto`,pos===sequence.length,`cursor=${pos} vs ${sequence.length}`)
+    check(`${name}: store sincronizado`,store.project.scripts[0].code===doc)
+    check(`${name}: funciones posteriores visibles`,el.querySelector('.cm-content')?.textContent.includes('function _process'))
+    check(`${name}: no se plegaron líneas`,!el.querySelector('.cm-foldPlaceholder'))
+    // Recuperación sin necesitar borrar caracteres previos repetidamente.
+    view.dispatch({changes:{from:0,to:sequence.length},selection:{anchor:0}})
+    await tick()
+    check(`${name}: recuperación íntegra`,view.state.doc.toString()===original && store.project.scripts[0].code===original)
+  }
+  await verify('///////','Barras consecutivas')
+  await verify('*******','Asteriscos consecutivos')
+  await verify('/**/','Comentario JSDoc vacío')
+  await verify('/*****/','Comentario JSDoc extendido')
+  await verify('/**///////','Cierre seguido de barras')
+  await verify('/**/*******','Cierre seguido de asteriscos')
+  // Verificar comentarios incompletos: JavaScript puede colorear las líneas como comentario,
+  // pero el texto subyacente y las líneas visibles deben permanecer intactas.
+  await setCursor(); await type('/**')
+  check('Comentario abierto mantiene el código',view.state.doc.toString()==='/**'+original)
+  check('Comentario abierto conserva líneas visibles',el.querySelector('.cm-content')?.textContent.includes('function _process'))
+  await type('/')
+  check('Cerrar comentario conserva las funciones',view.state.doc.toString()==='/**/'+original)
+  await setCursor(0)
+  view.dispatch({changes:{from:0,to:4}});await tick()
+  // Undo/Redo sobre entrada de teclado real.
+  await setCursor();await type('///////')
+  const beforeUndo=view.state.doc.toString()
+  const wasUndone=undo(view);await tick()
+  check('Undo disponible en CodeMirror',wasUndone && view.state.doc.toString()!==beforeUndo)
+  const wasRedone=redo(view);await tick()
+  check('Redo restaura la entrada',wasRedone && view.state.doc.toString()===beforeUndo)
+  check('Store coincide después de Undo/Redo',store.project.scripts[0].code===beforeUndo)
+  // Eliminar la prueba y cambiar de script no debe sobrescribir el anterior.
+  view.dispatch({changes:{from:0,to:7}});await tick()
+  document.querySelectorAll('.se-file')[1]?.click();await tick()
+  check('Cambiar documento conserva CódigoMirror',document.querySelector('.edwin.se .cm-editor')===el)
+  check('Cambiar documento conserva el código anterior',store.project.scripts[0].code===original)
+  check('Documento siguiente cargado',store.scriptEditId==='s2' && view.state.doc.toString()===store.project.scripts[1].code)
+  output.dataset.pass='true';output.textContent=JSON.stringify({pass:true,gl:'CodeMirror en Electron: entrada DOM real; sin QA visual/GPU',checks},null,2)
+} catch(error){output.dataset.pass='false';output.textContent=JSON.stringify({pass:false,checks,stage:output.dataset.stage,error:String(error?.stack||error)},null,2)}
+finally {app?.unmount();store.project=snapshot.project;store.modal=snapshot.modal;store.scriptEditId=snapshot.id;store.ui.mode=snapshot.mode;store.prefs.dockLayout=snapshot.layout}
+</script></body></html>

@@ -1,0 +1,106 @@
+{
+  "gate": "CENTURY-EDITOR-UX-S03-G001-CORR-003-NATIVE-DRAG-AND-DROP-CODE-DOCKING",
+  "source_baseline": "CENTURY-EDITOR-UX-S03-G001-CORR-002-NATIVE-DOCKABLE-CODE-WINDOW-AND-CORNER-ALIGNED-CONTROLS_SOURCE_BASELINE.zip",
+  "source_sha256": "0cf593992d16df91c5b1724633bee950e60acb8c13a3177b70c86cfc8b06387d",
+  "scope": "Drag and drop Code dockable en Electron; sin boton exclusivo",
+  "changed_or_added": [
+    {
+      "path": "docs/architecture/CENTURY-EDITOR-UX-S03-G001-CORR-003-NATIVE-DRAG-AND-DROP-CODE-DOCKING_IMPLEMENTATION.md",
+      "sha256": "aca192757681861143c525c9566e38ab7a3a4ce39dadf1996f227187cf2e6dd1",
+      "is_new": true
+    },
+    {
+      "path": "docs/qa/CENTURY-EDITOR-UX-S03-G001-CORR-003-NATIVE-DRAG-AND-DROP-CODE-DOCKING_BASELINE_REGRESSION.log",
+      "sha256": "4b9ba4041d75150b2318cc608f7dc2916bdba8ee8f9f4e296b2d60000e5f580e",
+      "is_new": true
+    },
+    {
+      "path": "docs/qa/CENTURY-EDITOR-UX-S03-G001-CORR-003-NATIVE-DRAG-AND-DROP-CODE-DOCKING_BUILD.log",
+      "sha256": "ad93033e7f39a0f04a1ed40edf91f741c64cfbf9fa5ed37ad17f38e46626cd7c",
+      "is_new": true
+    },
+    {
+      "path": "docs/qa/CENTURY-EDITOR-UX-S03-G001-CORR-003-NATIVE-DRAG-AND-DROP-CODE-DOCKING_EVIDENCE.md",
+      "sha256": "1f48c7e351f8cef4fbd383c16beb84c0713cc42749f34369546a4eaa391fd6ea",
+      "is_new": true
+    },
+    {
+      "path": "docs/qa/CENTURY-EDITOR-UX-S03-G001-CORR-003-NATIVE-DRAG-AND-DROP-CODE-DOCKING_FOCUSED.log",
+      "sha256": "33feacc235ebb164fb46923ca1ad890a90b98e9ad8b5c49581eaf4330237035a",
+      "is_new": true
+    },
+    {
+      "path": "docs/qa/CENTURY-EDITOR-UX-S03-G001-CORR-003-NATIVE-DRAG-AND-DROP-CODE-DOCKING_REGRESSION.log",
+      "sha256": "1ebba592c53aa53610f00d8e21b7c0ce71eda3f27b457e0d242e1a01403bc1bb",
+      "is_new": true
+    },
+    {
+      "path": "docs/qa/CENTURY-EDITOR-UX-S03-G001-CORR-003-NATIVE-DRAG-AND-DROP-CODE-DOCKING_SYNTAX.log",
+      "sha256": "5a4d42f807d1771af2d46f6d71eac294d599ac69d41177c59e84b03c71c9c475",
+      "is_new": true
+    },
+    {
+      "path": "docs/qa/LevelForge_DB_Ledger.xlsx",
+      "sha256": "30b482943ffa0775041a26b053d2e7c55d56ba999bd6581547f45a5edd98569e",
+      "is_new": false
+    },
+    {
+      "path": "scripts/test-century-code-native-docking-corr002.mjs",
+      "sha256": "f32594b78aba7d03d2dab30974053b0d99f6a40f5b15a5d55f1bdfd65f6642cf",
+      "is_new": false
+    },
+    {
+      "path": "scripts/test-century-code-native-drag-docking-corr003.mjs",
+      "sha256": "cdcba3d3aa3f659e6df7597669c9f186681ba4357eb225f66314d6a5c1629056",
+      "is_new": true
+    },
+    {
+      "path": "scripts/test-century-code-professional-workspace.mjs",
+      "sha256": "ce07a861fb17e730f4c5e47e547dcaefbc4fd2c30c029263e1a35fd1bc2251e5",
+      "is_new": false
+    },
+    {
+      "path": "src/App.vue",
+      "sha256": "2bd916dda8447612e904d7f84a80a7462d9b5784a16a091c2891862b290e799b",
+      "is_new": false
+    },
+    {
+      "path": "src/components/DockTree.vue",
+      "sha256": "2f4bfa9da857645157587394a7060914ac83867a9fd846a6c50d4170929b0ce7",
+      "is_new": false
+    },
+    {
+      "path": "src/components/FloatingEditorWindow.vue",
+      "sha256": "1f01457d8ee8a8b6af92fc74c8b60457ffb0bff234444f5c256912f1d543b071",
+      "is_new": false
+    },
+    {
+      "path": "src/components/Toolbar.vue",
+      "sha256": "e22af0d69f712ba30d3757498298bb89a1bbd53f35cf22450bfb8cd3d52bbdd0",
+      "is_new": false
+    },
+    {
+      "path": "src/core/editor/view-dock-session.js",
+      "sha256": "fbbab710a2ad117ae7a7395b4bd996f937eb2a121ab1b089a0a19719c1812c65",
+      "is_new": false
+    }
+  ],
+  "qa": {
+    "focused": {
+      "passed": 30,
+      "total": 30
+    },
+    "regression": {
+      "passed": 151,
+      "total": 160
+    },
+    "baseline_regression": {
+      "passed": 138,
+      "total": 147
+    },
+    "syntax": "PASS",
+    "build": "BLOCKED Vite missing",
+    "electron_visual": "NOT VERIFIED",
+    "user_approved": "NO"
+  }
+}

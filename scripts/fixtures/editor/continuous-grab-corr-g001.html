@@ -1,0 +1,59 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Century Continuous Grab QA</title></head>
+<body style="margin:0;background:#1b2635"><pre id="continuous-grab-corr-g001-result">Comprobando...</pre>
+<div id="canvas-parent" style="position:relative;width:320px;height:240px"></div>
+<script type="module">
+import * as THREE from 'three'
+import { TransformControls } from 'three/examples/jsm/controls/TransformControls.js'
+import { ContinuousGrab } from '/src/core/editor/continuous-grab.js'
+const out=document.querySelector('#continuous-grab-corr-g001-result')
+const checks=[]
+function check(name,pass,info=''){checks.push({name,pass:!!pass,info});if(!pass)throw Error(`${name}: ${JSON.stringify(info)}`)}
+let renderer, tc, grab
+try {
+  renderer=new THREE.WebGLRenderer({antialias:false})
+  renderer.setSize(320,240)
+  document.querySelector('#canvas-parent').appendChild(renderer.domElement)
+  const cam=new THREE.PerspectiveCamera(65,320/240,.1,100)
+  cam.position.set(5,4,8);cam.lookAt(0,0,0)
+  const scene=new THREE.Scene()
+  const obj=new THREE.Mesh(new THREE.BoxGeometry(1,1,1),new THREE.MeshBasicMaterial({color:0xb3bdd5}))
+  scene.add(obj)
+  tc=new TransformControls(cam,renderer.domElement)
+  tc.attach(obj);scene.add(tc.getHelper())
+  renderer.render(scene,cam)
+  check('WebGL2 y TransformControls oficial disponible',renderer.capabilities.isWebGL2 && typeof tc.pointerMove==='function')
+  tc.axis='X';tc.pointerDown({x:0,y:0,button:0})
+  check('inicio de arrastre oficial',tc.dragging===true)
+  const before=obj.position.x
+  tc.pointerMove({x:1.1,y:0,button:-1})
+  check('el movimiento fuera del viewport modifica la transformación',Number.isFinite(obj.position.x) && Math.abs(obj.position.x-before)>1e-6,{before,after:obj.position.x})
+  tc.pointerMove({x:2.2,y:0,button:-1})
+  check('NDC sin límite no provoca NaN',obj.position.toArray().every(Number.isFinite))
+  tc.pointerUp({x:2.2,y:0,button:0})
+  check('pointerUp cierra el arrastre',tc.dragging===false)
+  // El bloqueo real necesita gesto de usuario. Para aislar el controlador se simula solo su estado.
+  const canvas=renderer.domElement
+  let locked=false, exits=0, samples=[]
+  const originalLock=Object.getOwnPropertyDescriptor(document,'pointerLockElement')
+  Object.defineProperty(document,'pointerLockElement',{configurable:true,get:()=>locked?canvas:null})
+  canvas.requestPointerLock=()=>{locked=true;document.dispatchEvent(new Event('pointerlockchange'))}
+  const exit= document.exitPointerLock.bind(document)
+  document.exitPointerLock=()=>{exits++;locked=false;document.dispatchEvent(new Event('pointerlockchange'))}
+  grab=new ContinuousGrab(canvas)
+  grab.begin({x:314,y:220},(pos)=>samples.push(pos),()=>{})
+  check('cursor virtual se muestra bajo bloqueo',grab.locked && grab.cursor.style.display==='block')
+  const move=(dx,dy)=>{const ev=new Event('pointermove',{bubbles:true,cancelable:true});Object.defineProperty(ev,'movementX',{value:dx});Object.defineProperty(ev,'movementY',{value:dy});canvas.dispatchEvent(ev)}
+  move(36,60)
+  check('reaparición en borde opuesto',grab.visual.x<45 && grab.visual.y<70,grab.visual)
+  for(let i=0;i<10;i++)move(200,-160)
+  check('se acumula desplazamiento sin reiniciar la operación',samples.at(-1).x>2000 && samples.at(-1).y< -1300,samples.at(-1))
+  grab.end()
+  check('se restituye cursor y se libera bloqueo',!grab.active && exits===1 && grab.cursor.style.display==='none')
+  grab.dispose();tc.dispose()
+  Object.defineProperty(document,'pointerLockElement',originalLock||{configurable:true,value:null})
+  document.exitPointerLock=exit
+  out.dataset.pass='true'
+  out.textContent=JSON.stringify({pass:true,checks,gl:renderer.getContext().getParameter(renderer.getContext().VERSION)},null,2)
+}catch(e){out.dataset.pass='false';out.textContent=JSON.stringify({pass:false,checks,error:String(e?.stack||e)},null,2)}
+finally{renderer?.dispose()}
+</script></body></html>

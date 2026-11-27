@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><title>Estado editorial</title></head>
+<body><div id="viewport" style="width:480px;height:270px;position:relative"></div><pre id="workspace-result">Cargando…</pre>
+<script type="module">
+const result=document.querySelector('#workspace-result'), checks=[]
+const stage=name=>{result.dataset.stage=name}
+function check(name,passed){checks.push({name,passed:!!passed});result.dataset.checks=JSON.stringify(checks);if(!passed)throw Error(name)}
+const finish=error=>{result.textContent=JSON.stringify({pass:!error,checks,stage:result.dataset.stage,...(error?{error:String(error.stack||error)}:{})});result.dataset.pass=String(!error)}
+try {
+  stage('imports')
+  const {nextTick}=await import('vue')
+  const {Editor}=await import('/src/core/editor.js')
+  const S=await import('/src/core/store.js')
+  const {splitProject}=await import('/src/core/project.js')
+  const db=await import('/src/core/db.js')
+  const {makeObject}=await import('/src/engine/runtime/nodes/index.js')
+  const {Terrain}=await import('/src/engine/runtime/geometry/terrain.js')
+  const {workspaceKey,encodeCameraView}=await import('/src/core/state/editor-workspace.js')
+  const {store}=S
+  const ids={a:'qa-workspace-a',b:'qa-workspace-b'}
+  const phase=new URLSearchParams(location.search).get('phase')
+  const frame=async()=>{await nextTick();await new Promise(r=>requestAnimationFrame(r))}
+  const near=(a,b)=>Math.abs(a-b)<.001
+  async function seed(id,sceneIds){
+    const p=S.createProjectData(id,'empty-project',{renderer:'compat'})
+    p.id=id;p.scenes=sceneIds.map(s=>({...p.scenes[0],id:s,name:s}));p.activeSceneId=sceneIds[0]
+    const t=new Terrain(32,8,p.terrain.layers);t.enabled=false
+    const terrain=t.serialize();t.dispose()
+    for(const s of sceneIds){p.objects=[makeObject('node3d','node3d',{id:s+'-parent',name:'Grupo'}),makeObject('node3d','node3d',{id:s+'-child',name:'Hijo',parentId:s+'-parent'})];const {meta,scene}=splitProject(p,terrain);await db.saveScene(id,s,scene);if(s===sceneIds[0])await db.saveProject(meta)}
+    await db.confirmProject(id)
+  }
+  if(phase==='write'){stage('seed');await seed(ids.a,['a1','a2','a3']);await seed(ids.b,['b1'])}
+  stage('open');const editor=new Editor(document.querySelector('#viewport'));S.setEditor(editor);store.ready=true
+  check('Abre proyecto A real',await S.openProject(ids.a));await frame()
+  const vp=editor.vp
+  if(phase==='write'){
+    stage('write-a1');store.view.grid=false;store.view.lights=false;store.prefs.showGizmos=false;store.prefs.orientGizmo=false;store.colliderPreview=false;store.gizmo='rotate';store.space='local';S.updateSettings({moveSnapOn:false,gridSize:.25});store.projFolder='Assets/Scenes';
+    S.selectObject('a1-child');await frame();S.toggleOpen('a1-parent');store.treeState.scroll=48;store.view.mode='wireframe';vp.persp.position.set(6,8,12);vp.controls.target.set(1,0,2);vp.controls.update();vp.setOrtho(true);vp.ortho.zoom=1.6;vp.ortho.updateProjectionMatrix();await frame()
+    check('Grid desactivada en el viewport',!vp.grid.visible)
+    check('Preferencias no ensucian el proyecto',!store.unsavedChanges)
+    check('Cámara válida antes de guardar',!!encodeCameraView(vp.saveEditorView()))
+    check('Cierra pestaña sin borrar escena',await S.closeSceneTab('a3'))
+    await new Promise(r=>setTimeout(r,2300));check('Guardado periódico conserva false',JSON.parse(localStorage.getItem(workspaceKey(ids.a))).view.grid===false)
+    check('Cambia de escena',await S.switchScene('a2'));await frame();S.selectObject('a2-child');vp.persp.position.set(9,5,11);vp.controls.target.set(2,0,1);vp.controls.update();await frame()
+    check('Cierre seguro de A',await S.requestClose()==='close')
+    check('Abre proyecto B independiente',await S.openProject(ids.b));await frame();check('B conserva Grid por defecto',store.view.grid===true);store.view.grid=true;check('Cierre seguro de B',await S.requestClose()==='close')
+  }else if(phase==='read'){
+    stage('restore-a2');check('Restaura escena activa',store.project.activeSceneId==='a2');check('Restaura pestañas',S.openSceneIds().join(',')==='a1,a2');check('Grid false llega al viewport',store.view.grid===false&&vp.grid.visible===false);check('Ayudas visuales false',store.view.lights===false&&store.prefs.showGizmos===false&&store.prefs.orientGizmo===false&&store.colliderPreview===false);check('Gizmo y espacio',store.gizmo==='rotate'&&store.space==='local');check('Snap false y paso',S.editorSettings().moveSnapOn===false&&S.editorSettings().gridSize===.25);check('Carpeta Assets',store.projFolder==='Assets/Scenes');check('Selección escena activa',store.selectedId==='a2-child');check('Cámara A2',!vp.isOrtho&&near(vp.persp.position.x,9)&&near(vp.controls.target.x,2));check('No marca cambios',!store.unsavedChanges)
+    stage('restore-a1');check('Cambia a A1',await S.switchScene('a1'));await frame();check('Cámara ortográfica A1',vp.isOrtho&&near(vp.ortho.zoom,1.6)&&near(vp.controls.target.x,1)&&near(vp.controls.target.z,2));check('Selección A1',store.selectedId==='a1-child');check('Pliegue y scroll por escena',store.treeState.open['a1-parent']===false&&store.treeState.scroll===48);check('Modo por escena',store.view.mode==='wireframe');check('Abre B',await S.openProject(ids.b));await frame();check('B no hereda Grid false',store.view.grid===true&&vp.grid.visible===true)
+  }else throw Error('Fase inválida')
+  finish()
+}catch(error){finish(error)}
+</script></body></html>

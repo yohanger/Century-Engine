@@ -1,0 +1,51 @@
+{
+  "input": "CENTURY_DOCUMENTATION_API_S01_G001_CONT_SOURCE_BASELINE.zip",
+  "input_files": 4204,
+  "added": [
+    "docs/architecture/CENTURY-DOCUMENTATION-API-S01-G001-ENGINEERING-BIBLE_CONTINUATION.md",
+    "docs/biblia/00-indice.md",
+    "docs/biblia/01-arquitectura.md",
+    "docs/biblia/02-host.md",
+    "docs/biblia/03-escenas.md",
+    "docs/biblia/04-editor.md",
+    "docs/biblia/05-estado.md",
+    "docs/biblia/06-modelado.md",
+    "docs/biblia/07-render.md",
+    "docs/biblia/08-mundo.md",
+    "docs/biblia/09-optimizacion.md",
+    "docs/biblia/10-fisica.md",
+    "docs/biblia/11-scripting.md",
+    "docs/biblia/12-eventos.md",
+    "docs/biblia/13-ui.md",
+    "docs/biblia/14-distribucion.md",
+    "docs/biblia/15-validacion.md",
+    "docs/biblia/Biblia_Tecnica_Century.pdf",
+    "docs/biblia/historico/LevelForge-2026-11-15.pdf",
+    "docs/qa/CENTURY-DOCUMENTATION-API-S01-G001-ENGINEERING-BIBLE_QA.md",
+    "docs/qa/evidence/engineering-bible/browser.log",
+    "docs/qa/evidence/engineering-bible/docs-check.log",
+    "docs/qa/evidence/engineering-bible/node.log",
+    "docs/qa/evidence/engineering-bible/pdf-page-1.png",
+    "docs/qa/evidence/engineering-bible/pdf-page-2.png",
+    "docs/qa/evidence/engineering-bible/pdf-page-21.png",
+    "docs/qa/evidence/engineering-bible/pdf-page-36.png",
+    "docs/qa/evidence/engineering-bible/pdf-page-379.png",
+    "docs/qa/evidence/engineering-bible/pdf-page-9.png",
+    "docs/qa/evidence/engineering-bible/portal-isolated.png",
+    "docs/qa/evidence/engineering-bible/portal-narrow.png",
+    "scripts/export-engineering-bible.py",
+    "scripts/gen-engineering-bible.mjs",
+    "docs/qa/evidence/engineering-bible/change-manifest.json"
+  ],
+  "modified": [
+    "docs/ledger/CE_DOCUMENTATION_API_S01_G001_LEDGER.xlsx",
+    "docs/web-README.md",
+    "public/docs/content.js",
+    "scripts/gen-docs-web.mjs",
+    "scripts/test-docs-web-g001.mjs"
+  ],
+  "removed": [],
+  "excluded_local": [
+    "node_modules/"
+  ]
+}

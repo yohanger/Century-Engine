@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="es"><meta charset="utf-8"><title>Century S13-G002 · Plegado global</title>
+<style>
+  html,body { margin:0; background:#151a20; color:#e6ebef; font:12px system-ui; }
+  #app { height:560px; width:340px; }
+  #inspector-global-folding-s13-g002-result { display:none; }
+</style>
+<div id="app"></div><pre id="inspector-global-folding-s13-g002-result"></pre>
+<script>
+(() => {
+  const out=document.getElementById('inspector-global-folding-s13-g002-result')
+  const checks=[];let stage='bootstrap',finished=false
+  function report(){if(finished)return;out.dataset.stage=stage;out.textContent=JSON.stringify({pass:null,stage,checks})}
+  function progress(value){stage=value;report()}
+  function check(name,pass,actual){checks.push({name,pass:!!pass,...actual===undefined?{}:{actual}});progress(`${checks.length}: ${name}`);if(!pass)throw Error(`Falló: ${name}`)}
+  function finish(error){if(finished)return;finished=true;clearTimeout(watchdog)
+    const pass=!error&&checks.length===23&&checks.every(c=>c.pass)
+    out.dataset.pass=String(pass);out.dataset.checks=String(checks.length);out.dataset.stage=pass?'final:PASS':'final:FAIL'
+    out.textContent=JSON.stringify({pass,stage,...error?{error:String(error.stack||error)}:{},checks,gl:!!document.createElement('canvas').getContext('webgl')},null,2)
+  }
+  const watchdog=setTimeout(()=>finish(new Error(`Watchdog: ${stage}`)),35000)
+  window.addEventListener('error',e=>{if(e.message||e.error)finish(e.error||new Error(e.message))})
+  window.addEventListener('unhandledrejection',e=>finish(e.reason||new Error('Promesa rechazada')))
+  window.__lfFoldingQa={check,finish,progress};report()
+})()
+</script>
+<script type="module">
+const {check,finish,progress}=window.__lfFoldingQa
+let app,renderer
+try {
+  progress('Montaje del InspectorDock real')
+  const [{createApp,nextTick},{default:InspectorDock},{store,setEditor,resetHistory},{createProjectData},{makeObject},THREE]=await Promise.all([
+    import('vue'),import('/src/components/InspectorDock.vue'),import('/src/core/store.js'),
+    import('/src/core/project.js'),import('/src/engine/runtime/nodes/index.js'),import('three')
+  ]).then(([a,b,c,d,e,f])=>[a,b,c,d,e,f])
+  await import('/src/styles.css')
+  renderer=new THREE.WebGLRenderer({antialias:false});renderer.setSize(8,8)
+  renderer.render(new THREE.Scene(),new THREE.PerspectiveCamera())
+  check('Three.js WebGL real',!!renderer.getContext())
+  const cube=makeObject('primitive','box',{id:'fold-cube',name:'Caja plegado'})
+  cube.id='fold-cube';cube.name='Caja plegado';cube.position=[3,2,1]
+  const cube2=makeObject('primitive','box',{id:'fold-cube-2',name:'Segunda caja'})
+  cube2.id='fold-cube-2';cube2.name='Segunda caja'
+  const camera=makeObject('camera',null,{id:'fold-camera',name:'Cámara'})
+  camera.id='fold-camera';camera.name='Cámara'
+  const project=createProjectData('Plegado QA','empty')
+  project.id='qa-folding-s13-g002';project.objects=[cube,cube2,camera]
+  store.project=project;store.selectedId=cube.id;store.selectedIds=[cube.id];store.projSel=null
+  store.temporalSelection=null;store.audioInspector=null;store.sceneSel=false
+  store.prefs.rightTab='object';store.prefs.inspFold={'primitive:Transformación':true}
+  // La acción real Restablecer invoca updateObject() y commit(): montar sus dependencias, no eludirlas.
+  const synchronizedIds=[]
+  setEditor({syncObject(id){synchronizedIds.push(id)},snapshotTerrain:()=>project.terrain})
+  resetHistory()
+  app=createApp(InspectorDock);app.mount('#app')
+  const flush=async()=>{await nextTick();await new Promise(r=>requestAnimationFrame(r));await nextTick();await new Promise(r=>requestAnimationFrame(r))}
+  await flush()
+  const scroll=()=>document.querySelector('#app .scroll')
+  const section=()=>scroll()?.querySelector('.insp[data-node-type="primitive"] [data-fold-id="transform"]')
+  const header=()=>section()?.querySelector('header')
+  check('InspectorDock real está montado',!!scroll()&&!!section())
+  check('La clave histórica se conserva',store.prefs.inspFold['primitive:Transformación']===true)
+  check('La clave estable se migra',store.prefs.inspFold['fold:node:primitive:transform']===true)
+  check('La sección previamente plegada permanece cerrada',section().classList.contains('closed'))
+  check('Encabezado tiene role y tabindex',header().getAttribute('role')==='button'&&header().tabIndex===0)
+  check('aria-expanded refleja el plegado',header().getAttribute('aria-expanded')==='false')
+  const before=JSON.stringify(store.project.objects)
+  progress('Plegado con ratón')
+  header().click();await flush()
+  check('Clic abre la sección',header().getAttribute('aria-expanded')==='true'&&!section().classList.contains('closed'))
+  check('Plegado escribe la clave estable, conserva la antigua',store.prefs.inspFold['fold:node:primitive:transform']===false&&store.prefs.inspFold['primitive:Transformación']===true)
+  check('No altera proyecto al expandir',JSON.stringify(store.project.objects)===before)
+  progress('Botón interno del encabezado')
+  const reset=header().querySelector('button')
+  check('Existe botón original de Restablecer',!!reset)
+  const expanded=header().getAttribute('aria-expanded')
+  reset.click();await flush()
+  check('Botón interno no pliega ni expande',header().getAttribute('aria-expanded')===expanded)
+  check('Botón interno sigue actuando sobre la propiedad',
+    store.project.objects.find(o=>o.id===cube.id)?.position.every(n=>n===0)&&
+    synchronizedIds.includes(cube.id)&&store.canUndo===true)
+  progress('Plegado por teclado')
+  const key=k=>header().dispatchEvent(new KeyboardEvent('keydown',{key:k,bubbles:true,cancelable:true}))
+  const enterResult=key('Enter');await flush()
+  check('Enter contrae y evita acción predeterminada',enterResult===false&&header().getAttribute('aria-expanded')==='false')
+  const spaceResult=key(' ');await flush()
+  check('Espacio expande y evita desplazamiento',spaceResult===false&&header().getAttribute('aria-expanded')==='true')
+  key('Escape');await flush()
+  check('Escape no alterna el plegado',header().getAttribute('aria-expanded')==='true')
+  progress('Identidad estable y cambio de selección')
+  const text=[...header().childNodes].find(n=>n.nodeType===3&&n.textContent.includes('Transformación'))
+  if(text)text.textContent=' Traslación '
+  header().click();await flush()
+  check('Renombrar encabezado no cambia identidad',store.prefs.inspFold['fold:node:primitive:transform']===true)
+  store.selectedId=cube2.id;store.selectedIds=[cube2.id];await flush()
+  check('Segunda primitiva conserva plegado por tipo',section()?.classList.contains('closed')===true)
+  store.selectedId=camera.id;store.selectedIds=[camera.id];await flush()
+  const cam=scroll()?.querySelector('.insp[data-node-type="camera"] [data-fold-id="transform"]')
+  check('Otro tipo de nodo tiene clave independiente',!!cam&&!cam.classList.contains('closed'))
+  cam.querySelector('header').click();await flush()
+  check('El estado de cámara se almacena por separado',store.prefs.inspFold['fold:node:camera:transform']===true)
+  store.selectedId=cube.id;store.selectedIds=[cube.id];await flush()
+  check('Volver a la primitiva conserva su estado',section()?.classList.contains('closed')===true)
+  check('No se guardan claves por ID de cada nodo',Object.keys(store.prefs.inspFold).every(k=>!k.includes('fold-cube')&&!k.includes('fold-camera')))
+  check('No hay errores de GL',renderer.getContext().getError()===renderer.getContext().NO_ERROR)
+  finish()
+} catch(error){finish(error)}finally{try{app?.unmount()}catch{}try{renderer?.dispose()}catch{}}
+</script>
+</html>

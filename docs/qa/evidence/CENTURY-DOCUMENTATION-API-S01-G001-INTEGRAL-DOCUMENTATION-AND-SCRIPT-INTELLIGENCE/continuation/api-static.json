@@ -1,0 +1,5163 @@
+{
+  "scope": "Inventario AST de declaraciones, literales públicos y registro de nodos; funciones host, capacidades dinámicas y ejecución requieren auditoría Play.",
+  "comparisons": [
+    {
+      "label": "game",
+      "type": "Game",
+      "partial": false,
+      "runtimeLiteral": [
+        "animation",
+        "audio",
+        "call",
+        "call_group",
+        "camera",
+        "cameraShake",
+        "caption",
+        "choose",
+        "clock",
+        "common",
+        "control",
+        "db",
+        "define",
+        "dontDestroyOnLoad",
+        "emit",
+        "event",
+        "fade",
+        "findByLayer",
+        "findByTag",
+        "get_nodes_in_group",
+        "goScene",
+        "graphics",
+        "input",
+        "lang",
+        "languages",
+        "letterbox",
+        "level",
+        "lights",
+        "log",
+        "moveRoute",
+        "nav",
+        "node",
+        "on",
+        "once",
+        "party",
+        "physics",
+        "player",
+        "prefabs",
+        "profile",
+        "random",
+        "raycast",
+        "save",
+        "say",
+        "scene",
+        "scenes",
+        "selfSwitch",
+        "sensor",
+        "setLanguage",
+        "setSelfSwitch",
+        "setSwitch",
+        "setVariable",
+        "showLevelName",
+        "spawnPlayer",
+        "state",
+        "stopRoute",
+        "surfaceAt",
+        "switch",
+        "t",
+        "teleport",
+        "teleportTo",
+        "time",
+        "timeline",
+        "ui",
+        "variable",
+        "variables",
+        "viewModel",
+        "wait",
+        "waitFor",
+        "weather"
+      ],
+      "missingDeclarations": [],
+      "missingRuntimeLiteral": [
+        "water"
+      ]
+    },
+    {
+      "label": "node (literal base; extensiones dinámicas no incluidas)",
+      "type": "NodeHandle",
+      "partial": true,
+      "runtimeLiteral": [
+        "active",
+        "call",
+        "children",
+        "connect",
+        "disconnect",
+        "distance",
+        "dontDestroyOnLoad",
+        "get_node",
+        "held",
+        "heldSlot",
+        "id",
+        "is_valid",
+        "keepOnLoad",
+        "light",
+        "move",
+        "name",
+        "object3D",
+        "parent",
+        "position",
+        "rotation",
+        "scale",
+        "type",
+        "visible",
+        "worldForward",
+        "worldPosition"
+      ],
+      "missingDeclarations": [],
+      "missingRuntimeLiteral": [
+        "add_to_group",
+        "animations",
+        "get_groups",
+        "inLayer",
+        "isAnimating",
+        "is_in_group",
+        "layers",
+        "pauseAnimation",
+        "playAnimation",
+        "remove_from_group",
+        "resumeAnimation",
+        "stopAnimation",
+        "surface",
+        "tag"
+      ]
+    },
+    {
+      "label": "game.prefabs",
+      "type": "RuntimePrefabsApi",
+      "partial": false,
+      "runtimeLiteral": [
+        "destroy",
+        "instantiate"
+      ],
+      "missingDeclarations": [],
+      "missingRuntimeLiteral": []
+    },
+    {
+      "label": "game.scenes",
+      "type": "RuntimeScenesApi",
+      "partial": false,
+      "runtimeLiteral": [
+        "destroy",
+        "instantiate"
+      ],
+      "missingDeclarations": [],
+      "missingRuntimeLiteral": []
+    },
+    {
+      "label": "game.timeline",
+      "type": "TimelineApi",
+      "partial": false,
+      "runtimeLiteral": [
+        "info",
+        "isPlaying",
+        "list",
+        "pause",
+        "play",
+        "resume",
+        "seek",
+        "skip",
+        "speed",
+        "stop"
+      ],
+      "missingDeclarations": [],
+      "missingRuntimeLiteral": []
+    },
+    {
+      "label": "game.nav",
+      "type": "NavApi",
+      "partial": false,
+      "runtimeLiteral": [
+        "canWalk",
+        "nearest",
+        "path",
+        "randomPoint",
+        "ready"
+      ],
+      "missingDeclarations": [],
+      "missingRuntimeLiteral": []
+    }
+  ],
+  "interfaces": [
+    {
+      "name": "ProjectNames",
+      "members": []
+    },
+    {
+      "name": "DialogAnim",
+      "members": [
+        {
+          "name": "enter",
+          "signature": "enter?: 'none' | 'fade' | 'rise' | 'pop' | 'slide'",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "exit",
+          "signature": "exit?: 'none' | 'fade' | 'sink' | 'shrink' | 'slide'",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "duration",
+          "signature": "duration?: number",
+          "jsdoc": true,
+          "deprecated": false
+        }
+      ]
+    },
+    {
+      "name": "TriggerInfo",
+      "members": [
+        {
+          "name": "id",
+          "signature": "id: string;",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "name",
+          "signature": "name: string;",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "tag",
+          "signature": "tag: string",
+          "jsdoc": true,
+          "deprecated": false
+        }
+      ]
+    },
+    {
+      "name": "Hit",
+      "members": [
+        {
+          "name": "point",
+          "signature": "point: Vec3",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "normal",
+          "signature": "normal: Vec3 | null",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "distance",
+          "signature": "distance: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "node",
+          "signature": "node?: NodeHandle",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "kind",
+          "signature": "kind: 'solid' | 'trigger'",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "trigger",
+          "signature": "trigger?: TriggerInfo",
+          "jsdoc": true,
+          "deprecated": false
+        }
+      ]
+    },
+    {
+      "name": "RayOptions",
+      "members": [
+        {
+          "name": "layers",
+          "signature": "layers?: string | number | (string | number)[]",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "tags",
+          "signature": "tags?: string | string[]",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "ignore",
+          "signature": "ignore?: NodeLike | NodeLike[]",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "triggers",
+          "signature": "triggers?: boolean",
+          "jsdoc": true,
+          "deprecated": false
+        }
+      ]
+    },
+    {
+      "name": "SensorOptions",
+      "members": [
+        {
+          "name": "from",
+          "signature": "from: NodeLike | 'player'",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "range",
+          "signature": "range?: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "fov",
+          "signature": "fov?: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "targets",
+          "signature": "targets?: {\n      /** Incluir al jugador. */\n      player?: boolean\n      /** Nodos con alguna de estas etiquetas. */\n      tags?: string | string[]\n      /** Nodos en alguna de estas layers (nombre o número). */\n      layers?: string | number | (string | number)[]\n      /** Nodos concretos. */\n      nodes?: NodeLike | NodeLike[]\n    }",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "lineOfSight",
+          "signature": "lineOfSight?: boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "hearRange",
+          "signature": "hearRange?: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "memory",
+          "signature": "memory?: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "interval",
+          "signature": "interval?: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "eye",
+          "signature": "eye?: Vec3",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "targetHeight",
+          "signature": "targetHeight?: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "enabled",
+          "signature": "enabled?: boolean",
+          "jsdoc": false,
+          "deprecated": false
+        }
+      ]
+    },
+    {
+      "name": "Detection",
+      "members": [
+        {
+          "name": "id",
+          "signature": "id: string",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "name",
+          "signature": "name: string",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "node",
+          "signature": "node?: NodeHandle",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "distance",
+          "signature": "distance: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "angle",
+          "signature": "angle: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "visible",
+          "signature": "visible: boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "heard",
+          "signature": "heard: boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "lastSeen",
+          "signature": "lastSeen: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "position",
+          "signature": "position: Vec3",
+          "jsdoc": true,
+          "deprecated": false
+        }
+      ]
+    },
+    {
+      "name": "Sensor",
+      "members": [
+        {
+          "name": "enabled",
+          "signature": "enabled: boolean",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "range",
+          "signature": "range: number",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "fov",
+          "signature": "fov: number",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "hearRange",
+          "signature": "hearRange: number",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "memory",
+          "signature": "memory: number",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "detections",
+          "signature": "readonly detections: Detection[]",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "nearest",
+          "signature": "readonly nearest: Detection | null",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "count",
+          "signature": "readonly count: number",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "sees",
+          "signature": "sees(who?: NodeLike | 'player'): boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "detects",
+          "signature": "detects(who?: NodeLike | 'player'): boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "on",
+          "signature": "on(event: 'detected' | 'lost', fn: (d: Detection) => void): () => void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "on",
+          "signature": "on(event: 'update', fn: (all: Detection[]) => void): () => void",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "pulse",
+          "signature": "pulse(): void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "remove",
+          "signature": "remove(): void",
+          "jsdoc": false,
+          "deprecated": false
+        }
+      ]
+    },
+    {
+      "name": "InputApi",
+      "members": [
+        {
+          "name": "pressed",
+          "signature": "pressed(ref: string): boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "justPressed",
+          "signature": "justPressed(ref: string): boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "justReleased",
+          "signature": "justReleased(ref: string): boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "strength",
+          "signature": "strength(action: string): number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "axis",
+          "signature": "axis(negative: string, positive: string): number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "vector",
+          "signature": "vector(negX: string, posX: string, negY: string, posY: string): { x: number; y: number }",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "pointerDelta",
+          "signature": "readonly pointerDelta: { x: number; y: number }",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "actions",
+          "signature": "readonly actions: string[]",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "has",
+          "signature": "has(action: string): boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "bindings",
+          "signature": "bindings(action: string): string[]",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "label",
+          "signature": "label(token: string): string",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "labels",
+          "signature": "labels(action: string): string",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "onPress",
+          "signature": "onPress(ref: string, fn: () => void): () => void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "onRelease",
+          "signature": "onRelease(ref: string, fn: () => void): () => void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "wait",
+          "signature": "wait(ref: string): Promise<void>",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "capture",
+          "signature": "capture(): Promise<string | null>",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "enable",
+          "signature": "enable(action: string, on?: boolean): void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "disable",
+          "signature": "disable(action: string): void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "isEnabled",
+          "signature": "isEnabled(action: string): boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "create",
+          "signature": "create(action: string, tokens?: string[]): void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "remove",
+          "signature": "remove(action: string): void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "bind",
+          "signature": "bind(action: string, token: string): void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "rebind",
+          "signature": "rebind(action: string, tokens: string[]): void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "reset",
+          "signature": "reset(action: string): void",
+          "jsdoc": true,
+          "deprecated": false
+        }
+      ]
+    },
+    {
+      "name": "GraphicsApi",
+      "members": [
+        {
+          "name": "renderer",
+          "signature": "renderer: 'forward' | 'mobile' | 'compat'",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "renderers",
+          "signature": "readonly renderers: { id: string; name: string }[]",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "quality",
+          "signature": "quality: 'alto' | 'medio' | 'bajo'",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "resolutionScale",
+          "signature": "resolutionScale: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "settings",
+          "signature": "readonly settings: Record<string, any>",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "set",
+          "signature": "set(patch: Record<string, any>): void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "reset",
+          "signature": "reset(): void",
+          "jsdoc": true,
+          "deprecated": false
+        }
+      ]
+    },
+    {
+      "name": "ProfileApi",
+      "members": [
+        {
+          "name": "set",
+          "signature": "set(name: string, seconds?: number): string | null",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "clear",
+          "signature": "clear(seconds?: number): void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "current",
+          "signature": "readonly current: string | null",
+          "jsdoc": true,
+          "deprecated": false
+        }
+      ]
+    },
+    {
+      "name": "AnimationHandle",
+      "members": [
+        {
+          "name": "clip",
+          "signature": "readonly clip: string",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "time",
+          "signature": "readonly time: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "duration",
+          "signature": "readonly duration: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "speed",
+          "signature": "speed: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "loop",
+          "signature": "loop: boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "playing",
+          "signature": "readonly playing: boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "paused",
+          "signature": "readonly paused: boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "finished",
+          "signature": "readonly finished: boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "pause",
+          "signature": "pause(): void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "resume",
+          "signature": "resume(): void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "seek",
+          "signature": "seek(seconds: number): void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "stop",
+          "signature": "stop(reset?: boolean): void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "layer",
+          "signature": "readonly layer: string",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "weight",
+          "signature": "weight: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "done",
+          "signature": "readonly done: Promise<{ stopped: boolean; clip: string }>",
+          "jsdoc": true,
+          "deprecated": false
+        }
+      ]
+    },
+    {
+      "name": "AnimationOptions",
+      "members": [
+        {
+          "name": "loop",
+          "signature": "loop?: boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "speed",
+          "signature": "speed?: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "fade",
+          "signature": "fade?: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "from",
+          "signature": "from?: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "additive",
+          "signature": "additive?: boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "layer",
+          "signature": "layer?: string",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "weight",
+          "signature": "weight?: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "mask",
+          "signature": "mask?: string | string[]",
+          "jsdoc": true,
+          "deprecated": false
+        }
+      ]
+    },
+    {
+      "name": "Animatable",
+      "members": [
+        {
+          "name": "playAnimation",
+          "signature": "playAnimation(clip: string, opts?: AnimationOptions): AnimationHandle",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "stopAnimation",
+          "signature": "stopAnimation(clip?: string, opts?: { reset?: boolean; layer?: string }): void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "pauseAnimation",
+          "signature": "pauseAnimation(clip?: string): void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "resumeAnimation",
+          "signature": "resumeAnimation(clip?: string): void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "isAnimating",
+          "signature": "isAnimating(clip?: string): boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "animations",
+          "signature": "readonly animations: AnimationHandle[]",
+          "jsdoc": true,
+          "deprecated": false
+        }
+      ]
+    },
+    {
+      "name": "AnimationApi",
+      "members": [
+        {
+          "name": "play",
+          "signature": "play(node: NodeLike | undefined, clip: string, opts?: AnimationOptions): AnimationHandle",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "stop",
+          "signature": "stop(node?: NodeLike, clip?: string, opts?: { reset?: boolean; layer?: string }): number",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "isPlaying",
+          "signature": "isPlaying(node?: NodeLike, clip?: string): boolean",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "active",
+          "signature": "active(node?: NodeLike): AnimationHandle[]",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "list",
+          "signature": "list(): string[]",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "modelClips",
+          "signature": "modelClips(node?: NodeLike): string[]",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "has",
+          "signature": "has(clip: string): boolean",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "duration",
+          "signature": "duration(clip: string): number",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "stopAll",
+          "signature": "stopAll(): void",
+          "jsdoc": false,
+          "deprecated": false
+        }
+      ]
+    },
+    {
+      "name": "CameraShakeApi",
+      "members": [
+        {
+          "name": "play",
+          "signature": "play(node: NodeLike, opts?: { intensity?: number }): boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "stop",
+          "signature": "stop(node: NodeLike): boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "setIntensity",
+          "signature": "setIntensity(node: NodeLike, intensity: number): boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "isPlaying",
+          "signature": "isPlaying(node: NodeLike): boolean",
+          "jsdoc": true,
+          "deprecated": false
+        }
+      ]
+    },
+    {
+      "name": "CameraTransitionOptions",
+      "members": [
+        {
+          "name": "seconds",
+          "signature": "seconds?: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "ease",
+          "signature": "ease?: 'linear' | 'inOut'",
+          "jsdoc": true,
+          "deprecated": false
+        }
+      ]
+    },
+    {
+      "name": "CameraReleaseOptions",
+      "members": [
+        {
+          "name": "to",
+          "signature": "to?: 'keep' | 'base' | 'camera3d' | 'previous' | 'player' | 'pose'",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "cameraId",
+          "signature": "cameraId?: string",
+          "jsdoc": true,
+          "deprecated": false
+        }
+      ]
+    },
+    {
+      "name": "CameraLease",
+      "members": [
+        {
+          "name": "use",
+          "signature": "use(cameraId: string): boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "use",
+          "signature": "use(cameraId: string, options: CameraTransitionOptions): boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "release",
+          "signature": "release(options?: CameraReleaseOptions): boolean",
+          "jsdoc": true,
+          "deprecated": false
+        }
+      ]
+    },
+    {
+      "name": "CameraApi",
+      "members": [
+        {
+          "name": "acquire",
+          "signature": "acquire(cameraId: string): CameraLease | null",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "acquire",
+          "signature": "acquire(cameraId: string, options: CameraTransitionOptions): CameraLease | null",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "active",
+          "signature": "readonly active: { kind: 'camera3d' | 'player' | 'timeline' | 'film' | 'pose'; id?: string; requested?: boolean; held?: boolean } | null",
+          "jsdoc": true,
+          "deprecated": false
+        }
+      ]
+    },
+    {
+      "name": "LightHandle",
+      "members": [
+        {
+          "name": "on",
+          "signature": "on: boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "toggle",
+          "signature": "toggle(): boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "color",
+          "signature": "color: string",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "energy",
+          "signature": "energy: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "range",
+          "signature": "range: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "angle",
+          "signature": "angle: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "shadow",
+          "signature": "shadow: boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "type",
+          "signature": "readonly type: 'omni' | 'spot' | 'directional'",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "fadeTo",
+          "signature": "fadeTo(to: { energy?: number; color?: string; range?: number }, seconds?: number): Promise<void>",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "turnOn",
+          "signature": "turnOn(seconds?: number, to?: { energy?: number; color?: string; range?: number }): Promise<void>",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "turnOff",
+          "signature": "turnOff(seconds?: number): Promise<void>",
+          "jsdoc": true,
+          "deprecated": false
+        }
+      ]
+    },
+    {
+      "name": "Area3DSignalEvent",
+      "members": [
+        {
+          "name": "areaId",
+          "signature": "areaId: string",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "type",
+          "signature": "type: 'body' | 'area'",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "id",
+          "signature": "id: string",
+          "jsdoc": false,
+          "deprecated": false
+        }
+      ]
+    },
+    {
+      "name": "NodeHandle",
+      "members": [
+        {
+          "name": "is_valid",
+          "signature": "is_valid(): boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "call",
+          "signature": "call<T = unknown>(name: string, ...args: any[]): T",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "connect",
+          "signature": "connect(name: string, receiver: NodeHandle, method: string): boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "disconnect",
+          "signature": "disconnect(name: string, receiver: NodeHandle, method: string): boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "parent",
+          "signature": "readonly parent: NodeHandle | null",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "children",
+          "signature": "readonly children: NodeHandle[]",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "get_node",
+          "signature": "get_node(path: string): NodeHandle | null",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "id",
+          "signature": "readonly id: string",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "name",
+          "signature": "readonly name: string",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "object3D",
+          "signature": "readonly object3D: any",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "active",
+          "signature": "active: boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "visible",
+          "signature": "visible: boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "position",
+          "signature": "position: Vec3",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "move",
+          "signature": "move(pos: Vec3, seconds?: number, rel?: boolean): Promise<void>",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "tag",
+          "signature": "readonly tag: string",
+          "jsdoc": true,
+          "deprecated": true
+        },
+        {
+          "name": "add_to_group",
+          "signature": "add_to_group(name: string): boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "remove_from_group",
+          "signature": "remove_from_group(name: string): boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "is_in_group",
+          "signature": "is_in_group(name: string): boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "get_groups",
+          "signature": "get_groups(): string[]",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "layers",
+          "signature": "readonly layers: string[]",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "inLayer",
+          "signature": "inLayer(name: string): boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "surface",
+          "signature": "readonly surface: string",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "dontDestroyOnLoad",
+          "signature": "dontDestroyOnLoad: boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "keepOnLoad",
+          "signature": "keepOnLoad(enabled?: boolean): boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "held",
+          "signature": "readonly held: boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "heldSlot",
+          "signature": "readonly heldSlot: string | null",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "light",
+          "signature": "readonly light: LightHandle | undefined",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "type",
+          "signature": "readonly type: string",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "rotation",
+          "signature": "rotation: Vec3",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "scale",
+          "signature": "readonly scale: Vec3",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "worldPosition",
+          "signature": "readonly worldPosition: Vec3",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "worldForward",
+          "signature": "readonly worldForward: Vec3",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "distance",
+          "signature": "readonly distance: number",
+          "jsdoc": true,
+          "deprecated": false
+        }
+      ]
+    },
+    {
+      "name": "CharacterBody3DNodeScriptHandle",
+      "members": [
+        {
+          "name": "velocity",
+          "signature": "velocity: Vec3",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "ground",
+          "signature": "readonly ground: 'stable' | 'steep' | 'air'",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "onFloor",
+          "signature": "readonly onFloor: boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "onWall",
+          "signature": "readonly onWall: boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "onCeiling",
+          "signature": "readonly onCeiling: boolean",
+          "jsdoc": true,
+          "deprecated": false
+        }
+      ]
+    },
+    {
+      "name": "NodeScriptHandle",
+      "members": [
+        {
+          "name": "expose",
+          "signature": "expose(name: string, fn: (...args: any[]) => unknown): void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "define_signal",
+          "signature": "define_signal(name: string): void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "emit_signal",
+          "signature": "emit_signal(name: string, ...args: any[]): void",
+          "jsdoc": true,
+          "deprecated": false
+        }
+      ]
+    },
+    {
+      "name": "EventHandle",
+      "members": [
+        {
+          "name": "id",
+          "signature": "readonly id: string",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "name",
+          "signature": "readonly name: string",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "node",
+          "signature": "readonly node: any",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "position",
+          "signature": "readonly position: Vec3",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "erase",
+          "signature": "erase(): void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "run",
+          "signature": "run(opts?: { page?: number }): Promise<boolean>",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "stop",
+          "signature": "stop(): number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "isRunning",
+          "signature": "readonly isRunning: boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "page",
+          "signature": "readonly page: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "pages",
+          "signature": "readonly pages: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "held",
+          "signature": "readonly held: boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "selfSwitch",
+          "signature": "selfSwitch(ch: 'A' | 'B' | 'C' | 'D'): boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "setSelfSwitch",
+          "signature": "setSelfSwitch(ch: 'A' | 'B' | 'C' | 'D', value?: boolean): void",
+          "jsdoc": true,
+          "deprecated": false
+        }
+      ]
+    },
+    {
+      "name": "Player",
+      "members": [
+        {
+          "name": "node",
+          "signature": "readonly node?: NodeScriptHandle",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "velocity",
+          "signature": "velocity?: Vec3",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "x",
+          "signature": "x: number",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "y",
+          "signature": "y: number",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "z",
+          "signature": "z: number",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "position",
+          "signature": "position: Vec3",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "yaw",
+          "signature": "yaw: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "name",
+          "signature": "readonly name: string | null",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "actor",
+          "signature": "readonly actor: Record<string, any> | null",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "surface",
+          "signature": "readonly surface: string",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "control",
+          "signature": "control: boolean",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "mode",
+          "signature": "readonly mode: 'free' | 'locked' | 'frozen' | 'face'",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "walk",
+          "signature": "walk: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "run",
+          "signature": "run: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "jump",
+          "signature": "jump: number",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "gravity",
+          "signature": "gravity: number",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "fov",
+          "signature": "fov: number",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "sensitivity",
+          "signature": "sensitivity: number",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "height",
+          "signature": "height: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "radius",
+          "signature": "radius: number",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "eyeHeight",
+          "signature": "eyeHeight: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "stepHeight",
+          "signature": "stepHeight: number",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "eye",
+          "signature": "readonly eye: Vec3",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "forward",
+          "signature": "readonly forward: Vec3",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "pitch",
+          "signature": "readonly pitch: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "grounded",
+          "signature": "readonly grounded: boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "stable",
+          "signature": "readonly stable: boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "ground",
+          "signature": "readonly ground: 'stable' | 'steep' | 'air'",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "crouching",
+          "signature": "readonly crouching: boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "speed",
+          "signature": "readonly speed: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "airTime",
+          "signature": "readonly airTime: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "groundTime",
+          "signature": "readonly groundTime: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "inWater",
+          "signature": "readonly inWater: boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "swimming",
+          "signature": "readonly swimming: boolean",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "underwater",
+          "signature": "readonly underwater: boolean",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "waterDepth",
+          "signature": "readonly waterDepth: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "waterLevel",
+          "signature": "readonly waterLevel: number | null",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "water",
+          "signature": "readonly water: string",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "current",
+          "signature": "readonly current: [number, number]",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "breath",
+          "signature": "breath: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "jumpNow",
+          "signature": "jumpNow(): void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "crouch",
+          "signature": "crouch(on?: boolean): void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "groundAccel",
+          "signature": "groundAccel: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "groundDecel",
+          "signature": "groundDecel: number",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "turnBoost",
+          "signature": "turnBoost: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "slideAccel",
+          "signature": "slideAccel: number",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "slideDecel",
+          "signature": "slideDecel: number",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "airAccel",
+          "signature": "airAccel: number",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "airDecel",
+          "signature": "airDecel: number",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "slopeLimit",
+          "signature": "slopeLimit: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "jumpOnSteep",
+          "signature": "jumpOnSteep: boolean",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "jumpAuto",
+          "signature": "jumpAuto: boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "jumpHeight",
+          "signature": "jumpHeight: number",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "jumpTime",
+          "signature": "jumpTime: number",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "fallGravity",
+          "signature": "fallGravity: number",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "terminalSpeed",
+          "signature": "terminalSpeed: number",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "coyote",
+          "signature": "coyote: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "jumpBuffer",
+          "signature": "jumpBuffer: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "airJumps",
+          "signature": "airJumps: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "jumpCutEnabled",
+          "signature": "jumpCutEnabled: boolean",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "jumpCut",
+          "signature": "jumpCut: number",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "jumpCutMin",
+          "signature": "jumpCutMin: number",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "jumpCutMax",
+          "signature": "jumpCutMax: number",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "crouchEnabled",
+          "signature": "crouchEnabled: boolean",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "crouchToggle",
+          "signature": "crouchToggle: boolean",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "crouchAir",
+          "signature": "crouchAir: boolean",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "crouchHeight",
+          "signature": "crouchHeight: number",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "crouchSpeed",
+          "signature": "crouchSpeed: number",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "crouchLerp",
+          "signature": "crouchLerp: number",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "inheritGround",
+          "signature": "inheritGround: boolean",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "inheritMin",
+          "signature": "inheritMin: number",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "inheritMult",
+          "signature": "inheritMult: number",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "swimEnabled",
+          "signature": "swimEnabled: boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "wadeDepth",
+          "signature": "wadeDepth: number",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "wadeSlow",
+          "signature": "wadeSlow: number",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "swimDepth",
+          "signature": "swimDepth: number",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "swimSpeed",
+          "signature": "swimSpeed: number",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "swimRun",
+          "signature": "swimRun: number",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "swimAccel",
+          "signature": "swimAccel: number",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "swimDrag",
+          "signature": "swimDrag: number",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "diveEnabled",
+          "signature": "diveEnabled: boolean",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "diveSpeed",
+          "signature": "diveSpeed: number",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "swimUp",
+          "signature": "swimUp: number",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "buoyancy",
+          "signature": "buoyancy: number",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "swimEyeAbove",
+          "signature": "swimEyeAbove: number",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "swimExitJump",
+          "signature": "swimExitJump: number",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "currentPush",
+          "signature": "currentPush: number",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "breathTime",
+          "signature": "breathTime: number",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "uwEffect",
+          "signature": "uwEffect: boolean",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "uwDensity",
+          "signature": "uwDensity: number",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "uwMuffle",
+          "signature": "uwMuffle: number",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "uwLight",
+          "signature": "uwLight: boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "waterFx",
+          "signature": "waterFx: boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "verticalSpeed",
+          "signature": "readonly verticalSpeed: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "camera",
+          "signature": "readonly camera: any",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "look",
+          "signature": "look(opts?: RayOptions & { distance?: number }): Hit | null",
+          "jsdoc": true,
+          "deprecated": false
+        }
+      ]
+    },
+    {
+      "name": "ViewModelOptions",
+      "members": [
+        {
+          "name": "slot",
+          "signature": "slot?: Ref<'slots'>",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "pos",
+          "signature": "pos?: Vec3",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "rot",
+          "signature": "rot?: Vec3",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "scale",
+          "signature": "scale?: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "seconds",
+          "signature": "seconds?: number",
+          "jsdoc": true,
+          "deprecated": false
+        }
+      ]
+    },
+    {
+      "name": "ViewModelSlot",
+      "members": [
+        {
+          "name": "id",
+          "signature": "readonly id: string",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "label",
+          "signature": "readonly label: string",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "object3D",
+          "signature": "readonly object3D: any",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "position",
+          "signature": "position: Vec3",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "rotation",
+          "signature": "rotation: Vec3",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "scale",
+          "signature": "scale: number",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "items",
+          "signature": "readonly items: string[]",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "attach",
+          "signature": "attach(target?: NodeLike, opts?: Omit<ViewModelOptions, 'slot'>): Promise<void>",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "clear",
+          "signature": "clear(): Promise<void[]>",
+          "jsdoc": true,
+          "deprecated": false
+        }
+      ]
+    },
+    {
+      "name": "ViewModel",
+      "members": [
+        {
+          "name": "visible",
+          "signature": "visible: boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "slots",
+          "signature": "readonly slots: string[]",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "held",
+          "signature": "readonly held: { id: string; name: string; slot: string }[]",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "slot",
+          "signature": "slot(key: Ref<'slots'>): ViewModelSlot",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "attach",
+          "signature": "attach(target?: NodeLike, opts?: ViewModelOptions): Promise<void>",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "release",
+          "signature": "release(target?: NodeLike, opts?: { at?: Vec3; seconds?: number; upright?: boolean }): Promise<void>",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "throw",
+          "signature": "throw(target?: NodeLike, opts?: { speed?: number; up?: number }): Promise<void>",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "throwCharge",
+          "signature": "readonly throwCharge: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "dropEnabled",
+          "signature": "dropEnabled: boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "stash",
+          "signature": "stash(target?: NodeLike, opts?: { slot?: Ref<'slots'> }): { id: string; name: string } | null",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "unstash",
+          "signature": "unstash(target: NodeLike | 0 | null | undefined, opts?: { to?: 'hand' | 'world'; slot?: Ref<'slots'>; at?: Vec3; pos?: Vec3; rot?: Vec3; scale?: number; seconds?: number }): Promise<boolean>",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "isStashed",
+          "signature": "isStashed(target: NodeLike): boolean",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "stashed",
+          "signature": "readonly stashed: { id: string; name: string }[]",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "clear",
+          "signature": "clear(slot?: Ref<'slots'>): Promise<void[]>",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "isHeld",
+          "signature": "isHeld(target?: NodeLike, slot?: Ref<'slots'>): boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "isEmpty",
+          "signature": "isEmpty(slot?: Ref<'slots'>): boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "heldIn",
+          "signature": "heldIn(slot: Ref<'slots'>): { id: string; name: string }[]",
+          "jsdoc": true,
+          "deprecated": false
+        }
+      ]
+    },
+    {
+      "name": "Battler",
+      "members": [
+        {
+          "name": "id",
+          "signature": "readonly id: number",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "name",
+          "signature": "name: string",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "nickname",
+          "signature": "nickname: string",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "level",
+          "signature": "level: number",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "exp",
+          "signature": "exp: number",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "hp",
+          "signature": "hp: number",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "mp",
+          "signature": "mp: number",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "mhp",
+          "signature": "readonly mhp: number",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "mmp",
+          "signature": "readonly mmp: number",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "atk",
+          "signature": "readonly atk: number",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "def",
+          "signature": "readonly def: number",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "mat",
+          "signature": "readonly mat: number",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "mdf",
+          "signature": "readonly mdf: number",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "agi",
+          "signature": "readonly agi: number",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "luk",
+          "signature": "readonly luk: number",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "skills",
+          "signature": "readonly skills: number[]",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "states",
+          "signature": "readonly states: number[]",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "alive",
+          "signature": "readonly alive: boolean",
+          "jsdoc": false,
+          "deprecated": false
+        }
+      ]
+    },
+    {
+      "name": "Party",
+      "members": [
+        {
+          "name": "gold",
+          "signature": "gold: number",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "members",
+          "signature": "members: number[]",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "count",
+          "signature": "count(kind: 'items' | 'weapons' | 'armors', x: Ref<'items' | 'weapons' | 'armors'>): number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "has",
+          "signature": "has(kind: 'items' | 'weapons' | 'armors', x: Ref<'items' | 'weapons' | 'armors'>, n?: number): boolean",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "gain",
+          "signature": "gain(kind: 'items' | 'weapons' | 'armors', x: Ref<'items' | 'weapons' | 'armors'>, n?: number): number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "set",
+          "signature": "set(kind: 'items' | 'weapons' | 'armors', x: Ref<'items' | 'weapons' | 'armors'>, n: number): number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "clearInventory",
+          "signature": "clearInventory(kind?: 'items' | 'weapons' | 'armors'): void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "list",
+          "signature": "list(kind?: 'items' | 'weapons' | 'armors'): { kind: string; id: number; name: string; count: number }[]",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "addGold",
+          "signature": "addGold(n: number): number",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "join",
+          "signature": "join(actor: Ref<'actors'>): Battler",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "leave",
+          "signature": "leave(actor: Ref<'actors'>): void",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "battler",
+          "signature": "battler(actor: Ref<'actors'> | { enemy: Ref<'enemies'> } | { enemyInstance: string }): Battler",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "enemy",
+          "signature": "enemy(x: Ref<'enemies'>): Battler & { readonly instanceId: string }",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "spawnEnemy",
+          "signature": "spawnEnemy(x: Ref<'enemies'>): Battler & { readonly instanceId: string }",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "enemyInstance",
+          "signature": "enemyInstance(instanceId: string): Battler & { readonly instanceId: string }",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "removeEnemy",
+          "signature": "removeEnemy(instanceId: string): boolean",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "setLevel",
+          "signature": "setLevel(actor: Ref<'actors'>, level: number): any",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "gainExp",
+          "signature": "gainExp(actor: Ref<'actors'>, n: number): any",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "equip",
+          "signature": "equip(actor: Ref<'actors'>, slot: number, item: Ref<'weapons' | 'armors'> | 0): void",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "weaponAction",
+          "signature": "weaponAction(actor: Ref<'actors'>, target?: Ref<'actors'> | { enemy: Ref<'enemies'> } | { enemyInstance: string }): any",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "addState",
+          "signature": "addState(actor: Ref<'actors'>, state: Ref<'states'>, chance?: number): void",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "removeState",
+          "signature": "removeState(actor: Ref<'actors'>, state: Ref<'states'>): void",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "tick",
+          "signature": "tick(target?: Ref<'actors'> | { enemy: Ref<'enemies'> } | { enemyInstance: string }): [string, number][]",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "recoverAll",
+          "signature": "recoverAll(): void",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "useItem",
+          "signature": "useItem(item: Ref<'items'>, target?: Ref<'actors'> | { enemy: Ref<'enemies'> } | { enemyInstance: string }, user?: Ref<'actors'> | null, context?: 'event' | 'menu'): any",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "runEvents",
+          "signature": "runEvents(result: { events?: number[] }): Promise<void>",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "useSkill",
+          "signature": "useSkill(skill: Ref<'skills'>, user: Ref<'actors'>, target?: Ref<'actors'> | { enemy: Ref<'enemies'> } | { enemyInstance: string }): any",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "term",
+          "signature": "term(key: string): string",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "quest",
+          "signature": "quest(x: Ref<'quests'>): { id: number; name: string; status: 'none' | 'active' | 'done' | 'failed'; done: number[]; total: number }",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "setQuest",
+          "signature": "setQuest(x: Ref<'quests'>, action: 'start' | 'objective' | 'complete' | 'fail' | 'reset', objective?: number): any",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "collect",
+          "signature": "collect(doc: Ref<'lore'>, on?: boolean): void",
+          "jsdoc": false,
+          "deprecated": false
+        }
+      ]
+    },
+    {
+      "name": "ClockApi",
+      "members": [
+        {
+          "name": "hour",
+          "signature": "hour: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "text",
+          "signature": "readonly text: string",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "set",
+          "signature": "set(hour: number, seconds?: number): void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "flow",
+          "signature": "flow(on?: boolean, dayMinutes?: number): void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "running",
+          "signature": "readonly running: boolean",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "isNight",
+          "signature": "readonly isNight: boolean",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "sunElevation",
+          "signature": "readonly sunElevation: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "setDate",
+          "signature": "setDate(day: number, year?: number): void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "day",
+          "signature": "readonly day: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "year",
+          "signature": "readonly year: number",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "moon",
+          "signature": "readonly moon: { illumination: number; name: string; waxing: boolean; elevation: number; azimuth: number }",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "planets",
+          "signature": "readonly planets: { name: string; elevation: number; azimuth: number; magnitude: number }[]",
+          "jsdoc": true,
+          "deprecated": false
+        }
+      ]
+    },
+    {
+      "name": "WeatherApi",
+      "members": [
+        {
+          "name": "set",
+          "signature": "set(id: WeatherId, intensity?: number, seconds?: number): boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "preset",
+          "signature": "readonly preset: WeatherId",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "intensity",
+          "signature": "readonly intensity: number",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "list",
+          "signature": "readonly list: WeatherId[]",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "wind",
+          "signature": "readonly wind: { speed: number; dir: number; x: number; z: number }",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "windAt",
+          "signature": "windAt(x: number, z: number): { speed: number; dir: number; x: number; z: number; factor: number }",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "beaufort",
+          "signature": "readonly beaufort: [number, string]",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "raining",
+          "signature": "readonly raining: boolean",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "snowing",
+          "signature": "readonly snowing: boolean",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "foggy",
+          "signature": "readonly foggy: boolean",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "visibility",
+          "signature": "readonly visibility: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "visibilityAt",
+          "signature": "visibilityAt(y?: number): number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "temperature",
+          "signature": "readonly temperature: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "humidity",
+          "signature": "readonly humidity: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "precipitation",
+          "signature": "readonly precipitation: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "cloudModel",
+          "signature": "readonly cloudModel: 'classic' | 'cells'",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "cloudCoverage",
+          "signature": "readonly cloudCoverage: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "sunTransmission",
+          "signature": "readonly sunTransmission: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "precipitationAt",
+          "signature": "precipitationAt(x: number, z: number): number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "nearestStorm",
+          "signature": "nearestStorm(maxDistance?: number): { distance: number; bearing: number } | null",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "autoChange",
+          "signature": "readonly autoChange: boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "auto",
+          "signature": "auto(on?: boolean | null): void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "next",
+          "signature": "next(seconds?: number): WeatherId | null",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "strike",
+          "signature": "strike(opts?: number | { distance?: number; bearing?: number }): { distance: number; delay: number } | null",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "muteSounds",
+          "signature": "muteSounds(on?: boolean): void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "soundsMuted",
+          "signature": "readonly soundsMuted: boolean",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "thunderRegion",
+          "signature": "readonly thunderRegion: string",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "occlusion",
+          "signature": "readonly occlusion: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "setOcclusion",
+          "signature": "setOcclusion(value: number | null): void",
+          "jsdoc": true,
+          "deprecated": false
+        }
+      ]
+    },
+    {
+      "name": "TimelineCameraExitPolicy",
+      "members": [
+        {
+          "name": "to",
+          "signature": "to: 'keep' | 'camera3d' | 'previous' | 'player' | 'pose' | 'base'",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "sceneId",
+          "signature": "sceneId?: string",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "cameraId",
+          "signature": "cameraId?: string",
+          "jsdoc": true,
+          "deprecated": false
+        }
+      ]
+    },
+    {
+      "name": "TimelineCameraExit",
+      "members": [
+        {
+          "name": "natural",
+          "signature": "natural?: TimelineCameraExitPolicy",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "stop",
+          "signature": "stop?: TimelineCameraExitPolicy",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "skip",
+          "signature": "skip?: TimelineCameraExitPolicy",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "interrupted",
+          "signature": "interrupted?: TimelineCameraExitPolicy",
+          "jsdoc": true,
+          "deprecated": false
+        }
+      ]
+    },
+    {
+      "name": "TimelineApi",
+      "members": [
+        {
+          "name": "play",
+          "signature": "play(name: Ref<'timelines'>, opts?: { speed?: number; from?: number; lock?: boolean; skippable?: boolean; cameraExit?: TimelineCameraExit }): Promise<{ stopped?: boolean; skipped?: boolean }>",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "stop",
+          "signature": "stop(name?: Ref<'timelines'>): boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "skip",
+          "signature": "skip(name?: Ref<'timelines'>): boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "pause",
+          "signature": "pause(name?: Ref<'timelines'>): boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "resume",
+          "signature": "resume(name?: Ref<'timelines'>): boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "seek",
+          "signature": "seek(name: Ref<'timelines'>, t: number): boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "speed",
+          "signature": "speed(name: Ref<'timelines'>, v: number): boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "isPlaying",
+          "signature": "isPlaying(name: Ref<'timelines'>): boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "info",
+          "signature": "info(name: Ref<'timelines'>): any",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "list",
+          "signature": "list(): string[]",
+          "jsdoc": true,
+          "deprecated": false
+        }
+      ]
+    },
+    {
+      "name": "NavApi",
+      "members": [
+        {
+          "name": "ready",
+          "signature": "readonly ready: boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "path",
+          "signature": "path(from: Vec3, to: Vec3, opts?: { smooth?: boolean; allowPartial?: boolean }): Vec3[] | null",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "nearest",
+          "signature": "nearest(p: Vec3, max?: number): Vec3 | null",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "randomPoint",
+          "signature": "randomPoint(center: Vec3, radius?: number): Vec3 | null",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "canWalk",
+          "signature": "canWalk(a: Vec3, b: Vec3): boolean",
+          "jsdoc": true,
+          "deprecated": false
+        }
+      ]
+    },
+    {
+      "name": "AudioSourceHandle",
+      "members": [
+        {
+          "name": "name",
+          "signature": "readonly name: string",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "playing",
+          "signature": "readonly playing: boolean",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "play",
+          "signature": "play(): Promise<void>",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "stop",
+          "signature": "stop(fade?: number): void",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "pause",
+          "signature": "pause(): void",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "resume",
+          "signature": "resume(): void",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "volume",
+          "signature": "volume: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "pitch",
+          "signature": "pitch: number",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "mute",
+          "signature": "mute: boolean",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "loop",
+          "signature": "loop: boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "done",
+          "signature": "readonly done: Promise<void>",
+          "jsdoc": false,
+          "deprecated": false
+        }
+      ]
+    },
+    {
+      "name": "AudioHandle",
+      "members": [
+        {
+          "name": "playing",
+          "signature": "readonly playing: boolean",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "stop",
+          "signature": "stop(fade?: number): void",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "pause",
+          "signature": "pause(): void",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "resume",
+          "signature": "resume(): void",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "setVolume",
+          "signature": "setVolume(v: number): void",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "setPitch",
+          "signature": "setPitch(v: number): void",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "setPosition",
+          "signature": "setPosition(pos: Vec3): void",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "done",
+          "signature": "readonly done: Promise<void>",
+          "jsdoc": false,
+          "deprecated": false
+        }
+      ]
+    },
+    {
+      "name": "AudioApi",
+      "members": [
+        {
+          "name": "play",
+          "signature": "play(clip: Ref<'clips'>, opts?: { group?: Ref<'groups'>; volume?: number; pitch?: number; loop?: boolean; delay?: number; at?: Vec3; node?: NodeLike; ui?: boolean; minDistance?: number; maxDistance?: number; rolloff?: number }): AudioHandle",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "ui",
+          "signature": "ui(clip: Ref<'clips'>, opts?: { group?: Ref<'groups'>; volume?: number; pitch?: number; loop?: boolean; delay?: number }): AudioHandle",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "source",
+          "signature": "source(name: NodeLike): AudioSourceHandle | undefined",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "stopAll",
+          "signature": "stopAll(group?: Ref<'groups'>, fade?: number): void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "pauseAll",
+          "signature": "pauseAll(on?: boolean): void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "groups",
+          "signature": "groups(): string[]",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "setVolume",
+          "signature": "setVolume(group: Ref<'groups'>, v: number, opts?: { save?: boolean }): void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "getVolume",
+          "signature": "getVolume(group: Ref<'groups'>): number",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "mute",
+          "signature": "mute(group: Ref<'groups'>, on?: boolean): void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "fade",
+          "signature": "fade(group: Ref<'groups'>, to?: number, seconds?: number): Promise<void>",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "effect",
+          "signature": "effect(group: Ref<'groups'>, name: AudioEffectName, params?: Record<string, number>): void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "effectOff",
+          "signature": "effectOff(group: Ref<'groups'>, name: AudioEffectName): void",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "snapshot",
+          "signature": "snapshot(name: string, seconds?: number): Promise<void>",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "snapshots",
+          "signature": "snapshots(): string[]",
+          "jsdoc": true,
+          "deprecated": false
+        }
+      ]
+    },
+    {
+      "name": "UiApi",
+      "members": [
+        {
+          "name": "open",
+          "signature": "open(name: Ref<'uis'>, props?: object, opts?: { modal?: boolean; layer?: string }): Promise<any>",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "close",
+          "signature": "close(name: Ref<'uis'>, result?: any): void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "toggle",
+          "signature": "toggle(name: Ref<'uis'>, props?: object, opts?: { modal?: boolean; layer?: string }): Promise<any>",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "isOpen",
+          "signature": "isOpen(name: Ref<'uis'>): boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "showCanvas",
+          "signature": "showCanvas(name: string): boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "hideCanvas",
+          "signature": "hideCanvas(name: string): boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "toggleCanvas",
+          "signature": "toggleCanvas(name: string): boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "isCanvasVisible",
+          "signature": "isCanvasVisible(name: string): boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "canvas",
+          "signature": "canvas(name: string): CanvasHandle | null",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "closeAll",
+          "signature": "closeAll(): void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "next",
+          "signature": "next(): void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "pick",
+          "signature": "pick(index: number): void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "resume",
+          "signature": "resume(): void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "quit",
+          "signature": "quit(): void",
+          "jsdoc": true,
+          "deprecated": false
+        }
+      ]
+    },
+    {
+      "name": "CanvasHandle",
+      "members": [
+        {
+          "name": "name",
+          "signature": "readonly name: string",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "visible",
+          "signature": "visible: boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "show",
+          "signature": "show(): boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "hide",
+          "signature": "hide(): boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "toggle",
+          "signature": "toggle(): boolean",
+          "jsdoc": true,
+          "deprecated": false
+        }
+      ]
+    },
+    {
+      "name": "VariablesApi",
+      "members": [
+        {
+          "name": "get",
+          "signature": "get(x: Ref<'variables'>): any",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "set",
+          "signature": "set(x: Ref<'variables'>, value: any): any",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "add",
+          "signature": "add(x: Ref<'variables'>, n?: any): any",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "name",
+          "signature": "name(id: number): string",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "id",
+          "signature": "id(name: string): number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "names",
+          "signature": "readonly names: string[]",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "all",
+          "signature": "all(): Record<string, any>",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "reset",
+          "signature": "reset(): void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "push",
+          "signature": "push(x: Ref<'variables'>, value: any): number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "pop",
+          "signature": "pop(x: Ref<'variables'>): any",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "shift",
+          "signature": "shift(x: Ref<'variables'>): any",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "unshift",
+          "signature": "unshift(x: Ref<'variables'>, value: any): number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "insert",
+          "signature": "insert(x: Ref<'variables'>, index: number, value: any): number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "removeAt",
+          "signature": "removeAt(x: Ref<'variables'>, index: number): any",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "remove",
+          "signature": "remove(x: Ref<'variables'>, value: any): boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "at",
+          "signature": "at(x: Ref<'variables'>, index: number): any",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "setAt",
+          "signature": "setAt(x: Ref<'variables'>, index: number, value: any): number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "length",
+          "signature": "length(x: Ref<'variables'>): number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "clear",
+          "signature": "clear(x: Ref<'variables'>): void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "includes",
+          "signature": "includes(x: Ref<'variables'>, value: any): boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "indexOf",
+          "signature": "indexOf(x: Ref<'variables'>, value: any): number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "shuffle",
+          "signature": "shuffle(x: Ref<'variables'>): void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "sort",
+          "signature": "sort(x: Ref<'variables'>): void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "reverse",
+          "signature": "reverse(x: Ref<'variables'>): void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "join",
+          "signature": "join(x: Ref<'variables'>, separator?: string): string",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "sum",
+          "signature": "sum(x: Ref<'variables'>): number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "min",
+          "signature": "min(x: Ref<'variables'>): number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "max",
+          "signature": "max(x: Ref<'variables'>): number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "random",
+          "signature": "random(x: Ref<'variables'>): any",
+          "jsdoc": true,
+          "deprecated": false
+        }
+      ]
+    },
+    {
+      "name": "SaveInfo",
+      "members": [
+        {
+          "name": "slot",
+          "signature": "slot: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "auto",
+          "signature": "auto: boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "empty",
+          "signature": "empty?: boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "name",
+          "signature": "name?: string",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "date",
+          "signature": "date?: string",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "playtime",
+          "signature": "playtime?: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "scene",
+          "signature": "scene?: string",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "level",
+          "signature": "level?: string",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "gold",
+          "signature": "gold?: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "party",
+          "signature": "party?: string[]",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": null,
+          "signature": "[extra: string]: any",
+          "jsdoc": false,
+          "deprecated": false
+        }
+      ]
+    },
+    {
+      "name": "SaveApi",
+      "members": [
+        {
+          "name": "slots",
+          "signature": "readonly slots: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "lastSlot",
+          "signature": "readonly lastSlot: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "canSave",
+          "signature": "canSave: boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "busy",
+          "signature": "readonly busy: boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "list",
+          "signature": "list(): SaveInfo[]",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "info",
+          "signature": "info(slot?: number | 'last' | 'auto'): SaveInfo | null",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "exists",
+          "signature": "exists(slot?: number | 'last' | 'auto'): boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "latest",
+          "signature": "latest(): number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "save",
+          "signature": "save(slot?: number | 'last' | 'auto', opts?: { name?: string; meta?: Record<string, any> }): Promise<boolean>",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "load",
+          "signature": "load(slot?: number | 'last' | 'auto'): Promise<boolean>",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "delete",
+          "signature": "delete(slot?: number | 'last' | 'auto'): boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "autosave",
+          "signature": "autosave(): Promise<boolean>",
+          "jsdoc": true,
+          "deprecated": false
+        }
+      ]
+    },
+    {
+      "name": "LevelApi",
+      "members": [
+        {
+          "name": "name",
+          "signature": "readonly name: string",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "canRun",
+          "signature": "canRun: boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "canCrouch",
+          "signature": "canCrouch: boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "canJump",
+          "signature": "canJump: boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "speedScale",
+          "signature": "speedScale: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "gravityScale",
+          "signature": "gravityScale: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "canSwim",
+          "signature": "canSwim: boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "canDive",
+          "signature": "canDive: boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "waterCurrent",
+          "signature": "waterCurrent: number",
+          "jsdoc": true,
+          "deprecated": false
+        }
+      ]
+    },
+    {
+      "name": "WaterSample",
+      "members": [
+        {
+          "name": "surface",
+          "signature": "surface: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "flowX",
+          "signature": "flowX: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "flowZ",
+          "signature": "flowZ: number",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "edge",
+          "signature": "edge: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "name",
+          "signature": "name: string",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "color",
+          "signature": "color: string",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "deepColor",
+          "signature": "deepColor: string",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "clarity",
+          "signature": "clarity: number",
+          "jsdoc": false,
+          "deprecated": false
+        }
+      ]
+    },
+    {
+      "name": "FloatOptions",
+      "members": [
+        {
+          "name": "density",
+          "signature": "density?: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "drag",
+          "signature": "drag?: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "tilt",
+          "signature": "tilt?: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "current",
+          "signature": "current?: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "sink",
+          "signature": "sink?: number",
+          "jsdoc": true,
+          "deprecated": false
+        }
+      ]
+    },
+    {
+      "name": "BodyOptions",
+      "members": [
+        {
+          "name": "shape",
+          "signature": "shape?: 'box' | 'sphere' | 'capsule'",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "mass",
+          "signature": "mass?: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "friction",
+          "signature": "friction?: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "bounce",
+          "signature": "bounce?: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "vel",
+          "signature": "vel?: Vec3",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "float",
+          "signature": "float?: boolean",
+          "jsdoc": true,
+          "deprecated": false
+        }
+      ]
+    },
+    {
+      "name": "Body",
+      "members": [
+        {
+          "name": "node",
+          "signature": "readonly node: string",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "state",
+          "signature": "readonly state: 'air' | 'floating' | 'sunk' | 'ground'",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "floating",
+          "signature": "readonly floating: boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "mass",
+          "signature": "readonly mass: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "density",
+          "signature": "density: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "velocity",
+          "signature": "readonly velocity: Vec3",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "position",
+          "signature": "readonly position: Vec3",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "push",
+          "signature": "push(impulse: Vec3, at?: Vec3): void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "setVelocity",
+          "signature": "setVelocity(v: Vec3): void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "teleport",
+          "signature": "teleport(x: number, y: number, z: number): void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "stop",
+          "signature": "stop(): void",
+          "jsdoc": true,
+          "deprecated": false
+        }
+      ]
+    },
+    {
+      "name": "PhysicsApi",
+      "members": [
+        {
+          "name": "body",
+          "signature": "body(node: NodeLike, options?: BodyOptions): Body",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "get",
+          "signature": "get(node: NodeLike): Body | null",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "release",
+          "signature": "release(node: NodeLike): void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "impulse",
+          "signature": "impulse(node: NodeLike, impulse: Vec3, at?: Vec3): void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "explode",
+          "signature": "explode(x: number, y: number, z: number, options?: { radius?: number; force?: number }): number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "bodies",
+          "signature": "readonly bodies: Body[]",
+          "jsdoc": true,
+          "deprecated": false
+        }
+      ]
+    },
+    {
+      "name": "Floater",
+      "members": [
+        {
+          "name": "node",
+          "signature": "readonly node: string",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "state",
+          "signature": "readonly state: 'air' | 'floating' | 'sunk' | 'ground'",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "floating",
+          "signature": "readonly floating: boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "density",
+          "signature": "density: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "velocity",
+          "signature": "readonly velocity: Vec3",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "position",
+          "signature": "readonly position: Vec3",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "stop",
+          "signature": "stop(): void",
+          "jsdoc": true,
+          "deprecated": false
+        }
+      ]
+    },
+    {
+      "name": "SplashOptions",
+      "members": [
+        {
+          "name": "power",
+          "signature": "power?: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "y",
+          "signature": "y?: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "color",
+          "signature": "color?: string",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "drops",
+          "signature": "drops?: number",
+          "jsdoc": true,
+          "deprecated": false
+        }
+      ]
+    },
+    {
+      "name": "WaterApi",
+      "members": [
+        {
+          "name": "at",
+          "signature": "at(x: number, z: number): WaterSample | null",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "height",
+          "signature": "height(x: number, z: number): number | null",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "splash",
+          "signature": "splash(x: number, z: number, opts?: SplashOptions): boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "ripple",
+          "signature": "ripple(x: number, z: number, amp?: number): void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "float",
+          "signature": "float(node: NodeLike, opts?: FloatOptions): Floater & Body",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "unfloat",
+          "signature": "unfloat(node: NodeLike): void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "floaters",
+          "signature": "readonly floaters: Floater[]",
+          "jsdoc": true,
+          "deprecated": false
+        }
+      ]
+    },
+    {
+      "name": "SceneProps",
+      "members": [
+        {
+          "name": "skyTop",
+          "signature": "skyTop: string",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "skyHorizon",
+          "signature": "skyHorizon: string",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "ground",
+          "signature": "ground: string",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "ambientColor",
+          "signature": "ambientColor: string",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "ambient",
+          "signature": "ambient: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "skyExposure",
+          "signature": "skyExposure: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "fog",
+          "signature": "fog: boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "fogDensity",
+          "signature": "fogDensity: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "fogStart",
+          "signature": "fogStart: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "fogColor",
+          "signature": "fogColor: string",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "fogMode",
+          "signature": "fogMode: 'simple' | 'physical'",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "fogFalloff",
+          "signature": "fogFalloff: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "fogHeight",
+          "signature": "fogHeight: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "fogShafts",
+          "signature": "fogShafts: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "fogScatter",
+          "signature": "fogScatter: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "volOn",
+          "signature": "volOn: boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "volDensity",
+          "signature": "volDensity: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "volIntensity",
+          "signature": "volIntensity: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "volNoise",
+          "signature": "volNoise: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "volNoiseScale",
+          "signature": "volNoiseScale: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "volNoiseSpeed",
+          "signature": "volNoiseSpeed: number",
+          "jsdoc": true,
+          "deprecated": false
+        }
+      ]
+    },
+    {
+      "name": "SceneApi",
+      "members": [
+        {
+          "name": "name",
+          "signature": "readonly name: string",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "props",
+          "signature": "readonly props: (keyof SceneProps)[]",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "set",
+          "signature": "set(values: Partial<SceneProps>): void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "reset",
+          "signature": "reset(): void",
+          "jsdoc": true,
+          "deprecated": false
+        }
+      ]
+    },
+    {
+      "name": "RuntimePrefabsApi",
+      "members": [
+        {
+          "name": "instantiate",
+          "signature": "instantiate(prefab: Ref<'prefabs'>, options?: { parent?: NodeLike; position?: Vec3 }): NodeHandle",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "destroy",
+          "signature": "destroy(instance: NodeLike): boolean",
+          "jsdoc": true,
+          "deprecated": false
+        }
+      ]
+    },
+    {
+      "name": "RuntimeScenesApi",
+      "members": [
+        {
+          "name": "instantiate",
+          "signature": "instantiate(scene: Ref<'scenes'>, options?: { parent?: NodeLike; position?: Vec3 }): Promise<NodeHandle>",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "destroy",
+          "signature": "destroy(instance: NodeLike): boolean",
+          "jsdoc": true,
+          "deprecated": false
+        }
+      ]
+    },
+    {
+      "name": "TornadoSignal",
+      "members": [
+        {
+          "name": "id",
+          "signature": "id: string",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "position",
+          "signature": "position: Vec3",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "radius",
+          "signature": "radius: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "height",
+          "signature": "height: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "age",
+          "signature": "age: number",
+          "jsdoc": true,
+          "deprecated": false
+        }
+      ]
+    },
+    {
+      "name": "TornadoPhaseSignal",
+      "members": [
+        {
+          "name": "phase",
+          "signature": "phase: string",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "previous",
+          "signature": "previous: string",
+          "jsdoc": true,
+          "deprecated": false
+        }
+      ]
+    },
+    {
+      "name": "TornadoBodySignal",
+      "members": [
+        {
+          "name": "objectId",
+          "signature": "objectId: string",
+          "jsdoc": true,
+          "deprecated": false
+        }
+      ]
+    },
+    {
+      "name": "Game",
+      "members": [
+        {
+          "name": "switch",
+          "signature": "switch(x: Ref<'switches'>): boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "setSwitch",
+          "signature": "setSwitch(x: Ref<'switches'>, value?: boolean): void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "variable",
+          "signature": "variable(x: Ref<'variables'>): any",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "setVariable",
+          "signature": "setVariable(x: Ref<'variables'>, value: any): void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "variables",
+          "signature": "readonly variables: VariablesApi",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "once",
+          "signature": "once(name: string, fn: (data?: any) => void | Promise<void>): () => void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "emit",
+          "signature": "emit(name: string, data?: any): Promise<void>",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "waitFor",
+          "signature": "waitFor(name: string, timeout?: number): Promise<any>",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "save",
+          "signature": "readonly save: SaveApi",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "selfSwitch",
+          "signature": "selfSwitch(ch: 'A' | 'B' | 'C' | 'D', ev?: NodeLike): boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "setSelfSwitch",
+          "signature": "setSelfSwitch(ch: 'A' | 'B' | 'C' | 'D', value?: boolean, ev?: NodeLike): void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "state",
+          "signature": "state: Record<string, any>",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "say",
+          "signature": "say(text: string, speaker?: string, position?: 'bottom' | 'center' | 'top', opts?: { key?: Ref<'texts'>; voice?: Ref<'clips'>; advance?: boolean; group?: Ref<'groups'> } & DialogAnim): Promise<void>",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "lang",
+          "signature": "lang: string",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "languages",
+          "signature": "readonly languages: { code: string; name: string }[]",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "setLanguage",
+          "signature": "setLanguage(code: Ref<'languages'>): boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "t",
+          "signature": "t(key: Ref<'texts'>, fallback?: string): string",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "choose",
+          "signature": "choose(options: string[], cancel?: number, prompt?: string, opts?: DialogAnim): Promise<number>",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "wait",
+          "signature": "wait(seconds?: number): Promise<void>",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "fade",
+          "signature": "fade(direction?: 'out' | 'in', seconds?: number, color?: string): Promise<void>",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "caption",
+          "signature": "caption(text: string, seconds?: number, position?: 'bottom' | 'center' | 'top', opts?: DialogAnim): Promise<void>",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "showLevelName",
+          "signature": "showLevelName(text?: string, opts?: { position?: 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left' | 'center'; delay?: number; fadeIn?: number; hold?: number; fadeOut?: number }): void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "letterbox",
+          "signature": "letterbox(percent?: number): void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "party",
+          "signature": "readonly party: Party",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "db",
+          "signature": "readonly db: Record<string, any>",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "common",
+          "signature": "common(x: Ref<'commonEvents'>): Promise<void>",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "teleport",
+          "signature": "teleport(x: number, y: number, z: number, yaw?: number): Promise<void>",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "teleportTo",
+          "signature": "teleportTo(node: NodeLike, yaw?: number): Promise<void>",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "control",
+          "signature": "control(mode?: 'free' | 'locked' | 'frozen' | boolean): void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "player",
+          "signature": "readonly player: Player | null",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "viewModel",
+          "signature": "readonly viewModel: ViewModel",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "raycast",
+          "signature": "raycast(origin: Vec3, direction: Vec3, maxDistance?: number, opts?: RayOptions): Hit | null",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "sensor",
+          "signature": "sensor(opts: SensorOptions): Sensor",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "node",
+          "signature": "node(name: NodeLike): NodeHandle | undefined",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "prefabs",
+          "signature": "readonly prefabs: RuntimePrefabsApi",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "scenes",
+          "signature": "readonly scenes: RuntimeScenesApi",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "dontDestroyOnLoad",
+          "signature": "dontDestroyOnLoad(name: string, enabled?: boolean): boolean",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "spawnPlayer",
+          "signature": "spawnPlayer(prefab: Ref<'prefabs'>, options?: { position?: Vec3; parent?: NodeLike }): NodeHandle",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "profile",
+          "signature": "readonly profile: ProfileApi",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "input",
+          "signature": "readonly input: InputApi",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "graphics",
+          "signature": "readonly graphics: GraphicsApi",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "animation",
+          "signature": "readonly animation: AnimationApi",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "camera",
+          "signature": "readonly camera: CameraApi",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "cameraShake",
+          "signature": "readonly cameraShake: CameraShakeApi",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "lights",
+          "signature": "lights(tag?: string): LightHandle[]",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "findByTag",
+          "signature": "findByTag(tag: string): NodeHandle[]",
+          "jsdoc": true,
+          "deprecated": true
+        },
+        {
+          "name": "get_nodes_in_group",
+          "signature": "get_nodes_in_group(name: string): NodeHandle[]",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "call_group",
+          "signature": "call_group(group: string, method: string, ...args: any[]): void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "findByLayer",
+          "signature": "findByLayer(name: string): NodeHandle[]",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "surfaceAt",
+          "signature": "surfaceAt(x: number, y: number, z: number): string",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "event",
+          "signature": "event(name: Ref<'events'>): EventHandle | undefined",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "moveRoute",
+          "signature": "moveRoute(target: 'player' | 'this' | NodeLike, steps: RouteStep[], opts?: { repeat?: boolean; skip?: boolean }): Promise<void>",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "stopRoute",
+          "signature": "stopRoute(target?: 'player' | 'this' | NodeLike): void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "timeline",
+          "signature": "readonly timeline: TimelineApi",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "nav",
+          "signature": "readonly nav: NavApi",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "goScene",
+          "signature": "goScene(scene: Ref<'scenes'>, tag?: string, opts?: { pos?: Vec3; yaw?: number; fadeOut?: number; fadeIn?: number; color?: string }): Promise<void>",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "audio",
+          "signature": "readonly audio: AudioApi",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "define",
+          "signature": "define(name: string, fn: (...args: any[]) => any): void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "call",
+          "signature": "call(name: string, ...args: any[]): Promise<any>",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "on",
+          "signature": "on(name: 'start' | 'scene', fn: (payload?: any) => void | Promise<void>): () => void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "on",
+          "signature": "on(name: 'update', fn: (dt: number) => void): () => void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "on",
+          "signature": "on(name: 'lateUpdate', fn: (dt: number) => void): () => void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "on",
+          "signature": "on(name: 'fixedUpdate', fn: (dt: number) => void): () => void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "on",
+          "signature": "on(name: 'animationEvent', fn: (e: { node: string; clip: string; name: string }) => void | Promise<void>): () => void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "on",
+          "signature": "on(name: 'action', fn: (e: { action: string; pressed: boolean }) => void | Promise<void>): () => void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "on",
+          "signature": "on(name: 'triggerEnter' | 'triggerExit', fn: (trigger: TriggerInfo) => void | Promise<void>): () => void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "on",
+          "signature": "on(name: 'triggerLook' | 'triggerLookEnd', fn: (trigger: TriggerInfo) => void | Promise<void>): () => void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "on",
+          "signature": "on(name: 'jump', fn: (e: { air: boolean }) => void | Promise<void>): () => void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "on",
+          "signature": "on(name: 'land', fn: (e: { speed: number; ground: 'stable' | 'steep' }) => void | Promise<void>): () => void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "on",
+          "signature": "on(name: 'crouch', fn: (e: { on: boolean }) => void | Promise<void>): () => void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "on",
+          "signature": "on(name: 'splash', fn: (e: { speed: number; x: number; y: number; z: number; water: string; node?: string }) => void | Promise<void>): () => void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "on",
+          "signature": "on(name: 'float', fn: (e: { node: string; state: 'air' | 'floating' | 'sunk' | 'ground' }) => void | Promise<void>): () => void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "on",
+          "signature": "on(name: 'swim', fn: (e: { on: boolean }) => void | Promise<void>): () => void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "on",
+          "signature": "on(name: 'underwater', fn: (e: { on: boolean }) => void | Promise<void>): () => void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "on",
+          "signature": "on(name: 'drown', fn: (e: { breath: 0 }) => void | Promise<void>): () => void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "on",
+          "signature": "on(name: 'footstep', fn: (e: { surface: string; running: boolean; landing: boolean; /** Layer que ha sonado (Tags y Layers). */ layer: string; action: 'walk' | 'run' | 'land' | 'jump' }) => void | Promise<void>): () => void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "on",
+          "signature": "on(name: 'drop', fn: (e: { node: string; slot: string; thrown: boolean; force?: number; landed?: boolean; bounces?: number }) => void | Promise<void>): () => void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "on",
+          "signature": "on(name: 'save' | 'load', fn: (e: SaveInfo) => void | Promise<void>): () => void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "on",
+          "signature": "on(name: 'lightning', fn: (e: { distance: number; delay: number; bearing: number; /** Corriente de pico (kA). */ peak: number }) => void | Promise<void>): () => void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "on",
+          "signature": "on(name: 'thunder', fn: (e: { distance: number; delay: number; bearing: number; peak: number; region?: string; occlusion?: number; loudness?: number }) => void | Promise<void>): () => void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "on",
+          "signature": "on(name: 'language', fn: (e: { lang: string }) => void | Promise<void>): () => void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "on",
+          "signature": "on(name: 'lightningImpact', fn: (e: { id: number; seed: number; peakKA: number; kind: 'terrain' | 'object' | 'water'; point: Vec3; normal: Vec3; ownerId: string | null; surface: string; materialId: string }) => void | Promise<void>): () => void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "on",
+          "signature": "on(name: 'tornadoStart' | 'tornadoEnd', fn: (e: TornadoSignal) => void | Promise<void>): () => void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "on",
+          "signature": "on(name: 'tornadoPhase', fn: (e: TornadoPhaseSignal) => void | Promise<void>): () => void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "on",
+          "signature": "on(name: 'tornadoEnter' | 'tornadoExit', fn: (e: TornadoBodySignal) => void | Promise<void>): () => void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "on",
+          "signature": "on(name: 'treeUprooted', fn: (e: { id: string; forceN: number; kind: string; position: Vec3 }) => void | Promise<void>): () => void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "on",
+          "signature": "on(name: 'tornadoIgnition', fn: (e: { id: string; source?: 'lightning'; position: Vec3 }) => void | Promise<void>): () => void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "on",
+          "signature": "on(name: string, fn: (data?: any) => void | Promise<void>): () => void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "random",
+          "signature": "random(min?: number, max?: number): number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "log",
+          "signature": "log(...values: any[]): void",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "time",
+          "signature": "readonly time: number",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "ui",
+          "signature": "readonly ui: UiApi",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "clock",
+          "signature": "readonly clock: ClockApi",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "weather",
+          "signature": "readonly weather: WeatherApi",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "water",
+          "signature": "readonly water: WaterApi",
+          "jsdoc": true,
+          "deprecated": true
+        },
+        {
+          "name": "physics",
+          "signature": "readonly physics: PhysicsApi",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "level",
+          "signature": "readonly level: LevelApi",
+          "jsdoc": true,
+          "deprecated": false
+        },
+        {
+          "name": "scene",
+          "signature": "readonly scene: SceneApi",
+          "jsdoc": true,
+          "deprecated": false
+        }
+      ]
+    },
+    {
+      "name": "Console",
+      "members": [
+        {
+          "name": "log",
+          "signature": "log(...a: any[]): void;",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "warn",
+          "signature": "warn(...a: any[]): void;",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "error",
+          "signature": "error(...a: any[]): void;",
+          "jsdoc": false,
+          "deprecated": false
+        },
+        {
+          "name": "info",
+          "signature": "info(...a: any[]): void",
+          "jsdoc": false,
+          "deprecated": false
+        }
+      ]
+    }
+  ],
+  "aliases": [
+    "Ref",
+    "Vec3",
+    "NodeLike",
+    "WeatherId",
+    "AudioEffectName",
+    "RouteStep"
+  ],
+  "nodes": [
+    {
+      "type": "atmovolume",
+      "file": "atmovolume.js"
+    },
+    {
+      "type": "audio",
+      "file": "audio.js"
+    },
+    {
+      "type": "node",
+      "file": "base.js"
+    },
+    {
+      "type": "node3d",
+      "file": "base.js"
+    },
+    {
+      "type": "sceneInstance",
+      "file": "base.js"
+    },
+    {
+      "type": "cameraShake",
+      "file": "camera-shake.js"
+    },
+    {
+      "type": "camera",
+      "file": "camera.js"
+    },
+    {
+      "type": "canvas",
+      "file": "canvas.js"
+    },
+    {
+      "type": "critters",
+      "file": "critters.js"
+    },
+    {
+      "type": "decal",
+      "file": "decal.js"
+    },
+    {
+      "type": "event",
+      "file": "event.js"
+    },
+    {
+      "type": "fluidcontainer3d",
+      "file": "fluid-container.js"
+    },
+    {
+      "type": "gameplayObject",
+      "file": "gameplay-object.js"
+    },
+    {
+      "type": "group",
+      "file": "group.js"
+    },
+    {
+      "type": "light",
+      "file": "light.js"
+    },
+    {
+      "type": "meshSubtract",
+      "file": "mesh-subtract.js"
+    },
+    {
+      "type": "mesh",
+      "file": "mesh.js"
+    },
+    {
+      "type": "model",
+      "file": "model.js"
+    },
+    {
+      "type": "nature",
+      "file": "nature.js"
+    },
+    {
+      "type": "navigation",
+      "file": "navigation.js"
+    },
+    {
+      "type": "collisionshape3d",
+      "file": "physics.js"
+    },
+    {
+      "type": "staticbody3d",
+      "file": "physics.js"
+    },
+    {
+      "type": "rigidbody3d",
+      "file": "physics.js"
+    },
+    {
+      "type": "characterbody3d",
+      "file": "physics.js"
+    },
+    {
+      "type": "area3d",
+      "file": "physics.js"
+    },
+    {
+      "type": "postvolume",
+      "file": "postvolume.js"
+    },
+    {
+      "type": "primitive",
+      "file": "primitive.js"
+    },
+    {
+      "type": "road",
+      "file": "road.js"
+    },
+    {
+      "type": "spawn",
+      "file": "spawn.js"
+    },
+    {
+      "type": "sprite2d",
+      "file": "sprite.js"
+    },
+    {
+      "type": "sprite3d",
+      "file": "sprite.js"
+    },
+    {
+      "type": "subtract",
+      "file": "subtract.js"
+    },
+    {
+      "type": "terrain",
+      "file": "terrain.js"
+    },
+    {
+      "type": "text",
+      "file": "text.js"
+    },
+    {
+      "type": "trigger",
+      "file": "trigger.js"
+    },
+    {
+      "type": "vfx",
+      "file": "vfx.js"
+    },
+    {
+      "type": "water",
+      "file": "water.js"
+    }
+  ],
+  "declarationCopiesEqual": true
+}

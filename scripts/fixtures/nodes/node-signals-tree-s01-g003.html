@@ -1,0 +1,81 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Century Signals — entrada y salida del árbol QA</title></head>
+<body><pre id="node-signals-tree-s01-g003-result">Verificando…</pre>
+<script type="module">
+import * as THREE from 'three'
+import { loadJolt } from '/src/engine/runtime/physics/jolt.js'
+import { NodeSpatialRuntime } from '/src/engine/runtime/physics/node-spatial.js'
+import { getNativeSignals, getNativeSignal } from '/src/engine/runtime/nodes/registry.js'
+import '/src/engine/runtime/nodes/physics.js'
+import { nodesMethods } from '/src/engine/runtime/events/play-nodes.js'
+import { NodeLifecycle } from '/src/engine/runtime/scene/node-lifecycle.js'
+import { NodeScriptRuntime } from '/src/engine/runtime/scene/node-scripts.js'
+const output=document.getElementById('node-signals-tree-s01-g003-result')
+const checks=[], check=(name,pass)=>{checks.push({name,pass:!!pass});if(!pass)throw Error(name)}
+let renderer,life,spatial
+try {
+ renderer=new THREE.WebGLRenderer({antialias:false});renderer.setSize(16,16)
+ const scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(70,1,.1,10);camera.position.z=2
+ scene.add(new THREE.Mesh(new THREE.BoxGeometry(.3,.3,.3),new THREE.MeshBasicMaterial({color:0x8196bc})))
+ renderer.render(scene,camera)
+ check('WebGL2 real en Electron',renderer.capabilities.isWebGL2)
+ const jolt=await loadJolt()
+ check('Jolt WASM real disponible',!!jolt.JoltInterface)
+ const list=getNativeSignals('area3d')
+ check('Area3D tiene cuatro señales Jolt reales',list.filter(s=>s.source==='jolt-area').length===4)
+ check('Cada señal identifica fuente Jolt',list.filter(s=>s.source==='jolt-area').every(s=>s.source==='jolt-area'))
+ check('Cada señal identifica fase física',list.filter(s=>s.source==='jolt-area').every(s=>s.phase==='physics'))
+ check('Cada señal describe argumento event',list.filter(s=>s.source==='jolt-area').every(s=>s.args.length===1&&s.args[0].name==='event'))
+ check('Payload documentado',list.filter(s=>s.source==='jolt-area').every(s=>s.args[0].fields.join(',')==='areaId,type,id'))
+ check('StaticBody3D sin señales inventadas',getNativeSignals('staticbody3d').filter(s=>s.source==='jolt-area').length===0)
+ check('No se anuncia ready sin emisor',getNativeSignal('area3d','ready')?.source==='node-lifecycle')
+ check('Listas protegidas de escritura',Object.isFrozen(list)&&Object.isFrozen(list[0].args))
+ const area={id:'s01Area',type:'area3d',name:'Area',parentId:null,props:{monitoring:true,monitorable:true}}
+ const target={id:'s01Target',type:'node3d',name:'Target',parentId:null,scriptIds:['s01Receiver']}
+ const project={objects:[area,target],scripts:[{id:'s01Receiver',execution:'node',code:"node.expose('recibir',(event)=>game.record(event));node.expose('onReady',()=>game.recordReady());node.expose('onEntered',()=>game.enter());node.expose('onExiting',()=>game.exiting());node.expose('onExited',()=>game.exited());function _ready(){game.readyCallback()}"}],activeSceneId:'uno',signalConnections:[{id:'onAreaReady',emitterId:'s01Area',receiverId:'s01Target',signal:'ready',method:'onReady'},{id:'onAreaEntered',emitterId:'s01Area',receiverId:'s01Target',signal:'tree_entered',method:'onEntered'},{id:'onAreaExiting',emitterId:'s01Area',receiverId:'s01Target',signal:'tree_exiting',method:'onExiting'},{id:'onAreaExited',emitterId:'s01Area',receiverId:'s01Target',signal:'tree_exited',method:'onExited'}]}
+ const nodes=new Map(),records=[],errors=[];let readyCount=0,callbackCount=0,enterCount=0,exitingCount=0,exitedCount=0
+ for(const obj of project.objects){const n=new THREE.Group();n._lfNodeOwner=obj;scene.add(n);nodes.set(obj.id,n)}
+ const spatialPlay={phys:null}
+ spatial=new NodeSpatialRuntime(spatialPlay,()=>{})
+ spatial.areas.set(area.id,{obj:area,active:true})
+ const phys={nodeSpatial:spatial}
+ const game={api:{record:(v)=>records.push(v),recordReady:()=>readyCount++,readyCallback:()=>callbackCount++,enter:()=>enterCount++,exiting:()=>exitingCount++,exited:()=>exitedCount++},report:(e)=>errors.push(String(e))}
+ life=new NodeLifecycle({nodes,host:{project}})
+ const play={on:true,_sceneSignalReady:true,_referenceSession:{},project,phys,ed:{nodes,nodeLifecycle:life},game,
+  _tagLayerApi:()=>({}),_animMethodsFor:()=>({}),_persistMarked:()=>false,_persistSet:()=>false,
+  vm:{held:new Map()},pos:new THREE.Vector3(),vp:{requestRender(){}}}
+ Object.assign(play,nodesMethods)
+ game.api.node=id=>play._nodeHandle(id)
+ life.scripts=new NodeScriptRuntime(play)
+ life.start()
+ check('ready nativo disponible para nodo sin script',getNativeSignal('area3d','ready')?.source==='node-lifecycle')
+ for(const name of ['tree_entered','tree_exiting','tree_exited']) check(`Señal nativa ${name} en catálogo`,getNativeSignal('area3d',name)?.source==='node-lifecycle')
+ check('tree_entered recibido antes de ready',enterCount===1&&readyCount===1)
+ check('Conexiones persistentes de árbol preparadas',life.scripts.sceneConnections.has('onAreaEntered')&&life.scripts.sceneConnections.has('onAreaExiting')&&life.scripts.sceneConnections.has('onAreaExited'))
+ check('Receptor ve ready una sola vez',readyCount===1)
+ check('Ready se emite tras callback del receptor',callbackCount===1)
+ check('Conexión persistente lista antes de ready',life.scripts.sceneConnections.has('onAreaReady'))
+ check('El emisor no necesita script asociado',!life.scripts.instances.has(area.id))
+ const from=play._nodeHandle(area.id),to=play._nodeHandle(target.id)
+ check('Conexión nativa real',from.connect('body_entered',to,'recibir')===true)
+ check('Un listener del runtime físico',spatial.listeners.get('s01Area:body_entered')?.size===1)
+ spatial._notify(area.id,'body_entered',{type:'body',id:'caja'})
+ check('Payload físico llega al script',records.length===1&&records[0].areaId===area.id&&records[0].id==='caja')
+ check('Desconexión nativa',from.disconnect('body_entered',to,'recibir')===true)
+ check('Listener físico liberado',spatial.listeners.get('s01Area:body_entered')?.size===0)
+ check('Conexión inválida no deja listeners',(()=>{try{from.connect('body_exited',to,'no_publicado');return false}catch{return !spatial.listeners.get('s01Area:body_exited')?.size}})())
+ check('Conexión nueva tras desconectar',from.connect('area_entered',to,'recibir')===true)
+ life.beginRemoval('s01Area')
+ check('tree_exiting antes de quitar el nodo 3D',exitingCount===1&&nodes.has('s01Area')&&exitedCount===0)
+ nodes.delete('s01Area')
+ life.endRemoval('s01Area')
+ check('tree_exited después de salir del árbol 3D',exitedCount===1&&!nodes.has('s01Area'))
+ check('Conexiones del emisor limpiadas',!life.scripts.nativeSources.has(area))
+ life.stop()
+ check('Stop limpia conexiones ready persistentes',life.scripts.sceneConnections.size===0)
+ check('Stop limpia conexiones nativas',life.scripts.nativeSources.size===0&&spatial.listeners.get('s01Area:area_entered')?.size===0)
+ check('Sin errores de scripts',errors.length===0)
+ check('WebGL sin errores',renderer.getContext().getError()===renderer.getContext().NO_ERROR)
+ output.dataset.pass='true';output.textContent=JSON.stringify({pass:true,gl:renderer.getContext().getParameter(renderer.getContext().VERSION),checks},null,2)
+} catch (error) {output.dataset.pass='false';output.textContent=JSON.stringify({pass:false,error:String(error.stack||error),checks},null,2)}
+finally {try{life?.stop()}catch{}try{spatial?.dispose()}catch{}renderer?.dispose()}
+</script></body></html>

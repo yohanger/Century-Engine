@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="es"><meta charset="utf-8"><title>QA S13-G008-G001 · UX visual Timeline</title>
+<style>html,body{margin:0;background:#161b20;color:#e4e9ee;font:12px sans-serif}#inspector{width:350px;height:440px;overflow:auto;padding:4px}#lf-timeline-visual-ux-s13-g008-g001-result{display:none}</style>
+<div id="inspector"></div>
+<pre id="lf-timeline-visual-ux-s13-g008-g001-result"></pre>
+<script>
+(() => {
+  const el=document.getElementById('lf-timeline-visual-ux-s13-g008-g001-result')
+  const checks=[];let stage='bootstrap',finished=false
+  function report(){if(finished)return;el.dataset.stage=stage;el.dataset.checks=String(checks.length);el.textContent=JSON.stringify({pass:null,stage,checks})}
+  function progress(label){stage=label;report()}
+  function check(name,passed,actual){checks.push({name,pass:!!passed,...(actual===undefined?{}:{actual})});progress(`${checks.length}: ${name}`)}
+  function finish(error){if(finished)return;finished=true;clearTimeout(timer)
+    const pass=!error&&checks.length===54&&checks.every(c=>c.pass)
+    el.dataset.pass=String(pass);el.dataset.checks=String(checks.length);el.dataset.stage=pass?'final:PASS':'final:FAIL'
+    let gl=false;try{gl=!!document.createElement('canvas').getContext('webgl')}catch{}
+    el.textContent=JSON.stringify({pass,stage,...(error?{error:error.stack||String(error)}:{}),checks,gl},null,2)
+  }
+  const timer=setTimeout(()=>finish(new Error(`Watchdog en ${stage}`)),35000)
+  window.addEventListener('error',event=>{if(event.message||event.error||event.target?.tagName==='SCRIPT')finish(event.error||new Error(event.message||'Error importación'))},true)
+  window.addEventListener('unhandledrejection',event=>finish(event.reason||new Error('Promesa rechazada')))
+  window.__lfVisualQa={check,finish,progress};report()
+})()
+</script>
+<script type="module">
+const {check,finish,progress}=window.__lfVisualQa
+let app
+const next=()=>new Promise(resolve=>queueMicrotask(resolve))
+try {
+  progress('Montaje con componentes reales')
+  // La fixture monta componentes directamente; el tema se importa como en main.js.
+  await import('/src/styles.css')
+  const {createApp,h,nextTick}=await import('vue')
+  const {default:Inspector}=await import('/src/components/TemporalResourceInspector.vue')
+  const {createProjectData}=await import('/src/core/project.js')
+  const {store,setEditor,resetHistory,openTimelineEditor,selectTemporal}=await import('/src/core/store.js')
+  const {newTimeline,newTrack,newKey,editTimelineAudioVolumePoint,normalizeTimeline,duplicateTimelineSelection}=await import('/src/core/timeline/model.js')
+  const project=createProjectData('QA Inspector puntos','empty')
+  const key=newKey('audio',1,{id:'inspect-key',clip:'test.wav',duration:9,volume:.8,fadeIn:.4,fadeOut:.2})
+  const track=newTrack('audio',{id:'inspect-track',keys:[key]})
+  const timeline=newTimeline('Inspector puntos',{id:'inspect-timeline',duration:14,tracks:[track]})
+  project.timelines=[timeline]
+  store.project=project;store.locked=false;store.play.on=false
+  setEditor({snapshotTerrain:()=>project.terrain});resetHistory()
+  openTimelineEditor(timeline.id);selectTemporal('timeline',timeline.id,'key',track.id,key.id)
+  const before=JSON.stringify(store.project.timelines)
+  app=createApp({render:()=>h(Inspector,{kind:'timeline',resourceId:timeline.id})})
+  app.mount('#inspector');await nextTick();await next()
+  const current=()=>store.project.timelines[0].tracks[0].keys.find(k=>k.id==='inspect-key')
+  const root=()=>document.querySelector('#inspector .inspector-audio-volume')
+  const section=()=>root()?.querySelector('.volume-section-toggle')
+  const add=()=>[...root().querySelectorAll('button')].find(b=>b.textContent.includes('Añadir punto'))
+  const points=()=>[...root().querySelectorAll('.volume-point-row')]
+  const headers=()=>[...root().querySelectorAll('.volume-point-toggle')]
+  const edit=(action,data)=>editTimelineAudioVolumePoint(store.project.timelines[0],track.id,key.id,action,data)
+  const persisted=()=>JSON.parse(JSON.stringify(store.project.timelines))[0].tracks[0].keys[0]
+  const inputs=()=>root()?.querySelectorAll('.volume-point-fields input')||[]
+  const click=async el=>{el?.click();await nextTick();await next()}
+  const change=async(el,value)=>{el.value=value;el.dispatchEvent(new Event('change',{bubbles:true}));await nextTick();await next()}
+  progress('Estado inicial')
+  check('Inspector Audio real montado',!!root())
+  check('El encabezado principal muestra la sección',!!section()&&section().textContent.includes('Automatización de volumen'))
+  check('El apartado inicia expandido',section()?.getAttribute('aria-expanded')==='true')
+  check('No se crean nombres al montar',before===JSON.stringify(store.project.timelines))
+  check('El texto documental no se muestra',!root().textContent.includes('Factor de 0–100 %'))
+  check('El Inspector conserva fuente y propiedades del clip',!!document.querySelector('#inspector input')&&current().duration===9)
+  check('Botón Añadir punto habilitado',!!add()&&!add().disabled)
+  progress('Contraer y expandir sección principal')
+  await click(section())
+  check('La sección se contrae',section()?.getAttribute('aria-expanded')==='false')
+  check('Los campos quedan ocultos sin eliminar audio',!root().querySelector('.volume-section-content')&&current().duration===9)
+  check('Contraer no modifica proyecto',before===JSON.stringify(store.project.timelines))
+  await click(section())
+  check('El apartado se reabre normalmente',section()?.getAttribute('aria-expanded')==='true')
+  progress('Alta y edición de un punto')
+  await click(add())
+  check('Alta crea un punto persistente y nombrado',current().volumeAutomation?.length===1&&current().volumeAutomation[0].name==='Punto-1',current().volumeAutomation)
+  check('Solo una pista Audio y fuente original',store.project.timelines[0].tracks.length===1&&current().clip==='test.wav')
+  check('Encabezado Punto-1 existente',headers().length===1&&headers()[0].textContent.includes('Punto-1'))
+  check('Punto nuevo inicia expandido',headers()[0]?.getAttribute('aria-expanded')==='true')
+  check('Campos Nombre, Tiempo y Factor presentes',inputs().length===3)
+  const id=current().volumeAutomation[0].id
+  const original=[current().volumeAutomation[0].t,current().volumeAutomation[0].value]
+  await change(inputs()[0],'Lluvia tenue')
+  check('Renombrar persiste el valor personalizado',current().volumeAutomation[0].name==='Lluvia tenue',current().volumeAutomation)
+  check('La etiqueta refleja el nombre cambiado',headers()[0]?.textContent.includes('Lluvia tenue'))
+  check('El nombre editado no añade controles paralelos',inputs().length===3)
+  check('El nombre nuevo conserva ID y parámetros',current().volumeAutomation[0].id===id&&current().volumeAutomation[0].t===original[0]&&current().volumeAutomation[0].value===original[1])
+  check('La serialización conserva el nombre',persisted().volumeAutomation[0].name==='Lluvia tenue')
+  await change(inputs()[0],'  ')
+  check('Nombre vacío rechazado y control restaurado',current().volumeAutomation[0].name==='Lluvia tenue'&&inputs()[0].value==='Lluvia tenue')
+  progress('Expansión por punto y nombres legados')
+  await click(headers()[0]);check('Un punto se contrae sin modificar su curva',headers()[0]?.getAttribute('aria-expanded')==='false'&&persisted().volumeAutomation[0].name==='Lluvia tenue')
+  await click(headers()[0]);check('El punto recupera sus propiedades',headers()[0]?.getAttribute('aria-expanded')==='true'&&inputs().length===3)
+  check('Renombrar no altera el volumen base ni los fundidos',current().volume===.8&&current().fadeIn===.4&&current().fadeOut===.2)
+  progress('Umbral de cinco puntos y scroll interno')
+  for(let i=2;i<=6;i++)edit('add',{id:`auto-${i}`,t:i,value:i/10})
+  await nextTick();await next()
+  check('Seis puntos visibles como encabezados independientes',headers().length===6)
+  check('Etiquetas generadas sin duplicación',new Set(headers().map(h=>h.textContent.trim())).size===6)
+  check('La lista recibe clase de scroll desde cinco',!!root().querySelector('.volume-point-list-scroll'))
+  const list=root().querySelector('.volume-point-list-scroll'),style=getComputedStyle(list)
+  check('Scroll limitado y vertical',style.overflowY==='auto'&&parseFloat(style.maxHeight)<=144,{overflowY:style.overflowY,maxHeight:style.maxHeight})
+  check('Contenido largo excede altura visible',list.scrollHeight>list.clientHeight,{scrollHeight:list.scrollHeight,clientHeight:list.clientHeight})
+  const namedHeader=()=>headers().find(el=>el.textContent.includes('Lluvia tenue'))
+  await click(headers()[0]);check('Puntos pueden abrirse independientemente',namedHeader()?.getAttribute('aria-expanded')==='true'&&headers()[0]?.getAttribute('aria-expanded')==='true')
+  await click(namedHeader());check('Cerrar un punto no cierra otro',namedHeader()?.getAttribute('aria-expanded')==='false'&&headers()[0]?.getAttribute('aria-expanded')==='true')
+  check('Añadir puntos no modifica nombre personalizado anterior',current().volumeAutomation.find(p=>p.id===id)?.name==='Lluvia tenue')
+  check('Seis puntos persisten al serializar',persisted().volumeAutomation.length===6)
+  check('El orden serializado conserva tiempos y IDs',persisted().volumeAutomation.every((p,i,a)=>i===0||a[i-1].t<=p.t)&&new Set(persisted().volumeAutomation.map(p=>p.id)).size===6)
+  progress('Compatibilidad y duplicación')
+  const legacy=newKey('audio',10,{id:'legacy-key',duration:2,clip:'legado.wav',volumeAutomation:[{id:'old',t:.5,value:.4}]})
+  const second=newTrack('audio',{id:'legacy-track',keys:[legacy]})
+  const other=newTimeline('Legado',{id:'legacy-timeline',duration:14,tracks:[second]})
+  check('Los puntos históricos sin nombre siguen sin migración',!Object.hasOwn(other.tracks[0].keys[0].volumeAutomation[0],'name'))
+  const [reference]=duplicateTimelineSelection(store.project.timelines[0],[{tr:track.id,k:key.id}],1)
+  const duplicate=store.project.timelines[0].tracks[0].keys.find(k=>k.id===reference?.k)
+  check('Duplicar clave conserva nombres personalizados',duplicate?.volumeAutomation.find(p=>p.id===id)?.name==='Lluvia tenue')
+  check('Duplicación mantiene independencia de objetos',duplicate?.volumeAutomation!==current().volumeAutomation)
+  check('Editor no añade recursos a Cinematics',!store.project.cinematics?.length)
+  check('Collapsar no cambia interpolación',current().volumeAutomation.some(p=>p.name==='Lluvia tenue'&&p.id===id))
+
+  progress('S13-G008: comprobaciones visuales del Inspector real')
+  const visualRoot=()=>document.querySelector('#inspector .inspector-audio-volume')
+  const header=()=>visualRoot()?.querySelector('.volume-title')
+  check('Encabezado distribuye título y acción a extremos',getComputedStyle(header()).justifyContent==='space-between')
+  const hair=getComputedStyle(document.documentElement).getPropertyValue('--hair').trim()
+  check('Encabezado conserva una línea divisora',hair.length>0&&getComputedStyle(header()).borderBottomWidth==='1px',{themeHair:hair,borderBottomWidth:getComputedStyle(header()).borderBottomWidth})
+  check('Botón Añadir punto sigue a la derecha',add().getBoundingClientRect().left>section().getBoundingClientRect().left)
+  check('Nombre de cada punto alineado a la izquierda',getComputedStyle(headers()[0]).textAlign==='left')
+  check('Los puntos tienen un encabezado compartido con papelera',!!points()[0]?.querySelector('.volume-point-heading'))
+  const trash=points()[0]?.querySelector('.volume-point-delete')
+  check('Papelera visible aun con propiedades contraídas',!!trash&&getComputedStyle(trash).display!=='none')
+  check('Icono Bootstrap usa viewBox 16×16',trash?.querySelector('svg')?.getAttribute('viewBox')==='0 0 16 16')
+  check('Acción de papelera anclada a la derecha',trash?.getBoundingClientRect().left>headers()[0]?.getBoundingClientRect().left)
+  check('Inspector conserva clipping y scroll para puntos extensos',getComputedStyle(list).overflowY==='auto')
+  check('No hay segundo botón textual de eliminación dentro de propiedades',!points()[0]?.querySelector('.volume-point-fields button'))
+  const beforeDelete=current().volumeAutomation.length
+  await click(trash)
+  check('Papelera elimina exclusivamente el punto seleccionado',current().volumeAutomation.length===beforeDelete-1)
+  check('La papelera conserva la fuente del audio y duración',current().clip==='test.wav'&&current().duration===9)
+  const selector=document.querySelector('#inspector .pf .ctl select')
+  check('Control Clip sigue montado en ParamForm real',!!selector)
+  check('Selector no sobrepasa su celda CSS',selector&&getComputedStyle(selector).maxWidth==='100%'&&getComputedStyle(selector).minWidth==='0px')
+  finish()
+} catch(error){finish(error)}
+finally{try{app?.unmount()}catch{}}
+</script>
+</html>

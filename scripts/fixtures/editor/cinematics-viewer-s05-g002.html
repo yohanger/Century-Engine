@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="es"><meta charset="utf-8"><title>QA Cinematics · S05-G002</title>
+<style>
+body{margin:0;background:#17191d;color:#dadada;font:12px sans-serif}
+.workspace{display:grid;grid-template-columns:300px minmax(260px,1fr) 260px;gap:8px;height:600px}
+.workspace>div{border:1px solid #4c4c4c;min-width:0;min-height:0;overflow:hidden}
+#cinematics-qa-result{position:absolute;visibility:hidden}
+</style>
+<div class="workspace"><div id="assets"></div><div id="cinematics"></div><div id="inspector"></div></div>
+<pre id="cinematics-qa-result"></pre>
+<script type="module">
+import { createApp,nextTick } from 'vue'
+import ProjectPanel from '/src/components/ProjectPanel.vue'
+import CinematicsPanel from '/src/components/CinematicsPanel.vue'
+import InspectorDock from '/src/components/InspectorDock.vue'
+import { store, openCinematics, resetHistory } from '/src/core/store.js'
+import { createProjectData, splitProject } from '/src/core/project.js'
+import { newTimeline, filmMakerSource, normalizeTimeline } from '/src/core/timeline/model.js'
+import { sampleClip } from '/src/engine/runtime/anim/model.js'
+import { buildLfproj, parseLfproj } from '/src/core/lfproj.js'
+import { defaultDockLayout,findDockPanel } from '/src/core/editor/docking.js'
+const out=document.querySelector('#cinematics-qa-result'), checks=[],apps=[]
+const check=(name,pass)=>{checks.push({name,pass:!!pass});if(!pass)throw Error(name)}
+const tick=async()=>{await nextTick();await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)))}
+const mount=(comp,element)=>{const app=createApp(comp);app.mount(element);apps.push(app)}
+const click=el=>el?.dispatchEvent(new MouseEvent('click',{bubbles:true,cancelable:true}))
+const tile=name=>[...document.querySelectorAll('#assets .tile')].find(el=>el.querySelector('.lbl')?.textContent.trim()===name)
+try {
+ const p=createProjectData('QA Cinematics','empty')
+ const marker=filmMakerSource({id:'movie-1',name:'Film de prueba',scene:{id:p.activeSceneId}},'montage','movie-1')
+ p.timelines=[normalizeTimeline(newTimeline('Montaje QA',{id:'movie-tl',duration:12,filmMaker:marker})),newTimeline('Montaje sin procedencia',{id:'legacy-tl'})]
+ p.animations=[sampleClip('Puerta gameplay')]
+ store.project=p;store.locked=false;store.projFolder='Assets';store.prefs.dockLayout=defaultDockLayout();store.prefs.bottomTab='anim';store.prefs.rightTab='object';store.prefs.rightOpen=true
+ store.editor={snapshotTerrain:()=>p.terrain,restoreTerrain(){},syncAll(){},syncEnvironment(){},setSelection(){},afterUndo(){}}
+ resetHistory()
+ mount(ProjectPanel,'#assets');mount(CinematicsPanel,'#cinematics');mount(InspectorDock,'#inspector');await tick()
+ check('Cinematics se monta en el editor real',!!document.querySelector('#cinematics [data-test="cinematics-viewer"]'))
+ check('Solo hay una película FilmMaker',document.querySelectorAll('#cinematics .movie').length===1)
+ check('Nombre del montaje importado visible',!!document.querySelector('#cinematics .movie-name b')?.textContent.includes('Montaje QA'))
+ check('Timeline manual no se presenta como película',!document.querySelector('#cinematics').textContent.includes('Montaje sin procedencia'))
+ check('Cinematics no dispone de botones de creación ni grabación',![...document.querySelectorAll('#cinematics button')].some(b=>/crear|grabar|añadir pista|duplicar/i.test(b.textContent)))
+ check('Flujo de importación FilmMaker visible',!![...document.querySelectorAll('#cinematics button')].find(b=>/Importar .nfm/.test(b.textContent)))
+ check('Acceso a FilmMaker visible',!![...document.querySelectorAll('#cinematics button')].find(b=>/Abrir FilmMaker/.test(b.textContent)))
+ click(document.querySelector('#cinematics .movie'));await tick()
+ check('Selección Cinematics utiliza ID real',store.cinematicId==='movie-tl')
+ check('Inspector muestra película de solo lectura',!!document.querySelector('#inspector [data-test="cinematic-inspector"]'))
+ check('Inspector conserva el origen FilmMaker',document.querySelector('#inspector').textContent.includes('Nether Film Maker'))
+ check('Inspector no permite editar clave o pista',!document.querySelector('#inspector .temporal-inspector'))
+ check('Transporte tiene Play y Stop',!!document.querySelector('#cinematics [aria-label="Reproducir vista previa"]')&&!!document.querySelector('#cinematics [aria-label="Detener"]'))
+ const seek=document.querySelector('#cinematics [aria-label="Posición de reproducción"]')
+ seek.value='3.5';seek.dispatchEvent(new Event('input',{bubbles:true}));await tick()
+ check('Scrub actualiza tiempo sin alterar proyecto',document.querySelector('#cinematics .time').textContent.includes('00:03.50')&&store.project.timelines[0].duration===12)
+ click(document.querySelector('#cinematics [aria-label="Detener"]'));await tick()
+ check('Stop devuelve a posición inicial',document.querySelector('#cinematics .time').textContent.includes('00:00.00'))
+ check('Assets contiene categoría Cinematics',store.project.folders.includes('Assets/Cinematics'))
+ // Proyección de Assets; si aún falta la carpeta en proyecto heredado la normalización la incorpora.
+ store.projFolder='Assets/Cinematics';await tick()
+ check('Assets Cinematics presenta el montaje importado',!!tile('Montaje QA'))
+ check('Assets Cinematics no presenta timelines manuales',!tile('Montaje sin procedencia'))
+ check('Assets Cinematics prohíbe crear recursos',!document.querySelector('#assets .empty')?.textContent.includes('Arrastra aquí archivos'))
+ const timelineBefore=store.project.timelines.length,clipsBefore=store.project.animations.length
+ openCinematics('legacy-tl');await tick()
+ check('Cinematics rechaza origen sin verificar',store.cinematicId===null)
+ openCinematics('movie-tl');await tick()
+ check('Cinematics vuelve a la película validada',store.cinematicId==='movie-tl')
+ check('El editor de clips heredado ya no figura en docking',findDockPanel(store.prefs.dockLayout,'clips')===null)
+ check('Cinematics conserva su dock y no edita clips de gameplay',findDockPanel(store.prefs.dockLayout,'anim')?.kind==='dock')
+ check('Ni Cinematics ni la apertura del clip crean contenido nuevo',store.project.timelines.length===timelineBefore&&store.project.animations.length===clipsBefore)
+ const {meta,scene}=splitProject(store.project,p.terrain)
+ const saved=await buildLfproj({meta,scenes:new Map([[p.activeSceneId,scene]]),files:new Map()})
+ const reopened=await parseLfproj(await saved.blob.arrayBuffer())
+ check('Guardar/reabrir conserva procedencia FilmMaker',reopened.meta.timelines.find(t=>t.id==='movie-tl')?.filmMaker?.provider==='nether-film-maker')
+ check('Guardar/reabrir conserva timeline heredado',reopened.meta.timelines.some(t=>t.id==='legacy-tl'&&!t.filmMaker))
+ check('Guardar/reabrir conserva clips de gameplay',reopened.meta.animations.some(c=>c.id===p.animations[0].id))
+ document.querySelector('#cinematics').style.width='260px';await tick()
+ check('Panel estrecho mantiene biblioteca, selector y transporte',!!document.querySelector('#cinematics .library')&&!!document.querySelector('#cinematics .player')&&!!document.querySelector('#cinematics .transport'))
+ out.dataset.pass='true';out.textContent=JSON.stringify({pass:true,checks})
+} catch(error) {out.dataset.pass='false';out.textContent=JSON.stringify({pass:false,checks,error:error.stack})}
+finally{for(const app of apps)app.unmount()}
+</script>
+</html>

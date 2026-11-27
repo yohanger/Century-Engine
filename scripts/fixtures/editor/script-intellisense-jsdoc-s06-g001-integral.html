@@ -1,0 +1,59 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Century · IntelliSense JSDoc S06 · Electron QA</title></head><body>
+<pre id="script-intellisense-s06-result">Ejecutando…</pre><div id="script-intellisense-s06-qa"></div>
+<script type="module">
+import { createApp, nextTick } from 'vue'
+import { EditorState } from '@codemirror/state'
+import '/src/styles.css'
+import ScriptEditor from '/src/components/ScriptEditor.vue'
+import { typedSource, engine, describeAt, signatureAt, CONTEXTS } from '/src/core/editor/jsintel.js'
+import { store } from '/src/core/store.js'
+import { createProjectData } from '/src/core/project.js'
+import { floatDockPanel } from '/src/core/editor/docking.js'
+const output=document.querySelector('#script-intellisense-s06-result'),checks=[]
+const check=(name,pass,detail='')=>{checks.push({name,pass:!!pass,detail});if(!pass)throw new Error(name+': '+detail)}
+const tick=async()=>{await nextTick();await new Promise(requestAnimationFrame);await nextTick()}
+const complete=(text,roots=CONTEXTS.script)=>{
+  const state=EditorState.create({doc:text})
+  return typedSource({roots})({state,pos:text.length,explicit:true})?.options?.map(o=>o.label)||[]
+}
+const before={project:store.project,modal:store.modal,id:store.scriptEditId,mode:store.ui.mode,layout:store.prefs.dockLayout}
+let app
+try {
+  const a='/** @typedef {Object} Ficha\n * @property {number} vida\n * @property {string} nombre\n */\n/** @type {Ficha} */\nconst jugador = {}\njugador.'
+  const b='/** @param {NodeHandle} objetivo\n * @returns {NodeHandle}\n */\nfunction seguir(objetivo) {\n  objetivo.\n}\n'
+  store.ui.mode='desktop';store.project=createProjectData('JSDoc QA')
+  store.project.scripts=[
+    {id:'jsdoc-a',folder:'Assets',name:'Ficha.js',code:a,execution:'global'},
+    {id:'jsdoc-b',folder:'Assets',name:'Seguir.js',code:b,execution:'node'},
+  ]
+  store.scriptEditId='jsdoc-a';store.modal='script'
+  store.prefs.dockLayout=floatDockPanel(store.prefs.dockLayout,'scriptEditor',{x:25,y:45,w:820,h:520})
+  app=createApp(ScriptEditor);app.mount('#script-intellisense-s06-qa');await tick()
+  check('S06-01 Script Editor real montado',!!document.querySelector('.edwin.se'))
+  check('S06-02 CodeMirror único',document.querySelectorAll('.edwin.se .cm-editor').length===1)
+  check('S06-03 primer script anotado cargado',document.querySelector('.cm-content')?.textContent.includes('@typedef'))
+  const options=complete(a)
+  check('S06-04 CodeMirror propone @property vida',options.includes('vida'),JSON.stringify(options))
+  check('S06-05 CodeMirror propone @property nombre',options.includes('nombre'),JSON.stringify(options))
+  check('S06-06 no aparecen propiedades inventadas',!options.includes('inventada'),JSON.stringify(options))
+  const pos=a.lastIndexOf('jugador.')+8
+  const desc=describeAt(a,pos-2,CONTEXTS.script)
+  check('S06-07 hover recoge tipo JSDoc',!!desc?.title && desc.title.includes('vida'),JSON.stringify(desc))
+  check('S06-08 conserva opciones API de Century',complete('game.').length>10)
+  check('S06-09 no filtra anotaciones a otro documento',complete('const jugador={};\njugador.').length===0)
+  const nodeRow=[...document.querySelectorAll('.se-file')].find(el=>el.textContent.includes('Seguir.js'))
+  nodeRow?.click();await tick()
+  check('S06-10 cambia a recurso Nodo real',store.scriptEditId==='jsdoc-b' && document.querySelector('.cm-content')?.textContent.includes('objetivo.'))
+  check('S06-11 CodeMirror no se recrea al navegar',document.querySelectorAll('.edwin.se .cm-editor').length===1)
+  const nodePos=b.indexOf('  objetivo.')+11
+  const nodeOpts=complete(b.slice(0,nodePos),CONTEXTS.nodeScript)
+  check('S06-12 parámetro de game-api.d.ts genera propiedades',nodeOpts.length>5,JSON.stringify(nodeOpts))
+  check('S06-13 firma de @returns disponible',engine.contextAt(b,b.length,CONTEXTS.nodeScript).lookup('seguir')?.includes('=> NodeHandle'))
+  check('S06-14 No hay registros de script paralelos',document.querySelectorAll('.se-file').length===2)
+  check('S06-15 alojamiento flotante conservado',document.querySelectorAll('.floating-editor-window').length===1)
+  const foreignCanvases=[...document.querySelectorAll('.edwin.se canvas')].filter(el=>!el.closest('.cm-editor'))
+  check('S06-16 ningún canvas 3D añadido',foreignCanvases.length===0,`canvas ajenos=${foreignCanvases.length}`)
+  output.dataset.pass='true';output.textContent=JSON.stringify({pass:true,gl:'CodeMirror y Vue en Electron, sin QA visual ni GPU',checks},null,2)
+} catch(error) {output.dataset.pass='false';output.textContent=JSON.stringify({pass:false,checks,error:String(error?.stack||error)},null,2)}
+finally {app?.unmount();store.project=before.project;store.modal=before.modal;store.scriptEditId=before.id;store.ui.mode=before.mode;store.prefs.dockLayout=before.layout}
+</script></body></html>

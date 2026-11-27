@@ -1,0 +1,55 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Century — referencias de nodos S01</title></head>
+<body><pre id="reference-resolution-s01-g001-result">Comprobando…</pre>
+<script type="module">
+import * as THREE from 'three'
+import { nodesMethods } from '/src/engine/runtime/events/play-nodes.js'
+import { stepMethods } from '/src/engine/runtime/events/play-steps.js'
+import { animMethods } from '/src/engine/runtime/events/play-anim.js'
+import { lightMethods } from '/src/engine/runtime/events/play-light.js'
+import { NodeScriptRuntime } from '/src/engine/runtime/scene/node-scripts.js'
+import { defaultTagLayers } from '/src/engine/runtime/layers.js'
+const out=document.getElementById('reference-resolution-s01-g001-result'),checks=[]
+const check=(name,p)=>{checks.push({name,pass:!!p});if(!p)throw Error(name)}
+let renderer
+const obj=(id,name=id,parentId=null,type='primitive')=>({id,name,parentId,type,groups:[],layers:[0],light:{type:'omni',energy:2,range:5}})
+try{
+ renderer=new THREE.WebGLRenderer({antialias:false});renderer.setSize(16,16);renderer.render(new THREE.Scene(),new THREE.PerspectiveCamera(60,1,.1,10))
+ check('WebGL2 real',renderer.capabilities.isWebGL2)
+ const raiz=obj('r','Raiz'),hijo=obj('h','Hijo','r'),hermano=obj('s','Hermano','r'),luz=obj('l','Luz',null,'light')
+ const scene=new THREE.Scene(),nodes=new Map()
+ for(const o of [raiz,hijo,hermano,luz]){const n=new THREE.Group();n.name=o.name;scene.add(n);nodes.set(o.id,n)}
+ const p={on:true,_referenceSession:{},project:{objects:[raiz,hijo,hermano,luz],tagLayers:defaultTagLayers()},ed:{nodes},vp:{requestRender(){},recompileMaterials(){}},pos:new THREE.Vector3(),tweens:[],_anims:[],vm:{held:new Map()},
+   _persistMarked:o=>!!o.dontDestroyOnLoad,_persistSet(id,v){this._find(id).dontDestroyOnLoad=!!v;return true},_nodeVisible(id,v){this.ed.nodes.get(id).visible=v},
+   animationPlay:()=>({done:Promise.resolve()}),animationStop:()=>{},animationList:()=>[],animationPlaying:()=>false,
+   _lightsShown:()=>true}
+ Object.assign(p,nodesMethods,stepMethods,animMethods,lightMethods)
+ p._lightInit()
+ const h=p._nodeHandle('Hijo')
+ check('lookup ID',p._nodeHandle('h').id==='h')
+ check('lookup absolute',p._nodeHandle('/Raiz/Hijo').id==='h')
+ check('parent general',h.parent.id==='r')
+ check('children general',p._nodeHandle('Raiz').children.length===2)
+ check('relative sibling',h.get_node('../Hermano').id==='s')
+ check('missing null',h.get_node('ausente')===null)
+ hijo.name='Renombrado';hijo.parentId=null
+ check('rename/reparent actualiza',h.name==='Renombrado'&&h.parent===null)
+ check('ruta antigua desaparece',!p._nodeHandle('/Raiz/Hijo'))
+ const old=h.object3D,replacement=new THREE.Group();scene.add(replacement);nodes.set('h',replacement);h.position=[1,2,3]
+ check('rebuild mesh usa actual',h.object3D===replacement&&old.position.x===0&&replacement.position.x===1)
+ check('Groups sigue operativo',h.add_to_group('enemigos')&&h.is_in_group('enemigos'))
+ const log=[],report=[]
+ const runtime=new NodeScriptRuntime({...p,game:{api:{record:(v)=>log.push(v)},report:(err,at)=>report.push([err.message,at])}})
+ const script={id:'qa-script',execution:'node',code:'function _ready(){game.record(node.get_node(".").id+":"+node.parent?.id)}'}
+ raiz.scriptId=script.id;p.project.scripts=[script];runtime.enter(raiz);runtime.call(raiz,'onReady');runtime.exit(raiz)
+ check('Script Nodo reutiliza navegación',log[0]==='r:undefined'&&report.length===0)
+ const stale=h;p.project.objects=p.project.objects.filter(o=>o!==hijo);nodes.delete('h')
+ check('destrucción invalida',stale.is_valid()===false)
+ const recreado=obj('h','Renacido');p.project.objects.push(recreado);nodes.set('h',new THREE.Group())
+ check('mismo ID no revivió',!stale.is_valid()&&p._nodeHandle('h').is_valid())
+ let rejected=false;try{stale.position=[5,0,0]}catch{rejected=true}
+ check('operación obsoleta rechazada',rejected)
+ p.on=false;p._referenceSession=null;check('Stop invalida sesión',!p._nodeHandle('r').is_valid())
+ check('sin error GL',renderer.getContext().getError()===renderer.getContext().NO_ERROR)
+ out.dataset.pass='true';out.textContent=JSON.stringify({pass:true,gl:renderer.getContext().getParameter(renderer.getContext().VERSION),checks},null,2)
+}catch(e){out.dataset.pass='false';out.textContent=JSON.stringify({pass:false,error:String(e.stack||e),checks},null,2)}finally{renderer?.dispose()}
+</script></body></html>

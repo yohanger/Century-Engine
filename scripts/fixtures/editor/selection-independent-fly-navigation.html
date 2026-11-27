@@ -1,0 +1,30 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Navegación editorial</title><style>#viewport{width:640px;height:360px;position:relative}pre{white-space:pre-wrap}</style></head><body><div id="viewport"></div><pre id="fly-result">Cargando…</pre>
+<script>window.__lfNativePointerReady=new Promise(resolve=>{window.__lfNativePointerResolve=resolve})</script>
+<script type="module">
+const out=document.getElementById('fly-result'),checks=[],captureDiagnostics=[]
+let finished=false,editor,S
+const stage=name=>{out.dataset.stage=name}
+const check=(name,passed)=>{checks.push({name,passed:!!passed});out.dataset.checks=String(checks.length);if(!passed)throw Error(name)}
+const finish=error=>{if(finished)return;finished=true;out.dataset.pass=String(!error);out.textContent=JSON.stringify({pass:!error,checks,captureDiagnostics,stage:out.dataset.stage,...(error?{error:String(error.stack||error)}:{gl:'Editor Three.js / ratón y teclado nativos'})},null,2);window.__lfNativePointerResolve()}
+window.addEventListener('error',e=>{if(e.error)finish(e.error)},true)
+window.addEventListener('unhandledrejection',e=>finish(e.reason))
+try {
+ stage('imports');await import('/src/styles.css');document.documentElement.classList.add('lf-editor')
+ const {nextTick}=await import('vue'),{Editor}=await import('/src/core/editor.js'),{EditSession}=await import('/src/core/mesh/session.js'),{registerTools}=await import('/src/core/tools.js');registerTools({mesh:{EditSession}})
+ S=await import('/src/core/store.js');const {store}=S,{splitProject}=await import('/src/core/project.js'),{makeObject}=await import('/src/engine/runtime/nodes/index.js'),{Terrain}=await import('/src/engine/runtime/geometry/terrain.js'),db=await import('/src/core/db.js')
+ const frame=async()=>{await nextTick();await new Promise(r=>requestAnimationFrame(r));await nextTick()}
+ stage('project');const p=S.createProjectData('Navegación QA','empty-project',{renderer:'compat'});p.id='qa-fly-selection';p.objects=[makeObject('primitive','box',{id:'cube',name:'Cubo'}),makeObject('primitive','box',{id:'other',name:'Otro',position:[2,0,0]})]
+ const terrain=new Terrain(32,8,p.terrain.layers);terrain.enabled=false;const serialized=terrain.serialize();terrain.dispose();const {meta,scene}=splitProject(p,serialized);await db.saveScene(p.id,p.activeSceneId,scene);await db.saveProject(meta);await db.confirmProject(p.id)
+ editor=new Editor(document.querySelector('#viewport'));S.setEditor(editor);store.ready=true;check('Abre proyecto real',await S.openProject(p.id));await frame();S.cancelPendingAutosave()
+ const canvas=editor.dom,vp=editor.vp;canvas.id='qa-fly-canvas';canvas.tabIndex=0;store.gizmo='translate';let session=null
+ const nativeCapture=canvas.setPointerCapture.bind(canvas);canvas.setPointerCapture=id=>{const record={id,stack:new Error().stack};captureDiagnostics.push(record);try{return nativeCapture(id)}catch(e){record.error=String(e);throw e}}
+ const input={right:[],keys:[]};window.addEventListener('pointerdown',e=>{if(e.button===2)input.right.push(e)},true);document.addEventListener('keydown',e=>input.keys.push(e),true);window.addEventListener('keydown',e=>input.keys.push(e),true)
+ const scenarios=['Selección individual','Selección múltiple','Edit Mesh y Modo Local'],keyCodes=['KeyW','KeyA','KeyS'],letters=['w','a','s'];let before=null,ids=[]
+ const prepare=async n=>{S.selectObject('cube');if(n===1)S.selectObject('other',{additive:true});if(n===2){editor.enterEdit();await frame();session=editor.edit;check('Edit Mesh activo',!!session&&store.edit.on);session.setMode('edge');check('Modo Local activo',editor.toggleMeshLocalView()&&store.edit.localView)}await frame();ids=[...store.selectedIds];before=vp.camera.position.clone();input.right.length=0;input.keys.length=0;canvas.focus()}
+ await prepare(0)
+ const selector='#qa-fly-canvas',steps=scenarios.flatMap((_,i)=>[{type:'mousePressed',button:'right',buttons:2,selector,verify:true,keys:[{type:'keyDown',key:letters[i],code:keyCodes[i],keyCode:letters[i].toUpperCase().charCodeAt(0)}]},{type:'mouseReleased',button:'right',buttons:0,selector,verify:true,keys:[{type:'keyUp',key:letters[i],code:keyCodes[i],keyCode:letters[i].toUpperCase().charCodeAt(0)}]}])
+ window.__lfNativePointerSteps=steps
+ window.__lfNativePointerAfter=async index=>{try{const n=Math.floor(index/2),name=scenarios[n];await frame();if(index%2===0){check(`${name}: botón derecho nativo`,input.right.some(e=>e.isTrusted));check(`${name}: vuelo activo`,vp._flying);check(`${name}: teclado nativo`,input.keys.some(e=>e.isTrusted&&e.code===keyCodes[n]&&e.defaultPrevented));check(`${name}: tecla de movimiento`,vp._keys.has(keyCodes[n]));vp._flyStep(.05);check(`${name}: cámara se desplaza`,vp.camera.position.distanceTo(before)>.001);check(`${name}: conserva selección`,JSON.stringify([...store.selectedIds])===JSON.stringify(ids));if(n===2)check('Conserva sesión, aristas y aislamiento',editor.edit===session&&session.mode==='edge'&&store.edit.localView)}else{check(`${name}: captura sin excepciones`,!captureDiagnostics.some(x=>x.error));check(`${name}: finaliza vuelo`,!vp._flying&&!vp._keys.size);check(`${name}: selección después de soltar`,JSON.stringify([...store.selectedIds])===JSON.stringify(ids));if(n===2)check('Edit Mesh conserva contexto al terminar',editor.edit===session&&store.edit.on&&store.edit.localView);if(n<2)await prepare(n+1)}return {ok:true}}catch(e){finish(e);return {ok:false,error:String(e.stack||e),checks,captureDiagnostics}}}
+ stage('native-fly');window.__lfNativePointerResolve();await new Promise(resolve=>{const t=setInterval(()=>{if(window.__lfNativePointerDone||finished){clearInterval(t);resolve()}},25)});if(!finished)finish()
+}catch(e){finish(e)}finally{S?.cancelPendingAutosave?.()}
+</script></body></html>

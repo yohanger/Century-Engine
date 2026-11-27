@@ -1,0 +1,115 @@
+<!doctype html><html lang="es"><head><meta charset="UTF-8"><title>LF Tornado S02 · volumen único</title></head><body>
+<pre id="natural-s02-result">Iniciando comprobación...</pre>
+<script type="module">
+import * as THREE from 'three'
+import { SKY_VERT, SKY_FRAG } from '/src/engine/runtime/render/skylib.js'
+import { World } from '/src/engine/runtime/world/world.js'
+const output=document.querySelector('#natural-s02-result'), checks=[]
+const check=(name,ok,details='')=>{checks.push({name,pass:!!ok,details});if(!ok)throw new Error(`${name}: ${JSON.stringify(details)}`)}
+let renderer,skyMat,texture
+const shaderDiagnostics=[]
+try {
+  renderer=new THREE.WebGLRenderer({antialias:false,preserveDrawingBuffer:true})
+  renderer.debug.onShaderError=(gl,program,vertexShader,fragmentShader)=>{
+    shaderDiagnostics.push({program:gl.getProgramInfoLog(program),vertex:gl.getShaderInfoLog(vertexShader),fragment:gl.getShaderInfoLog(fragmentShader)})
+  }
+  renderer.setSize(128,128);renderer.setPixelRatio(1)
+  check('WebGL2 (nubes 3D)',renderer.capabilities.isWebGL2)
+  const make3D=()=>{
+    const a=new Uint8Array(8*8*8*4).fill(255)
+    const tex=new THREE.Data3DTexture(a,8,8,8)
+    tex.format=THREE.RGBAFormat;tex.type=THREE.UnsignedByteType
+    tex.minFilter=tex.magFilter=THREE.LinearFilter
+    tex.wrapS=tex.wrapT=tex.wrapR=THREE.RepeatWrapping;tex.needsUpdate=true
+    return tex
+  }
+  texture=make3D()
+  const u=(v)=>({value:v})
+  const uniforms={
+    top:u(new THREE.Color('#39485b')),horizon:u(new THREE.Color('#8b9197')),ground:u(new THREE.Color('#777777')),
+    uMode:u(0),uExposure:u(1),uRotation:u(0),uTint:u(new THREE.Color('white')),
+    uPano:u(null),uPanoFlip:u(0),uTurb:u(2),uRayleigh:u(1),uMie:u(0.005),uMieG:u(0.8),
+    uSunDir:u(new THREE.Vector3(0.2,0.7,0.4).normalize()),uSunColor:u(new THREE.Color('#a9b3bf')),
+    uClouds:u(1),uCloudSteps:u(24),uCovg:u(0),uCDens:u(1.7),uCBase:u(900),uCThick:u(2600),
+    uCScale:u(1),uCErode:u(0.7),uCType:u(1),uShape:u(texture),uDetail:u(texture),
+    uCCells:u(0),uCMap:u(null),uCCam:u(new THREE.Vector2()),uCAtm:u(new THREE.Vector2()),uCMapHalf:u(12000),
+    uTornadoCloud:u(new THREE.Vector4(0,-400,110,0)),uTornadoShape:u(new THREE.Vector4(0,900,0,1)),uTornadoOrganization:u(new THREE.Vector4()),uCamXZ:u(new THREE.Vector2(0,0)),
+    uCWind:u(0),uCWindDir:u(0),uWindOff:u(new THREE.Vector2()),uTime:u(1),uCamY:u(100),
+    uCLight:u(0.7),uCTint:u(new THREE.Color('#6b7385')),uCAmb:u(new THREE.Color('#3f4855')),
+    uStars:u(0),uMoonVis:u(0),uFlash:u(0),uAstro:u(0),uLat:u(0),uLst:u(0),
+    uStarCore:u(0.72),uStarTex:u(null),uStarOff:u(null),uMoonTex:u(null),
+    uPlDir:u(Array.from({length:5},()=>new THREE.Vector3(0,-1,0))),uPlCol:u(Array.from({length:5},()=>new THREE.Vector4())),uPlRad:u([0,0,0,0,0]),
+    uMoonDir:u(new THREE.Vector3(0,1,0)),uStarAxis:u(new THREE.Vector3(0,1,0)),uStarAng:u(0),
+    uMoonRight:u(new THREE.Vector3(1,0,0)),uMoonUp:u(new THREE.Vector3(0,1,0)),uAstroSun:u(new THREE.Vector3(0,1,0)),uMoonIllum:u(1),uMoonRad:u(0.0122),
+  }
+  const skyScene=new THREE.Scene()
+  skyMat=new THREE.ShaderMaterial({vertexShader:SKY_VERT,fragmentShader:SKY_FRAG,
+    side:THREE.BackSide,depthWrite:false,uniforms})
+  const sphere=new THREE.Mesh(new THREE.SphereGeometry(900,32,16),skyMat)
+  skyScene.add(sphere)
+  const cam=new THREE.PerspectiveCamera(68,1,0.1,2000)
+  cam.position.set(0,100,0);cam.lookAt(0,900,-400)
+  sphere.position.copy(cam.position)
+  const capture=()=>{
+    renderer.render(skyScene,cam)
+    const ctx=renderer.getContext(),pixels=new Uint8Array(128*128*4)
+    ctx.readPixels(0,0,128,128,ctx.RGBA,ctx.UNSIGNED_BYTE,pixels)
+    const glError=ctx.getError()
+    check('sin errores GPU',glError===ctx.NO_ERROR,{code:glError,glsl:shaderDiagnostics})
+    return pixels
+  }
+  const before=capture()
+  check('cielo existente sin emisor adicional',skyScene.children.length===1)
+  uniforms.uTornadoShape.value.set(0,900,1,1)
+  uniforms.uTornadoCloud.value.w=0.95
+  const after=capture()
+  const difference=(a,b)=>{let sum=0;for(let i=0;i<a.length;i+=4)sum+=Math.abs(a[i]-b[i])+Math.abs(a[i+1]-b[i+1])+Math.abs(a[i+2]-b[i+2]);return sum}
+  check('condensación volumétrica desde la nube hacia el suelo',difference(before,after)>200,{difference:difference(before,after)})
+  check('un solo ShaderMaterial atmosférico',skyScene.children[0].material===skyMat)
+  // Varios ángulos y altitudes: el mismo ShaderMaterial debe soportar miradas descendentes.
+  const fromGround=after
+  cam.position.set(0,1200,0);cam.lookAt(0,0,-400);sphere.position.copy(cam.position)
+  uniforms.uCamY.value=1200
+  const downwardOn=capture()
+  uniforms.uTornadoCloud.value.w=0
+  const downwardOff=capture()
+  check('desde encima de la base, la condensación inferior influye los píxeles',difference(downwardOn,downwardOff)>0,{delta:difference(downwardOn,downwardOff)})
+  uniforms.uTornadoCloud.value.w=0.95
+  cam.position.set(0,100,0);cam.lookAt(0,900,-400);sphere.position.copy(cam.position)
+  uniforms.uCamY.value=100
+  check('restaurar cámara y uniformes no añade memoria de estado temporal',difference(fromGround,capture())===0)
+  // El alcance cero retira la columna inferior; conserva la raíz nubosa de S01.
+  uniforms.uTornadoShape.value.z=0
+  const rootOnly=capture()
+  uniforms.uTornadoShape.value.z=1
+  const withFunnel=capture()
+  check('sin alcance se retira el embudo inferior y se conserva la nube madre',
+    difference(rootOnly,withFunnel)>0,
+    {funnelDifference:difference(rootOnly,withFunnel)})
+  uniforms.uTornadoCloud.value.w=0
+  const zero=capture()
+  check('al desactivar el episodio se retira también la raíz',
+    difference(before,zero)===0,
+    {difference:difference(before,zero)})
+  uniforms.uTornadoCloud.value.w=0.95
+
+  uniforms.uTornadoShape.value.z=0.15
+  const upper=capture()
+  check('formación parcial conserva opacidad observable',difference(before,upper)>0,{difference:difference(before,upper)})
+  uniforms.uTornadoCloud.value.w=0
+  const cleared=capture()
+  check('clima sin tornado restaura el cielo',difference(before,cleared)===0,{difference:difference(before,cleared)})
+  const world=new World(71)
+  world.configure({weather:{on:true,preset:'storm',tornadoEnabled:true,tornadoMode:'script'}})
+  world.startTornado({weatherTransition:0});world.tornadoStep(12)
+  check('World físico independiente de textura y VFX',world.tornado.radius>0 && world.tornado.height>0)
+  check('sin nubes temporales ni emisores en la escena',skyScene.children.length===1)
+  const finalGlError=renderer.getContext().getError()
+  check('sin error GPU tras transición',finalGlError===renderer.getContext().NO_ERROR,{code:finalGlError,glsl:shaderDiagnostics})
+  check('shader sin segundo render pass',skyScene.children.length===1)
+  check('sin plano ni mesh de embudo adicional',skyScene.children.filter(o=>o.isMesh).length===1)
+  output.dataset.pass='true'
+  output.textContent=JSON.stringify({pass:true,checks,gl:renderer.getContext().getParameter(renderer.getContext().VERSION)},null,2)
+} catch(e){output.dataset.pass='false';output.textContent=JSON.stringify({pass:false,checks,error:String(e.stack||e)},null,2)}
+finally{skyMat?.dispose();texture?.dispose();renderer?.dispose()}
+</script></body></html>

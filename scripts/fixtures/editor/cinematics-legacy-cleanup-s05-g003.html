@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="es"><meta charset="utf-8"><title>QA S05-G003 · eliminación Assets / Cinematics</title>
+<style>
+body{margin:0;background:#17191d;color:#dadada;font:12px sans-serif}
+.workspace{display:grid;grid-template-columns:300px minmax(260px,1fr) 260px;gap:8px;height:600px}
+.workspace>div{border:1px solid #4c4c4c;min-width:0;min-height:0;overflow:hidden}
+#cinematics-legacy-result{position:absolute;visibility:hidden}
+</style>
+<div class="workspace"><div id="assets"></div><div id="cinematics"></div><div id="inspector"></div></div>
+<div id="menuHost"></div><div id="askHost"></div><pre id="cinematics-legacy-result"></pre>
+<script type="module">
+import { createApp, h, nextTick } from 'vue'
+import ProjectPanel from '/src/components/ProjectPanel.vue'
+import CinematicsPanel from '/src/components/CinematicsPanel.vue'
+import InspectorDock from '/src/components/InspectorDock.vue'
+import ContextMenu from '/src/components/ContextMenu.vue'
+import AskWindows from '/src/components/AskWindows.vue'
+import { dialogs } from '/src/core/dialogs.js'
+import { store, resetHistory, undo, redo } from '/src/core/store.js'
+import { createProjectData, splitProject } from '/src/core/project.js'
+import { newTimeline, filmMakerSource } from '/src/core/timeline/model.js'
+import { sampleClip } from '/src/engine/runtime/anim/model.js'
+import { defaultDockLayout, normalizeDockLayout, findDockPanel } from '/src/core/editor/docking.js'
+import { buildLfproj, parseLfproj } from '/src/core/lfproj.js'
+const out=document.querySelector('#cinematics-legacy-result'),checks=[],apps=[]
+const check=(name,pass)=>{checks.push({name,pass:!!pass});if(!pass)throw Error(name)}
+const tick=async()=>{await nextTick();await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)))}
+const mount=(comp,where)=>{const app=createApp(comp);app.mount(where);apps.push(app)}
+const tile=name=>[...document.querySelectorAll('#assets .tile')].find(el=>el.querySelector('.lbl')?.textContent.trim()===name)
+const context=async(el)=>{el.dispatchEvent(new MouseEvent('contextmenu',{bubbles:true,cancelable:true,clientX:80,clientY:100,button:2}));await tick()}
+const action=label=>store.menu?.items.find(i=>i.label===label)
+const confirm=async()=>{await tick();check('Confirmación de eliminación disponible',dialogs.list.length>0);dialogs.list.at(-1).done(true);await tick()}
+try{
+ const p=createProjectData('QA Cinematics G003','empty')
+ const film={id:'film-1',name:'Película QA',scene:{id:p.activeSceneId}}
+ p.timelines=[newTimeline('Montaje QA',{id:'movie-tl',filmMaker:filmMakerSource(film,'montage','film-1')}),newTimeline('Toma QA',{id:'pass-tl',filmMaker:filmMakerSource(film,'pass','pass-1')}),newTimeline('Timeline manual',{id:'manual-tl'})]
+ p.animations=[sampleClip('Clip antiguo')]
+ p.objects=[{id:'obj-1',name:'Actor',type:'node',props:{command:{timeline:'Montaje QA'}}}]
+ store.project=p;store.locked=false;store.projFolder='Assets/Cinematics';store.prefs.dockLayout=defaultDockLayout();store.prefs.bottomTab='anim';store.prefs.rightTab='object'
+ store.editor={snapshotTerrain:()=>p.terrain,restoreTerrain(){},syncAll(){},applyView(){},setSelection(){},restoreEdit(){},afterUndo(){}}
+ resetHistory()
+ mount(ProjectPanel,'#assets');mount(CinematicsPanel,'#cinematics');mount(InspectorDock,'#inspector')
+ mount({render:()=>store.menu?h(ContextMenu):null},'#menuHost');mount(AskWindows,'#askHost')
+ await tick()
+ check('ProjectPanel real montado',!!document.querySelector('#assets .tile'))
+ check('Biblioteca Cinematics usa FilmMaker',document.querySelectorAll('#cinematics .movie').length===2)
+ check('Montaje visible en Assets/Cinematics',!!tile('Montaje QA'))
+ check('Toma visible en Assets/Cinematics',!!tile('Toma QA'))
+ check('Timeline manual fuera de Cinematics',!tile('Timeline manual'))
+ check('Legacy Clip fuera del visor',!document.querySelector('#cinematics').textContent.includes('Clip antiguo'))
+ check('Sin panel clips en docking',findDockPanel(store.prefs.dockLayout,'clips')===null)
+ check('Cinematics conserva ID anim',findDockPanel(store.prefs.dockLayout,'anim')?.kind==='dock')
+ check('Sin controles de creación o grabación en Cinematics',![...document.querySelectorAll('#cinematics button')].some(b=>/crear animación|grabar clave|crear pista/i.test(b.textContent)))
+ document.querySelector('#cinematics').style.width='260px';await tick()
+ check('Cinematics estrecho conserva su transporte',!!document.querySelector('#cinematics .transport'))
+ await context(tile('Montaje QA'))
+ check('Menú contextual real abierto',!!document.querySelector('#menuHost [role="menu"]'))
+ check('Eliminar habilitado en película embedded',action('Eliminar')?.disabled===false)
+ check('Mover sigue deshabilitado en embedded',action('Mover a')?.disabled===true)
+ check('Renombrar sigue deshabilitado en embedded',action('Renombrar')?.disabled===true)
+ action('Eliminar').run();await tick()
+ check('Aviso incluye referencia de escena',dialogs.list.some(d=>d.message.includes('Escena')&&d.message.includes('Actor')))
+ await confirm()
+ check('Película eliminada del proyecto',!p.timelines.some(t=>t.id==='movie-tl'))
+ check('La toma no fue eliminada por cascada',p.timelines.some(t=>t.id==='pass-tl'))
+ check('Timeline manual permanece',p.timelines.some(t=>t.id==='manual-tl'))
+ check('Clips de gameplay permanecen',p.animations.length===1)
+ check('Biblioteca deja de listar montaje eliminado',document.querySelectorAll('#cinematics .movie').length===1)
+ undo();await tick()
+ check('Deshacer restaura el montaje',p.timelines.some(t=>t.id==='movie-tl'))
+ redo();await tick()
+ check('Rehacer elimina el montaje',!p.timelines.some(t=>t.id==='movie-tl'))
+ store.projFolder='Assets';await tick()
+ check('Timeline manual visible en Assets raíz',!!tile('Timeline manual'))
+ await context(tile('Timeline manual'))
+ check('Eliminar también habilitado en Timeline',action('Eliminar')?.disabled===false)
+ action('Eliminar').run();await confirm()
+ check('Timeline manual eliminado',!p.timelines.some(t=>t.id==='manual-tl'))
+ check('Película restante no afectada',p.timelines.length===1&&p.timelines[0].id==='pass-tl')
+ check('Clips heredados conservados sin rutas de edición',p.animations.length===1 && findDockPanel(normalizeDockLayout(store.prefs.dockLayout),'clips')===null)
+ const {meta,scene}=splitProject(p,p.terrain)
+ const saved=await buildLfproj({meta,scenes:new Map([[p.activeSceneId,scene]]),files:new Map()})
+ const opened=await parseLfproj(await saved.blob.arrayBuffer())
+ check('Persistencia conserva solo película restante',opened.meta.timelines.length===1&&opened.meta.timelines[0].id==='pass-tl')
+ check('Persistencia conserva clips gameplay',opened.meta.animations.length===1)
+ out.dataset.pass='true';out.textContent=JSON.stringify({pass:true,checks})
+}catch(error){out.dataset.pass='false';out.textContent=JSON.stringify({pass:false,checks,error:error.stack})}
+finally{for(const app of apps)app.unmount()}
+</script></html>

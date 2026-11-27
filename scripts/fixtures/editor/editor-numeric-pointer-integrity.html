@@ -1,0 +1,77 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Integridad editorial</title></head><body><pre id="editor-numeric-pointer-integrity-result">Cargando…</pre><div id="host"></div><script>window.__lfNativeKeyReady = new Promise(resolve => { window.__lfNativeKeyResolve = resolve })</script><script type="module">
+const output = document.getElementById('editor-numeric-pointer-integrity-result'), checks = []
+const stage = value => { output.dataset.stage = value }
+const check = (name, pass) => { checks.push({ name, passed: !!pass }); output.dataset.checks = String(checks.length); if (!pass) throw new Error(name) }
+let app, renderer
+try {
+  stage('imports')
+  const [{ createApp, h, nextTick, ref }, { default: NumberField }, { acquirePointer }, { finiteMesh, strictJson }, { transformUV }, { PolyMesh }, THREE, { navMethods }] = await Promise.all([
+    import('vue'), import('/src/components/NumberField.vue'), import('/src/engine/runtime/input/pointer-capture.js'), import('/src/engine/runtime/numeric-integrity.js'), import('/src/core/mesh/uv.js'), import('/src/engine/runtime/mesh/polymesh.js'), import('three'), import('/src/engine/runtime/render/viewport-nav.js')
+  ])
+  stage('pointer')
+  const host = document.getElementById('host')
+  const event = new PointerEvent('pointerdown', { pointerId: 999999, button: 0, clientX: 10, bubbles: true })
+  check('Captura nativa de puntero inexistente no abre operación', acquirePointer(host, event, 'Fixture') === false)
+  const value = ref(5), persistent = ref(5); let commits = 0, persistentCommits = 0
+  app = createApp({ render: () => h('div', [h(NumberField, { modelValue: value.value, label: 'X', selectOnFocus:true, 'onUpdate:modelValue': v => value.value=v, onCommit: () => commits++ }), h(NumberField, { modelValue: persistent.value, label:'Y', selectOnFocus:true, keepFocusOnEnter:true, 'onUpdate:modelValue': v => persistent.value=v, onCommit: () => persistentCommits++ }), h('button', {id:'outside'}, 'Fuera')]) })
+  app.mount(host); await nextTick()
+  const label = host.querySelector('.lbl'), input = host.querySelector('input')
+  label.dispatchEvent(event)
+  label.dispatchEvent(new PointerEvent('pointermove', { pointerId: 999999, clientX: 100, bubbles: true }))
+  label.dispatchEvent(new PointerEvent('pointerup', { pointerId: 999999, button: 0, bubbles: true }))
+  check('Campo numérico no modifica ni confirma captura rechazada', value.value === 5 && commits === 0 && !host.querySelector('.nf').classList.contains('drag'))
+  stage('numeric-native')
+  const events = [], steps = [], assertions = new Map()
+  for (const type of ['focus', 'blur', 'input', 'keydown']) host.addEventListener(type, e => {
+    if (e.target.tagName === 'INPUT') events.push({type, trusted:e.isTrusted, field:e.target.getAttribute('aria-label'), key:e.key, value:e.target.value})
+  }, true)
+  const add = (key, code, keyCode, extra={}) => steps.push({key, code, keyCode, ...extra})
+  const type = (field, text) => {
+    add('a','KeyA',65,{focus:`input[aria-label="${field}"]`,modifiers:2})
+    for (const char of text) {
+      const special = {'-':['Minus',189],'.':['Period',190],',':['Comma',188],e:['KeyE',69]}[char]
+      add(char,special?.[0] || `Digit${char}`,special?.[1] || Number(char)+48,{text:char})
+    }
+  }
+  const finish = (key, name, predicate) => {
+    add(key,key,{Tab:9,Enter:13,Escape:27}[key]); assertions.set(steps.length-1,{name,predicate})
+  }
+  const field = name => host.querySelector(`input[aria-label="${name}"]`)
+  type('X','1e999'); finish('Tab','Campo numérico rechaza desbordamiento',()=>value.value===5 && commits===0 && field('X').value==='5')
+  type('X','-2.5'); finish('Tab','Campo numérico acepta negativo válido',()=>value.value===-2.5 && commits===1 && field('X').value==='-2.5')
+  type('X','-3,75'); finish('Enter','Enter confirma decimal con coma una sola vez',()=>value.value===-3.75 && commits===2 && field('X').value==='-3.75')
+  type('X','-9'); finish('Escape','Escape conserva valor y no confirma',()=>value.value===-3.75 && commits===2 && field('X').value==='-3.75')
+  type('Y','-4.25'); finish('Enter','Enter con foco retenido confirma una sola vez',()=>persistent.value===-4.25 && persistentCommits===1 && document.activeElement===field('Y') && field('Y').value==='-4.25')
+  finish('Tab','Blur posterior a Enter no duplica el commit',()=>persistent.value===-4.25 && persistentCommits===1 && document.activeElement?.id==='outside')
+  window.__lfNativeKeyAfter = async index => {
+    await nextTick()
+    const assertion = assertions.get(index)
+    if (!assertion) return {ok:true}
+    try { check(assertion.name,assertion.predicate()); return {ok:true} }
+    catch(error) { return {ok:false,error:String(error.stack||error),checks,events,model:{value:value.value,commits,persistent:persistent.value,persistentCommits},active:document.activeElement?.outerHTML} }
+  }
+  window.__lfNativeKeySteps = steps
+  window.__lfNativeKeyResolve()
+  const started = Date.now()
+  while (!window.__lfNativeKeyDone && Date.now()-started<15000) await new Promise(resolve=>setTimeout(resolve,30))
+  check('Teclado nativo y pérdida de foco acreditados',window.__lfNativeKeyDone===true && events.some(e=>e.type==='input' && e.trusted && e.field==='X' && e.value==='-2.5') && events.some(e=>e.type==='blur' && e.trusted && e.field==='X') && events.some(e=>e.type==='keydown' && e.trusted && e.key==='Escape'))
+  stage('camera')
+  renderer = new THREE.WebGLRenderer({ antialias:false }); renderer.setSize(320,240)
+  const camera = new THREE.PerspectiveCamera(60, 4/3, .1, 100); camera.position.set(5,4,6); camera.lookAt(0,0,0); camera.updateMatrixWorld(true)
+  const target = new THREE.Vector3(); const start = camera.position.clone(); const cameraState = { camera, persp:camera, controls:{ target, update(){} }, dom:{getBoundingClientRect:()=>({left:0,top:0,width:0,height:0})}, requestRender(){} }
+  navMethods._zoomAt.call(cameraState, 10, 0, 0)
+  check('Zoom en viewport oculto no cambia cámara ni objetivo', start.equals(camera.position) && target.length()===0)
+  navMethods._zoomAt.call(cameraState, NaN, 10, 10)
+  check('Entrada no finita no cambia cámara', start.equals(camera.position))
+  stage('geometry')
+  const mesh = new PolyMesh([[0,0,0],[1,0,0],[0,1,0]], [[0,1,2]]); mesh.ensureUV()
+  const oldUV = JSON.stringify(mesh.uv)
+  check('Transformación UV desbordada es atómica', typeof transformUV(mesh,null,{scale:[1e308,1e308]}) === 'string' && JSON.stringify(mesh.uv) === oldUV)
+  mesh.v[0][0] = NaN; check('Geometría inválida no supera preflight', !finiteMesh(mesh))
+  let blocked=false; try { strictJson(mesh.toJSON(),'Malla') } catch (e) { blocked=e instanceof TypeError && e.message.includes('no finito') }
+  check('Persistencia bloqueada sin convertir NaN a null', blocked)
+  check('WebGL2 disponible', renderer.capabilities.isWebGL2)
+  stage('complete'); output.dataset.pass='true'; output.textContent=JSON.stringify({pass:true,checks,gl:renderer.getContext().getParameter(renderer.getContext().VERSION)})
+} catch(error) { output.dataset.pass='false'; output.textContent=JSON.stringify({pass:false,checks,error:String(error.stack||error),stage:output.dataset.stage}) }
+finally { window.__lfNativeKeyResolve(); app?.unmount(); renderer?.dispose() }
+</script></body></html>

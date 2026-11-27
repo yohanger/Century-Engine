@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="es"><meta charset="utf-8"><title>QA G007 · Fundidos Audio Timeline</title>
+<style>
+html,body{margin:0;min-height:100%;background:#171b20;color:#e2e8ee;font:12px sans-serif}
+#timeline{height:370px;width:min(860px,100vw);overflow:hidden}
+#timeline-audio-fade-handles-s11-g007-g001-result{display:none}
+</style>
+<div id="timeline"></div><pre id="timeline-audio-fade-handles-s11-g007-g001-result"></pre>
+<script>
+(() => {
+  const output=document.getElementById('timeline-audio-fade-handles-s11-g007-g001-result')
+  const checks=[];let stage='bootstrap',finished=false
+  function publish(){if(finished)return;output.dataset.stage=stage;output.dataset.checks=String(checks.length);output.textContent=JSON.stringify({pass:null,stage,checks},null,2)}
+  function progress(next){stage=next;publish()}
+  function check(name,ok,actual){checks.push({name,pass:!!ok,...(actual===undefined?{}:{actual})});progress('Comprobación '+checks.length+': '+name)}
+  function finish(error){if(finished)return;finished=true;clearTimeout(timer)
+    const pass=!error&&checks.length===34&&checks.every(check=>check.pass)
+    output.dataset.pass=String(pass);output.dataset.stage=pass?'final:PASS':'final:FAIL';output.dataset.checks=String(checks.length)
+    let gl=false;try{gl=!!document.createElement('canvas').getContext('webgl')}catch{}
+    output.textContent=JSON.stringify({pass,stage,...(error?{error:error.stack||String(error)}:{}),checks,gl},null,2)
+  }
+  const timer=setTimeout(()=>finish(new Error('Watchdog · '+stage)),35000)
+  window.addEventListener('error',event=>{if(event.message||event.error||event.target?.tagName==='SCRIPT')finish(event.error||new Error(event.message||'No se cargó un módulo'))},true)
+  window.addEventListener('unhandledrejection',event=>finish(event.reason||new Error('Promesa no capturada')))
+  window.__lfAudioFadeQa={progress,check,finish}
+  publish()
+})()
+</script>
+<script type="module">
+const {progress,check,finish}=window.__lfAudioFadeQa
+let app,playback
+const eq=(actual,expected)=>Math.abs(actual-expected)<.0001
+const tick=()=>new Promise(resolve=>queueMicrotask(resolve))
+try{
+  progress('Importaciones')
+  const {createApp,h,nextTick}=await import('vue')
+  const {default:TimelinePanel}=await import('/src/components/TimelinePanel.vue')
+  const {createProjectData}=await import('/src/core/project.js')
+  const {store,setEditor,resetHistory,openTimelineEditor,undo,redo}=await import('/src/core/store.js')
+  const {newKey,newTrack,newTimeline}=await import('/src/core/timeline/model.js')
+  const {createTimelinePlayback,timelinePlaybackKey}=await import('/src/core/timeline/playback-session.js')
+  progress('Proyecto de prueba y montaje Vue')
+  const project=createProjectData('QA fundidos G007','empty')
+  const key=newKey('audio',2,{id:'fade-key',clip:'prueba-fade.wav',duration:4,fadeIn:.5,fadeOut:.75})
+  const full=newKey('audio',8,{id:'full-source',clip:'sin-fuente.wav',duration:0,fadeIn:0,fadeOut:0})
+  const track=newTrack('audio',{id:'track-fade',keys:[key,full]})
+  project.timelines=[newTimeline('QA Fade Handles',{id:'timeline-fade',duration:14,tracks:[track]})]
+  store.project=project;store.locked=false;store.play.on=false;store.ui.mode='desktop';store.prefs.bottomTab='timeline'
+  setEditor({snapshotTerrain:()=>project.terrain})
+  playback=createTimelinePlayback({getProject:()=>store.project,getEditor:()=>store.editor,getObjects:()=>project.objects,
+    getContext:()=>({project:store.project,sceneId:project.activeSceneId,editor:store.editor,timelineId:store.timelineId,playOn:false,locked:false,cinematic:false}),
+    requestFrame:()=>1,cancelFrame:()=>{}})
+  app=createApp({render:()=>h(TimelinePanel)});app.provide(timelinePlaybackKey,playback)
+  resetHistory();openTimelineEditor('timeline-fade');app.mount('#timeline');await nextTick();await tick()
+  // Referencia reactiva real; no modificar el objeto original fuera del proxy de Vue.
+  const current=()=>store.project.timelines.find(t=>t.id==='timeline-fade').tracks[0].keys.find(k=>k.id==='fade-key')
+  const currentTrack=()=>store.project.timelines[0].tracks[0]
+  const first=()=>document.querySelector('#timeline .audio-fade-grip.fade-in')
+  const last=()=>document.querySelector('#timeline .audio-fade-grip.fade-out')
+  const band=()=>document.querySelector('#timeline .lane .key.audio')
+  const curve=()=>document.querySelector('#timeline .audio-fade-envelope path')
+  const width=()=>band()?.getBoundingClientRect().width||0
+  const center=el=>{const r=el.getBoundingClientRect();return {x:r.left+r.width/2,y:r.top+r.height/2}}
+  const pointer=(target,type,id,x,y,buttons)=>target.dispatchEvent(new PointerEvent(type,{bubbles:true,cancelable:true,isPrimary:true,pointerId:id,button:0,buttons,clientX:x,clientY:y}))
+  async function drag(el,dx,{cancel=false}={}){if(!el)return;progress('Arrastre de '+(el.className||'asa'));const pos=center(el),id=300+Math.floor(Math.abs(dx));
+    pointer(el,'pointerdown',id,pos.x,pos.y,1)
+    pointer(window,'pointermove',id,pos.x+dx,pos.y,1)
+    pointer(window,cancel?'pointercancel':'pointerup',id,pos.x+dx,pos.y,cancel?0:0)
+    await nextTick()
+  }
+  async function press(el,key){el?.dispatchEvent(new KeyboardEvent('keydown',{key,bubbles:true,cancelable:true}));await nextTick()}
+  const snapControl=()=>document.querySelector('#timeline select[aria-label="Intervalo de ajuste"]')
+  async function setSnap(value){
+    const control=snapControl()
+    if(!control)throw new Error('No se encontró el selector de Snap del Timeline')
+    control.value=String(value)
+    control.dispatchEvent(new Event('change',{bubbles:true}))
+    await nextTick()
+  }
+  const serializedFade=()=>{
+    const data=JSON.parse(JSON.stringify(store.project.timelines))
+    const saved=data[0]?.tracks[0]?.keys.find(key=>key.id==='fade-key')
+    return {data,saved}
+  }
+  const original=JSON.stringify(store.project.timelines)
+  check('Timeline existente monta en Editor',!!document.querySelector('#timeline .tlp'))
+  check('Solo una pista Audio original',store.project.timelines[0].tracks.length===1)
+  check('Curva de fundidos sobre el clip',!!curve())
+  check('Fade In tiene un control de teclado',first()?.getAttribute('role')==='slider')
+  check('Fade Out tiene un control de teclado',last()?.getAttribute('role')==='slider')
+  check('Fade In indica valor original',first()?.getAttribute('aria-valuenow')==='0.5')
+  check('Fade Out indica valor original',last()?.getAttribute('aria-valuenow')==='0.75')
+  check('Fuente completa sin análisis no inventa fundido de salida',document.querySelectorAll('#timeline .audio-fade-grip.fade-out').length===1)
+  check('Fuente completa sin análisis no inventa tramo de entrada',document.querySelectorAll('#timeline .audio-fade-grip.fade-in').length===1)
+  check('Curva no intercepta clic sobre audio',getComputedStyle(document.querySelector('#timeline .audio-fade-envelope')).pointerEvents==='none')
+  check('Clip conserva ancho temporal',eq(width(),280),width())
+  const rect=band().getBoundingClientRect()
+  const fadeInPos=center(first()).x-rect.left
+  const fadeOutPos=rect.right-center(last()).x
+  check('Fade In situado en el tiempo real',Math.abs(fadeInPos-35)<2,fadeInPos)
+  check('Fade Out situado en el tiempo real',Math.abs(fadeOutPos-52.5)<2,fadeOutPos)
+  check('Proyecto sin mutaciones en montaje',original===JSON.stringify(store.project.timelines))
+  check('Snap inicial de Timeline es 0.1 s',snapControl()?.value==='0.1',snapControl()?.value)
+  await drag(first(),70)
+  check('Arrastre entrada suma un segundo',eq(current().fadeIn,1.5),current().fadeIn)
+  check('Arrastre no modifica Fade Out',eq(current().fadeOut,.75))
+  check('Arrastre no mueve el clip ni cambia duración',eq(current().duration,4)&&eq(current().t,2))
+  check('Asa de entrada se sincroniza',first()?.getAttribute('aria-valuenow')==='1.5')
+  await drag(last(),-70)
+  check('Fade Out con Snap 0.1 s se ajusta a 1.8 s',eq(current().fadeOut,1.8),current().fadeOut)
+  const snapped=serializedFade()
+  check('Serialización con Snap conserva Fade In 1.5 y Fade Out 1.8',
+    snapped.saved?.fadeIn===1.5&&snapped.saved?.fadeOut===1.8&&snapped.saved?.duration===4&&snapped.saved?.t===2,
+    {fadeIn:snapped.saved?.fadeIn,fadeOut:snapped.saved?.fadeOut})
+  await setSnap(0)
+  check('Snap libre seleccionado mediante el control real',snapControl()?.value==='0',snapControl()?.value)
+  await drag(last(),73.5)
+  check('Con Snap libre, el asa vuelve a 0.75 s',eq(current().fadeOut,.75),current().fadeOut)
+  await drag(last(),-70)
+  check('Con Snap libre, el arrastre produce 1.75 s exactos',eq(current().fadeOut,1.75),current().fadeOut)
+  const free=serializedFade()
+  check('Serialización libre conserva 1.75 s y datos originales',
+    eq(free.saved?.fadeIn,1.5)&&eq(free.saved?.fadeOut,1.75)&&free.saved?.duration===4&&free.saved?.t===2&&free.saved?.clip==='prueba-fade.wav',
+    {fadeIn:free.saved?.fadeIn,fadeOut:free.saved?.fadeOut})
+  await setSnap(.1)
+  check('Snap 0.1 s restaurado antes del QA de teclado',snapControl()?.value==='0.1',snapControl()?.value)
+  check('No aparecen nuevas pistas',store.project.timelines[0].tracks.length===1)
+  const beforeCancel=current().fadeIn
+  await drag(first(),28,{cancel:true})
+  check('Pointercancel revierte edición',eq(current().fadeIn,beforeCancel),current().fadeIn)
+  await press(first(),'Home')
+  check('Home restablece Fade In a cero',eq(current().fadeIn,0),current().fadeIn)
+  await press(first(),'ArrowRight')
+  check('ArrowRight ajusta Fade In con Snap',eq(current().fadeIn,.1),current().fadeIn)
+  const beforeLock=current().fadeOut
+  currentTrack().locked=true;await nextTick()
+  await press(last(),'ArrowRight')
+  check('Pista bloqueada protege los fundidos',eq(current().fadeOut,beforeLock),current().fadeOut)
+  currentTrack().locked=false;await nextTick()
+  const serialized=JSON.parse(JSON.stringify(store.project.timelines))
+  check('Campos originales serializados',eq(serialized[0].tracks[0].keys[0].fadeIn,.1)&&eq(serialized[0].tracks[0].keys[0].fadeOut,1.75),
+    {fadeIn:serialized[0].tracks[0].keys[0].fadeIn,fadeOut:serialized[0].tracks[0].keys[0].fadeOut})
+  check('duration=0 sigue siendo fuente completa',serialized[0].tracks[0].keys[1].duration===0)
+  check('No se agregaron recursos a Cinematics',store.project.timelines.length===1)
+  finish()
+}catch(error){finish(error)}
+finally{try{app?.unmount()}catch{}try{playback?.dispose()}catch{}}
+</script></html>

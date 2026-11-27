@@ -1,0 +1,49 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Century Terrain Inspector Context S04A</title><style>body{background:#14181c;color:#e5e7eb;margin:0;font:12px Arial}#mount{width:320px;height:690px}</style></head><body>
+<div id="mount"></div><pre id="terrain-inspector-context-s04a-g001-result">Verificando Inspector…</pre>
+<script type="module">
+import * as THREE from 'three'
+import {createApp,nextTick} from 'vue'
+import InspectorDock from '/src/components/InspectorDock.vue'
+import {store, selectPiece, selectObject, selectScene, syncPieces} from '/src/core/store.js'
+import {Terrain,DEFAULT_LAYERS} from '/src/engine/runtime/geometry/terrain.js'
+import {makeObject} from '/src/engine/runtime/nodes/index.js'
+import {loadJolt} from '/src/engine/runtime/physics/jolt.js'
+import '/src/styles.css'
+const out=document.getElementById('terrain-inspector-context-s04a-g001-result'),checks=[]
+const check=(name,pass)=>{checks.push({name,pass:!!pass});if(!pass)throw Error(name)}
+const flush=async()=>{await nextTick();await new Promise(r=>requestAnimationFrame(r));await nextTick()}
+let renderer,app,terrain
+try{
+ renderer=new THREE.WebGLRenderer({antialias:false});renderer.setSize(16,16);renderer.render(new THREE.Scene(),new THREE.PerspectiveCamera(65,1,.1,10))
+ check('WebGL2 embebido',renderer.capabilities.isWebGL2)
+ const jolt=await loadJolt();check('Jolt WASM real',!!jolt.JoltInterface)
+ terrain=new Terrain(32,16);terrain.id='terrain-qa';terrain.name='Terreno QA';terrain.setOffset(1,3,5)
+ const cube=makeObject('primitive','box',{id:'cube-qa',name:'Cubo QA'})
+ store.project={id:'terrain-inspector-qa',activeSceneId:'qa',scenes:[{id:'qa',name:'Escena QA'}],objects:[cube],scripts:[],assets:[],models:[],materials:[],meshes:[],prefabs:[],profiles:[],gameManagers:[],liquids:[],vfx:[],uis:[],signalConnections:[],render:{},audio:{},settings:{},environment:{waterSimulation:{enabled:false,regions:[]}},terrain:{enabled:true,size:32,segments:16,layers:DEFAULT_LAYERS.map(x=>({...x})),foliage:[]}}
+ const ed={terrains:[terrain],_activeId:terrain.id,get terrain(){return this.terrains[0]},setActivePiece(id){this._activeId=id},setSelection(){},_syncTerrainGizmo(){},syncObject(){},removeObject(){},snapshotTerrain(){return this.terrain.snapshot()},vp:{requestRender(){}}}
+ store.editor=ed;store.selectedId=null;store.selectedIds=[];store.terrainSel=false;store.sceneSel=true;store.audioInspector=null;store.projSel=null;store.foliageCounts={}
+ store.prefs.rightTab='terrain';syncPieces()
+ app=createApp(InspectorDock);app.mount('#mount');await flush()
+ check('Migración de preferencia Terreno antigua',store.prefs.rightTab==='object')
+ check('Pestañas Inspector y Señales',document.querySelectorAll('#mount .tabs button').length===2)
+ check('No hay pestaña Terreno separada',![...document.querySelectorAll('#mount .tabs button')].some(e=>e.textContent.includes('Terreno')))
+ check('Escena es Inspector predeterminado',document.querySelector('#mount .insp')?.dataset.nodeType==='scene')
+ selectPiece(terrain.id);await flush()
+ check('Pieza y nodo comparten selectedId',store.selectedId===terrain.id&&store.activePieceId===terrain.id)
+ check('Inspector reconoce tipo terreno',document.querySelector('#mount .insp')?.dataset.nodeType==='terrain')
+ check('Único TerrainPanel contextual',document.querySelectorAll('#mount [data-testid="terrain-context-inspector"]').length===1)
+ check('Herramientas de pintura preservadas',document.body.textContent.includes('Capas de pintura'))
+ check('Agua y vegetación preservadas',document.body.textContent.includes('Agua física')&&document.body.textContent.includes('Vegetación'))
+ check('Posición vertical disponible',document.body.textContent.includes('Posición Y'))
+ check('Tamaño físico disponible',document.body.textContent.includes('Tamaño'))
+ check('Gizmo terreno seleccionado',store.terrainSel===true)
+ selectObject('cube-qa');await flush()
+ check('Cambio a cubo sustituye panel',document.querySelector('#mount .insp')?.dataset.nodeType==='primitive'&&!document.querySelector('#mount [data-testid="terrain-context-inspector"]'))
+ check('Terreno no queda seleccionado',store.terrainSel===false)
+ selectScene();await flush()
+ check('Escena vuelve a su Inspector',document.querySelector('#mount .insp')?.dataset.nodeType==='scene'&&store.selectedId===null)
+ check('Sin errores GPU',renderer.getContext().getError()===renderer.getContext().NO_ERROR)
+ out.dataset.pass='true';out.textContent=JSON.stringify({pass:true,checks,gl:renderer.getContext().getParameter(renderer.getContext().VERSION)},null,2)
+}catch(e){out.dataset.pass='false';out.textContent=JSON.stringify({pass:false,checks,error:String(e.stack||e)},null,2)}
+finally{app?.unmount();terrain?.mesh?.geometry?.dispose?.();renderer?.dispose()}
+</script></body></html>

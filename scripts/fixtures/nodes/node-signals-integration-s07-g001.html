@@ -1,0 +1,72 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Century S07 · Integración Signals Player</title></head>
+<body><pre id="node-signals-integration-s07-g001-result">Verificando Player…</pre><script type="module">
+import * as THREE from 'three'
+import { loadJolt } from '/src/engine/runtime/physics/jolt.js'
+import { writePackage, readPackage } from '/src/engine/runtime/package/format.js'
+import { createPackageHost } from '/src/engine/runtime/package/host.js'
+import { NodeLifecycle } from '/src/engine/runtime/scene/node-lifecycle.js'
+import { NodeScriptRuntime } from '/src/engine/runtime/scene/node-scripts.js'
+import { nodesMethods } from '/src/engine/runtime/events/play-nodes.js'
+import { registerNode, getNativeSignal } from '/src/engine/runtime/nodes/registry.js'
+import '/src/engine/runtime/nodes/physics.js'
+const out=document.getElementById('node-signals-integration-s07-g001-result')
+const checks=[];const check=(name,pass)=>{checks.push({name,pass:!!pass});if(!pass)throw Error(name)}
+const obj=(id,scripts=[])=>({id,name:id,type:'s07-fixture-node',parentId:null,scriptIds:scripts})
+const link=(id,signal='ready')=>({id,emitterId:'em',signal,receiverId:'rx',method:'receive'})
+const sceneA={objects:[obj('em',['em-script']),obj('rx',['rx-script'])],signalConnections:[link('A-ready')],terrain:{},environment:{}}
+const sceneB={objects:[obj('em',['em-script']),obj('rx',['rx-script'])],signalConnections:[link('B-enter','tree_entered')],terrain:{},environment:{}}
+const sceneC={objects:[obj('em'),obj('rx',['rx-script'])],terrain:{},environment:{}} // Compatibilidad previa a Signals.
+const scripts=[{id:'em-script',name:'em.js',execution:'node',code:"node.define_signal('alerta'); function _ready(){node.emit_signal('alerta',7)}"},{id:'rx-script',name:'rx.js',execution:'node',code:"node.expose('receive',(value)=>game.receive(value))"}]
+let renderer,life
+try {
+ registerNode({type:'s07-fixture-node',label:'S07 QA',create:()=>new THREE.Group(),build:()=>{},update:()=>{}})
+ renderer=new THREE.WebGLRenderer({antialias:false});renderer.setSize(16,16)
+ const scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(70,1,.1,10);camera.position.z=2
+ scene.add(new THREE.Mesh(new THREE.BoxGeometry(.2,.2,.2),new THREE.MeshBasicMaterial({color:0x8ba7bc})));renderer.render(scene,camera)
+ check('Electron WebGL2 real',renderer.capabilities.isWebGL2)
+ const jolt=await loadJolt();check('Jolt WASM disponible',!!jolt.JoltInterface)
+ check('Catálogo físico Jolt real',getNativeSignal('area3d','body_entered')?.source==='jolt-area')
+ const data={id:'s07-qa',scripts,models:[],assets:[],scenes:[{id:'A',name:'A'},{id:'B',name:'B'},{id:'C',name:'C'}],game:{startScene:'A'}}
+ const bytes=await writePackage({data,scenes:[{id:'A',name:'A',data:sceneA},{id:'B',name:'B',data:sceneB},{id:'C',name:'C',data:sceneC}],files:new Map()})
+ check('Paquete Player serializado',bytes.length>100)
+ const pkg=await readPackage(bytes)
+ check('Paquete Player leído',pkg.sceneIds.join(',')==='A,B,C')
+ check('Escena A conserva su conexión dentro de JSON', (await pkg.scene('A'))?.signalConnections?.[0]?.id==='A-ready')
+ check('Escena B conserva su conexión distinta', (await pkg.scene('B'))?.signalConnections?.[0]?.id==='B-enter')
+ check('Escena antigua sin conexiones continúa sin campo', (await pkg.scene('C')).signalConnections===undefined)
+ const host=createPackageHost({pkg,storage:{}})
+ const nodes=new Map(),records=[],errors=[]
+ const graph={nodes,host,models:new Map(),setCaptureClips(){return {}},syncEnvironment(){},async loadProject(){},syncAll(){nodes.clear();for(const o of host.project.objects){const n=new THREE.Group();n._lfNodeOwner=o;nodes.set(o.id,n)}this.nodeLifecycle.sync()},async loadScene(){this.nodeLifecycle.stop();nodes.clear();this.nodeLifecycle.start()}}
+ life=new NodeLifecycle(graph);graph.nodeLifecycle=life
+ const play={on:true,_sceneSignalReady:true,_referenceSession:{},project:host.project,ed:graph,game:{api:{receive:value=>records.push(value)},report:e=>errors.push(String(e.message||e))},vm:{held:new Map()},_tagLayerApi:()=>({}),_animMethodsFor:()=>({}),_persistMarked:()=>false,_persistSet:()=>false,pos:new THREE.Vector3(),vp:{requestRender(){}}}
+ Object.assign(play,nodesMethods)
+ life.scripts=new NodeScriptRuntime(play)
+ await host.attach(graph)
+ check('Primer montaje identifica escena A',host.project.activeSceneId==='A')
+ check('Host publica conexiones de A para Play',host.project.signalConnections?.[0]?.id==='A-ready')
+ life.start()
+ check('Ready Player llega al método público',records.length===1&&records[0]===undefined)
+ check('Runtime activa la conexión de A',life.scripts.sceneConnections.has('A-ready'))
+ check('Sin errores de registro en la escena inicial',errors.length===0)
+ await host.switchScene('B')
+ check('Cambio de escena B en host',host.project.activeSceneId==='B')
+ check('Host reemplaza conexión por B',host.project.signalConnections[0]?.id==='B-enter')
+ check('Runtime limpia conexión de A',!life.scripts.sceneConnections.has('A-ready'))
+ check('Runtime crea conexión tree_entered de B',life.scripts.sceneConnections.has('B-enter'))
+ check('tree_entered de B llega al método',records.length===2)
+ await host.switchScene('C')
+ check('Paquete antiguo se interpreta sin conexiones',host.project.signalConnections.length===0)
+ check('Runtime desconecta enlaces de A y B',life.scripts.sceneConnections.size===0)
+ check('Cambio a escena sin enlaces no emite señal conectada',records.length===2)
+ await host.switchScene('A')
+ check('Volver a A restaura exactamente una conexión',life.scripts.sceneConnections.size===1)
+ check('Al regresar ready se entrega una vez',records.length===3)
+ life.stop()
+ check('Stop libera todas las conexiones',life.scripts.sceneConnections.size===0)
+ check('No modifica los scripts contenidos en el paquete',host.project.scripts[0].code===scripts[0].code)
+ check('No errores durante la navegación',errors.length===0)
+ check('WebGL sin errores',renderer.getContext().getError()===renderer.getContext().NO_ERROR)
+ out.dataset.pass='true';out.textContent=JSON.stringify({pass:true,checks,gl:renderer.getContext().getParameter(renderer.getContext().VERSION)},null,2)
+} catch(error){out.dataset.pass='false';out.textContent=JSON.stringify({pass:false,error:String(error.stack||error),checks},null,2)}
+finally{try{life?.stop()}catch{}renderer?.dispose()}
+</script></body></html>

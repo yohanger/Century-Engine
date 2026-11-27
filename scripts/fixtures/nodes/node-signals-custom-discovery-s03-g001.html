@@ -1,0 +1,63 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Century Signals S03 G001 — Custom discovery QA</title></head>
+<body><div id="s03-panel"></div><pre id="node-signals-custom-discovery-s03-g001-result">Verificando…</pre>
+<script type="module">
+import {createApp,nextTick} from 'vue'
+import * as THREE from 'three'
+import {loadJolt} from '/src/engine/runtime/physics/jolt.js'
+import SignalConnectionsPanel from '/src/components/SignalConnectionsPanel.vue'
+import {store} from '/src/core/state/state.js'
+import {discoverNodeSignals} from '/src/engine/runtime/scene/node-scripts.js'
+import '/src/engine/runtime/nodes/index.js'
+const out=document.getElementById('node-signals-custom-discovery-s03-g001-result')
+const checks=[],check=(name,value)=>{checks.push({name,pass:!!value});if(!value)throw Error(name)}
+const display=()=>document.getElementById('s03-panel').textContent
+const script=(id,code)=>({id,code,execution:'node',name:id})
+let renderer,app
+try {
+ renderer=new THREE.WebGLRenderer({antialias:false});renderer.setSize(16,16)
+ const scene=new THREE.Scene(),cam=new THREE.PerspectiveCamera(70,1,.1,10);cam.position.z=2
+ scene.add(new THREE.Mesh(new THREE.BoxGeometry(.2,.2,.2),new THREE.MeshBasicMaterial({color:0x748da8})))
+ renderer.render(scene,cam)
+ check('WebGL2 embebido',renderer.capabilities.isWebGL2)
+ const J=await loadJolt();check('Jolt WASM real',!!J?.JoltInterface)
+ const node={id:'emitter',name:'Fuente',type:'node3d',scriptIds:['s1']}
+ const receiver={id:'receiver',name:'Receptor',type:'node3d',scriptIds:[]}
+ const code="throw new Error('NO EVALUAR'); node.define_signal('alerta')"
+ store.project={objects:[node,receiver],scripts:[script('s1',code)],signalConnections:[],activeSceneId:'scene-discovery'}
+ store.selectedId=node.id;store.selectedIds=[node.id];store.projSel=null;store.sceneSel=null;store.audioInspector=false;store.locked=false
+ store.play.on=false;store.edit.on=false;store.paint.on=false
+ app=createApp(SignalConnectionsPanel);app.mount('#s03-panel');await nextTick()
+ check('Panel Vue montado',!!document.querySelector('[data-testid="signal-connections-panel"]'))
+ check('Sin ejecutar scripts de usuario',!display().includes('NO EVALUAR'))
+ check('Custom signal sin enlaces visible',display().includes('alerta')&&display().includes('0'))
+ check('Nombre asociado al script',display().includes('Script: s1'))
+ check('Estado estático explícito',display().includes('Detectada en código'))
+ check('Sin conexiones originales',store.project.signalConnections.length===0)
+ check('Reactividad inicial',discoverNodeSignals(node,store.project.scripts).signals[0].name==='alerta')
+ store.project.scripts[0].code="node.define_signal('renombrada')";await nextTick()
+ check('Edición de recurso actualiza el Inspector',display().includes('renombrada')&&!display().includes('alerta'))
+ store.project.scripts[0].code="node.define_signal('ready')";await nextTick()
+ check('Colisión con nombre nativo se denuncia',display().includes('nombre nativo reservado'))
+ store.project.scripts.push(script('s2',"node.define_signal('comun')"));node.scriptIds=['s1','s2'];store.project.scripts[0].code="node.define_signal('comun')";await nextTick()
+ check('MultiScript: declaración compartida',display().includes('comun'))
+ check('MultiScript: conflicto de propietarios',display().includes('declaración duplicada'))
+ check('MultiScript: identifica ambos scripts',display().includes('s1, s2'))
+ node.scriptIds=['missing'];await nextTick()
+ check('Script faltante no rompe el panel',display().includes('Script de Nodo no disponible'))
+ store.project.signalConnections=[{id:'link',emitterId:node.id,signal:'historial',receiverId:receiver.id,method:'receive'}];await nextTick()
+ check('Conexión histórica sin declaración sigue visible',display().includes('historial'))
+ check('Conexión no confirmada etiquetada',display().includes('declaración no confirmada'))
+ check('Conexión preservada',store.project.signalConnections.length===1)
+ node.scriptIds=['s1'];store.project.scripts[0].code="node.define_signal('nueva')";await nextTick()
+ check('Vuelta de script y conexión preservadas',display().includes('nueva')&&display().includes('historial'))
+ store.selectedId=receiver.id;store.selectedIds=[receiver.id];await nextTick()
+ check('Cambio de selección oculta señales de otro nodo',!display().includes('nueva'))
+ store.selectedId=node.id;store.selectedIds=[node.id];await nextTick()
+ check('Cambio de selección recupera descubrimiento',display().includes('nueva'))
+ check('Native tree_ready no alteradas',display().includes('ready')&&display().includes('tree_entered'))
+ check('No se alteran scripts al mostrar',store.project.scripts[0].code==="node.define_signal('nueva')")
+ check('WebGL sin error',renderer.getContext().getError()===renderer.getContext().NO_ERROR)
+ out.dataset.pass='true';out.textContent=JSON.stringify({pass:true,gl:renderer.getContext().getParameter(renderer.getContext().VERSION),checks},null,2)
+} catch(error){out.dataset.pass='false';out.textContent=JSON.stringify({pass:false,error:String(error.stack||error),checks},null,2)}
+finally{try{app?.unmount()}catch{}renderer?.dispose()}
+</script></body></html>

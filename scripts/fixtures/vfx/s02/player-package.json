@@ -1,0 +1,6 @@
+{
+  "note": "Metadatos mínimos para ejecutar validateBuildSources; el ZIP real lo genera writePackage durante el QA local.",
+  "scenes": [{ "id": "scene-vfx-a", "name": "Escena de prueba" }],
+  "assets": [],
+  "vfx": [{ "id": "fx-smoke", "name": "Smoke.vfx", "folder": "Assets", "schemaVersion": 1 }]
+}

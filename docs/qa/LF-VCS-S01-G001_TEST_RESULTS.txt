@@ -1,0 +1,20 @@
+LF-VCS-S01-G001 — evidencias QA disponibles
+Fecha: 2026-10-29
+Baseline inicial: LevelForge_ROAD_PAINT_S01_G001_SOURCE_BASELINE.zip
+
+Comando: node --test scripts/test-vcs-s01-g001.mjs scripts/test-road-paint-s01-g001.mjs scripts/test-editor-add-menu-corr-g001.mjs
+RESULTADO: 42 PASS / 0 FAIL / 0 SKIP
+  De ellos, 8 pruebas de Git local (ejecución real del binario incluido) y 34 de regresión de Road Paint + Shift+A.
+
+Comando: npm run test:distribution
+RESULTADO: 35 PASS / 0 FAIL / 0 SKIP
+
+Comando: node scripts/verify-editor-distribution.mjs source
+RESULTADO: PASS (solo estructura del código fuente; no instaladores)
+
+Comando: npm run build
+RESULTADO: NO VERIFICADO — vite: not found (sin node_modules en este contenedor)
+
+No se ejecutó MinGit Windows, empaquetado AppImage/DEB/Setup/Portable, ni visual QA Electron.
+La prueba de Git Linux usó PATH vacío para asegurar que nunca invoca Git del sistema.
+NOTA: el binario Linux incluido procede de Debian 13; su compatibilidad con otros sistemas aún requiere pruebas.

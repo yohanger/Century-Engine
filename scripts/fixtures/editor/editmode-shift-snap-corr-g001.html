@@ -1,0 +1,59 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Century Edit Mode Shift Snap QA</title></head>
+<body style="margin:0;background:#182536"><pre id="editmode-shift-snap-corr-g001-result">Comprobando...</pre>
+<div id="canvas-parent" style="width:320px;height:220px;position:relative"></div>
+<script type="module">
+import * as THREE from 'three'
+import { TransformControls } from 'three/examples/jsm/controls/TransformControls.js'
+import { EditSession } from '/src/core/mesh/session.js'
+import { gizmoMethods } from '/src/core/editor/gizmo.js'
+import { store } from '/src/core/store.js'
+import { snapModalValue } from '/src/core/editor/snap.js'
+const out = document.getElementById('editmode-shift-snap-corr-g001-result')
+const checks=[]
+const check=(name,pass,detail='')=>{checks.push({name,pass:!!pass,detail});if(!pass)throw Error(`${name}: ${JSON.stringify(detail)}`)}
+let renderer, control
+const prevProject=store.project
+try {
+  store.project = {settings:{moveSnapOn:true,rotateSnapOn:true,scaleSnapOn:true,gridSize:1,rotSnap:15,scaleSnap:0.25}}
+  renderer=new THREE.WebGLRenderer({antialias:false})
+  renderer.setSize(320,220)
+  document.getElementById('canvas-parent').appendChild(renderer.domElement)
+  const scene=new THREE.Scene()
+  const cam=new THREE.PerspectiveCamera(70,320/220,.1,100)
+  cam.position.set(5,5,8);cam.lookAt(0,0,0)
+  const mesh=new THREE.Mesh(new THREE.BoxGeometry(1,1,1),new THREE.MeshBasicMaterial({color:0x9ba7bb}))
+  scene.add(mesh)
+  control=new TransformControls(cam,renderer.domElement)
+  control.attach(mesh);scene.add(control.getHelper());control.setMode('translate')
+  renderer.render(scene,cam)
+  check('WebGL2 y addon oficial',renderer.capabilities.isWebGL2&&typeof control.pointerMove==='function')
+  check('EditSession reutiliza los mismos métodos de Snap que Object Mode', EditSession.prototype._applySnapDrag===gizmoMethods._applySnapDrag)
+  check('El método Shift compartido está disponible',EditSession.prototype._setSnapShiftHeld===gizmoMethods._setSnapShiftHeld)
+  const session=Object.create(EditSession.prototype)
+  session._shiftSnapHeld=false
+  control.axis='X';control.dragging=true
+  session._beginSnapDrag(control)
+  check('Add-on queda sin cuantización nativa durante gesto',control.translationSnap===null)
+  mesh.position.x=1.65;session._applySnapDrag(control)
+  check('Snap en Edit Mode: traslación inicial cuantizada',Math.abs(mesh.position.x-2)<1e-6,mesh.position.x)
+  session._setSnapShiftHeld(true)
+  check('Presionar Shift no mueve geometría',Math.abs(mesh.position.x-2)<1e-6,mesh.position.x)
+  mesh.position.x=1.65;session._applySnapDrag(control)
+  check('Primer movimiento con Shift tampoco salta',Math.abs(mesh.position.x-2)<1e-6,mesh.position.x)
+  mesh.position.x=1.87;session._applySnapDrag(control)
+  check('Shift permite avanzar libremente',Math.abs(mesh.position.x-2.22)<1e-6,mesh.position.x)
+  session._setSnapShiftHeld(false)
+  check('Soltar Shift no mueve geometría',Math.abs(mesh.position.x-2.22)<1e-6,mesh.position.x)
+  session._endSnapDrag(control)
+  check('Snap original vuelve después del gesto',control.translationSnap===1&&session._snapDrag===null)
+  const modal={}
+  const a=snapModalValue(modal,'grab:X',.8,.5,true)
+  const b=snapModalValue(modal,'grab:X',.8,.5,false)
+  const c=snapModalValue(modal,'grab:X',.95,.5,false)
+  check('Modo modal mantiene continuidad al pulsar Shift',Math.abs(a-1)<1e-8&&Math.abs(b-a)<1e-8&&Math.abs(c-1.15)<1e-8,[a,b,c])
+  check('Las preferencias persistentes de Snap siguen intactas',store.project.settings.moveSnapOn===true&&store.project.settings.gridSize===1)
+  out.dataset.pass='true'
+  out.textContent=JSON.stringify({pass:true,checks,gl:renderer.getContext().getParameter(renderer.getContext().VERSION)},null,2)
+}catch(e){out.dataset.pass='false';out.textContent=JSON.stringify({pass:false,checks,error:String(e?.stack||e)},null,2)}
+finally{control?.dispose();renderer?.dispose();store.project=prevProject}
+</script></body></html>

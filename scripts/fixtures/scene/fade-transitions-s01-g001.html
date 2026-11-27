@@ -1,0 +1,72 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Century Scene Fade QA</title></head>
+<body style="background:#123a50;margin:0"><div id="viewport" style="position:relative;width:360px;height:240px;background:#347aa2"></div><pre id="scene-fade-s01-g001-result">Comprobando…</pre>
+<script type="module">
+import * as THREE from 'three'
+import {createApp,reactive,nextTick} from 'vue'
+import {UiManager} from '/src/engine/runtime/ui/manager.js'
+import UiRoot from '/src/engine/runtime/ui/UiRoot.vue'
+import {systemCode} from '/src/engine/runtime/ui/system.js'
+import {fadeState,sceneFadeState} from '/src/engine/runtime/events/scene-transitions.js'
+const result=document.getElementById('scene-fade-s01-g001-result'),checks=[]
+const check=(name,ok,detail)=>{checks.push({name,pass:!!ok,detail});if(!ok)throw Error(name)}
+let app,renderer
+function sampleOpacity(element, fraction=1){
+ const initial=Number(getComputedStyle(element).opacity)
+ const transition=element.getAnimations().find(animation=>animation.transitionProperty==='opacity')
+ if(!transition)return initial
+ if(fraction===1)transition.finish()
+ else {
+  transition.pause()
+  transition.currentTime=transition.effect.getTiming().duration*fraction
+ }
+ return Number(getComputedStyle(element).opacity)
+}
+try {
+ renderer=new THREE.WebGLRenderer({antialias:false});renderer.setSize(360,240)
+ document.getElementById('viewport').append(renderer.domElement)
+ const gl=renderer.getContext();check('WebGL2 disponible',renderer.capabilities.isWebGL2)
+ const scene=new THREE.Scene();scene.background=new THREE.Color(0x347aa2)
+ const cam=new THREE.PerspectiveCamera(65,1.5,.1,10);cam.position.z=3
+ scene.add(new THREE.Mesh(new THREE.BoxGeometry(),new THREE.MeshBasicMaterial({color:0xf3de80})))
+ renderer.render(scene,cam)
+ const play=reactive({on:true,focus:true,fade:fadeState('out',0,'#1c2030','linear'),paused:false})
+ const manager=new UiManager({play,getDocs:()=>[{id:'sys:fade',name:'fundido.ui',code:systemCode('fade')}],getConfig:()=>({slots:{}}),getGame:()=>null})
+ app=createApp(UiRoot,{manager});app.mount(document.getElementById('viewport'))
+ await nextTick()
+ const overlay=()=>document.querySelector('[data-role="fade"] .fade')
+ check('solo se pinta un elemento de fundido UI',document.querySelectorAll('[data-role="fade"] .fade').length===1)
+ check('entrada empieza cubierta',getComputedStyle(overlay()).opacity==='1')
+ check('color elegido alcanza la pantalla',getComputedStyle(overlay()).backgroundColor==='rgb(28, 32, 48)')
+ play.fade=fadeState('in',.2,'#1c2030','ease-in-out');await nextTick()
+ check('ritmo easing aplicado al fade nativo',getComputedStyle(overlay()).transitionTimingFunction==='ease-in-out')
+ check('duración aplicada al fade nativo',getComputedStyle(overlay()).transitionDuration==='0.2s')
+ check('el Fade In revela la escena',sampleOpacity(overlay())<.01)
+ play.fade=fadeState('out',.15,'#9e3040','ease-out');await nextTick()
+ check('Fade Out vuelve a cubrir',sampleOpacity(overlay())>.99)
+ check('color de salida personalizado aplicado',getComputedStyle(overlay()).backgroundColor==='rgb(158, 48, 64)')
+ play.fade=fadeState('in',0,'#9e3040');await nextTick()
+ check('corte de cero segundos elimina cobertura',Number(getComputedStyle(overlay()).opacity)<.01)
+ const viewport=document.querySelector('#viewport')
+ viewport.style.width='359.375px'
+ viewport.style.height='239.625px'
+ play.fade=sceneFadeState('out',0,'#000000')
+ await nextTick()
+ const native=document.querySelector('.rt-scene-fade')
+ const target=viewport.getBoundingClientRect(), cover=native.getBoundingClientRect()
+ check('El fundido de escena cubre incluso las cuatro esquinas fraccionarias',
+   cover.left<=target.left && cover.right>=target.right && cover.top<=target.top && cover.bottom>=target.bottom)
+ check('La máscara opaca negra sustituye al rol escalable durante la transición',
+   getComputedStyle(native).backgroundColor==='rgb(0, 0, 0)' && getComputedStyle(native).opacity==='1' && !overlay())
+ play.fade=sceneFadeState('in',.12,'#000000','ease-in')
+ await nextTick()
+ check('El fundido de escena revela el viewport completo',sampleOpacity(native)<.01)
+ play.fade=sceneFadeState('out',.24,'#000000','linear')
+ await nextTick()
+ const mid=sampleOpacity(native,.5)
+ check('Al salir el fundido de escena interpola la opacidad',mid>0 && mid<1)
+ check('Al terminar el fundido de salida vuelve el negro opaco',sampleOpacity(native)>.999)
+ check('WebGL permanece sin errores',gl.getError()===gl.NO_ERROR)
+ result.dataset.pass='true';result.textContent=JSON.stringify({pass:true,checks,gl:gl.getParameter(gl.VERSION)},null,2)
+}catch(err){result.dataset.pass='false';result.textContent=JSON.stringify({pass:false,checks,error:String(err.stack||err)},null,2)}
+finally{app?.unmount();renderer?.dispose()}
+</script></body></html>

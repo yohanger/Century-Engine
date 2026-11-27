@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><title>VFX · GTAO</title></head><body>
+<pre id="black-qa-result">Comprobando VFX y GTAO…</pre>
+<script type="module">
+  import * as THREE from 'three'
+  import { GTAOPass } from 'three/examples/jsm/postprocessing/GTAOPass.js'
+  import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js'
+  import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js'
+  import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js'
+  import { LookPipeline } from '/src/engine/runtime/render/look.js'
+  import { VfxSimulation } from '/src/engine/runtime/vfx/simulation.js'
+  import { VfxBillboardRenderer } from '/src/engine/runtime/vfx/render.js'
+  import { newVfxResource, validateVfxResource } from '/src/engine/runtime/vfx/resource.js'
+  const output = document.getElementById('black-qa-result')
+  const checks=[]
+  const check=(name, pass, details='')=>{checks.push({name, pass:!!pass, details}); if(!pass)throw Error(name+': '+details)}
+  let renderer, composer, view, plane
+  try {
+    renderer = new THREE.WebGLRenderer({antialias:false, preserveDrawingBuffer:true})
+    renderer.setSize(192,192)
+    renderer.setPixelRatio(1)
+    renderer.setClearColor(0x888888,1)
+    document.body.appendChild(renderer.domElement)
+    const scene = new THREE.Scene()
+    scene.background = new THREE.Color(0x777777)
+    const camera = new THREE.PerspectiveCamera(60,1,0.1,100)
+    camera.position.set(0,0,4);camera.lookAt(0,0,0);camera.updateProjectionMatrix()
+    plane = new THREE.Mesh(new THREE.PlaneGeometry(7,7),new THREE.MeshBasicMaterial({color:0x888888}))
+    plane.position.z=-1;scene.add(plane)
+    const raw=newVfxResource('black-qa','BlackQA.vfx')
+    const resource=validateVfxResource({...raw,
+      emission:{...raw.emission,mode:'burst',rate:0,burstCount:1,loop:false,capacity:4},
+      birth:{...raw.birth,lifetime:[3,3]},
+      appearance:{...raw.appearance,size:0.15,opacity:0},
+      evolution:{...raw.evolution,opacity:[{t:0,value:1},{t:1,value:1}]},
+    })
+    const sim=new VfxSimulation(resource);sim.step()
+    view=new VfxBillboardRenderer(sim);scene.add(view.mesh);view.sync(camera)
+    check('partícula existe con opacidad 0',sim.count===1)
+    check('quad transparente no se envía a dibujar',view.mesh.visible===false)
+    const ao=new GTAOPass(scene,camera,192,192)
+    const look=Object.create(LookPipeline.prototype);look.vp={scene};look._excludeVfxFromAO(ao)
+    const opaque=new THREE.Mesh(new THREE.BoxGeometry(0.2,0.2,0.2),new THREE.MeshBasicMaterial({color:0xffffff}))
+    opaque.position.set(1,0,0);scene.add(opaque)
+    sim.opacity[0]=0.5;view.sync(camera)
+    check('partícula opaca sigue visible',view.mesh.visible===true)
+    ao._overrideVisibility()
+    check('VFX fuera del G-buffer GTAO',view.mesh.visible===false)
+    check('sólidos permanecen en G-buffer GTAO',opaque.visible && plane.visible)
+    ao._restoreVisibility()
+    check('visibilidad recuperada tras GTAO',view.mesh.visible===true)
+    scene.remove(opaque);opaque.geometry.dispose();opaque.material.dispose()
+    sim.opacity[0]=0;view.sync(camera)
+    composer=new EffectComposer(renderer)
+    composer.addPass(new RenderPass(scene,camera))
+    composer.addPass(ao)
+    composer.addPass(new OutputPass())
+    composer.render()
+    const gl=renderer.getContext(), gpu=gl.getError()
+    check('sin errores GPU en render GTAO', gpu===gl.NO_ERROR, gpu)
+    const data=new Uint8Array(4)
+    gl.readPixels(96,96,1,1,gl.RGBA,gl.UNSIGNED_BYTE,data)
+    check('sin cuadro negro en posición central',data[0]>60 && data[1]>60 && data[2]>60,[...data])
+    output.dataset.pass='true';output.textContent=JSON.stringify({pass:true,checks,gl:gl.getParameter(gl.VERSION)},null,2)
+  }catch(error){output.dataset.pass='false';output.textContent=JSON.stringify({pass:false,checks,error:String(error.stack||error)},null,2)}
+  finally{view?.dispose(); plane?.geometry.dispose();plane?.material.dispose();composer?.dispose();renderer?.dispose()}
+</script></body></html>

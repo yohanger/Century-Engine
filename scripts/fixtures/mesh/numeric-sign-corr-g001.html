@@ -1,0 +1,89 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Edit Mesh — signos numéricos</title><style>body{margin:0;background:#181b20;color:#ddd;font:12px sans-serif}#surface{position:relative;width:480px;height:360px}pre{font-size:10px}</style></head><body><div id="surface"></div><input id="text-field" aria-label="Campo de prueba"><pre id="mesh-numeric-sign-corr-g001-result">Verificando entrada nativa…</pre>
+<script type="module">
+import * as THREE from 'three'
+import {createApp} from 'vue'
+import MeshPanel from '../../../src/components/MeshPanel.vue'
+import {createEditScenario,bindScenarioKeyboard,store,meshDataOf} from './edit-session-integration-corr-g001.mjs'
+const out=document.getElementById('mesh-numeric-sign-corr-g001-result'),checks=[],events=[],errors=[],steps=[],expect=[]
+const check=(name,pass)=>{checks.push({name,pass:!!pass});if(!pass)throw Error(name)}
+const data=s=>{const{rev,...v}=s.poly.toJSON();return JSON.stringify(v)}
+const near=(a,b)=>Math.abs(a-b)<1e-7
+const add=(key,code,keyCode,label,fn,options={})=>{steps.push({key,code,keyCode,...options});expect.push({label,fn})}
+const num=(key,label,fn)=>{const n=Number(key),names={'+':['NumpadAdd',107],'-':['NumpadSubtract',109],'.':['NumpadDecimal',110],Enter:['NumpadEnter',13]};const[code,vk]=names[key]||['Numpad'+key,96+n];add(key,code,vk,label,fn,{keypad:true})}
+const record=e=>events.push({key:e.key,code:e.code,location:e.location,trusted:e.isTrusted,target:e.target.tagName})
+window.addEventListener('keydown',record,true);window.addEventListener('error',e=>errors.push(String(e.error?.stack||e.message)))
+let renderer,f,kb,panel,failure
+try{
+ renderer=new THREE.WebGLRenderer({antialias:false});renderer.setSize(480,360);const canvas=renderer.domElement;canvas.id='sign-canvas';canvas.tabIndex=0;document.getElementById('surface').appendChild(canvas)
+ f=createEditScenario(canvas,{linked:true});kb=bindScenarioKeyboard(f);const s=f.session
+ panel=createApp(MeshPanel)
+ panel.mount(document.body.appendChild(document.createElement('div')))
+ renderer.render(f.scene,f.camera);check('WebGL2 real',renderer.capabilities.isWebGL2)
+ const initial=data(s),settings=JSON.stringify(store.project.settings),uv=JSON.stringify(s.poly.uv),material=f.body.material,x=s.poly.v[0][0]
+ let saved,bevelSegments
+ add('g','KeyG',71,'G nativo abre modal real',()=>s.modal?.kind==='grab',{focus:'#sign-canvas'})
+ add('x','KeyX',88,'Restricción X nativa',()=>s.modal?.axis==='x')
+ num('1','Numpad1 escribe 1',()=>s.modal.text==='1')
+ num('0','Numpad0 completa 10 sin cambiar vista',()=>s.modal.text==='10'&&kb.navigation.length===0)
+ num('-','Numpad− invierte a −10',()=>s.modal.text==='-10'&&near(s.modal.result.d.x,-10))
+ num('+','Numpad+ fuerza +10',()=>s.modal.text==='10'&&near(s.modal.result.d.x,10))
+ num('-','Segundo cambio de signo conserva magnitud',()=>s.modal.text==='-10')
+ add('Backspace','Backspace',8,'Backspace edita magnitud firmada',()=>s.modal.text==='-1')
+ num('0','Numpad recupera magnitud',()=>s.modal.text==='-10')
+ num('Enter','Enter confirma delta −10',()=>{saved=data(s);return !s.modal&&store.canUndo&&near(s.poly.v[0][0],x-10)})
+ add('z','KeyZ',90,'Ctrl+Z real restaura geometría',()=>data(s)===initial,{modifiers:2})
+ add('z','KeyZ',90,'Ctrl+Shift+Z real recupera cambio',()=>data(s)===saved,{modifiers:10})
+ add('g','KeyG',71,'Nuevo gesto conserva sesión',()=>s.modal?.kind==='grab')
+ add('y','KeyY',89,'Restricción Y nativa',()=>s.modal?.axis==='y')
+ add('-','Minus',189,'Signo antes del número',()=>s.modal.text==='-')
+ add('1','Digit1',49,'Dígito principal negativo',()=>s.modal.text==='-1')
+ add('.','Period',190,'Decimal principal',()=>s.modal.text==='-1.')
+ add('2','Digit2',50,'Decimal −1.2',()=>s.modal.text==='-1.2')
+ add('5','Digit5',53,'Valor −1.25 sobre Y',()=>near(s.modal.result.d.y,-1.25))
+ add('+','Equal',187,'+ principal fuerza positivo',()=>s.modal.text==='1.25'&&near(s.modal.result.d.y,1.25),{modifiers:8})
+ add('Escape','Escape',27,'Escape restaura gesto sin otra transacción',()=>{const ok=!s.modal&&data(s)===saved;s.sel.v.add(1);s.refresh();return ok})
+ add('g','KeyG',71,'Campo real no inicia transformación',()=>!s.modal,{focus:'#text-field'})
+ add('r','KeyR',82,'R nativo abre rotación',()=>s.modal?.kind==='rotate',{focus:'#sign-canvas'})
+ add('z','KeyZ',90,'Rotación restringida Z',()=>s.modal?.axis==='z')
+ num('9','Rotación recibe Numpad9',()=>s.modal.text==='9')
+ num('0','Rotación recibe 90',()=>s.modal.text==='90')
+ num('-','Rotación negativa',()=>s.modal.text==='-90')
+ num('+','Rotación vuelve positiva',()=>s.modal.text==='90')
+ add('Escape','Escape',27,'Cancelar giro conserva geometría',()=>!s.modal&&data(s)===saved)
+ add('s','KeyS',83,'S nativo abre escala existente',()=>s.modal?.kind==='scale')
+ num('2','Escala recibe factor 2',()=>s.modal.text==='2'&&s.modal.previewValid)
+ num('-','Escala negativa continúa rechazada',()=>s.modal.text==='-2'&&!s.modal.previewValid)
+ num('Enter','Enter no confirma escala inválida',()=>!!s.modal&&!s.modal.previewValid)
+ num('+','+ recupera escala válida',()=>s.modal.text==='2'&&s.modal.previewValid)
+ num('Enter','Escala positiva se confirma',()=>!s.modal&&store.canUndo)
+ num('+','Fuera del gesto + conserva zoom',()=>kb.navigation.at(-1)?.join(',')==='zoom,1')
+ num('-','Fuera del gesto − conserva zoom',()=>kb.navigation.at(-1)?.join(',')==='zoom,-1')
+ num('1','Fuera del gesto Numpad1 conserva vista',()=>kb.navigation.at(-1)?.join(',')==='view,front')
+ num('.','Fuera del gesto Decimal conserva foco',()=>{const ok=kb.navigation.at(-1)?.[0]==='focus';s.setMode('edge');s.op('selectAll');s.startModal('bevel');bevelSegments=s.modal.segments;return ok})
+ add('+','Equal',187,'Bisel conserva + para segmentos',()=>s.modal.segments===Math.min(32,bevelSegments+1),{modifiers:8})
+ add('PageDown','PageDown',34,'Bisel conserva PageDown',()=>s.modal.segments===bevelSegments)
+ add('Escape','Escape',27,'Cancelar bisel conserva sesión',()=>!s.modal&&store.edit.on)
+ const precise='[data-testid="mesh-numeric-transform"] .numeric-row input'
+ const fields=()=>document.querySelectorAll(precise)
+ let beforePrecise
+ add('2','Digit2',50,'El primer dígito reemplaza el delta inicial',()=>{
+   beforePrecise=[...s.poly.v[0]]
+   return document.activeElement===fields()[0]&&fields()[0].value==='2'
+ },{focus:precise,text:'2'})
+ add('Enter','Enter',13,'Intro confirma ΔX y conserva el foco',()=>document.activeElement===fields()[0]&&fields()[0].value==='0'&&near(s.poly.v[0][0],beforePrecise[0]+2))
+ add('Tab','Tab',9,'Tab lleva el foco a ΔY',()=>document.activeElement===fields()[1])
+ add('3','Digit3',51,'ΔY admite escritura directa después de Tab',()=>fields()[1].value==='3',{text:'3'})
+ add('Enter','Enter',13,'Intro confirma ΔY sin alterar ΔX',()=>document.activeElement===fields()[1]&&fields()[1].value==='0'&&near(s.poly.v[0][0],beforePrecise[0]+2)&&near(s.poly.v[0][1],beforePrecise[1]+3))
+ window.__lfNativeKeyAfter=index=>{try{check(expect[index].label,expect[index].fn());return{ok:true}}catch(error){failure=String(error.stack||error);return{ok:false,error:failure,checks,events}}}
+ window.__lfNativeKeySteps=steps
+ const start=Date.now();while(!window.__lfNativeKeyDone&&!failure&&Date.now()-start<15000)await new Promise(r=>setTimeout(r,30))
+ if(failure)throw Error(failure)
+ check('Todas las teclas nativas completadas',window.__lfNativeKeyDone===true&&events.length===steps.length)
+ check('Eventos confiables y Numpad diferenciado',events.every(e=>e.trusted)&&events.some(e=>e.code==='NumpadSubtract'&&e.location===3))
+ check('UV material y preferencias conservados',JSON.stringify(s.poly.uv)===uv&&f.body.material===material&&JSON.stringify(store.project.settings)===settings)
+ const project=JSON.parse(JSON.stringify(store.project));check('Recurso vinculado y material particular conservados',JSON.stringify(meshDataOf(project.objects[0],project.meshes))===JSON.stringify(meshDataOf(project.objects[1],project.meshes))&&project.objects[1].mat.color==='#aa5533')
+ renderer.render(f.scene,f.camera);check('Sin errores de ejecución ni WebGL',!errors.length&&renderer.getContext().getError()===renderer.getContext().NO_ERROR)
+ out.dataset.pass='true';out.textContent=JSON.stringify({pass:true,checks,gl:renderer.getContext().getParameter(renderer.getContext().VERSION),nativeKeys:{steps:steps.length,events,navigation:kb.navigation}},null,2)
+}catch(error){out.dataset.pass='false';out.textContent=JSON.stringify({pass:false,error:String(error.stack||error),checks,events,errors},null,2)}
+finally{panel?.unmount();kb?.release();f?.close();renderer?.dispose();window.removeEventListener('keydown',record,true)}
+</script></body></html>

@@ -1,0 +1,106 @@
+[
+  {
+    "id": "trianghor@0.0.1",
+    "name": "trianghor",
+    "version": "0.0.1",
+    "size": 20648,
+    "unpackedSize": 64051,
+    "shasum": "b8471e7c6ff1a5d693596237bf1bd5ebcc6410f2",
+    "integrity": "sha512-6jayoTx31RHUYjlTOKvXIh8PhbtAudTIKQ67gAk0T+GrAvu1hu/xpD9xo+STKpegArHG6hAq007uIOKffAhEfA==",
+    "filename": "trianghor-0.0.1.tgz",
+    "files": [
+      {
+        "path": "README.md",
+        "size": 13229,
+        "mode": 384
+      },
+      {
+        "path": "docs/PUBLIC_API.md",
+        "size": 5800,
+        "mode": 384
+      },
+      {
+        "path": "package.json",
+        "size": 953,
+        "mode": 384
+      },
+      {
+        "path": "src/browser.js",
+        "size": 218,
+        "mode": 384
+      },
+      {
+        "path": "src/index.js",
+        "size": 673,
+        "mode": 384
+      },
+      {
+        "path": "src/lod.js",
+        "size": 2967,
+        "mode": 384
+      },
+      {
+        "path": "src/terrain-adaptive.js",
+        "size": 13779,
+        "mode": 384
+      },
+      {
+        "path": "src/terrain-bake.js",
+        "size": 3633,
+        "mode": 384
+      },
+      {
+        "path": "src/trianghor/bake.worker.js",
+        "size": 785,
+        "mode": 384
+      },
+      {
+        "path": "src/trianghor/browser-client.js",
+        "size": 911,
+        "mode": 384
+      },
+      {
+        "path": "src/trianghor/core.js",
+        "size": 561,
+        "mode": 384
+      },
+      {
+        "path": "src/trianghor/incremental-worker-client.js",
+        "size": 3716,
+        "mode": 384
+      },
+      {
+        "path": "src/trianghor/incremental.js",
+        "size": 8253,
+        "mode": 384
+      },
+      {
+        "path": "src/trianghor/job.js",
+        "size": 2247,
+        "mode": 384
+      },
+      {
+        "path": "src/trianghor/spatial.js",
+        "size": 2355,
+        "mode": 384
+      },
+      {
+        "path": "src/trianghor/triangulate.js",
+        "size": 2029,
+        "mode": 384
+      },
+      {
+        "path": "src/trianghor/validate.js",
+        "size": 1593,
+        "mode": 384
+      },
+      {
+        "path": "src/worker/node-worker.mjs",
+        "size": 349,
+        "mode": 384
+      }
+    ],
+    "entryCount": 18,
+    "bundled": []
+  }
+]

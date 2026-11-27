@@ -1,0 +1,74 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Century · PrecipFX GTAO diagnóstico</title></head><body>
+<pre id="precip-black-result">Auditoría PrecipFX y buffer GTAO…</pre>
+<script type="module">
+import * as THREE from 'three'
+import { GTAOPass } from 'three/examples/jsm/postprocessing/GTAOPass.js'
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js'
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js'
+import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js'
+import { PrecipFX } from '/src/engine/runtime/world/fx.js'
+import { LookPipeline } from '/src/engine/runtime/render/look.js'
+
+const output = document.getElementById('precip-black-result')
+const checks = [], samples = {}
+const check=(name,ok,details=null)=>{checks.push({name,pass:!!ok,details});if(!ok)throw Error(name+': '+JSON.stringify(details))}
+let renderer, composer, precip, pass, rt, solid
+try {
+  renderer=new THREE.WebGLRenderer({antialias:false,preserveDrawingBuffer:true})
+  renderer.setPixelRatio(1);renderer.setSize(192,192);renderer.setClearColor(0x000000)
+  document.body.appendChild(renderer.domElement)
+  const scene=new THREE.Scene()
+  const camera=new THREE.PerspectiveCamera(60,1,0.1,100)
+  camera.position.set(0,0,4);camera.lookAt(0,0,0);camera.updateMatrixWorld(true)
+  precip=new PrecipFX(scene)
+  // Se activan los meshes existentes: sin crear gotas nuevas, modificar World ni tocar proyectos.
+  precip.rain.visible=true;precip.rain.geometry.instanceCount=1
+  precip.mist.visible=false;precip.snow.visible=false;precip.splash.visible=false
+  solid=new THREE.Mesh(new THREE.BoxGeometry(0.4,0.4,0.4),new THREE.MeshNormalMaterial())
+  solid.position.set(1.4,0,0);solid.name='QA sólido';scene.add(solid)
+  pass=new GTAOPass(scene,camera,192,192)
+  const look=Object.create(LookPipeline.prototype);look.vp={scene};look._excludeVfxFromAO(pass)
+  check('GTAO real usa restauración nativa de Three.js',typeof pass._overrideVisibility==='function' && typeof pass._restoreVisibility==='function')
+  check('PrecipFX conserva material transparente y simulado GPU',precip.rain.material.transparent && !precip.rain.material.depthWrite && precip.rain.geometry.getAttribute('aSeed').array.length===28000)
+  check('PrecipFX se encuentra marcado para excluirse del G-buffer',precip.rain.userData.lfExcludeFromAO===true && precip.mist.userData.lfExcludeFromAO===true && precip.splash.userData.lfExcludeFromAO===true)
+  const snapshot=scene.children.length
+  // Se reproduce el fallo del G-buffer temporalmente, SIN modificar material ni renderer de producción.
+  rt=new THREE.WebGLRenderTarget(192,192)
+  const sample=(exclude)=>{
+    precip.rain.userData.lfExcludeFromAO=exclude
+    pass._overrideVisibility()
+    const wasHidden = !precip.rain.visible
+    const solidVisible=solid.visible
+    pass._renderOverride(renderer,pass.normalMaterial,rt,0x000000,1.0)
+    pass._restoreVisibility()
+    const restored=precip.rain.visible
+    const pixel=new Uint8Array(4)
+    renderer.readRenderTargetPixels(rt,96,113,1,1,pixel)
+    renderer.setRenderTarget(null)
+    return {exclude,wasHidden,solidVisible,restored,pixel:Array.from(pixel)}
+  }
+  samples.unfiltered=sample(false)
+  samples.corrected=sample(true)
+  precip.rain.userData.lfExcludeFromAO=true
+  check('sin filtro el quad base contamina el G-buffer',samples.unfiltered.pixel[0]>20 && samples.unfiltered.pixel[2]>20,samples.unfiltered)
+  check('con filtro desaparece el quad del G-buffer',samples.corrected.pixel[0]<12 && samples.corrected.pixel[1]<12 && samples.corrected.pixel[2]<12,samples.corrected)
+  check('visibilidad del mesh se restaura tras ambos pases',samples.unfiltered.restored && samples.corrected.wasHidden && samples.corrected.restored)
+  check('los sólidos no son ocultados por el filtro',samples.corrected.solidVisible)
+  precip.mist.visible=true;precip.splash.visible=true
+  pass._overrideVisibility()
+  check('lluvia, bruma y salpicaduras se excluyen juntas',!precip.rain.visible&&!precip.mist.visible&&!precip.splash.visible)
+  check('la geometría sólida permanece en el G-buffer',solid.visible)
+  pass._restoreVisibility()
+  check('lluvia, bruma y salpicaduras se restauran juntas',precip.rain.visible&&precip.mist.visible&&precip.splash.visible)
+  precip.splash.visible=false;precip.mist.visible=false
+  composer=new EffectComposer(renderer)
+  composer.addPass(new RenderPass(scene,camera));composer.addPass(pass);composer.addPass(new OutputPass())
+  composer.render()
+  const gpuError=renderer.getContext().getError()
+  check('compositor GTAO real no produce errores WebGL',gpuError===0,gpuError)
+  check('número de objetos y geometrías sin cambios',scene.children.length===snapshot && !!precip.rain.geometry.getAttribute('aSeed'),scene.children.length)
+  output.dataset.pass='true'
+  output.textContent=JSON.stringify({pass:true,checks,samples,gpuError,gl:renderer.getContext().getParameter(renderer.getContext().VERSION)},null,2)
+}catch(error){output.dataset.pass='false';output.textContent=JSON.stringify({pass:false,checks,samples,error:String(error.stack||error)},null,2)}
+finally{composer?.dispose();rt?.dispose();if(!composer)pass?.dispose();solid?.geometry.dispose();solid?.material.dispose();precip?.dispose();renderer?.dispose()}
+</script></body></html>

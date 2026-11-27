@@ -1,0 +1,19 @@
+flowchart TD
+  A[Mesh / Asset original editable] --> B{Elegible para derivación?}
+  B -- no --> X[Usar original + fallback]
+  B -- sí --> C[ResourcePreparation — FUTURO]
+  C --> D[Comprobar UV / rig / material / lightmap / colisión]
+  D --> E{Preserva invariantes?}
+  E -- no --> X
+  E -- sí --> F[(Variante derivada + firma / versión — FUTURO)]
+  F --> G[Empaquetado/Build — contrato FUTURO]
+  G --> H[Runtime: cámara + tamaño proyectado + presupuesto]
+  H --> I{Visibilidad y error aceptables?}
+  I -- oculto --> J[Omitir dibujo cuando sea seguro]
+  I -- visible --> K[LodManager elige nivel compatible]
+  K --> L[LookPipeline / Three.js renderer]
+  X --> L
+  A -. cambio de contenido: invalidar derivados .-> F
+  H -. histeresis + límites de trabajo .-> K
+  L --> M[PerfMonitor mide; no decide]
+  M -. evidencia para política futura .-> H

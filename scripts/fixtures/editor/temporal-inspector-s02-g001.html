@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="es"><meta charset="utf-8"><title>QA Inspector temporal S02</title>
+<style>
+body { margin:0; background:#17191d; color:#ddd; font:12px sans-serif }
+.workspace { display:grid; grid-template-columns:minmax(500px,1fr) 260px; gap:8px; height:640px }
+.left { display:grid; grid-template-rows:180px 220px 220px; min-height:0; gap:8px }
+#assets,#timeline,#animation,#inspector { min-width:0; min-height:0; border:1px solid #555; }
+#inspector { width:260px; container-type:inline-size }
+#temporal-result { position:absolute; top:0; right:0; visibility:hidden }
+</style>
+<div class="workspace"><div class="left"><div id="assets"></div><div id="timeline"></div><div id="animation"></div></div><div id="inspector"></div></div>
+<pre id="temporal-result"></pre>
+<script type="module">
+import { createApp, nextTick } from 'vue'
+import ProjectPanel from '/src/components/ProjectPanel.vue'
+import TimelinePanel from '/src/components/TimelinePanel.vue'
+import AnimationPanel from '/src/components/AnimationPanel.vue'
+import InspectorDock from '/src/components/InspectorDock.vue'
+import { store, openTimelineEditor, openAnimationEditor, resetHistory, undo, redo } from '/src/core/store.js'
+import { createProjectData } from '/src/core/project.js'
+import { sampleTimeline } from '/src/core/timeline/model.js'
+import { sampleClip } from '/src/engine/runtime/anim/model.js'
+const out = document.querySelector('#temporal-result')
+const checks = [], apps = []
+const check = (name, value) => { checks.push({ name, pass: !!value }); if (!value) throw Error(name) }
+const tick = async () => { await nextTick(); await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r))) }
+const mount = (component, selector) => { const app = createApp(component); app.mount(selector); apps.push(app) }
+const tile = (name) => [...document.querySelectorAll('#assets .tile')].find(t => t.querySelector('.lbl')?.textContent.trim() === name)
+const click = (el) => { el?.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true })) }
+const pointer = (el) => { el.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, cancelable: true, button: 0, clientX: 440 })); window.dispatchEvent(new PointerEvent('pointerup', { bubbles: true, button: 0 })) }
+const part = () => document.querySelector('#inspector .temporal-inspector')?.dataset.part
+const inspectKind = () => document.querySelector('#inspector [data-test^="temporal-inspector-"]')?.dataset.test
+const title = () => document.querySelector('#inspector .identity b')?.textContent
+try {
+  const p = createProjectData('QA temporal S02', 'empty')
+  p.timelines = [sampleTimeline('Cine A'), sampleTimeline('Cine B')]
+  p.animations = [sampleClip('Anim A'), sampleClip('Anim B')]
+  store.project = p; store.locked = false; store.projFolder = 'Assets'
+  store.prefs.rightTab = 'object'; store.prefs.rightOpen = true
+  store.editor = { snapshotTerrain: () => p.terrain, syncAll() {}, syncEnvironment() {}, setSelection() {}, afterUndo() {} }
+  resetHistory()
+  mount(ProjectPanel, '#assets'); mount(TimelinePanel, '#timeline'); mount(AnimationPanel, '#animation'); mount(InspectorDock, '#inspector')
+  await tick()
+  check('Assets contiene los cuatro recursos', ['Cine A', 'Cine B', 'Anim A', 'Anim B'].every(tile))
+  click(tile('Cine A')); await tick()
+  check('Asset cinematica mostrado en el Inspector', inspectKind() === 'temporal-inspector-timeline')
+  check('Identidad cine A', title() === 'Cine A')
+  check('Asset sin elemento interno', part() === 'resource')
+  click(tile('Anim A')); await tick()
+  check('Asset clip mostrado en mismo Inspector', inspectKind() === 'temporal-inspector-animation')
+  check('Identidad anim A', title() === 'Anim A')
+  openTimelineEditor(p.timelines[0].id); await tick()
+  check('Apertura cine ID', store.timelineId === p.timelines[0].id)
+  check('Apertura activa Inspector de cine', inspectKind() === 'temporal-inspector-timeline')
+  const tHead = document.querySelector('#timeline .trow .head')
+  pointer(tHead); await tick()
+  check('Pista cinematica al Inspector', part() === 'track')
+  check('Pista de cámara visible', document.querySelector('#inspector .field') !== null)
+  pointer(document.querySelector('#timeline .trow .key')); await tick()
+  check('Clave de cine al Inspector', part() === 'key')
+  check('Clave cine muestra ParamForm', !!document.querySelector('#inspector .pf'))
+  check('Ya no hay lateral cine', !document.querySelector('#timeline aside.insp'))
+  openTimelineEditor(p.timelines[1].id); await tick()
+  check('Cambio documento cine correcto', title() === 'Cine B' && part() === 'resource')
+  openAnimationEditor(p.animations[0].id); await tick()
+  check('Cambio a Animación por ID', title() === 'Anim A' && inspectKind() === 'temporal-inspector-animation')
+  pointer(document.querySelector('#animation .trow .head')); await tick()
+  check('Pista clip', part() === 'track')
+  pointer(document.querySelector('#animation .trow .key')); await tick()
+  check('Clave clip', part() === 'key')
+  check('No hay lateral anim', !document.querySelector('#animation aside.insp'))
+  pointer(document.querySelector('#animation .evt')); await tick()
+  check('Evento del clip', part() === 'event')
+  const eventName = document.querySelector('#inspector .field input:not([type=number])')
+  eventName.value = 'Renombrado QA'; eventName.dispatchEvent(new Event('change', { bubbles:true })); await tick()
+  check('Evento editado desde Inspector', store.project.animations[0].events[0].name === 'Renombrado QA')
+  undo(); await tick()
+  check('Undo restaura evento', store.project.animations[0].events[0].name === 'beber')
+  check('Inspector re-resuelve evento tras Undo', part() === 'event' && document.querySelector('#inspector .field input:not([type=number])')?.value === 'beber')
+  redo(); await tick()
+  check('Redo recupera evento', store.project.animations[0].events[0].name === 'Renombrado QA')
+  click(tile('Cine A')); await tick()
+  check('Seleccionar Assets invalida elemento del clip', part() === 'resource' && title() === 'Cine A')
+  openAnimationEditor(p.animations[1].id); await tick()
+  check('Reabrir clip distinto contextual', title() === 'Anim B')
+  store.animId = null; await tick()
+  check('Cerrar editor invalida su documento', store.temporalSelection === null && !document.querySelector('#animation .trow'))
+  click(tile('Anim A')); await tick()
+  check('Asset sigue accesible tras cierre', title() === 'Anim A')
+  const narrow = document.querySelector('#inspector .temporal-inspector')
+  check('Inspector usable en 260 px', narrow.clientWidth >= 230 && narrow.scrollWidth <= narrow.clientWidth + 2)
+  document.querySelector('#inspector').style.width = '320px'; await tick()
+  check('Inspector sigue sin overflow horizontal al ampliar', narrow.scrollWidth <= narrow.clientWidth + 2)
+  out.dataset.pass='true'; out.textContent=JSON.stringify({ pass: true, checks })
+} catch(error) { out.dataset.pass='false'; out.textContent=JSON.stringify({ pass:false, checks, error:error.stack }) }
+finally { for (const app of apps) app.unmount() }
+</script></html>

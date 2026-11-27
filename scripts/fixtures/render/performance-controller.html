@@ -1,0 +1,63 @@
+<!doctype html><html lang="es"><meta charset="utf-8"><title>Century · Presupuesto de rendimiento</title>
+<style>body{margin:0;background:#171b23;color:#ddd;font:14px system-ui}main{padding:16px}#stage{width:800px;height:440px}pre{white-space:pre-wrap}</style>
+<main><h2>Controlador de rendimiento · WebGL</h2><div id="stage"></div><pre id="status">Verificando…</pre></main>
+<script type="module">
+import * as THREE from 'three'
+import { Viewport } from '/src/engine/runtime/render/viewport.js'
+import { LodManager } from '/src/engine/runtime/render/lodmgr.js'
+import { normalizeRender } from '/src/engine/runtime/render/config.js'
+const checks=[], errors=[]
+const check=(name, pass, details)=>{checks.push({name,pass:!!pass,details});if(!pass)throw Error(name)}
+let vp, lod
+try {
+  vp=new Viewport(document.querySelector('#stage'))
+  cancelAnimationFrame(vp._raf); vp._ro.disconnect()
+  vp.renderer.setPixelRatio(1); vp.resize(); vp.sky.visible=false; vp.grid.visible=false
+  vp.renderer.debug.onShaderError=(gl,p,vs,fs)=>errors.push(gl.getProgramInfoLog(p)||gl.getShaderInfoLog(fs))
+  const cfg=Object.freeze(normalizeRender({look:'realista',profile:'alto',resScale:1,performanceAuto:true}))
+  vp.setRender(cfg)
+  const material=new THREE.MeshPhysicalMaterial({color:'#bb9988',roughness:0.6})
+  const geometry=new THREE.SphereGeometry(1,48,32), mesh=new THREE.Mesh(geometry,material)
+  vp.world.add(mesh)
+  vp.scene.add(new THREE.AmbientLight(0xffffff,2))
+  vp.camera.position.set(0,0,4);vp.camera.lookAt(0,0,0);vp.camera.updateMatrixWorld(true)
+  const graph={vp,terrains:[],nodes:new Map([['sphere',mesh]]),host:{project:{objects:[{id:'sphere',type:'primitive',props:{}}]}}}
+  vp.playing=true
+  lod=new LodManager(graph,cfg);lod.attach()
+  const controller=vp.performanceController
+  controller.sync(performance.now())
+  vp._draw()
+  const ao=vp.look.aoPass, full=ao._lfAoFullSize
+  check('Forward mantiene GTAO real activo',!!ao && vp.look.profile==='alto')
+  check('Controlador mide con Stats cerrado',controller.active && vp.perf.budgetEnabled && !vp.perf.enabled)
+  // Telemetría inyectada para verificar decisiones y actuadores; no es un benchmark de FPS.
+  let now=performance.now()+2000
+  for(let i=0;i<500;i++){now+=30;controller.sample({frameMs:30,cpuMs:4,logicMs:2,gpuMs:27,calls:40},now)}
+  check('Presión sostenida aplica ajustes acotados',controller.policy.effects>0 && controller.policy.geometry>0)
+  check('AO reduce sus targets sin sustituir el pase',vp.look.aoPass===ao && ao.width<full.w && ao.height<full.h,{full,width:ao.width,height:ao.height})
+  check('LOD comparte presupuesto con el sistema de clústeres',lod.quality<1 && lod.clusters.quality===lod.quality)
+  check('Resolución y materiales de autoría se conservan',vp.look.cfg===cfg && vp.look.scale===1 && mesh.material===material && cfg.resScale===1)
+  check('Canvas conserva su tamaño real',vp.renderer.domElement.width===800 && vp.renderer.domElement.height===440)
+  vp.sky.visible=true;vp.skyMat.uniforms.uClouds.value=1
+  vp._draw()
+  check('Nubes usan el presupuesto de pasos existente',vp.skyMat.uniforms.uCloudSteps.value===Math.round(56*controller.cloudScale))
+  vp.sky.visible=false;vp.skyMat.uniforms.uClouds.value=0
+  vp.perf.enable(true);vp._draw();vp.perf.enable(false)
+  check('Cerrar Stats conserva optimización activa',vp.perf.budgetEnabled && vp.perf.runtimeAoScale<1 && !vp.perf.enabled)
+  // Ejecutar consultas reales junto al dibujo; la disponibilidad depende del driver.
+  for(let i=0;i<20;i++){vp._draw();await new Promise(requestAnimationFrame)}
+  check('Consultas de presupuesto conservan el estado WebGL',vp.renderer.getContext().getError()===0)
+  check('La cola de medición no crece sin límite',vp.perf.gpu.pending.length<=8)
+  check('Stats publica decisiones y datos sin inventar GPU',vp.perf.stats.extra.performanceController.active && vp.perf.stats.extra.performanceController.gpuMs===27)
+  vp.playing=false;controller.sync(performance.now())
+  check('Volver a Edit restaura el detalle del proyecto',lod.quality===cfg.lodQuality && vp.perf.runtimeAoScale===1 && controller.cloudScale===1)
+  check('Se libera la medición fuera de Play',!vp.perf.budgetEnabled && vp.renderer.info.autoReset && vp.perf.gpu.pending.length===0)
+  check('Sin errores de compilación de shaders',errors.length===0,errors)
+  document.querySelector('#status').textContent=`${checks.length} verificaciones correctas`
+  const out=document.createElement('pre');out.id='performance-controller-result';out.hidden=true;out.dataset.pass='true'
+  out.textContent=JSON.stringify({pass:true,checks,gl:vp.renderer.getContext().getParameter(vp.renderer.getContext().VERSION),gpuTimer:vp.perf.gpuSupported,note:'Prueba de integración con presión inyectada; no certifica FPS de un juego.'});document.body.append(out)
+} catch(error) {
+  const out=document.createElement('pre');out.id='performance-controller-result';out.dataset.pass='false'
+  out.textContent=JSON.stringify({pass:false,error:String(error.stack),checks,errors});document.body.append(out)
+} finally { lod?.detach();vp?.dispose() }
+</script></html>

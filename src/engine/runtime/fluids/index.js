@@ -1,0 +1,5 @@
+export { FluidRegion } from './shallow-water.js'
+export { displacementHeights } from './solids.js'
+export { normalizeLiquid, WATER_LIQUID } from './liquid.js'
+export { MpmContainerFluid } from './container-mpm.js'
+export { fluidContainerDefaults, FLUID_CONTAINER_KINDS } from './container-props.js'

@@ -1,0 +1,47 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Hierarchy Reorder G001 · Electron</title></head>
+<body style="background:#17191b;color:#ddd"><pre id="hierarchy-reorder-g001-result">Cargando...</pre><div id="app" style="width:320px;height:540px"></div>
+<script type="module">
+import * as THREE from 'three'
+import {createApp,nextTick} from 'vue'
+import SceneTree from '/src/components/SceneTree.vue'
+import {store,reorderSiblings} from '/src/core/store.js'
+const out=document.getElementById('hierarchy-reorder-g001-result'),checks=[]
+const check=(name,pass,detail='')=>{checks.push({name,pass:!!pass,detail});if(!pass)throw new Error(`${name}: ${detail}`)}
+let app,renderer
+try{
+ renderer=new THREE.WebGLRenderer({antialias:false});renderer.setSize(16,16)
+ renderer.render(new THREE.Scene(),new THREE.PerspectiveCamera())
+ check('Electron WebGL2 disponible',renderer.capabilities.isWebGL2)
+ const mk=(id,parentId=null,type='primitive')=>({id,name:id.toUpperCase(),type,kind:'box',parentId,position:[1,2,3],rotation:[0,0,0],scale:[1,1,1],visible:true,locked:false,open:true,props:type==='terrain'?{terrainId:id}:{}})
+ store.project={id:'hierarchy-g001',activeSceneId:'s1',scenes:[{id:'s1',name:'Escena 1'}],objects:[mk('a'),mk('b'),mk('c'),mk('d'),mk('terrain',null,'terrain')],terrain:{enabled:true},audio:{},materials:[],scripts:[],environment:{}}
+ store.editor={snapshotTerrain:()=>({layers:[],foliage:[]}),setSelection(){},syncObject(){throw Error('Reordenamiento de hermanos no debe sincronizar el viewport')},syncAll(){}}
+ store.selectedId=null;store.selectedIds=[];store.terrainSel=false;store.sceneSel=true
+ const original=new Map(store.project.objects.map(o=>[o.id,JSON.stringify(o)]))
+ app=createApp(SceneTree);app.mount('#app');await nextTick()
+ const ids=()=>[...document.querySelectorAll('.list .row[data-id]')].map(r=>r.dataset.id)
+ check('cinco nodos raíz visibles',ids().join(',')==='a,b,c,d,terrain',ids().join(','))
+ check('filas arrastrables, incluso Terrain',[...document.querySelectorAll('.list .row[data-id]')].every(r=>r.draggable))
+ const src=document.querySelector('[data-id="d"]'),dest=document.querySelector('[data-id="b"]')
+ const dt=new DataTransfer()
+ const fire=(el,type,clientY)=>{const ev=new Event(type,{bubbles:true,cancelable:true});Object.defineProperty(ev,'dataTransfer',{value:dt});Object.defineProperty(ev,'clientY',{value:clientY});el.dispatchEvent(ev);return ev}
+ fire(src,'dragstart',0)
+ check('inicia gesto sin alterar árbol',ids().join(',')==='a,b,c,d,terrain')
+ const box=dest.getBoundingClientRect()
+ fire(dest,'dragover',box.top+2);await nextTick()
+ check('muestra línea azul antes del nodo B',dest.classList.contains('d-before'))
+ fire(dest,'drop',box.top+2);await nextTick()
+ check('arrastrar D antes de B reordena visualmente',ids().join(',')==='a,d,b,c,terrain',ids().join(','))
+ check('cambia solo orden, nunca propiedades de nodos',store.project.objects.every(o=>JSON.stringify(o)===original.get(o.id)))
+ // Mover Terrain por la misma ruta de inserción, sin crear geometría adicional.
+ const terrain=document.querySelector('[data-id="terrain"]'),a=document.querySelector('[data-id="a"]')
+ fire(terrain,'dragstart',0);fire(a,'dragover',a.getBoundingClientRect().top+2);await nextTick();fire(a,'drop',0);await nextTick()
+ check('Terrain se puede reordenar en raíz',ids()[0]==='terrain')
+ check('sin cambios de parentId ni malla duplicada',store.project.objects.every(o=>o.parentId===null)&&store.project.objects.filter(o=>o.type==='terrain').length===1)
+ // Al bloquear un nodo la operación se rechaza antes de modificarlo.
+ store.project.objects.find(o=>o.id==='c').locked=true;await nextTick()
+ const c=document.querySelector('[data-id="c"]');check('bloqueo de nodo conservado',c?.dataset.id==='c')
+ check('sin errores GPU',renderer.getContext().getError()===renderer.getContext().NO_ERROR)
+ out.dataset.pass='true';out.textContent=JSON.stringify({pass:true,gl:renderer.getContext().getParameter(renderer.getContext().VERSION),checks},null,2)
+}catch(err){out.dataset.pass='false';out.textContent=JSON.stringify({pass:false,checks,error:String(err?.stack||err)},null,2)}
+finally{app?.unmount();renderer?.dispose()}
+</script></body></html>

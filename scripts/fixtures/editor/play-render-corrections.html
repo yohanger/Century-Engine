@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><title>Century · Prueba de render y cámara</title></head>
+<body><div id="toolbar"></div><div id="viewbar"></div><div id="viewport" style="width: 480px; height: 270px; position: relative"></div><div id="settings"></div>
+<pre id="play-render-corrections-result">Ejecutando…</pre>
+<script type="module">
+import * as THREE from 'three'
+import { createApp, h, nextTick } from 'vue'
+import { Editor } from '/src/core/editor.js'
+import { createProjectData } from '/src/core/project.js'
+import { setEditor, store } from '/src/core/store.js'
+import { run } from '/src/core/commands.js'
+import GameSettingsModal from '/src/components/GameSettingsModal.vue'
+import EngineSettingsModal from '/src/components/EngineSettingsModal.vue'
+import Toolbar from '/src/components/Toolbar.vue'
+import ViewBar from '/src/components/ViewBar.vue'
+import { cameraMethods } from '/src/engine/runtime/events/play-camera.js'
+import { setCameraFov } from '/src/engine/runtime/render/camera-fov.js'
+import { Terrain } from '/src/engine/runtime/geometry/terrain.js'
+import { rendererPreset } from '/src/engine/runtime/render/config.js'
+import { makeObject } from '/src/engine/runtime/nodes/index.js'
+import '/src/styles.css'
+
+const output = document.querySelector('#play-render-corrections-result')
+const checks = []
+const check = (name, condition, detail) => {
+  checks.push({ name, pass: !!condition, detail })
+  output.dataset.stage = name
+  if (!condition) throw new Error(name)
+}
+const frame = async () => { await nextTick(); await new Promise(requestAnimationFrame); await nextTick() }
+const button = (text) => [...document.querySelectorAll('button')].find(button => button.textContent.trim() === text)
+const field = (text) => [...document.querySelectorAll('.pf .row > label')].find(label => label.textContent === text)?.parentElement
+let editor, app, toolbar, viewbar, sphere
+try {
+  const project = createProjectData('Prueba de render')
+  project.objects = []
+  project.render = { ...rendererPreset('mobile'), profile: 'bajo', bloom: 0, ao: 0, exposure: 1.25, temperature: 0.15, tonemap: 'lineal' }
+  project.environment.lightingMode = 'cycle'
+  Object.assign(project.environment.time, { on: true, flow: false, hour: 12 })
+  project.environment.weather.on = false
+  store.locked = false
+  store.project = project
+  const container = document.querySelector('#viewport')
+  editor = new Editor(container)
+  setEditor(editor)
+  const blank = new Terrain(64, 8, project.terrain.layers)
+  blank.enabled = false
+  await editor.loadScene({ terrain: blank.serialize(), settings: project.settings })
+  blank.dispose()
+  editor.syncAll()
+  editor.syncEnvironment()
+  const { vp } = editor
+  const { renderer, look } = vp
+  store.ready = true
+  toolbar = createApp(Toolbar)
+  toolbar.mount('#toolbar')
+  viewbar = createApp(ViewBar)
+  viewbar.mount('#viewbar')
+  const editView = button('Edit Mode'), playView = button('Play Mode')
+  check('Las dos vistas están juntas antes de Añadir y Edit Mode es la inicial',
+    editView.getAttribute('aria-pressed') === 'true' && playView.getAttribute('aria-pressed') === 'false' &&
+    playView.parentElement.nextElementSibling.contains(button('Añadir')))
+
+  playView.click()
+  await frame()
+  check('La vista previa indica que no hay cámara y deja el juego detenido',
+    store.gameView.on && store.gameView.noCamera && !store.play.on && !editor.player.on && !vp.playing &&
+    !!document.querySelector('#viewbar [aria-label="Relación de aspecto"]'))
+
+  const group = makeObject('group', 'group', { id: 'qa-rig', position: [3, 0, 5], rotation: [0, 27, 0] })
+  const mainCamera = makeObject('camera', 'camera', { id: 'qa-main-camera', parentId: group.id, position: [0, 1, 4], props: { main: true, fov: 62 } })
+  const managerCamera = makeObject('camera', 'camera', { id: 'qa-manager-camera', position: [2, 3, -4], props: { main: false, fov: 46 } })
+  store.project.objects.push(group, mainCamera, managerCamera)
+  editor.syncAll()
+  editView.click()
+  vp.setView('top')
+  const originalCamera = vp.camera
+  const originalPose = originalCamera.position.clone()
+  const originalQuat = originalCamera.quaternion.clone()
+  const originalTarget = vp.controls.target.clone()
+  const mainNode = editor.nodes.get(mainCamera.id)
+  const worldPose = mainNode.getWorldPosition(new THREE.Vector3())
+  const renderLook = look.render
+  let draw
+  look.render = function (time) {
+    draw = { camera: vp.camera, position: vp.camera.position.clone(), fov: vp.camera.fov,
+      guides: vp.grid.visible || vp.overlay.visible || mainNode.userData.visual.visible || look.outlineEnabled }
+    return renderLook.call(this, time)
+  }
+  look.setEditorOutline([mainNode.userData.visual], true)
+  playView.click()
+  await frame()
+  check('Play Mode dibuja el encuadre mundial y el FOV de la cámara principal sin ayudas editoriales',
+    draw?.camera !== originalCamera && draw?.position.distanceTo(worldPose) < 1e-9 && draw.fov === 62 && !draw.guides &&
+    vp.camera === originalCamera && !store.gameView.noCamera && !editor.player.game)
+
+  store.project.gameManagers.push({ id: 'qa-game-manager', name: 'QA.gamemanager', camera: managerCamera.id })
+  store.project.scenes[0].gameManagerId = 'qa-game-manager'
+  await frame()
+  check('La vista previa actualiza la cámara asignada por el GameManager',
+    draw?.position.distanceTo(new THREE.Vector3(...managerCamera.position)) < 1e-9 && draw.fov === 46)
+  editView.click()
+  await frame()
+  check('Edit Mode devuelve la cámara ortográfica, su encuadre, sus controles y sus ayudas',
+    !store.gameView.on && vp.camera === originalCamera && vp.isOrtho && originalCamera.position.equals(originalPose) &&
+    originalCamera.quaternion.equals(originalQuat) && vp.controls.target.equals(originalTarget) && vp.controls.enabled &&
+    vp.grid.visible && vp.overlay.visible && look.outlineEnabled && mainNode.userData.visual.visible)
+  look.render = renderLook
+  look.setEditorOutline([], false)
+  store.project.scenes[0].gameManagerId = ''
+  store.project.gameManagers.length = 0
+  store.project.objects.splice(0)
+  editor.syncAll()
+  vp.setView('persp')
+
+  app = createApp({
+    render: () => store.modal === 'game' ? h(GameSettingsModal)
+      : store.modal === 'engine' ? h(EngineSettingsModal) : null,
+  })
+  app.mount('#settings')
+  run('game.settings')
+  await frame()
+  check('Juego abre su propia ventana sin ajustes de render',
+    document.body.textContent.includes('Ajustes del juego') && !!button('Input Map') &&
+    !document.querySelector('.render-nav'))
+  run('engine.settings')
+  await frame()
+  const scale = document.querySelector('input[aria-label="Escala de resolución en porcentaje"]')
+  scale.value = '25'
+  scale.dispatchEvent(new Event('change', { bubbles: true }))
+  await frame()
+  check('Los Ajustes del motor abren con la escala visible y guardan 25 %',
+    document.body.textContent.includes('Ajustes del motor') && !button('Input Map') && scale.min === '25' && store.project.render.resScale === .25 && look.cfg.resScale === .25 &&
+    document.querySelector('.resolution-output')?.textContent.includes('480 × 270'))
+  store.project.render.profile = 'medio'
+  button('Iluminación').click()
+  await frame()
+  check('Iluminación reúne las sondas y el rebote sin ocultar la escala',
+    field('Sondas dinámicas de iluminación indirecta') && field('Rebote de luz en pantalla') && scale.isConnected)
+  store.project.render.profile = 'bajo'
+  button('Color y tonos').click()
+  await frame()
+
+  store.view.renderMethod = 'compat'
+  await frame()
+  check('El visor muestra la previsualización Compatibility', look.cfg.look === 'clasico')
+  const adapt = field('Adaptar color y exposición al entorno').querySelector('input')
+  adapt.click()
+  await frame()
+  check('El ajuste quita la previsualización y actualiza la imagen sin clic en el viewport',
+    store.view.renderMethod === '' && look.cfg.environmentLook && look.cfg.look === 'realista')
+  check('El render Lineal usa la exposición y hay gradación a calidad baja',
+    renderer.toneMapping === THREE.LinearToneMapping && !!look.grade && renderer.toneMappingExposure > 1.25,
+    { mapping: renderer.toneMapping, linear: THREE.LinearToneMapping, exposure: renderer.toneMappingExposure, grade: !!look.grade, wx: vp._wf?.hour, needs: vp._needs })
+
+  const midday = { temp: look.grade.uniforms.uTemp.value, exposure: renderer.toneMappingExposure }
+  editor.world.setHour(0)
+  editor.applyWorld()
+  await frame()
+  const night = { temp: look.grade.uniforms.uTemp.value, exposure: renderer.toneMappingExposure }
+  check('Noche más fría y menos expuesta desde la hora real', night.temp < midday.temp && night.exposure < midday.exposure)
+  editor.world.setHour(12)
+  check('El clima acepta lluvia real', editor.world.setWeather('rain', 1))
+  editor.applyWorld()
+  await frame()
+  const rain = { temp: look.grade.uniforms.uTemp.value, exposure: renderer.toneMappingExposure }
+  check('La lluvia de mediodía cambia las dos variables', rain.temp < midday.temp && rain.exposure < midday.exposure)
+  check('La gradación conserva los valores base del proyecto', store.project.render.exposure === 1.25 && store.project.render.temperature === 0.15)
+  adapt.click()
+  await frame()
+  check('Al desactivar la adaptación se recupera la exposición base', renderer.toneMappingExposure === 1.25)
+
+  button('General').click()
+  await frame()
+  button('Forward+').click()
+  await frame()
+  check('Forward+ se aplica sin interactuar con el viewport y conserva la escala',
+    look.cfg.look === 'realista' && look.cfg.profile === 'alto' && look.cfg.resScale === .25)
+
+  button('Compatibility').click()
+  await frame()
+  const psxToggle = field('Estilo PSX').querySelector('input')
+  psxToggle.click()
+  await frame()
+  check('Ajustes del juego dibuja PSX 240p sin seleccionar un nodo ni pulsar el viewport',
+    store.project.render.psx && look.cfg.look === 'clasico' && !look.outlineEnabled && look.psxTarget?.height === 240 &&
+    document.querySelector('#render-scale').matches(':disabled') && store.project.render.resScale === .25)
+  psxToggle.click()
+  await frame()
+
+  const sun = makeObject('light', 'directional', { id: 'qa-sun' })
+  sun.color = '#ffffff'
+  sun.light.energy = 0.7
+  sun.light.shadow = false
+  store.project.objects.push(sun)
+  store.project.environment.sunLightId = sun.id
+  editor.syncObject(sun.id)
+  const sunLight = editor.nodes.get(sun.id).userData.light
+  const target = new THREE.WebGLRenderTarget(8, 8)
+  const surface = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), new THREE.MeshLambertMaterial({ color: '#ffffff', fog: false }))
+  const lightCam = new THREE.PerspectiveCamera(30, 1, 0.05, 10)
+  const layer = 27
+  surface.layers.set(layer)
+  lightCam.layers.set(layer)
+  sunLight.layers.set(layer)
+  vp.scene.add(surface)
+  editor.world.setHour(12)
+  const sampleDirectLight = (weather) => {
+    editor.world.setWeather(weather, 1)
+    editor.applyWorld()
+    const dir = new THREE.Vector3(...editor.world.frame().sunDir)
+    surface.lookAt(dir)
+    lightCam.position.copy(dir).multiplyScalar(4)
+    lightCam.lookAt(0, 0, 0)
+    renderer.setRenderTarget(target)
+    renderer.render(vp.scene, lightCam)
+    const pixel = new Uint8Array(4)
+    renderer.readRenderTargetPixels(target, 4, 4, 1, 1, pixel)
+    renderer.setRenderTarget(null)
+    return [...pixel.subarray(0, 3)]
+  }
+  const clearLight = sampleDirectLight('clear')
+  const clearTemperature = editor.world.frame().sunTemperatureOffset
+  const rainLight = sampleDirectLight('rain')
+  const rainTemperature = editor.world.frame().sunTemperatureOffset
+  check('La lluvia con cielo cubierto bloquea el haz directo y enfría la temperatura del sol',
+    clearLight[0] > 40 && rainLight.every((channel) => channel <= 2) &&
+    editor.world.frame().solarTransmission === 0 && rainTemperature > clearTemperature,
+    { clearLight, rainLight, clearTemperature, rainTemperature })
+  surface.removeFromParent()
+  surface.geometry.dispose()
+  surface.material.dispose()
+  target.dispose()
+  store.project.objects.splice(store.project.objects.findIndex((obj) => obj.id === sun.id), 1)
+  store.project.environment.sunLightId = ''
+  editor.removeObject(sun.id)
+
+  const cam = new THREE.PerspectiveCamera(60, 16 / 9, 0.05, 60)
+  vp.camera = cam
+  vp.playing = true
+  setCameraFov(cam, 90)
+  container.style.width = '405px'
+  const horizontalFov = () => THREE.MathUtils.radToDeg(2 * Math.atan(Math.tan(THREE.MathUtils.degToRad(cam.fov) / 2) * cam.aspect))
+  vp.resize()
+  check('El primer fotograma después del resize mantiene el FOV horizontal',
+    Math.abs(cam.aspect - 405 / 270) < 1e-8 && Math.abs(horizontalFov() - 90) < 1e-8)
+
+  const pivot = new THREE.Group()
+  const node = new THREE.Group()
+  pivot.add(node)
+  pivot.rotation.y = 0.45
+  const ctx = { _mainCameraNode: () => ({ node, obj: { id: 'camera', props: { fov: 60 } } }),
+    _nativePlayerId: 'player', _nativePitchCamera: () => ({ id: 'camera' }), g: { fov: 90 } }
+  cameraMethods._viewCamera.call(ctx, cam)
+  check('El giro del padre entra en la pose del mismo fotograma', Math.abs(cam.rotation.y - 0.45) < 1e-8 && Math.abs(cam.quaternion.length() - 1) < 1e-8)
+
+  editor.world.reset()
+  editor.vp.setWorld(null)
+  vp.sky.visible = false
+  vp.grid.visible = false
+  vp.overlay.visible = false
+  vp.scene.background = null
+  renderer.setClearColor('#233149', 1)
+  sphere = new THREE.Mesh(new THREE.SphereGeometry(0.42, 32, 20), new THREE.MeshBasicMaterial({ color: 0xff0000 }))
+  sphere.position.z = -6
+  vp.scene.add(sphere)
+  const gl = renderer.getContext()
+  const readSphere = (yaw) => {
+    cam.rotation.y = yaw
+    renderer.setRenderTarget(null)
+    look.render()
+    const w = renderer.domElement.width, h = renderer.domElement.height
+    const pixels = new Uint8Array(w * h * 4)
+    gl.readPixels(0, 0, w, h, gl.RGBA, gl.UNSIGNED_BYTE, pixels)
+    let left = w, bottom = h, right = -1, top = -1
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+      const i = (y * w + x) * 4
+      if (pixels[i] < 140 || pixels[i + 1] > 90 || pixels[i + 2] > 85) continue
+      left = Math.min(left, x)
+      right = Math.max(right, x)
+      bottom = Math.min(bottom, y)
+      top = Math.max(top, y)
+    }
+    if (right < left) {
+      const center = (Math.floor(h / 2)*w + Math.floor(w / 2)) * 4
+      throw new Error('No apareció la esfera de prueba ' + JSON.stringify({
+        yaw, psx: look.cfg.psx, center: [...pixels.slice(center,center+4)], fov: cam.fov, aspect: cam.aspect,
+        camera: cam.position.toArray(), gl: gl.getError(),
+      }))
+    }
+    return (right - left + 1) / (top - bottom + 1)
+  }
+  const yaw = []
+  for (const psx of [false, true]) {
+    vp.setRender({ ...rendererPreset('forward'), ao: 0, bloom: 0, tonemap: 'lineal', psx, psxSnap: 0, psxAffine: false })
+    const projection = cam.projectionMatrix.clone()
+    const center = readSphere(0)
+    const edge = readSphere(THREE.MathUtils.degToRad(36))
+    check((psx ? 'PSX' : 'Forward+') + ' reproduce el ensanchamiento lateral con proyección, FOV y malla constantes',
+      center > .88 && center < 1.12 && edge > center * 1.12 && cam.projectionMatrix.equals(projection) && sphere.scale.x === 1)
+    yaw.push({ psx, center, edge })
+  }
+
+  vp.playing = false
+  cam.rotation.y = 0
+  sphere.material.color.set('#64748b')
+  const samplePsx = () => {
+    renderer.setRenderTarget(null)
+    look.render()
+    const { width, height } = renderer.domElement
+    const sample = (x, y) => {
+      const pixel = new Uint8Array(4)
+      gl.readPixels(Math.floor(width * x), Math.floor(height * y), 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixel)
+      return [...pixel.subarray(0, 3)]
+    }
+    return [...sample(0.2, 0.2), ...sample(0.5, 0.5)]
+  }
+  const sameColors = (a, b) => a.every((channel, i) => Math.abs(channel - b[i]) <= 2)
+  const psxModes = [
+    ['Compatibility', rendererPreset('compat')],
+    ['Realista Bajo', { ...rendererPreset('mobile'), profile: 'bajo', tonemap: 'lineal', exposure: 0.65 }],
+    ['Forward+', { ...rendererPreset('forward'), ao: 0, bloom: 0, tonemap: 'lineal', exposure: 0.65 }],
+  ]
+  for (const [name, cfg] of psxModes) {
+    vp.setRender({ ...cfg, psx: true, psxHeight: 240, psxSnap: 0, psxAffine: false })
+    const unselected = samplePsx()
+    look.setEditorOutline([sphere], true)
+    const selected = samplePsx()
+    const outline = !!look.outlinePass
+    look.setEditorOutline([], false)
+    const deselected = samplePsx()
+    check(`${name} PSX mantiene los colores fuera del contorno al seleccionar y deseleccionar`,
+      outline && sameColors(unselected, selected) && sameColors(unselected, deselected),
+      { unselected, selected, deselected })
+  }
+  const low = { ...psxModes[1][1], psx: true, psxHeight: 240, psxSnap: 0, psxAffine: false }
+  vp.setRender(low)
+  const dim = samplePsx()
+  vp.setRender({ ...low, exposure: 1.35 })
+  const bright = samplePsx()
+  check('PSX aplica la exposición sin selección activa', bright[3] > dim[3] + 15, { dim, bright })
+  check('Sin errores WebGL durante los cambios de render', gl.getError() === gl.NO_ERROR)
+  output.dataset.pass = 'true'
+  output.textContent = JSON.stringify({ pass: true, gl: gl.getParameter(gl.VERSION), checks, midday, night, rain, directSun: { clearLight, rainLight }, yaw })
+} catch (error) {
+  output.dataset.pass = 'false'
+  output.textContent = JSON.stringify({ pass: false, checks, error: String(error.stack || error) })
+} finally {
+  app?.unmount()
+  toolbar?.unmount()
+  viewbar?.unmount()
+  sphere?.geometry.dispose()
+  sphere?.material.dispose()
+  editor?.dispose()
+}
+</script></body></html>

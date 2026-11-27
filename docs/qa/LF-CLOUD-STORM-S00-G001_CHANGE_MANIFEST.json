@@ -1,0 +1,88 @@
+{
+  "gate": "LF-CLOUD-STORM-S00-G001-NATIVE-APPROACH-AND-LIGHTNING-ILLUMINATION",
+  "base_filename": "source_baseline.zip",
+  "base_zip_sha256": "19ac5fc58549cbb57c6d8f44171a3baf1d590417607ce84e7aa9db0a1b8fb936",
+  "original_files_preserved": 3610,
+  "changed_files": [
+    {
+      "path": "docs/architecture/LF-CLOUD-STORM-S00-G001_IMPLEMENTATION.md",
+      "action": "ADDED",
+      "sha256": "8ecf9ab8891681fb5a1ba43e3e12dcb9aeca60f8c4e3505fccaa5831224daee2"
+    },
+    {
+      "path": "docs/qa/LF-CLOUD-STORM-S00-G001_QA.md",
+      "action": "ADDED",
+      "sha256": "a01b039e319a02683b0de2d9ffcb7d20a0763f81b5766b75c8e8208c252a52e7"
+    },
+    {
+      "path": "docs/qa/LF-CLOUD-STORM-S00-G001_TRACEABILITY.md",
+      "action": "ADDED",
+      "sha256": "cf3535e136a841212330e807a9007eb77f640c7127c06b2921228c456595ee1e"
+    },
+    {
+      "path": "docs/qa/LevelForge_DB_Ledger.xlsx",
+      "action": "MODIFIED",
+      "sha256": "db07d0d7ce95fa5e7185896c9c6105a16a60a38a9cb2ca7041194ca1282f97b3"
+    },
+    {
+      "path": "docs/qa/evidence/LF_CLOUD_STORM_S00_G001/qa-build-attempt.log",
+      "action": "ADDED",
+      "sha256": "4f1ad94331d0e35167ea085f364282c3225262ef47ac91a71455bbbea8399be7"
+    },
+    {
+      "path": "docs/qa/evidence/LF_CLOUD_STORM_S00_G001/qa-focused.log",
+      "action": "ADDED",
+      "sha256": "462b7bece9f458d54093706625eb3ea36e50ebb77cd616e47a0937206b08785f"
+    },
+    {
+      "path": "docs/qa/evidence/LF_CLOUD_STORM_S00_G001/qa-glsl-mesa.log",
+      "action": "ADDED",
+      "sha256": "2b6309e200fe33c92f243a8dbe66cf8cf0cec0e46ec697dfeda9c2bff95c6929"
+    },
+    {
+      "path": "scripts/fixtures/weather/cloud-light.html",
+      "action": "MODIFIED",
+      "sha256": "18b6b9be94127eebac332f6b8cd17fc2ee88277cf8069f50984d317b236dc23d"
+    },
+    {
+      "path": "scripts/test-cloud-light-electron.mjs",
+      "action": "MODIFIED",
+      "sha256": "c1705622cdf67ff13f5ff92623581ebf93c206d50461ef082422de4897e3ea8b"
+    },
+    {
+      "path": "scripts/test-cloud-storm-s00-g001.mjs",
+      "action": "ADDED",
+      "sha256": "f84dce6401779cb47eb305c0a839cfa9a74acfb5572e2437324ff055a7cc68e7"
+    },
+    {
+      "path": "src/engine/runtime/render/skylib.js",
+      "action": "MODIFIED",
+      "sha256": "017cea21d1614cbec8efa014b8f3f3574299e647a415f3e4db995d7f3a32b00b"
+    },
+    {
+      "path": "src/engine/runtime/render/viewport-env.js",
+      "action": "MODIFIED",
+      "sha256": "b90bf118815ac02ba9d450e62bdf8f40f95bee43281738532ae263f43cbbbe0d"
+    },
+    {
+      "path": "src/engine/runtime/render/viewport.js",
+      "action": "MODIFIED",
+      "sha256": "0c9d4f9c6eabc2271453c5df607ab5fa87f7e06e8fb2a2cbbf6c81ac34f88dc9"
+    },
+    {
+      "path": "src/engine/runtime/world/world.js",
+      "action": "MODIFIED",
+      "sha256": "07e9a533a04b06460eac2995251c66066f686ce267ddfff5313ee64b4940512c"
+    }
+  ],
+  "removed_files": [],
+  "qa": {
+    "node_focal": "75/75 PASS",
+    "glsl_mesa_45": "COMPILE+LINK PASS",
+    "vite": "NO COMPILADO (vite no instalado)",
+    "electron_webgl2": "NO VERIFICADO",
+    "player": "NO VERIFICADO",
+    "qa_visual": "NO VERIFICADO",
+    "gate": "PENDIENTE APROBACION Y CIERRE"
+  }
+}

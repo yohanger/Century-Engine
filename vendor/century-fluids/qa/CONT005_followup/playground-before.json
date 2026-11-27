@@ -1,0 +1,78 @@
+{
+  "host": {
+    "node": "v26.13.1",
+    "cpu": "Intel(R) Pentium(R) Silver N5030 CPU @ 1.10GHz",
+    "platform": "linux",
+    "kernel": "6.14.0-37-generic"
+  },
+  "units": {
+    "time": "ms",
+    "memory": "bytes"
+  },
+  "playground": [
+    {
+      "id": "tank",
+      "steps": 360,
+      "massKg": 110.59199999999989,
+      "limits": 46,
+      "maximumPenetrationMeters": 9.853229343548264e-15,
+      "solidContacts": 0,
+      "surfaceTriangles": 808,
+      "maxBodyX": 0,
+      "maxBodyZ": 0,
+      "positions": [],
+      "speed": {
+        "max": 0.5909442168451715,
+        "mean": 0.1254662942493848
+      },
+      "surfaceComponents": {
+        "count": 30,
+        "largestTriangleShare": 0.10891089108910891
+      }
+    },
+    {
+      "id": "dam",
+      "steps": 360,
+      "massKg": 172.80000000000004,
+      "limits": 100,
+      "maximumPenetrationMeters": 9.96425164601078e-15,
+      "solidContacts": 0,
+      "surfaceTriangles": 1996,
+      "maxBodyX": 0,
+      "maxBodyZ": 0,
+      "positions": [],
+      "speed": {
+        "max": 0.4979579762046076,
+        "mean": 0.1323265983913562
+      }
+    },
+    {
+      "id": "obstacle",
+      "steps": 360,
+      "massKg": 138.23999999999987,
+      "limits": 59,
+      "maximumPenetrationMeters": 3.7143899067615394e-13,
+      "solidContacts": 14793,
+      "surfaceTriangles": 1440,
+      "maxBodyX": 0,
+      "maxBodyZ": 0,
+      "positions": [],
+      "speed": {
+        "max": 0.2649962279355551,
+        "mean": 0.08629779638294822
+      }
+    },
+    {
+      "id": "float",
+      "error": "unresolved boundary penetration 0.038774731779750535 m"
+    }
+  ],
+  "memory": {
+    "rss": 147898368,
+    "heapTotal": 55148544,
+    "heapUsed": 22676136,
+    "external": 7704295,
+    "arrayBuffers": 2514036
+  },
+  "maxRssKiB": 144432
+}

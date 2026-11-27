@@ -1,0 +1,364 @@
+TAP version 13
+# Subtest: contrato: Century consume TriangHor como paquete local versionado
+ok 1 - contrato: Century consume TriangHor como paquete local versionado
+  ---
+  duration_ms: 4.425483
+  type: 'test'
+  ...
+# Subtest: los puntos antiguos se delegan a la biblioteca, sin solvers duplicados
+ok 2 - los puntos antiguos se delegan a la biblioteca, sin solvers duplicados
+  ---
+  duration_ms: 1.16487
+  type: 'test'
+  ...
+# Subtest: la misma función pública alimenta los consumidores antiguos
+ok 3 - la misma función pública alimenta los consumidores antiguos
+  ---
+  duration_ms: 0.627226
+  type: 'test'
+  ...
+# Subtest: paridad de índices y calidad para superficies planas, relieve y pintura
+ok 4 - paridad de índices y calidad para superficies planas, relieve y pintura
+  ---
+  duration_ms: 33.668715
+  type: 'test'
+  ...
+# Subtest: los índices LOD y la consulta espacial comparten proveedor
+ok 5 - los índices LOD y la consulta espacial comparten proveedor
+  ---
+  duration_ms: 1.059334
+  type: 'test'
+  ...
+# Subtest: Worker Node real: horneado y actualización incremental no alteran entradas
+ok 6 - Worker Node real: horneado y actualización incremental no alteran entradas
+  ---
+  duration_ms: 73.251923
+  type: 'test'
+  ...
+# Subtest: Worker: cancelación evita publicar un resultado de geometría obsoleta
+ok 7 - Worker: cancelación evita publicar un resultado de geometría obsoleta
+  ---
+  duration_ms: 103.10179
+  type: 'test'
+  ...
+# Subtest: Worker: petición fallida no invalida la fuente ni bloquea nuevos trabajos
+ok 8 - Worker: petición fallida no invalida la fuente ni bloquea nuevos trabajos
+  ---
+  duration_ms: 72.337203
+  type: 'test'
+  ...
+# Subtest: se descartan los resultados de un terreno antiguo y la caché permanece acotada
+ok 9 - se descartan los resultados de un terreno antiguo y la caché permanece acotada
+  ---
+  duration_ms: 165.715408
+  type: 'test'
+  ...
+# Subtest: protocolo público de petición única preserva el contrato de progreso
+ok 10 - protocolo público de petición única preserva el contrato de progreso
+  ---
+  duration_ms: 48.686026
+  type: 'test'
+  ...
+# Subtest: un Worker con plan incompatible nunca reemplaza el último índice válido
+ok 11 - un Worker con plan incompatible nunca reemplaza el último índice válido
+  ---
+  duration_ms: 59.744216
+  type: 'test'
+  ...
+# Subtest: índices fuera de rango son rechazados antes del consumidor
+ok 12 - índices fuera de rango son rechazados antes del consumidor
+  ---
+  duration_ms: 0.827181
+  type: 'test'
+  ...
+# Subtest: CORR001-01 · superficie plana reduce triángulos de índice cercano, sin altura inventada
+ok 13 - CORR001-01 · superficie plana reduce triángulos de índice cercano, sin altura inventada
+  ---
+  duration_ms: 31.597508
+  type: 'test'
+  ...
+# Subtest: CORR001-02 · relieve localizado refina la zona sin bloquear la pieza completa
+ok 14 - CORR001-02 · relieve localizado refina la zona sin bloquear la pieza completa
+  ---
+  duration_ms: 15.140172
+  type: 'test'
+  ...
+# Subtest: CORR001-03 · pintura de vértices impide borrar detalles por encima del umbral
+ok 15 - CORR001-03 · pintura de vértices impide borrar detalles por encima del umbral
+  ---
+  duration_ms: 13.374485
+  type: 'test'
+  ...
+# Subtest: CORR001-04 · rectángulo irregular conserva bordes y topología sin costuras
+ok 16 - CORR001-04 · rectángulo irregular conserva bordes y topología sin costuras
+  ---
+  duration_ms: 1.979703
+  type: 'test'
+  ...
+# Subtest: CORR001-05 · no muta heightmap ni pintura de origen
+ok 17 - CORR001-05 · no muta heightmap ni pintura de origen
+  ---
+  duration_ms: 1.473946
+  type: 'test'
+  ...
+# Subtest: CORR001-06 · integración cercana consume índices adaptativos reales
+ok 18 - CORR001-06 · integración cercana consume índices adaptativos reales
+  ---
+  duration_ms: 0.626485
+  type: 'test'
+  ...
+# Subtest: CORR001-07 · nubes no se ocultan ni sustituyen por geometría inventada
+ok 19 - CORR001-07 · nubes no se ocultan ni sustituyen por geometría inventada
+  ---
+  duration_ms: 0.51517
+  type: 'test'
+  ...
+# Subtest: CORR001-08 · diagnóstico no inventa coste GPU
+ok 20 - CORR001-08 · diagnóstico no inventa coste GPU
+  ---
+  duration_ms: 0.676759
+  type: 'test'
+  ...
+# Subtest: G003-T01: superficie plana simplifica índices efectivos preservando fuente
+ok 21 - G003-T01: superficie plana simplifica índices efectivos preservando fuente
+  ---
+  duration_ms: 23.801619
+  type: 'test'
+  ...
+# Subtest: G003-T02 / CORR-001: relieve puntual fuerza refinamiento local sin impedir toda la pieza
+ok 22 - G003-T02 / CORR-001: relieve puntual fuerza refinamiento local sin impedir toda la pieza
+  ---
+  duration_ms: 6.6717
+  type: 'test'
+  ...
+# Subtest: G003-T03: discontinuidad de pintura bloquea simplificación injustificada
+ok 23 - G003-T03: discontinuidad de pintura bloquea simplificación injustificada
+  ---
+  duration_ms: 5.218433
+  type: 'test'
+  ...
+# Subtest: G003-T04: terreno rectangular mantiene índices y bordes sin degeneración
+ok 24 - G003-T04: terreno rectangular mantiene índices y bordes sin degeneración
+  ---
+  duration_ms: 2.575893
+  type: 'test'
+  ...
+# Subtest: G003-T05 / CORR-001: dimensión no divisible admite malla adaptativa sin topología parcial
+ok 25 - G003-T05 / CORR-001: dimensión no divisible admite malla adaptativa sin topología parcial
+  ---
+  duration_ms: 0.712161
+  type: 'test'
+  ...
+# Subtest: G003-T06: validación de entradas descarta configuración dañada
+ok 26 - G003-T06: validación de entradas descarta configuración dañada
+  ---
+  duration_ms: 0.534229
+  type: 'test'
+  ...
+# Subtest: G003-T07: disolver arista entre dos triángulos crea un solo quad editable
+ok 27 - G003-T07: disolver arista entre dos triángulos crea un solo quad editable
+  ---
+  duration_ms: 1.443211
+  type: 'test'
+  ...
+# Subtest: G003-T08: disolver arista no fusiona caras no coplanares
+ok 28 - G003-T08: disolver arista no fusiona caras no coplanares
+  ---
+  duration_ms: 0.426339
+  type: 'test'
+  ...
+# Subtest: G003-T09: la visibilidad del cluster conserva el estado de autoría
+ok 29 - G003-T09: la visibilidad del cluster conserva el estado de autoría
+  ---
+  duration_ms: 0.847652
+  type: 'test'
+  ...
+# Subtest: G003-T10: Hornear Mapa no destruye heightmap y se persiste como parámetros
+ok 30 - G003-T10: Hornear Mapa no destruye heightmap y se persiste como parámetros
+  ---
+  duration_ms: 0.566576
+  type: 'test'
+  ...
+# Subtest: G003-T11: nubes emiten métricas desde datos, no tiempos GPU simulados
+ok 31 - G003-T11: nubes emiten métricas desde datos, no tiempos GPU simulados
+  ---
+  duration_ms: 0.367403
+  type: 'test'
+  ...
+# Subtest: G003-T12: no se introduce segundo motor de nubes o de viento
+ok 32 - G003-T12: no se introduce segundo motor de nubes o de viento
+  ---
+  duration_ms: 0.231813
+  type: 'test'
+  ...
+# Subtest: TH-01: triangulación convexa optimiza abanicos sin romper winding
+ok 33 - TH-01: triangulación convexa optimiza abanicos sin romper winding
+  ---
+  duration_ms: 3.850605
+  type: 'test'
+  ...
+# Subtest: TH-02: terreno plano 128x128 → reducción local con mejores formas
+ok 34 - TH-02: terreno plano 128x128 → reducción local con mejores formas
+  ---
+  duration_ms: 34.279617
+  type: 'test'
+  ...
+# Subtest: TH-03: relieve y pintura mantienen error y reducen ≥90% en escenario controlado
+ok 35 - TH-03: relieve y pintura mantienen error y reducen ≥90% en escenario controlado
+  ---
+  duration_ms: 11.770597
+  type: 'test'
+  ...
+# Subtest: TH-04: un pico local conserva altura y permite detalle desigual
+ok 36 - TH-04: un pico local conserva altura y permite detalle desigual
+  ---
+  duration_ms: 2.327456
+  type: 'test'
+  ...
+# Subtest: TH-05: trazo de pintura impide simplificación que destruye pesos
+ok 37 - TH-05: trazo de pintura impide simplificación que destruye pesos
+  ---
+  duration_ms: 7.860985
+  type: 'test'
+  ...
+# Subtest: TH-06: spatial BVH consulta menos páginas sin perder las visibles
+ok 38 - TH-06: spatial BVH consulta menos páginas sin perder las visibles
+  ---
+  duration_ms: 5.074282
+  type: 'test'
+  ...
+# Subtest: TH-07: union conservadora de cámara/sombra no pierde páginas
+ok 39 - TH-07: union conservadora de cámara/sombra no pierde páginas
+  ---
+  duration_ms: 0.669579
+  type: 'test'
+  ...
+# Subtest: TH-08: clasificación de pintura usa capas efectivas y texturas activas
+ok 40 - TH-08: clasificación de pintura usa capas efectivas y texturas activas
+  ---
+  duration_ms: 0.699993
+  type: 'test'
+  ...
+# Subtest: TH-09: Worker real produce resultado sin ejecutar el solver en hilo principal
+ok 41 - TH-09: Worker real produce resultado sin ejecutar el solver en hilo principal
+  ---
+  duration_ms: 87.225092
+  type: 'test'
+  ...
+# Subtest: TH-10: cancelar termina Worker y descarta resultados retrasados
+ok 42 - TH-10: cancelar termina Worker y descarta resultados retrasados
+  ---
+  duration_ms: 1.937471
+  type: 'test'
+  ...
+# Subtest: TH-11: integración conserva autoridad de Clusters y sin duplicar alturas
+ok 43 - TH-11: integración conserva autoridad de Clusters y sin duplicar alturas
+  ---
+  duration_ms: 0.546216
+  type: 'test'
+  ...
+# Subtest: TH-12: shaders de Terrain se clasifican por píxel, no por todas las texturas potenciales
+ok 44 - TH-12: shaders de Terrain se clasifican por píxel, no por todas las texturas potenciales
+  ---
+  duration_ms: 0.245903
+  type: 'test'
+  ...
+# Subtest: paridad de Wireframe y Triangles en una malla indexada
+ok 45 - paridad de Wireframe y Triangles en una malla indexada
+  ---
+  duration_ms: 5.534952
+  type: 'test'
+  ...
+# Subtest: paridad de geometría no indexada y drawRange efectivo
+ok 46 - paridad de geometría no indexada y drawRange efectivo
+  ---
+  duration_ms: 0.617121
+  type: 'test'
+  ...
+# Subtest: cambios de índice de TriangHor actualizan ambas vistas sin modificar el recurso
+ok 47 - cambios de índice de TriangHor actualizan ambas vistas sin modificar el recurso
+  ---
+  duration_ms: 0.780873
+  type: 'test'
+  ...
+# Subtest: sustitución de índice con la misma cantidad de caras invalida la caché
+ok 48 - sustitución de índice con la misma cantidad de caras invalida la caché
+  ---
+  duration_ms: 0.682978
+  type: 'test'
+  ...
+# Subtest: cambio del buffer de posiciones invalida la caché aunque tenga la misma versión
+ok 49 - cambio del buffer de posiciones invalida la caché aunque tenga la misma versión
+  ---
+  duration_ms: 0.468972
+  type: 'test'
+  ...
+# Subtest: Wireframe y Triangles comparten caché geométrica con materiales independientes
+ok 50 - Wireframe y Triangles comparten caché geométrica con materiales independientes
+  ---
+  duration_ms: 0.304429
+  type: 'test'
+  ...
+# Subtest: terreno usa índices horneados y páginas activas de TriangHor en ambas vistas
+ok 51 - terreno usa índices horneados y páginas activas de TriangHor en ambas vistas
+  ---
+  duration_ms: 0.443055
+  type: 'test'
+  ...
+# Subtest: cambio de páginas activas y nivel de detalle conserva la paridad
+ok 52 - cambio de páginas activas y nivel de detalle conserva la paridad
+  ---
+  duration_ms: 0.321514
+  type: 'test'
+  ...
+# Subtest: mallas de dibujo directo usan las mismas páginas activas que los clústeres
+ok 53 - mallas de dibujo directo usan las mismas páginas activas que los clústeres
+  ---
+  duration_ms: 0.593867
+  type: 'test'
+  ...
+# Subtest: si cambia la selección de particiones directas se actualizan las dos vistas
+ok 54 - si cambia la selección de particiones directas se actualizan las dos vistas
+  ---
+  duration_ms: 0.698341
+  type: 'test'
+  ...
+# Subtest: sin páginas utilizables recae en los índices reales del objeto
+ok 55 - sin páginas utilizables recae en los índices reales del objeto
+  ---
+  duration_ms: 0.282497
+  type: 'test'
+  ...
+# Subtest: un lote de clústeres usa la geometría LOD residente, no la fuente original
+ok 56 - un lote de clústeres usa la geometría LOD residente, no la fuente original
+  ---
+  duration_ms: 0.322917
+  type: 'test'
+  ...
+# Subtest: una excepción del renderer restaura escena, visibilidad y buffers fuente
+ok 57 - una excepción del renderer restaura escena, visibilidad y buffers fuente
+  ---
+  duration_ms: 0.521019
+  type: 'test'
+  ...
+# Subtest: la liberación de recursos alcanza ambos materiales sin afectar la geometría de autoría
+ok 58 - la liberación de recursos alcanza ambos materiales sin afectar la geometría de autoría
+  ---
+  duration_ms: 0.253614
+  type: 'test'
+  ...
+# Subtest: el viewport conserva los diagnósticos previos y la pasada de gizmos
+ok 59 - el viewport conserva los diagnósticos previos y la pasada de gizmos
+  ---
+  duration_ms: 0.25115
+  type: 'test'
+  ...
+1..59
+# tests 59
+# suites 0
+# pass 59
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 658.738197

@@ -1,0 +1,42 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Terrain S03 Extents Electron QA</title></head>
+<body style="background:#111;color:#ddd"><pre id="terrain-extents-s03-result">Inicializando...</pre>
+<script type="module">
+import * as THREE from 'three'
+import {Terrain} from '/src/engine/runtime/geometry/terrain.js'
+import {groundAtAll, mergePieces} from '/src/engine/runtime/geometry/terrains.js'
+const out=document.getElementById('terrain-extents-s03-result'), checks=[]
+const check=(name,ok)=>{checks.push({name,pass:!!ok});if(!ok)throw Error(name)}
+let renderer,t
+try{
+ renderer=new THREE.WebGLRenderer({antialias:false});renderer.setSize(256,160)
+ document.body.append(renderer.domElement)
+ check('WebGL2 activo',renderer.capabilities.isWebGL2)
+ const scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(65,256/160,.1,200)
+ camera.position.set(24,25,24);camera.lookAt(0,0,0)
+ scene.add(new THREE.HemisphereLight(0xffffff,0x666666,2))
+ t=new Terrain(32,32);scene.add(t.mesh,t.foliage.group)
+ t.setOffset(0,0,5);t.heights[10*t.n1+11]=7;t.refreshAll()
+ const before=t.groundAt(-5,-6),beforePaint=t.paintAt(-5,-6)
+ const old=t.mesh.geometry.attributes.position.array.slice(), oldSplat=t.splat.slice()
+ for(const dir of ['nx','px','nz','pz'])check(`extender ${dir}`,t.extendEdge(dir,4))
+ check('mismo suelo después de cuatro extensiones',Math.abs(t.groundAt(-5,-6)-before)<1e-4)
+ check('pintura preservada',beforePaint===t.paintAt(-5,-6))
+ check('Y=5 sin cambio',t.oy===5)
+ check('geometría rectangular consistente',t.mesh.geometry.attributes.position.count===(t.segments+1)*(t.segmentsZ+1))
+ const ray=new THREE.Ray(new THREE.Vector3(-5,80,-6),new THREE.Vector3(0,-1,0))
+ check('raycast mundial tras extensión',!!t.raycastW(ray))
+ const zOld=t.depth;check('ampliación asimétrica Z',t.extendEdge('pz',3)&&t.depth>zOld&&t.depth!==t.size)
+ const merged=mergePieces([t]);check('exportación devuelve superficie consolidada',merged!==t&&merged.heights.length>0)
+ renderer.render(scene,camera)
+ check('sin error GPU',renderer.getContext().getError()===renderer.getContext().NO_ERROR)
+ const snapshot=t.snapshot();t.extendEdge('nx',3);t.restore(snapshot)
+ check('Undo de límites rectangulares',t.segmentsZ===snapshot.segmentsZ&&t.segments===snapshot.segments)
+ const saved=t.serialize();const restored=Terrain.deserialize(saved)
+ check('Save/Load conserva dimensiones',restored.depth===t.depth&&restored.segmentsZ===t.segmentsZ)
+ check('Save/Load conserva posición',restored.oy===t.oy)
+ check('sin malla adicional para la misma pieza',scene.children.filter(x=>x===t.mesh).length===1)
+ restored.dispose();merged.dispose()
+ out.dataset.pass='true';out.textContent=JSON.stringify({pass:true,gl:renderer.getContext().getParameter(renderer.getContext().VERSION),checks},null,2)
+}catch(e){out.dataset.pass='false';out.textContent=JSON.stringify({pass:false,error:String(e?.stack||e),checks},null,2)}
+finally{t?.dispose();renderer?.dispose()}
+</script></body></html>

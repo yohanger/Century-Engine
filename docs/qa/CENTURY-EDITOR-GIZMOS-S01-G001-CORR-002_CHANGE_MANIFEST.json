@@ -1,0 +1,183 @@
+{
+  "source": "CENTURY_ENGINE_MATERIALS_S01_G001_CORR001_SOURCE_BASELINE.zip",
+  "source_sha256": "de3b7e415707a4e99ba8560009e52cf353495ee8bd5d7a98e6478752db2ce087",
+  "baseline_files": 3890,
+  "deleted": [],
+  "manifest_self_excluded_from_hash": "docs/qa/CENTURY-EDITOR-GIZMOS-S01-G001-CORR-002_CHANGE_MANIFEST.json",
+  "changes": [
+    {
+      "path": "docs/architecture/CENTURY-EDITOR-GIZMOS-S01-G001-CORR-002-TRANSFORM-AXIS-AND-PIVOT-INTEGRITY_CONTRACT.md",
+      "status": "added",
+      "before": null,
+      "after": "7c96a74445b4a595d56d99108918f711ba4d4263bb7632d9cfd45fb1b73de768"
+    },
+    {
+      "path": "docs/architecture/CENTURY-EDITOR-GIZMOS-S01-G001-CORR-002-TRANSFORM-AXIS-AND-PIVOT-INTEGRITY_IMPLEMENTATION.md",
+      "status": "added",
+      "before": null,
+      "after": "f4739f4bc70d57e9a4e71abd1f8ad9960f04adee126e47851a35d6b438facb08"
+    },
+    {
+      "path": "docs/ledger/CE_EDITOR_GIZMOS_S01_G001_CORR002_LEDGER.xlsx",
+      "status": "added",
+      "before": null,
+      "after": "9e0f43921b4fad8cfcd23d4c5655c4b9b66fa49b93b0f009d422acad6176142f"
+    },
+    {
+      "path": "docs/qa/CENTURY-EDITOR-GIZMOS-S01-G001-CORR-002_BASELINE_FILMMAKER.log",
+      "status": "added",
+      "before": null,
+      "after": "e74fddca8517cf4c2d995e1c184ee5456db55b3dcc454a9207dcd59f5924f9b5"
+    },
+    {
+      "path": "docs/qa/CENTURY-EDITOR-GIZMOS-S01-G001-CORR-002_BASELINE_FOCAL.log",
+      "status": "added",
+      "before": null,
+      "after": "68365c543e7618675914983a4fba38a0046ee372990fb68c31feb2fb880a03af"
+    },
+    {
+      "path": "docs/qa/CENTURY-EDITOR-GIZMOS-S01-G001-CORR-002_BASELINE_REGRESSION.log",
+      "status": "added",
+      "before": null,
+      "after": "09c343ef5bbef042a5e4645723937190b5394a6472a3a0fa072d976e6d674da0"
+    },
+    {
+      "path": "docs/qa/CENTURY-EDITOR-GIZMOS-S01-G001-CORR-002_BUILD.log",
+      "status": "added",
+      "before": null,
+      "after": "ad93033e7f39a0f04a1ed40edf91f741c64cfbf9fa5ed37ad17f38e46626cd7c"
+    },
+    {
+      "path": "docs/qa/CENTURY-EDITOR-GIZMOS-S01-G001-CORR-002_ELECTRON.log",
+      "status": "added",
+      "before": null,
+      "after": "1ebca1bedd875549ca9230f77e672cfd5e7aeb94b3a35bcb131a800d7e884ad4"
+    },
+    {
+      "path": "docs/qa/CENTURY-EDITOR-GIZMOS-S01-G001-CORR-002_FOCAL.log",
+      "status": "added",
+      "before": null,
+      "after": "9b71bc7e047b39a728481a92559c54ac02711ba470987ab14c3414dc32c48c04"
+    },
+    {
+      "path": "docs/qa/CENTURY-EDITOR-GIZMOS-S01-G001-CORR-002_QA.md",
+      "status": "added",
+      "before": null,
+      "after": "a9ddcc7f31634289886c08fab14f3577f6e01d22afd3563731cda09cdda3c609"
+    },
+    {
+      "path": "docs/qa/CENTURY-EDITOR-GIZMOS-S01-G001-CORR-002_REGRESSION.log",
+      "status": "added",
+      "before": null,
+      "after": "17cb16e586828e5efb4cc74db13d1d243e1608e7b2de5e452c8368c211211860"
+    },
+    {
+      "path": "docs/qa/CENTURY-EDITOR-GIZMOS-S01-G001-CORR-002_RUNNER.log",
+      "status": "added",
+      "before": null,
+      "after": "b8bae49b384ac548fa3311d7a3051a3c1e834b5df3ccf540b4bc50d2ea4ab14c"
+    },
+    {
+      "path": "docs/qa/CENTURY-EDITOR-GIZMOS-S01-G001-CORR-002_SYNTAX.log",
+      "status": "added",
+      "before": null,
+      "after": "5987116387ee8e5b67ae5a1361d616db37fdc104933d92471c89aaa37549fdba"
+    },
+    {
+      "path": "scripts/fixtures/editor/gizmo-axis-pivot-integrity.html",
+      "status": "added",
+      "before": null,
+      "after": "ceedbeb6228e86fea33ced7e2ed9918d7e245d0d7c4f16e2842882cf2bee1259"
+    },
+    {
+      "path": "scripts/fixtures/editor/transform-global-local-corr-g001.html",
+      "status": "modified",
+      "before": "1befcd3ebc0274bc87946d2f1998d746321dc7ca420a2d5380dbba6155b99458",
+      "after": "a69f4cb58e46f22520af33bdebf9f79930d088d2f366edb232dd0cc38ce58bac"
+    },
+    {
+      "path": "scripts/qa-suites.json",
+      "status": "modified",
+      "before": "e9a6716a467e00903e7f3b62daf722fa68a49d82225a581ffa3d3b962ad4c035",
+      "after": "33ef78b73e475a7d865dbcc6315c84902fde62cb6bf0ddcfd587ba828297ecb4"
+    },
+    {
+      "path": "scripts/test-editor-snap-shift-g001.mjs",
+      "status": "modified",
+      "before": "d1a78f91106abb3777901506bd44754f02b703ff0c382a8e6ae3653a4fa5c858",
+      "after": "cc432a50f0596300d9d895dad8c87dd9e0e7b9eeb72f6a7943918c2013dc028f"
+    },
+    {
+      "path": "scripts/test-editor-ux-s01-g002-ext-001.mjs",
+      "status": "modified",
+      "before": "995670eca9011ee9f62c97ecdb384983e559f4bd81cc66fefbc2e983962cc15f",
+      "after": "eff6fa4bebf24db2b39fd7b61eabb027863aa008ed9c58ebeeeca6cdc547db61"
+    },
+    {
+      "path": "scripts/test-filmmaker-anim-s01-g002.mjs",
+      "status": "modified",
+      "before": "419de4204c511da51ae6322da443a347b3943c9a09c3dd19ed93027ce476ee30",
+      "after": "09d9be0c50011b224c4df4123a60f224632cebca63e9a203f169a5a77ab5e87d"
+    },
+    {
+      "path": "scripts/test-gizmo-axis-pivot-integrity-electron.mjs",
+      "status": "added",
+      "before": null,
+      "after": "646980339147c4bfc9f8cf1013614004e96b207d6f59704d60944b04f76e7e81"
+    },
+    {
+      "path": "scripts/test-gizmo-axis-pivot-integrity.mjs",
+      "status": "added",
+      "before": null,
+      "after": "2b1a6fcae4858be03cef33b851fe51cc33b9bb8bc3a1937042a94203ef672e4a"
+    },
+    {
+      "path": "scripts/test-transform-global-local-corr-g001.mjs",
+      "status": "modified",
+      "before": "6b775146c31c34cbdaa10f4c4d9071c8fe6d93b4fa58ca8dd58b0108668d9843",
+      "after": "1d41802504d0eae10df4aafc2d6c68b39c0f1956997e0e4f2754056d6c892d8e"
+    },
+    {
+      "path": "src/core/editor/gizmo.js",
+      "status": "modified",
+      "before": "ad1d230f26f0f3d65c1a05fff197bd9025889b1f2b458686e0c6db6737ecf1f5",
+      "after": "8d90a251d891f4249e54d4c8bfab4e66b74ca5d74a390d149dbb53e9e69557b4"
+    },
+    {
+      "path": "src/core/editor/selection.js",
+      "status": "modified",
+      "before": "d31ff2ec862fe88a524c9dbd51aa66b534b6e78e6fe22629d026d79969035db2",
+      "after": "f125f33aa25c7778bb01f8bdb103843d2e3b07e23deee48e485f5523cb1c55ad"
+    },
+    {
+      "path": "src/core/editor/snap.js",
+      "status": "modified",
+      "before": "7481fcb7ddda600b61c343150104aee9b689e6fa8b15ae7a746e640e9f76610f",
+      "after": "a55681e87cbdc4caab6f34b0244a387f70e799623ad8091275a84b030e8c3d3f"
+    },
+    {
+      "path": "src/core/editor/streaming-preview.js",
+      "status": "modified",
+      "before": "f5610a978a8ae7961750d8054a1760e2fd373f6d5b987455d67c8f3a4d6d27ba",
+      "after": "815b8871d39d1a113c361f9e91c0ed4a9f4726e34a7a4f95001a4ba6868d6d76"
+    },
+    {
+      "path": "src/core/state/objects.js",
+      "status": "modified",
+      "before": "e7fca93a4b254e9f18df907d4777b7d72c96ba2bd0b158ab44ef610ae3d6de28",
+      "after": "517ae81ea214232db66cd6d5e16815751d7cbc00f81fe8a61cac7b8925dd14b9"
+    },
+    {
+      "path": "src/engine/runtime/nodes/three-helpers.js",
+      "status": "modified",
+      "before": "fe23ccd6910157c98058da977e051447991e2f09c8f1475f9e4eaee4c906db50",
+      "after": "6e7c4875b6e2e9ea2e4000e81fb5208d2f62cc4877be623fe99dda83d5e2260e"
+    },
+    {
+      "path": "src/filmmaker/session.js",
+      "status": "modified",
+      "before": "de0724d30c340353865d2bd264ff47b630d08924c362cb857ee77daabbc01a18",
+      "after": "171d2638a46fa3209ac0061c0c93860b8254f9af6d0bd048a9bbdf848a74f43f"
+    }
+  ]
+}

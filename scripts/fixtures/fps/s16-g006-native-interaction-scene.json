@@ -1,0 +1,324 @@
+{
+  "id": "s16-g006-qa",
+  "name": "QA interacción nativa FPS",
+  "objects": [
+    {
+      "id": "floor",
+      "name": "Suelo",
+      "type": "staticbody3d",
+      "parentId": null,
+      "position": [
+        0,
+        -0.5,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "props": {
+        "friction": 0.5,
+        "restitution": 0
+      }
+    },
+    {
+      "id": "floor-shape",
+      "name": "SueloCollision",
+      "type": "collisionshape3d",
+      "parentId": "floor",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "props": {
+        "shape": {
+          "type": "BoxShape3D",
+          "size": [
+            12,
+            1,
+            12
+          ]
+        },
+        "disabled": false
+      }
+    },
+    {
+      "id": "a",
+      "name": "Personaje A",
+      "type": "characterbody3d",
+      "parentId": null,
+      "position": [
+        -2,
+        0.1,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "props": {
+        "velocity": [
+          0,
+          0,
+          0
+        ],
+        "maxSlopeAngle": 50,
+        "stepHeight": 0.35,
+        "floorSnap": 0.5,
+        "gravity": 9.81,
+        "mass": 80
+      },
+      "scriptIds": [
+        "locomotion-a",
+        "native-camera-a",
+        "native-interaction-a"
+      ]
+    },
+    {
+      "id": "a-shape",
+      "name": "Capsula A",
+      "type": "collisionshape3d",
+      "parentId": "a",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "props": {
+        "shape": {
+          "type": "CapsuleShape3D",
+          "radius": 0.5,
+          "height": 2
+        },
+        "disabled": false
+      }
+    },
+    {
+      "id": "b",
+      "name": "Personaje B",
+      "type": "characterbody3d",
+      "parentId": null,
+      "position": [
+        2,
+        0.1,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "props": {
+        "velocity": [
+          0,
+          0,
+          0
+        ],
+        "maxSlopeAngle": 50,
+        "stepHeight": 0.35,
+        "floorSnap": 0.5,
+        "gravity": 9.81,
+        "mass": 80
+      },
+      "scriptIds": [
+        "locomotion-b"
+      ]
+    },
+    {
+      "id": "b-shape",
+      "name": "Capsula B",
+      "type": "collisionshape3d",
+      "parentId": "b",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "props": {
+        "shape": {
+          "type": "CapsuleShape3D",
+          "radius": 0.5,
+          "height": 2
+        },
+        "disabled": false
+      }
+    },
+    {
+      "id": "native-camera",
+      "name": "VistaFPS",
+      "type": "camera",
+      "parentId": "a",
+      "position": [
+        0,
+        1.65,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "props": {
+        "main": true,
+        "fov": 85
+      }
+    },
+    {
+      "id": "interact-target",
+      "name": "ObjetoInteractivo",
+      "type": "staticbody3d",
+      "parentId": null,
+      "position": [
+        -2,
+        1.2,
+        -2
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "props": {
+        "friction": 0.5,
+        "restitution": 0
+      },
+      "scriptIds": [
+        "interactable-target-a"
+      ]
+    },
+    {
+      "id": "interact-shape",
+      "name": "InteractCollider",
+      "type": "collisionshape3d",
+      "parentId": "interact-target",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "props": {
+        "shape": {
+          "type": "BoxShape3D",
+          "size": [
+            1,
+            1,
+            1
+          ]
+        },
+        "disabled": false
+      }
+    }
+  ],
+  "scripts": [
+    {
+      "id": "locomotion-a",
+      "name": "Locomoción A",
+      "execution": "node",
+      "code": "// Script de Nodo para CharacterBody3D. Configura las acciones desde Input Map.\n// Jolt integra el cuerpo una sola vez por paso físico; no se teletransporta el nodo.\nconst WALK_SPEED = 3\nconst RUN_SPEED = 5.5\nconst ACCELERATION = 16\nconst DECELERATION = 20\nconst JUMP_SPEED = 5\n\nlet jumpPending = false\n\nfunction _ready() {\n  jumpPending = false\n}\n\nfunction _process(delta) {\n  // Conserva una pulsación aunque este fotograma no tenga paso físico.\n  if (game.input.justPressed('jump')) jumpPending = true\n}\n\nfunction _physics_process(delta) {\n  const { x, y } = game.input.vector('move_left', 'move_right', 'move_back', 'move_forward')\n  const speed = game.input.pressed('run') ? RUN_SPEED : WALK_SPEED\n  const yaw = node.rotation[1] * Math.PI / 180\n  const sin = Math.sin(yaw), cos = Math.cos(yaw)\n  const targetX = (cos * x - sin * y) * speed\n  const targetZ = (-sin * x - cos * y) * speed\n  const velocity = node.velocity\n  const differenceX = targetX - velocity[0], differenceZ = targetZ - velocity[2]\n  const distance = Math.hypot(differenceX, differenceZ)\n  const rate = x || y ? ACCELERATION : DECELERATION\n  const change = Math.min(distance, rate * Math.max(0, delta))\n  const ratio = distance > 0 ? change / distance : 0\n  const nextX = velocity[0] + differenceX * ratio\n  const nextZ = velocity[2] + differenceZ * ratio\n  const nextY = jumpPending && node.onFloor ? JUMP_SPEED : velocity[1]\n  jumpPending = false\n  node.velocity = [nextX, nextY, nextZ]\n}\n"
+    },
+    {
+      "id": "locomotion-b",
+      "name": "Locomoción B",
+      "execution": "node",
+      "code": "// Script de Nodo para CharacterBody3D. Configura las acciones desde Input Map.\n// Jolt integra el cuerpo una sola vez por paso físico; no se teletransporta el nodo.\nconst WALK_SPEED = 3\nconst RUN_SPEED = 5.5\nconst ACCELERATION = 16\nconst DECELERATION = 20\nconst JUMP_SPEED = 5\n\nlet jumpPending = false\n\nfunction _ready() {\n  jumpPending = false\n}\n\nfunction _process(delta) {\n  // Conserva una pulsación aunque este fotograma no tenga paso físico.\n  if (game.input.justPressed('jump')) jumpPending = true\n}\n\nfunction _physics_process(delta) {\n  const { x, y } = game.input.vector('move_left', 'move_right', 'move_back', 'move_forward')\n  const speed = game.input.pressed('run') ? RUN_SPEED : WALK_SPEED\n  const yaw = node.rotation[1] * Math.PI / 180\n  const sin = Math.sin(yaw), cos = Math.cos(yaw)\n  const targetX = (cos * x - sin * y) * speed\n  const targetZ = (-sin * x - cos * y) * speed\n  const velocity = node.velocity\n  const differenceX = targetX - velocity[0], differenceZ = targetZ - velocity[2]\n  const distance = Math.hypot(differenceX, differenceZ)\n  const rate = x || y ? ACCELERATION : DECELERATION\n  const change = Math.min(distance, rate * Math.max(0, delta))\n  const ratio = distance > 0 ? change / distance : 0\n  const nextX = velocity[0] + differenceX * ratio\n  const nextZ = velocity[2] + differenceZ * ratio\n  const nextY = jumpPending && node.onFloor ? JUMP_SPEED : velocity[1]\n  jumpPending = false\n  node.velocity = [nextX, nextY, nextZ]\n}\n"
+    },
+    {
+      "id": "native-camera-a",
+      "name": "Vista FPS",
+      "execution": "node",
+      "code": "// Script ordinario adjunto al CharacterBody3D que contiene una Camera3D hija «VistaFPS».\n// Camera Orchestration decide qué cámara dibuja; este script únicamente orienta sus nodos.\nconst LOOK_SENSITIVITY = 0.126 // grados por píxel; equivalente a la sensibilidad base del FPS heredado\nconst PITCH_LIMIT = 85\nlet camera = null\n\nfunction _ready() {\n  camera = node.get_node('VistaFPS')\n  if (!camera || camera.type !== 'camera') {\n    throw new Error('FPS nativo: falta Camera3D hija «VistaFPS»')\n  }\n}\n\nfunction _process(delta) {\n  if (!camera?.is_valid()) return\n  const active = game.camera.active\n  // FilmMaker, Timeline, otro Camera3D o una solicitud externa conservan su autoridad.\n  if (active && (active.kind !== 'camera3d' || active.id !== camera.id)) return\n  const { x, y } = game.input.pointerDelta\n  if (!x && !y) return\n  const sensitivity = LOOK_SENSITIVITY * (game.player?.sensitivity ?? 1)\n  const yaw = node.rotation\n  node.rotation = [yaw[0], yaw[1] - x * sensitivity, yaw[2]]\n  const pitch = camera.rotation\n  const next = Math.max(-PITCH_LIMIT, Math.min(PITCH_LIMIT, pitch[0] - y * sensitivity))\n  camera.rotation = [next, pitch[1], pitch[2]]\n}\n"
+    },
+    {
+      "id": "native-interaction-a",
+      "name": "Interacción FPS",
+      "execution": "node",
+      "code": "// Script de Nodo G006, adjunto a CharacterBody3D con Camera3D hija «VistaFPS».\n// La selección editorial y el FPS heredado no participan en esta interacción.\nconst INTERACTION_DISTANCE = 3\nlet camera = null\n\nfunction _ready() {\n  camera = node.get_node('VistaFPS')\n  if (!camera || camera.type !== 'camera') throw new Error('Interacción FPS nativa: falta Camera3D hija «VistaFPS»')\n}\n\nfunction _process(delta) {\n  if (!game.input.justPressed('interact') || !camera?.is_valid()) return\n  const active = game.camera.active\n  if (active && (active.kind !== 'camera3d' || active.id !== camera.id)) return\n\n  // Un rayo único contra la primera superficie: no atravesar paredes no interactivas.\n  const hit = game.raycast(camera.worldPosition, camera.worldForward, INTERACTION_DISTANCE, { ignore: node })\n  const target = hit?.kind === 'solid' ? hit.node : null\n  if (!target?.is_valid() || !target.is_in_group('interactable')) return\n  // El objetivo decide qué hace: no existe un gestor ni un estado paralelo de interacción.\n  return target.call('interact', node.id)\n}\n"
+    },
+    {
+      "id": "interactable-target-a",
+      "name": "Receptor interacción",
+      "execution": "node",
+      "code": "// Script de Nodo opcional del objeto interactivo. Se conecta por el sistema de Signals existente.\nfunction _ready() {\n  node.add_to_group('interactable')\n  node.define_signal('interacted')\n  node.expose('interact', (actorId) => {\n    node.emit_signal('interacted', actorId)\n  })\n}\n"
+    }
+  ],
+  "inputMap": {
+    "actions": []
+  }
+}

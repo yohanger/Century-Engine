@@ -1,0 +1,210 @@
+TAP version 13
+# Subtest: Century es la identidad publica y se conserva el ID persistente original
+ok 1 - Century es la identidad publica y se conserva el ID persistente original
+  ---
+  duration_ms: 1.168785
+  type: 'test'
+  ...
+# Subtest: Los comandos normales mantienen el launcher de Electron sin servidor Vite
+ok 2 - Los comandos normales mantienen el launcher de Electron sin servidor Vite
+  ---
+  duration_ms: 0.324529
+  type: 'test'
+  ...
+# Subtest: Ya no se registran tipos de nodo agua ni recipiente de fluido
+ok 3 - Ya no se registran tipos de nodo agua ni recipiente de fluido
+  ---
+  duration_ms: 0.486327
+  type: 'test'
+  ...
+# Subtest: Los datos de nodos retirados quedan inertes pero no se eliminan
+ok 4 - Los datos de nodos retirados quedan inertes pero no se eliminan
+  ---
+  duration_ms: 0.342515
+  type: 'test'
+  ...
+# Subtest: La escena y Play no importan la simulacion de agua retirada
+ok 5 - La escena y Play no importan la simulacion de agua retirada
+  ---
+  duration_ms: 0.727524
+  type: 'test'
+  ...
+# Subtest: El agua antigua deja de existir como API game.water
+ok 6 - El agua antigua deja de existir como API game.water
+  ---
+  duration_ms: 1.638558
+  type: 'test'
+  ...
+# Subtest: Editor ya no presenta controles de agua ni recipientes
+ok 7 - Editor ya no presenta controles de agua ni recipientes
+  ---
+  duration_ms: 1.244166
+  type: 'test'
+  ...
+# Subtest: La lluvia conserva sus impactos y el terreno conserva humedad meteorologica
+ok 8 - La lluvia conserva sus impactos y el terreno conserva humedad meteorologica
+  ---
+  duration_ms: 1.603336
+  type: 'test'
+  ...
+# Subtest: Permanece la lectura de recursos .liquid existentes sin autorizar nueva simulacion
+ok 9 - Permanece la lectura de recursos .liquid existentes sin autorizar nueva simulacion
+  ---
+  duration_ms: 1.171719
+  type: 'test'
+  ...
+# Subtest: La exportacion antigua de Godot no emite agua
+ok 10 - La exportacion antigua de Godot no emite agua
+  ---
+  duration_ms: 0.707073
+  type: 'test'
+  ...
+# Subtest: Antiguas pruebas de agua se conservan como archivo historico fuera de smoke
+ok 11 - Antiguas pruebas de agua se conservan como archivo historico fuera de smoke
+  ---
+  duration_ms: 0.545746
+  type: 'test'
+  ...
+# Subtest: TOOL-01 npm electron/start/filmmaker conservan el mismo launcher
+ok 12 - TOOL-01 npm electron/start/filmmaker conservan el mismo launcher
+  ---
+  duration_ms: 4.042496
+  type: 'test'
+  ...
+# Subtest: TOOL-02 arranque normal abre Electron local sin servidor Vite ni recompilación
+ok 13 - TOOL-02 arranque normal abre Electron local sin servidor Vite ni recompilación
+  ---
+  duration_ms: 89.634306
+  type: 'test'
+  ...
+# Subtest: TOOL-03 FilmMaker conserva su entrada nativa sin servidor Vite
+ok 14 - TOOL-03 FilmMaker conserva su entrada nativa sin servidor Vite
+  ---
+  duration_ms: 94.413379
+  type: 'test'
+  ...
+# Subtest: TOOL-04 --built conserva el alias de dist existente
+ok 15 - TOOL-04 --built conserva el alias de dist existente
+  ---
+  duration_ms: 123.040496
+  type: 'test'
+  ...
+# Subtest: TOOL-05 sin build se bloquea con error claro y sin abrir Electron ni Vite
+ok 16 - TOOL-05 sin build se bloquea con error claro y sin abrir Electron ni Vite
+  ---
+  duration_ms: 58.816683
+  type: 'test'
+  ...
+# Subtest: TOOL-06 --build es la ruta de compilación explícita (con simulador Vite)
+ok 17 - TOOL-06 --build es la ruta de compilación explícita (con simulador Vite)
+  ---
+  duration_ms: 168.573985
+  type: 'test'
+  ...
+# Subtest: TOOL-07 distribución conserva build previo y empaquetado
+ok 18 - TOOL-07 distribución conserva build previo y empaquetado
+  ---
+  duration_ms: 0.227336
+  type: 'test'
+  ...
+# Subtest: TOOL-08 los grupos históricos de QA siguen presentes
+not ok 19 - TOOL-08 los grupos históricos de QA siguen presentes
+  ---
+  duration_ms: 0.835963
+  type: 'test'
+  location: '/mnt/data/trianghor_lock_corr001/work/Century-Engine-main/scripts/test-tooling-s00-g001-electron-and-scripts.mjs:120:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    56 !== 31
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 31
+  actual: 56
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///mnt/data/trianghor_lock_corr001/work/Century-Engine-main/scripts/test-tooling-s00-g001-electron-and-scripts.mjs:122:10)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: TOOL-09 el runner de desarrollo conserva el bloqueo ante fallo Vite
+ok 20 - TOOL-09 el runner de desarrollo conserva el bloqueo ante fallo Vite
+  ---
+  duration_ms: 0.252082
+  type: 'test'
+  ...
+# Subtest: TOOL-10 flags WebGPU conservados en ambas rutas
+ok 21 - TOOL-10 flags WebGPU conservados en ambas rutas
+  ---
+  duration_ms: 0.272052
+  type: 'test'
+  ...
+# Subtest: TOOL-11 fallo del servidor Vite afecta a electron:dev, pero no al modo normal
+ok 22 - TOOL-11 fallo del servidor Vite afecta a electron:dev, pero no al modo normal
+  ---
+  duration_ms: 332.17988
+  type: 'test'
+  ...
+# Subtest: TOOL-12 fuente alterada = advertencia desactualizada y apertura permitida
+ok 23 - TOOL-12 fuente alterada = advertencia desactualizada y apertura permitida
+  ---
+  duration_ms: 83.590618
+  type: 'test'
+  ...
+# Subtest: TOOL-13 falta manifiesto legado = estado NO VERIFICABLE, sin falsa antigüedad
+ok 24 - TOOL-13 falta manifiesto legado = estado NO VERIFICABLE, sin falsa antigüedad
+  ---
+  duration_ms: 71.173363
+  type: 'test'
+  ...
+# Subtest: TOOL-14 manifiesto dañado = NO VERIFICABLE, sin bloquear
+ok 25 - TOOL-14 manifiesto dañado = NO VERIFICABLE, sin bloquear
+  ---
+  duration_ms: 71.533194
+  type: 'test'
+  ...
+# Subtest: TOOL-15 versión de paquete divergente = desactualizada
+ok 26 - TOOL-15 versión de paquete divergente = desactualizada
+  ---
+  duration_ms: 73.978513
+  type: 'test'
+  ...
+# Subtest: TOOL-16 bundle enlazado ausente = bloqueo de build incompleta
+ok 27 - TOOL-16 bundle enlazado ausente = bloqueo de build incompleta
+  ---
+  duration_ms: 40.754563
+  type: 'test'
+  ...
+# Subtest: TOOL-17 VITE_DEV_URL heredada no cambia modo a servidor Vite
+ok 28 - TOOL-17 VITE_DEV_URL heredada no cambia modo a servidor Vite
+  ---
+  duration_ms: 81.793361
+  type: 'test'
+  ...
+# Subtest: TOOL-18 la huella es invariante a mtime y detecta archivos nuevos
+ok 29 - TOOL-18 la huella es invariante a mtime y detecta archivos nuevos
+  ---
+  duration_ms: 5.199423
+  type: 'test'
+  ...
+# Subtest: TOOL-19 FilmMaker sin artefacto propio se bloquea aunque exista Editor
+ok 30 - TOOL-19 FilmMaker sin artefacto propio se bloquea aunque exista Editor
+  ---
+  duration_ms: 44.945613
+  type: 'test'
+  ...
+1..30
+# tests 30
+# suites 0
+# pass 29
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1451.051762

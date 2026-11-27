@@ -1,0 +1,6 @@
+
+> century@0.26.13 docs:build
+> node scripts/gen-docs.mjs && node scripts/gen-docs-web.mjs
+
+✓ docs/referencia: comandos.md, api.md
+✓ Portal generado: 358 páginas, 62 interfaces, 73 comandos, 37 nodos

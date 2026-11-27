@@ -1,0 +1,16 @@
+{
+  "id": "s16-g003-qa",
+  "name": "QA CharacterBody3D / Jolt",
+  "objects": [
+    { "id":"floor", "name":"Suelo", "type":"staticbody3d", "parentId":null, "position":[0,-0.5,0], "rotation":[0,0,0], "scale":[1,1,1], "visible":true, "props":{"friction":0.5,"restitution":0} },
+    { "id":"floor-shape", "name":"SueloCollision", "type":"collisionshape3d", "parentId":"floor", "position":[0,0,0], "rotation":[0,0,0], "scale":[1,1,1], "visible":true, "props":{"shape":{"type":"BoxShape3D","size":[12,1,12]},"disabled":false} },
+    { "id":"a", "name":"Personaje A", "type":"characterbody3d", "parentId":null, "position":[-2,0.1,0], "rotation":[0,0,0], "scale":[1,1,1], "visible":true, "props":{"velocity":[0,0,0],"maxSlopeAngle":50,"stepHeight":0.35,"floorSnap":0.5,"gravity":9.81,"mass":80}, "scriptIds":["move-a"] },
+    { "id":"a-shape", "name":"Capsula A", "type":"collisionshape3d", "parentId":"a", "position":[0,0,0], "rotation":[0,0,0], "scale":[1,1,1], "visible":true, "props":{"shape":{"type":"CapsuleShape3D","radius":0.5,"height":2},"disabled":false} },
+    { "id":"b", "name":"Personaje B", "type":"characterbody3d", "parentId":null, "position":[2,0.1,0], "rotation":[0,0,0], "scale":[1,1,1], "visible":true, "props":{"velocity":[0,0,0],"maxSlopeAngle":50,"stepHeight":0.35,"floorSnap":0.5,"gravity":9.81,"mass":80}, "scriptIds":["move-b"] },
+    { "id":"b-shape", "name":"Capsula B", "type":"collisionshape3d", "parentId":"b", "position":[0,0,0], "rotation":[0,0,0], "scale":[1,1,1], "visible":true, "props":{"shape":{"type":"CapsuleShape3D","radius":0.5,"height":2},"disabled":false} }
+  ],
+  "scripts": [
+    {"id":"move-a", "name":"Mover A", "execution":"node", "code":"function _physics_process(delta) { const v = node.velocity; node.velocity = [1, v[1], 0]; }"},
+    {"id":"move-b", "name":"Mover B", "execution":"node", "code":"function _physics_process(delta) { const v = node.velocity; node.velocity = [-1, v[1], 0]; }"}
+  ]
+}

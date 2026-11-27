@@ -1,0 +1,5 @@
+{
+  "format": "levelforge-project", "version": 3, "app": "Century", "id": "p_antiguo", "name": "Proyecto antiguo",
+  "scenes": [{ "id": "escena_1", "name": "Escena de prueba", "folder": "Assets/Scenes" }],
+  "activeSceneId": "escena_1", "folders": ["Assets", "Assets/Scenes"], "assets": [], "materials": []
+}

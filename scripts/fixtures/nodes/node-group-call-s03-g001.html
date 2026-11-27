@@ -1,0 +1,61 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Century S03 — call_group Electron</title></head>
+<body><pre id="node-group-call-s03-g001-result">Comprobando…</pre>
+<script type="module">
+import * as THREE from 'three'
+import {nodesMethods} from '/src/engine/runtime/events/play-nodes.js'
+import {stepMethods} from '/src/engine/runtime/events/play-steps.js'
+import {NodeLifecycle} from '/src/engine/runtime/scene/node-lifecycle.js'
+import {NodeScriptRuntime} from '/src/engine/runtime/scene/node-scripts.js'
+import {registerNode} from '/src/engine/runtime/nodes/registry.js'
+registerNode({type:'s03ElectronNode',label:'QA S03',create:()=>({}),build:()=>({}),update:()=>{}})
+const out=document.getElementById('node-group-call-s03-g001-result'),checks=[]
+const check=(name,ok)=>{checks.push({name,pass:!!ok});if(!ok)throw Error(name)}
+let renderer,life
+const obj=(id,groups=['enemigos'],scriptId='s')=>({id,name:id,groups,parentId:null,type:'s03ElectronNode',scriptId})
+try{
+  renderer=new THREE.WebGLRenderer({antialias:false});renderer.setSize(16,16)
+  const scene3=new THREE.Scene(),camera=new THREE.PerspectiveCamera(60,1,.1,10);camera.position.z=2
+  scene3.add(new THREE.Mesh(new THREE.BoxGeometry(.3,.3,.3),new THREE.MeshBasicMaterial({color:0x4466aa})))
+  renderer.render(scene3,camera)
+  check('WebGL2 Three.js real',renderer.capabilities.isWebGL2)
+  const a=obj('a'),b=obj('b'),c=obj('c',[])
+  const project={activeSceneId:'uno',objects:[a,b,c],scripts:[{id:'s',execution:'node',code:`let count=0;node.expose('ping',(n)=>{count+=n;game.record(node.id,count);if(node.id==='a'&&n===2)game.removeB()});node.expose('fallar',()=>{if(node.id==='a')throw Error('sinc');game.record('ok:'+node.id)});node.expose('asincrono',()=>node.id==='a'?Promise.reject(Error('rechazo')):game.record('async:'+node.id));`} ]}
+  const nodes=new Map(),records=[],errors=[]
+  for(const o of project.objects){const n=new THREE.Group();n._lfNodeOwner=o;scene3.add(n);nodes.set(o.id,n)}
+  life=new NodeLifecycle({nodes,host:{project}})
+  const play={on:true,_referenceSession:{},_runtimeGroups:new Map(),project,ed:{nodes,nodeLifecycle:life},
+    game:{api:{record:(...values)=>records.push(values)},report:(err,where)=>errors.push([err.message,where])},
+    pos:new THREE.Vector3(),vp:{requestRender(){}},vm:{held:new Map()},_animMethodsFor:()=>({}),_persistMarked:()=>false,_persistSet:()=>false}
+  Object.assign(play,nodesMethods,stepMethods)
+  play.game.api.node=(id)=>play._nodeHandle(id);play.game.api.call_group=(...args)=>play._callGroup(...args)
+  play.game.api.removeB=()=>{project.objects=project.objects.filter(o=>o.id!=='b');const n=nodes.get('b');scene3.remove(n);nodes.delete('b');life.sync()}
+  life.scripts=new NodeScriptRuntime(play);life.start()
+  check('scripts instanciados',life.scripts.instances.size===3)
+  check('métodos publicados',life.scripts.hasPublic(a,'ping'))
+  check('grupo original dos miembros',play._findByGroup('enemigos').length===2)
+  check('grupo vacío seguro',play._callGroup('desconocido','ping',1)===undefined)
+  check('sin alterar grupo vacío',records.length===0)
+  play._callGroup('enemigos','ping',1)
+  check('orden de dispatch',records.map(a=>a[0]).join(',')==='a,b')
+  check('args y retorno void',play._callGroup('enemigos','ping',1)===undefined)
+  check('estado de instancias independientes',records[2][1]===2 && records[3][1]===2)
+  play._callGroup('enemigos','ping',2)
+  check('eliminación durante iteración omite b',records.length===5&&records[4][0]==='a')
+  check('métodos de b liberados',!life.scripts.instances.has('b'))
+  check('no redirige referencias',!nodes.has('b'))
+  play._callGroup('enemigos','fallar')
+  check('excepción síncrona reportada',errors.some(([message])=>message==='sinc'))
+  play._callGroup('enemigos','asincrono')
+  await Promise.resolve();await Promise.resolve()
+  check('Promise rechazada reportada',errors.some(([message])=>message==='rechazo'))
+  play._changeRuntimeGroup(c,'enemigos',true)
+  check('add_to_group temporal',play._findByGroup('enemigos').length===2 && c.groups.length===0)
+  play._callGroup('enemigos','ping',1)
+  check('nuevo miembro participa',records.at(-1)[0]==='c')
+  check('no crea callbacks por fotograma',life.processEntries.size===0&&life.physicsEntries.size===0)
+  play.on=false;play._referenceSession=null;life.stop()
+  check('Stop libera instancias',life.scripts.instances.size===0)
+  check('WebGL sin error',renderer.getContext().getError()===renderer.getContext().NO_ERROR)
+  out.dataset.pass='true';out.textContent=JSON.stringify({pass:true,gl:renderer.getContext().getParameter(renderer.getContext().VERSION),checks},null,2)
+}catch(error){out.dataset.pass='false';out.textContent=JSON.stringify({pass:false,error:String(error.stack||error),checks},null,2)}finally{life?.stop();renderer?.dispose()}
+</script></body></html>

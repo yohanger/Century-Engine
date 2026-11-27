@@ -1,0 +1,128 @@
+{
+  "gate": "CENTURY-EDITOR-UX-S04-G001-CORR-002-HISTORY-AND-SCENE-GRAPH-SYNCHRONIZATION",
+  "baseline": "CENTURY_EDITOR_UX_S04_G001_CORR001_SOURCE_BASELINE.zip",
+  "changed_or_added": [
+    {
+      "path": "docs/architecture/CENTURY-EDITOR-UX-S04-G001-CORR-002-HISTORY-AND-SCENE-GRAPH-SYNCHRONIZATION_IMPLEMENTATION.md",
+      "kind": "added",
+      "sha256": "e85527d33e7f58566303718691f4c47f510d7c0ce1a6aeb5d6ff5ff7088d3392"
+    },
+    {
+      "path": "docs/ledger/CE_EDITOR_UX_S04_G001_CORR002_LEDGER.xlsx",
+      "kind": "added",
+      "sha256": "be6225b2863b637a9a9c0c48b91f4a40df1c2cee90bed871225361f92b25623d"
+    },
+    {
+      "path": "docs/qa/CENTURY-EDITOR-UX-S04-G001-CORR-002-HISTORY-AND-SCENE-GRAPH-SYNCHRONIZATION_QA.md",
+      "kind": "added",
+      "sha256": "cea0bebbf05b782acc7069308151f88654e1f6979b5e3c253fe6f408c2532a32"
+    },
+    {
+      "path": "docs/qa/evidence/CENTURY-EDITOR-UX-S04-G001-CORR-002-HISTORY-AND-SCENE-GRAPH-SYNCHRONIZATION/baseline-verification.json",
+      "kind": "added",
+      "sha256": "f7e3c98b373ad4eec951851af3b912a91caf15f58a6fedfff27394dc420eebfd"
+    },
+    {
+      "path": "docs/qa/evidence/CENTURY-EDITOR-UX-S04-G001-CORR-002-HISTORY-AND-SCENE-GRAPH-SYNCHRONIZATION/build-blocked.log",
+      "kind": "added",
+      "sha256": "ad93033e7f39a0f04a1ed40edf91f741c64cfbf9fa5ed37ad17f38e46626cd7c"
+    },
+    {
+      "path": "docs/qa/evidence/CENTURY-EDITOR-UX-S04-G001-CORR-002-HISTORY-AND-SCENE-GRAPH-SYNCHRONIZATION/electron-blocked.log",
+      "kind": "added",
+      "sha256": "c539a7d842467064679140dc56fecff0bff673b230a76fb14850c2b5bb76fa1a"
+    },
+    {
+      "path": "docs/qa/evidence/CENTURY-EDITOR-UX-S04-G001-CORR-002-HISTORY-AND-SCENE-GRAPH-SYNCHRONIZATION/focal-after.log",
+      "kind": "added",
+      "sha256": "9b4dc9c0459ab3e2be9df5b2adc970eb1117489448fde037fd53445f23be232e"
+    },
+    {
+      "path": "docs/qa/evidence/CENTURY-EDITOR-UX-S04-G001-CORR-002-HISTORY-AND-SCENE-GRAPH-SYNCHRONIZATION/focal-before.log",
+      "kind": "added",
+      "sha256": "094714a652e6aee4c69c9ca8687687e17b67cd740134c7a63d6ad4bd415a5e93"
+    },
+    {
+      "path": "docs/qa/evidence/CENTURY-EDITOR-UX-S04-G001-CORR-002-HISTORY-AND-SCENE-GRAPH-SYNCHRONIZATION/ledger-verification.json",
+      "kind": "added",
+      "sha256": "81fcba943ae62343ac0b72b707739a51ef98f144396f9511715bf03299d46bde"
+    },
+    {
+      "path": "docs/qa/evidence/CENTURY-EDITOR-UX-S04-G001-CORR-002-HISTORY-AND-SCENE-GRAPH-SYNCHRONIZATION/numeric-regression.log",
+      "kind": "added",
+      "sha256": "fa1648cc46a2932b030a575fc63cbe9a11b390f3dc68e01b509d0723b3ac53e5"
+    },
+    {
+      "path": "docs/qa/evidence/CENTURY-EDITOR-UX-S04-G001-CORR-002-HISTORY-AND-SCENE-GRAPH-SYNCHRONIZATION/reg-after.log",
+      "kind": "added",
+      "sha256": "38c83f7a140b398708532180a32c9e0d86a0cf55c8d48f13e1452763a4396599"
+    },
+    {
+      "path": "docs/qa/evidence/CENTURY-EDITOR-UX-S04-G001-CORR-002-HISTORY-AND-SCENE-GRAPH-SYNCHRONIZATION/reg-before.log",
+      "kind": "added",
+      "sha256": "ec881df627c4f5d7d8c3c6a737764ee8a41c397ebb3dd89a519f56533b840489"
+    },
+    {
+      "path": "docs/qa/evidence/CENTURY-EDITOR-UX-S04-G001-CORR-002-HISTORY-AND-SCENE-GRAPH-SYNCHRONIZATION/regression-command.txt",
+      "kind": "added",
+      "sha256": "3632960aa7b79048b779c8f6ea9c1b37bc0e8991a22b7b290fd79fd4ac946374"
+    },
+    {
+      "path": "docs/qa/evidence/CENTURY-EDITOR-UX-S04-G001-CORR-002-HISTORY-AND-SCENE-GRAPH-SYNCHRONIZATION/suite-final.log",
+      "kind": "added",
+      "sha256": "f20a66a121ec240cdedb61351ff71823be51a9d91a4662d2ee23bf58091b3ea9"
+    },
+    {
+      "path": "docs/qa/evidence/CENTURY-EDITOR-UX-S04-G001-CORR-002-HISTORY-AND-SCENE-GRAPH-SYNCHRONIZATION/syntax.log",
+      "kind": "added",
+      "sha256": "05b3513fe85a778fdc8e2b4854bae3e2ed3391501fd9ca3dfdbf9014c6101218"
+    },
+    {
+      "path": "docs/qa/evidence/CENTURY-EDITOR-UX-S04-G001-CORR-002-HISTORY-AND-SCENE-GRAPH-SYNCHRONIZATION/toml-blocked.log",
+      "kind": "added",
+      "sha256": "e1096ff03b6199afcd6f258a54849880158fa181134758bd8b385351ac9aa5d1"
+    },
+    {
+      "path": "docs/qa/evidence/CENTURY-EDITOR-UX-S04-G001-CORR-002-HISTORY-AND-SCENE-GRAPH-SYNCHRONIZATION/undo-regression.log",
+      "kind": "added",
+      "sha256": "71b1bf360fa2c22109885e41f906c725a9bf74ed9e731d148d15b8915e9de649"
+    },
+    {
+      "path": "docs/qa/evidence/CENTURY-EDITOR-UX-S04-G001-CORR-002-HISTORY-AND-SCENE-GRAPH-SYNCHRONIZATION/user-local-qa.md",
+      "kind": "added",
+      "sha256": "805d5f5367eef34dfb7aa52fbf824147c7b1b98527e2999a5f954dd136d2cce8"
+    },
+    {
+      "path": "scripts/fixtures/editor/undo-context-and-mouse-sensitivity.html",
+      "kind": "modified",
+      "sha256": "3194ef0e06bccc4bf188cd6c8fff797be27973a2df2b9bf4acb269dfe022000e"
+    },
+    {
+      "path": "scripts/qa-suites.json",
+      "kind": "modified",
+      "sha256": "bb0dcac6ba01b755ac3b9c2ccbf4f629809e902e04f5b8a48b4b5188cda0e99b"
+    },
+    {
+      "path": "scripts/test-history-scene-graph-synchronization.mjs",
+      "kind": "added",
+      "sha256": "ee767d5bca862863938f88523bcdd74ae04bc728a555ef2ba2c97fc44598f7ab"
+    },
+    {
+      "path": "scripts/test-undo-context-and-mouse-sensitivity-electron.mjs",
+      "kind": "modified",
+      "sha256": "8ea2595f13a55b7ed1e44d02ac270f5de16a7a1a83c96680d4435f955e83251e"
+    },
+    {
+      "path": "src/core/editor/keys.js",
+      "kind": "modified",
+      "sha256": "8193c85fe7ea47aa1bdcc0af8d2cf9523b94911807fbfdf68d3c9f2db4e5f733"
+    },
+    {
+      "path": "src/core/state/history.js",
+      "kind": "modified",
+      "sha256": "4c49cc37d02cffa552fea71429861c0e297cda798c52d68f07ea807a0afae34f"
+    }
+  ],
+  "manifest_self_excluded": true,
+  "deleted": []
+}

@@ -1,0 +1,67 @@
+{
+  "package": "trianghor",
+  "version": "0.0.1",
+  "source_files": [
+    [
+      "src/browser.js",
+      "95b9971c73eda3ab4fff7048838cfac5b76f9124631111d0d97cde4cf897153e"
+    ],
+    [
+      "src/index.js",
+      "e1f71b3f711857942c7a471f9951f05766059e4b74a24c7a96150c1c3a516152"
+    ],
+    [
+      "src/lod.js",
+      "fc39d4614c497d7e15cc10352f719b105d86b6ef7e0b2e8a9b8dc317e477f395"
+    ],
+    [
+      "src/terrain-adaptive.js",
+      "e63941e346fd9a8cc9a0ff30f4a998f94d7b00a1ba6d14a82492836d375f8094"
+    ],
+    [
+      "src/terrain-bake.js",
+      "b317af1fb62b39d4c8b146b06614a436cb35165837a69ec2fe8271e5ca5e9fd2"
+    ],
+    [
+      "src/trianghor/bake.worker.js",
+      "0d740cd95d4c6bdacbc70644fd1cc3b6d0555c5b4afd4576277d8777de5bc117"
+    ],
+    [
+      "src/trianghor/browser-client.js",
+      "cec3d306fa2f77be9243f262af3292643e98f7b6753dfad2a82b25d36512c799"
+    ],
+    [
+      "src/trianghor/core.js",
+      "c989331b453ed5d22879b3080fff771a5960eb4469b0940e64243b26bcd0a6d6"
+    ],
+    [
+      "src/trianghor/incremental-worker-client.js",
+      "dee621326e29d6bb5ed70ffde5df3beaa6935e627c76b2f72d86b769abb2b1da"
+    ],
+    [
+      "src/trianghor/incremental.js",
+      "4e23e878b967a9f5df111d1295995c5d8da80f476801c2a229a40fdfb78368b6"
+    ],
+    [
+      "src/trianghor/job.js",
+      "e07a0196202194bdc8a0139c1caad539eb9482185f28e93ac64231446568bb99"
+    ],
+    [
+      "src/trianghor/spatial.js",
+      "f5ef372618d6b93f00479e3ff8318991c113be76039f267c5f6dda442b1f06a4"
+    ],
+    [
+      "src/trianghor/triangulate.js",
+      "ef425bdd3c589bf58a6a144d7cb3d2bd4630ff1583ccf1e425e3f70130126561"
+    ],
+    [
+      "src/trianghor/validate.js",
+      "bf23e4e3b02f7c8532101d87b50ee361213331ea549ff36a379993facf606e66"
+    ],
+    [
+      "src/worker/node-worker.mjs",
+      "1e5721dc442043a2c853b44dfe5f8694337dc00a060e75c9585d2f1e307fa363"
+    ]
+  ],
+  "source_code_unchanged": true
+}

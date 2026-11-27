@@ -1,0 +1,39 @@
+<!doctype html><html lang="es"><meta charset="utf-8"><title>QA estado del puente VS Code</title>
+<pre id="vscode-bridge-result">Preparando…</pre><script type="module">
+import { createVscode } from '/src/core/state/vscode.js'
+import { store } from '/src/core/state/state.js'
+import { createProjectData } from '/src/core/project.js'
+const output=document.querySelector('#vscode-bridge-result'),checks=[]
+const check=(name,pass)=>{checks.push({name,pass:!!pass});if(!pass)throw Error(name)}
+const wait=async predicate=>{for(let i=0;i<150;i++){if(predicate())return true;await new Promise(r=>setTimeout(r,10))}return false}
+let editor
+try{
+ const encoder=new TextEncoder(),files=new Map([['project.lfproj',encoder.encode('{}')],['jsconfig.json',encoder.encode('config propia')]])
+ const root='/QA/Proyecto con espacios',loc={kind:'path',path:root},listeners=new Set(),calls=[],released=[]
+ let finish
+ window.lf={onVSCodeStatus:fn=>{listeners.add(fn);return()=>listeners.delete(fn)},releaseVSCode:async root=>released.push(root),
+ openVSCode:async(root,file)=>{calls.push({root,file});return await new Promise(r=>{finish=r})},
+ fs:{exists:async(_,p)=>files.has(p),readFile:async(_,p)=>files.get(p)||null,scan:async()=>[...files].filter(([p])=>p.endsWith('.js')).map(([path,data])=>({path,size:data.length,mtime:1})),writeFiles:async(_,writes,remove=[])=>{for(const{path,data}of writes)files.set(path,typeof data==='string'?encoder.encode(data):data);for(const path of remove)files.delete(path)}}}
+ store.project=createProjectData('Puente QA');store.locked=false;store.toasts=[]
+ store.project.scripts=[{id:'sc',name:'Receptor.js',folder:'Assets',execution:'node',code:"node.expose('recibir',()=>{})"}]
+ editor=createVscode({getLoc:()=>loc,serializeProject:()=>({meta:store.project,scene:{}}),collectScenes:async()=>new Map()})
+ await editor.startSync(loc)
+ const first=editor.open('sc'),second=editor.open('sc')
+ check('Dos solicitudes idénticas llegan una vez al puente',await wait(()=>calls.length===1));check('Comparten promesa pendiente',first===second)
+ check('Destino correcto',calls[0].root===root&&calls[0].file==='Assets/Receptor.js')
+ check('Aviso real de conexión visible',store.toasts.some(t=>t.msg==='Conectando con VS Code…'))
+ for(const fn of listeners)fn({root,file:'Assets/Receptor.js',phase:'opening'})
+ check('Estado cambia a apertura',store.toasts.some(t=>t.msg==='Abriendo archivo en VS Code…'))
+ finish({ok:true,transport:'bridge',extension:{status:'active',version:'0.1.4'}})
+ check('ACK confirma ambas llamadas',await first===true&&await second===true)
+ check('No queda aviso de apertura tras ACK',store.toasts.length===0);check('Se retira listener',listeners.size===0)
+ check('jsconfig se conserva',new TextDecoder().decode(files.get('jsconfig.json'))==='config propia')
+ check('Tipos preparados',files.has('.levelforge/api.d.ts')&&files.has('.levelforge/project.d.ts'))
+ const canceled=editor.open();await wait(()=>calls.length===2);finish({ok:false,canceled:true})
+ check('Cancelación devuelve false',await canceled===false);check('Cancelación limpia aviso',store.toasts.length===0)
+ const rejected=editor.open();const handled=rejected.catch(e=>e);await wait(()=>calls.length===3);finish({ok:false,error:'Desconectado durante apertura'})
+ check('Error conserva causa',(await handled).message.includes('Desconectado'));check('Error limpia aviso',store.toasts.length===0)
+ editor.stop();check('Detener libera raíz del proyecto',await wait(()=>released.includes(root)))
+ output.dataset.pass='true';output.textContent=JSON.stringify({pass:true,checks})
+}catch(error){output.dataset.pass='false';output.textContent=JSON.stringify({pass:false,checks,error:error.stack})}finally{editor?.stop()}
+</script></html>

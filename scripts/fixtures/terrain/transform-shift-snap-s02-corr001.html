@@ -1,0 +1,70 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Terrain Shift/Snap CORR-001 · Electron</title></head>
+<body style="margin:0;background:#17212b;color:#ddd">
+<pre id="terrain-shift-snap-s02-corr001-result">Comprobando Terrain...</pre>
+<div id="viewport" style="width:320px;height:240px"></div>
+<script type="module">
+import * as THREE from 'three'
+import { TransformControls } from 'three/examples/jsm/controls/TransformControls.js'
+import { gizmoMethods } from '/src/core/editor/gizmo.js'
+import { store } from '/src/core/store.js'
+const out=document.getElementById('terrain-shift-snap-s02-corr001-result')
+const checks=[]
+const check=(name,pass,detail=null)=>{checks.push({name,pass:!!pass,detail});if(!pass)throw new Error(`${name}: ${JSON.stringify(detail)}`)}
+const eq=(a,b)=>Math.abs(a-b)<1e-6
+const originalProject=store.project
+let renderer,control
+try {
+ store.project={settings:{moveSnapOn:true,rotateSnapOn:true,scaleSnapOn:true,gridSize:1,rotSnap:15,scaleSnap:.25}}
+ renderer=new THREE.WebGLRenderer({antialias:false});renderer.setSize(320,240)
+ document.getElementById('viewport').appendChild(renderer.domElement)
+ const scene=new THREE.Scene();const cam=new THREE.PerspectiveCamera(65,320/240,.1,150)
+ cam.position.set(14,12,25);cam.lookAt(0,0,0)
+ const physical=new THREE.Mesh(new THREE.BoxGeometry(3,.3,3),new THREE.MeshBasicMaterial({color:0x67b379}))
+ scene.add(physical)
+ const proxy=new THREE.Object3D();scene.add(proxy)
+ control=new TransformControls(cam,renderer.domElement)
+ control.attach(proxy);scene.add(control.getHelper());control.setMode('translate')
+ control.dragging=true;control.axis='XYZ'
+ const piece={id:'t1',name:'Terreno',size:16,depth:16,enabled:true,ox:0,oy:0,oz:0,
+   setOffset(x,z,y){this.ox=x;this.oy=y;this.oz=z;physical.position.set(x,y,z)}}
+ const ed=Object.assign({terrain:piece,terrains:[piece],terrainProxy:proxy,tcTer:control,_shiftSnapHeld:false,
+   vp:{requestRender(){renderer.render(scene,cam)}}},gizmoMethods)
+ renderer.render(scene,cam)
+ check('Electron WebGL2 y TransformControls oficial',renderer.capabilities.isWebGL2 && typeof control.pointerMove==='function')
+ ed._beginSnapDrag(control)
+ check('Snap nativo suspendido durante gesto',control.translationSnap===null)
+ proxy.position.set(.68,.64,.42);ed._terrainGizmoMove()
+ check('Snap X/Y/Z en terreno real del viewport',eq(piece.ox,1)&&eq(piece.oy,1)&&eq(piece.oz,0),[piece.ox,piece.oy,piece.oz])
+ ed._setSnapShiftHeld(true)
+ check('Shift no mueve terreno al pulsarlo',eq(piece.ox,1)&&eq(piece.oy,1)&&eq(piece.oz,0))
+ proxy.position.set(.68,.64,.42);ed._terrainGizmoMove()
+ check('Primer movimiento con Shift no salta de celda',eq(piece.ox,1)&&eq(piece.oy,1))
+ proxy.position.set(.92,.88,.65);ed._terrainGizmoMove()
+ check('Shift permite movimiento libre en X/Y/Z',eq(piece.ox,1.24)&&eq(piece.oy,1.24)&&eq(piece.oz,.23),[piece.ox,piece.oy,piece.oz])
+ ed._setSnapShiftHeld(false)
+ check('Soltar Shift no cambia la geometría',eq(piece.ox,1.24)&&eq(piece.oy,1.24)&&eq(piece.oz,.23))
+ proxy.position.set(.92,.88,.65);ed._terrainGizmoMove()
+ check('Primera muestra con Snap restaurado conserva posición',eq(piece.ox,1.24)&&eq(piece.oy,1.24))
+ ed._endSnapDrag(control)
+ check('Snap normal restaurado al terminar',control.translationSnap===1)
+ store.project.settings.moveSnapOn=false
+ control.axis='X';proxy.position.set(0,0,0);ed._beginSnapDrag(control)
+ proxy.position.x=.38;ed._terrainGizmoMove()
+ check('moveSnapOn=false conserva movimiento libre',eq(piece.ox,.38))
+ ed._endSnapDrag(control)
+ const other={id:'t2',enabled:true,ox:16,oz:0,size:16,depth:16}
+ ed.terrains.push(other);piece.setOffset(0,0,0);proxy.position.set(0,0,0)
+ ed._beginSnapDrag(control)
+ proxy.position.x=.46;ed._terrainGizmoMove()
+ check('Imán entre piezas activo sin Shift',eq(piece.ox,0))
+ ed._setSnapShiftHeld(true)
+ proxy.position.x=.66;ed._terrainGizmoMove()
+ check('Shift también suspende el imán sin salto',eq(piece.ox,.2),piece.ox)
+ ed._endSnapDrag(control)
+ check('Preferencias de Snap no alteradas por Shift',store.project.settings.moveSnapOn===false)
+ renderer.render(scene,cam)
+ check('Render sin error GPU',renderer.getContext().getError()===renderer.getContext().NO_ERROR)
+ out.dataset.pass='true';out.textContent=JSON.stringify({pass:true,checks,gl:renderer.getContext().getParameter(renderer.getContext().VERSION)},null,2)
+}catch(error){out.dataset.pass='false';out.textContent=JSON.stringify({pass:false,checks,error:String(error?.stack||error)},null,2)}
+finally{control?.dispose();renderer?.dispose();store.project=originalProject}
+</script></body></html>

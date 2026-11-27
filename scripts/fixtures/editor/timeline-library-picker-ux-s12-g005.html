@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="es"><meta charset="utf-8"><title>QA S12-G005 · Selector de Timelines</title>
+<style>
+html,body{margin:0;min-height:100%;background:#171b20;color:#e2e8ee;font:12px sans-serif}
+#timeline{width:min(880px,100vw);height:510px;overflow:hidden}
+#timeline-library-picker-ux-s12-g005-result{display:none}
+</style>
+<div id="timeline"></div><pre id="timeline-library-picker-ux-s12-g005-result"></pre>
+<script>
+// El diagnóstico se inicia antes de cargar módulos ESM. No modifica el runner compartido.
+(() => {
+  const out = document.getElementById('timeline-library-picker-ux-s12-g005-result')
+  const checks = []
+  const requiredChecks = 40
+  let currentStage = 'bootstrap', finished = false
+  const publish = () => {
+    if (finished) return
+    out.dataset.stage = currentStage
+    out.dataset.checks = String(checks.length)
+    out.textContent = JSON.stringify({pass:null,stage:currentStage,checks},null,2)
+  }
+  const stage = name => { if (!finished) { currentStage = name; publish() } }
+  const check = (name, pass, observed) => {
+    checks.push({name,pass:!!pass,...(observed===undefined?{}:{observed})})
+    stage('Comprobación '+checks.length+': '+name)
+  }
+  const complete = (passed,error) => {
+    if (finished) return
+    finished = true
+    clearTimeout(watchdog)
+    const pass = passed && checks.length === requiredChecks && checks.every(item => item.pass)
+    const reason = error || (passed && checks.length !== requiredChecks ? new Error('Comprobaciones incompletas: '+checks.length+' / '+requiredChecks) : null)
+    let gl = false
+    if (pass) { try { gl = !!document.createElement('canvas').getContext('webgl') } catch { /* GPU opcional para diagnóstico del selector. */ } }
+    out.dataset.pass = String(pass)
+    out.dataset.stage = pass ? 'final:PASS' : 'final:FAIL'
+    out.dataset.checks = String(checks.length)
+    out.textContent = JSON.stringify({pass,stage:currentStage,
+      ...(reason?{error:reason?.stack||reason?.message||String(reason)}:{}),checks,
+      ...(pass?{gl}:{} )},null,2)
+  }
+  const fail = error => complete(false,error)
+  const watchdog = setTimeout(() => fail(new Error('Tiempo máximo de fixture agotado en: '+currentStage)),45000)
+  window.addEventListener('error', event => {
+    if (event.message || event.error || event.target?.tagName === 'SCRIPT')
+      fail(event.error || new Error(event.message || 'No cargó un script: '+event.target?.src))
+  },true)
+  window.addEventListener('unhandledrejection', event => fail(event.reason || new Error('Promesa rechazada sin captura')))
+  window.__lfPickerQa = {stage,check,fail,checks,pass:() => complete(true)}
+  publish()
+})()
+</script>
+<script type="module">
+const {stage,check,fail,pass}=window.__lfPickerQa
+let createApp, h, nextTick, TimelinePanel, createProjectData, store, setEditor, resetHistory, openTimelineEditor
+let newTimeline, FILMMAKER_SOURCE, createTimelinePlayback, timelinePlaybackKey, dialogs
+// nextTick garantiza la actualización Vue; RAF no puede bloquear Electron si la ventana oculta se suspende.
+const tick=async()=>{
+  await nextTick()
+  await new Promise(resolve=>{
+    let settled=false
+    const done=()=>{if(settled)return;settled=true;clearTimeout(timer);resolve()}
+    const timer=setTimeout(done,150)
+    requestAnimationFrame(()=>requestAnimationFrame(done))
+  })
+}
+const popup=()=>document.querySelector('#timeline-library-popup')
+const trigger=()=>document.querySelector('#timeline .timeline-picker')
+const search=()=>popup()?.querySelector('input[aria-label="Buscar Timeline"]')
+const items=()=>[...(popup()?.querySelectorAll('.timeline-item')||[])]
+const click=async element=>{stage('Click: '+(element?.className||element?.tagName||'sin destino'));element?.click();await tick()}
+const open=async()=>{if(!popup())await click(trigger());return popup()}
+const input=async value=>{stage('Búsqueda: '+value);const field=search();if(!field)return;field.value=value;field.dispatchEvent(new Event('input',{bubbles:true}));await tick()}
+const press=async(element,key)=>{stage('Teclado: '+key);element?.dispatchEvent(new KeyboardEvent('keydown',{key,bubbles:true,cancelable:true}));await tick()}
+const boundsOK=(element)=>{if(!element)return false;const r=element.getBoundingClientRect();return r.left>=-1&&r.right<=innerWidth+1&&r.top>=-1&&r.bottom<=innerHeight+1}
+const timeline=(name,id,folder='Assets',duration=12)=>newTimeline(name,{id,folder,duration})
+let app,playback,mounted=false
+try{
+  stage('Importación Vue')
+  ;({createApp,h,nextTick}=await import('vue'))
+  stage('Importación TimelinePanel.vue')
+  ;({default:TimelinePanel}=await import('/src/components/TimelinePanel.vue'))
+  stage('Importación proyecto')
+  ;({createProjectData}=await import('/src/core/project.js'))
+  stage('Importación store')
+  ;({store,setEditor,resetHistory,openTimelineEditor}=await import('/src/core/store.js'))
+  stage('Importación modelo Timeline')
+  ;({newTimeline,FILMMAKER_SOURCE}=await import('/src/core/timeline/model.js'))
+  stage('Importación sesión Preview')
+  ;({createTimelinePlayback,timelinePlaybackKey}=await import('/src/core/timeline/playback-session.js'))
+  stage('Importación diálogos')
+  ;({dialogs}=await import('/src/core/dialogs.js'))
+  stage('Inicialización de proyecto de prueba')
+  const project=createProjectData('QA selector Timeline','empty')
+  project.timelines=[
+    timeline('Entrada','g005-tl-a','Assets/Gameplay',12),
+    timeline('Salida','g005-tl-b','Assets/Cinemáticas',18),
+    timeline('Entrada','g005-tl-c','Assets/Gameplay',24),
+    newTimeline('Película Nether FilmMaker',{id:'g005-film',filmMaker:{provider:FILMMAKER_SOURCE,kind:'pass',filmId:'film-01',sceneId:'scene-01',sourceId:'pass-01'}})
+  ]
+  store.project=project;store.locked=false;store.play.on=false;store.ui.mode='desktop';store.prefs.bottomTab='timeline'
+  setEditor({snapshotTerrain:()=>project.terrain})
+  playback=createTimelinePlayback({getProject:()=>store.project,getEditor:()=>store.editor,getObjects:()=>project.objects,
+    getContext:()=>({project:store.project,sceneId:project.activeSceneId,editor:store.editor,timelineId:store.timelineId,playOn:false,locked:false,cinematic:false}),
+    requestFrame:()=>1,cancelFrame:()=>{}})
+  stage('Montaje de TimelinePanel');app=createApp({render:()=>h(TimelinePanel)});app.provide(timelinePlaybackKey,playback)
+  resetHistory();openTimelineEditor('g005-tl-a');app.mount('#timeline');mounted=true;await tick()
+  const snapshot=JSON.stringify(store.project.timelines)
+  check('Editor de Timeline monta con biblioteca existente',!!trigger()&&store.timelineId==='g005-tl-a')
+  check('Popup inicia cerrado',!popup())
+  await open()
+  check('Selector abre popup en Teleport al body',!!popup()&&popup().parentElement===document.body)
+  check('Relación aria-controls y rol dialog correctos',trigger()?.getAttribute('aria-controls')==='timeline-library-popup'&&popup()?.getAttribute('role')==='dialog')
+  check('Buscar recibe foco automáticamente',document.activeElement===search())
+  check('El popup no tiene altura fija',popup()?.style.height==='auto')
+  check('Tres Timelines nativos; película FilmMaker excluida',items().length===3&&!popup()?.textContent.includes('Película Nether FilmMaker'))
+  check('Nombres, carpetas y duración visibles',items().some(e=>e.textContent.includes('Assets/Gameplay')&&e.textContent.includes('12 s')))
+  check('Timeline activo destaca y tiene aria-pressed',items().filter(e=>e.classList.contains('active')&&e.getAttribute('aria-pressed')==='true').length===1)
+  check('Popup compacto se adapta a 3 resultados',popup()?.getBoundingClientRect().height<300,popup()?.getBoundingClientRect().height)
+  check('Popup completamente dentro de ventana',boundsOK(popup()))
+  check('Los controles existentes siguen fuera del popup',!!document.querySelector('#timeline .create-timeline'))
+  await input('SALIDA')
+  check('La búsqueda ignora mayúsculas',items().length===1&&items()[0].textContent.includes('Salida'))
+  check('Contador indica cantidad filtrada',popup()?.textContent.includes('1 / 3'))
+  await input('nada existe')
+  check('Estado sin resultados, sin crear recurso',items().length===0&&popup()?.textContent.includes('No se encontraron Timelines'))
+  await press(search(),'Enter')
+  check('Enter con lista vacía no cambia selección',store.timelineId==='g005-tl-a')
+  await input('entrada')
+  check('Nombres duplicados conservan dos entradas por ID',items().length===2)
+  await press(search(),'ArrowDown')
+  check('ArrowDown mueve foco desde búsqueda al primer resultado',document.activeElement===items()[0])
+  await press(items()[0],'ArrowDown')
+  check('ArrowDown mueve foco al segundo resultado',document.activeElement===items()[1])
+  await press(items()[1],'ArrowUp')
+  check('ArrowUp regresa al primer resultado',document.activeElement===items()[0])
+  await press(items()[0],'ArrowUp')
+  check('ArrowUp desde el primer resultado devuelve foco a búsqueda',document.activeElement===search())
+  await press(search(),'Escape')
+  check('Escape cierra popup',!popup())
+  check('Escape restaura foco al selector',document.activeElement===trigger())
+  check('Escape no altera selección ni proyecto',store.timelineId==='g005-tl-a'&&JSON.stringify(store.project.timelines)===snapshot)
+  await open();await input('salida');await press(search(),'Enter')
+  check('Enter sobre búsqueda abre el ID filtrado',store.timelineId==='g005-tl-b')
+  check('Enter cierra selector y restablece foco',!popup()&&document.activeElement===trigger())
+  await open();await input('entrada')
+  await click(items()[1])
+  check('Click abre exactamente el ID elegido, incluso con nombres duplicados',store.timelineId==='g005-tl-c')
+  check('Seleccionar no cambia IDs de recursos',JSON.stringify(store.project.timelines)===snapshot)
+  await open();await input('salida')
+  document.body.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true}));await tick()
+  check('Click exterior cierra selector',!popup())
+  await open()
+  check('Reabrir restablece búsqueda y contador',search()?.value===''&&items().length===3)
+  document.querySelector('#timeline').style.width='248px';await tick()
+  window.dispatchEvent(new Event('resize'));await tick()
+  check('Popup no desborda horizontalmente al estrechar dock',boundsOK(popup()))
+  check('Dock estrecho mantiene nombre activo accesible',!!trigger()&&trigger().getAttribute('aria-label')==='Seleccionar Timeline')
+  await press(search(),'Escape')
+  for(let i=0;i<26;i++)store.project.timelines.push(timeline('Toma '+i,'g005-many-'+i,'Assets/Tomas',5+i))
+  await tick();await open()
+  check('Biblioteca extensa contiene todos los recursos nativos',items().length===29)
+  check('Popup extenso respeta alto disponible',boundsOK(popup()))
+  check('Biblioteca extensa activa scroll interno',popup()?.querySelector('.library-list').scrollHeight>popup()?.querySelector('.library-list').clientHeight)
+  const field=search();field?.focus();await press(field,'Escape')
+  const host=document.querySelector('#timeline')
+  host.style.position='fixed';host.style.left='10px';host.style.bottom='8px';host.style.height='170px';host.style.width='400px';await tick()
+  await open()
+  check('Popup cercano al borde inferior cambia a lado superior',popup()?.style.top==='auto')
+  check('Popup superior permanece dentro de ventana',boundsOK(popup()))
+  await press(search(),'Escape');host.style.position='';host.style.left='';host.style.bottom='';host.style.height='510px';host.style.width='880px';await tick()
+  const before=store.project.timelines.length
+  await click(document.querySelector('#timeline .create-timeline'))
+  check('Nuevo Timeline conserva el diálogo canónico',dialogs.list.length>0)
+  dialogs.list.at(-1)?.done(null);await tick()
+  check('Cancelar creación no altera biblioteca',store.project.timelines.length===before)
+  check('La biblioteca no serializa estados de búsqueda',!store.project.timelines.some(t=>t.search||t.libraryOpen))
+  if (window.__lfPickerQa.checks.some(c=>!c.pass)) throw Error('Fallo de comprobaciones: '+window.__lfPickerQa.checks.filter(c=>!c.pass).map(c=>c.name).join(' | '))
+  stage('Finalización: liberar recursos')
+}catch(error){fail(error)}
+finally{
+  try { playback?.dispose();if(mounted)app.unmount() }
+  catch(error) { fail(error) }
+  pass()
+}
+</script></html>
